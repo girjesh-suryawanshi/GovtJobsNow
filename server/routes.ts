@@ -1,8 +1,11 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJobSchema, searchJobsSchema } from "@shared/schema";
+import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema } from "@shared/schema";
 import { scrapeJobs } from "./scraper";
+import { adminStorage } from "./admin-storage";
+import { urlProcessor } from "./url-processor";
+import { requireAdminAuth, createAdminSession, verifyPassword, revokeAdminSession } from "./admin-auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -111,6 +114,244 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ========== ADMIN ROUTES ==========
+
+  // Admin login
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = adminLoginSchema.parse(req.body);
+      
+      const admin = await adminStorage.getAdminByUsername(username);
+      if (!admin) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      const isValidPassword = await verifyPassword(password, admin.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      await adminStorage.updateAdminLastLogin(admin.id);
+      const token = createAdminSession(admin.id);
+      
+      res.json({ 
+        token, 
+        admin: { 
+          id: admin.id, 
+          username: admin.username, 
+          email: admin.email 
+        } 
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Invalid request", error });
+    }
+  });
+
+  // Admin logout
+  app.post("/api/admin/logout", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (token) {
+      revokeAdminSession(token);
+    }
+    res.json({ message: "Logged out successfully" });
+  });
+
+  // Get current admin user
+  app.get("/api/admin/me", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const admin = await adminStorage.getAdminById(adminId);
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+
+      res.json({
+        id: admin.id,
+        username: admin.username,
+        email: admin.email
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch admin data", error });
+    }
+  });
+
+  // Get admin dashboard stats
+  app.get("/api/admin/stats", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const stats = await adminStorage.getAdminDashboardStats(adminId);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch stats", error });
+    }
+  });
+
+  // Process URL for job extraction
+  app.post("/api/admin/process-url", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const { url, templateId, autoPublish } = processUrlSchema.parse(req.body);
+      
+      // Create processing log
+      const processingLog = await adminStorage.createProcessingLog({
+        adminId,
+        url,
+        status: "processing",
+        extractedData: null,
+        validatedData: null,
+        errorMessage: null,
+        processingTimeMs: null,
+        jobId: null
+      });
+
+      // Process URL
+      const result = await urlProcessor.processUrl(url, templateId);
+      
+      if (result.success && result.data) {
+        // Determine if extraction quality is good enough for auto-publish
+        const extractionQuality = calculateExtractionQuality(result.data);
+        const shouldAutoPublish = autoPublish && extractionQuality >= 0.8;
+        
+        let jobId = null;
+        let status = shouldAutoPublish ? "completed" : "review_required";
+        
+        if (shouldAutoPublish) {
+          try {
+            const job = await storage.createJob(result.data as any);
+            jobId = job.id;
+          } catch (error) {
+            status = "review_required";
+            console.error("Auto-publish failed:", error);
+          }
+        }
+
+        // Update processing log
+        await adminStorage.updateProcessingLog(processingLog.id, {
+          status,
+          extractedData: result.data,
+          processingTimeMs: result.processingTimeMs,
+          jobId
+        });
+
+        res.json({
+          success: true,
+          status,
+          extractedJob: result.data,
+          processingTimeMs: result.processingTimeMs,
+          logId: processingLog.id
+        });
+      } else {
+        // Update processing log with error
+        await adminStorage.updateProcessingLog(processingLog.id, {
+          status: "failed",
+          errorMessage: result.error,
+          processingTimeMs: result.processingTimeMs
+        });
+
+        res.status(400).json({
+          success: false,
+          message: result.error,
+          logId: processingLog.id
+        });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid request", error });
+    }
+  });
+
+  // Publish reviewed job
+  app.post("/api/admin/publish-job", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const jobData = insertJobSchema.parse(req.body);
+      const job = await storage.createJob(jobData);
+      
+      res.json({
+        success: true,
+        job
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to publish job", error });
+    }
+  });
+
+  // Get processing history
+  app.get("/api/admin/processing-history", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const logs = await adminStorage.getProcessingLogsByAdmin(adminId);
+      res.json(logs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch history", error });
+    }
+  });
+
+  // Template management routes
+  app.get("/api/admin/templates", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const templates = await adminStorage.getTemplates();
+      res.json(templates);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch templates", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
+}
+
+// Helper function to calculate extraction quality
+function calculateExtractionQuality(data: any): number {
+  const requiredFields = ['title', 'department', 'location', 'qualification', 'deadline'];
+  let score = 0;
+  
+  for (const field of requiredFields) {
+    if (data[field] && typeof data[field] === 'string' && data[field].length > 5) {
+      score += 0.2; // Each required field is worth 20%
+    }
+  }
+  
+  // Bonus points for additional useful fields
+  if (data.salary && data.salary.length > 3) score += 0.05;
+  if (data.description && data.description.length > 50) score += 0.05;
+  if (data.positions && !isNaN(data.positions)) score += 0.05;
+  
+  return Math.min(score, 1.0);
 }
