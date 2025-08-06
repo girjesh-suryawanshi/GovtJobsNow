@@ -14,7 +14,7 @@ export interface Job {
   applicationFee?: string | null;
   description?: string | null;
   selectionProcess?: string | null;
-  createdAt: Date | null;
+  createdAt?: Date | string | null;
 }
 
 export interface SearchJobsParams {

@@ -28,7 +28,7 @@ export default function Home() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
 
-  const { data: jobsData, isLoading } = useQuery({
+  const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", searchParams],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -42,9 +42,17 @@ export default function Home() {
         }
       });
       const response = await apiRequest("GET", `/api/jobs?${params}`);
-      return response.json() as Promise<{ jobs: Job[]; total: number }>;
+      const data = await response.json() as { jobs: Job[]; total: number };
+      console.log("Jobs data received:", data);
+      return data;
     },
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
+
+  // Debug logging
+  console.log("Jobs loading state:", isLoading);
+  console.log("Jobs data:", jobsData);
+  console.log("Jobs error:", error);
 
   const handleSearch = (query: string) => {
     setSearchParams(prev => ({ ...prev, search: query, page: 1 }));
