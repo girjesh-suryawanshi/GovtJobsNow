@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
 import StatsDashboard from "@/components/stats-dashboard";
+import FeatureShowcase from "@/components/feature-showcase";
+import TestimonialsSection from "@/components/testimonials-section";
+import ProfessionalCTA from "@/components/professional-cta";
 import AdvancedSearchTags from "@/components/advanced-search-tags";
 import FiltersSidebar from "@/components/filters-sidebar";
 import JobCard from "@/components/job-card";
@@ -98,6 +101,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <StatsDashboard />
       </div>
+      
+      <FeatureShowcase />
+      
+      <TestimonialsSection />
       
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -320,6 +327,10 @@ export default function Home() {
         onOpenJobTracker={() => setShowJobTracker(true)}
         onOpenExamCalendar={() => setShowExamCalendar(true)}
       />
+
+      <ProfessionalCTA />
+      
+      <Footer />
     </div>
   );
 }
