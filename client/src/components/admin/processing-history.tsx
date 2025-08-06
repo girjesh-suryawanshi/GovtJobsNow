@@ -325,7 +325,7 @@ export default function ProcessingHistory() {
                   <Input
                     id="title"
                     value={reviewData.title || ""}
-                    onChange={(e) => setReviewData(prev => ({...prev, title: e.target.value}))}
+                    onChange={(e) => setReviewData((prev: any) => ({...prev, title: e.target.value}))}
                   />
                 </div>
                 
@@ -334,7 +334,7 @@ export default function ProcessingHistory() {
                   <Input
                     id="department"
                     value={reviewData.department || ""}
-                    onChange={(e) => setReviewData(prev => ({...prev, department: e.target.value}))}
+                    onChange={(e) => setReviewData((prev: any) => ({...prev, department: e.target.value}))}
                   />
                 </div>
                 
@@ -343,7 +343,7 @@ export default function ProcessingHistory() {
                   <Input
                     id="location"
                     value={reviewData.location || ""}
-                    onChange={(e) => setReviewData(prev => ({...prev, location: e.target.value}))}
+                    onChange={(e) => setReviewData((prev: any) => ({...prev, location: e.target.value}))}
                   />
                 </div>
                 
@@ -352,7 +352,7 @@ export default function ProcessingHistory() {
                   <Input
                     id="qualification"
                     value={reviewData.qualification || ""}
-                    onChange={(e) => setReviewData(prev => ({...prev, qualification: e.target.value}))}
+                    onChange={(e) => setReviewData((prev: any) => ({...prev, qualification: e.target.value}))}
                   />
                 </div>
                 
@@ -361,7 +361,7 @@ export default function ProcessingHistory() {
                   <Input
                     id="deadline"
                     value={reviewData.deadline || ""}
-                    onChange={(e) => setReviewData(prev => ({...prev, deadline: e.target.value}))}
+                    onChange={(e) => setReviewData((prev: any) => ({...prev, deadline: e.target.value}))}
                   />
                 </div>
                 
@@ -370,7 +370,7 @@ export default function ProcessingHistory() {
                   <Input
                     id="salary"
                     value={reviewData.salary || ""}
-                    onChange={(e) => setReviewData(prev => ({...prev, salary: e.target.value}))}
+                    onChange={(e) => setReviewData((prev: any) => ({...prev, salary: e.target.value}))}
                   />
                 </div>
               </div>
@@ -380,7 +380,7 @@ export default function ProcessingHistory() {
                 <Textarea
                   id="description"
                   value={reviewData.description || ""}
-                  onChange={(e) => setReviewData(prev => ({...prev, description: e.target.value}))}
+                  onChange={(e) => setReviewData((prev: any) => ({...prev, description: e.target.value}))}
                   rows={4}
                 />
               </div>

@@ -288,15 +288,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const jobData = insertJobSchema.parse(req.body);
-      const job = await storage.createJob(jobData);
+      const { logId, jobData } = req.body;
+      
+      if (!jobData) {
+        return res.status(400).json({ message: "Missing job data" });
+      }
+
+      // Ensure jobData has required fields and proper format
+      const processedJobData = {
+        title: String(jobData.title || "Untitled Position"),
+        department: String(jobData.department || "Government Department"), 
+        location: String(jobData.location || "India"),
+        qualification: String(jobData.qualification || "As per official notification"),
+        deadline: String(jobData.deadline || new Date().toISOString().split('T')[0]),
+        applyLink: String(jobData.applyLink || jobData.applicationUrl || "https://example.gov.in/apply"),
+        postedOn: String(jobData.postedOn || new Date().toISOString().split('T')[0]),
+        sourceUrl: String(jobData.sourceUrl || jobData.url || "https://example.gov.in/notification"),
+        positions: parseInt(jobData.positions) || 1,
+        salary: jobData.salary || null,
+        description: jobData.description || null,
+        ageLimit: jobData.ageLimit || null,
+        applicationFee: jobData.applicationFee || null,
+        selectionProcess: jobData.selectionProcess || null
+      };
+
+      console.log("Processed job data:", JSON.stringify(processedJobData, null, 2));
+      
+      // Validate required fields before insertion
+      const requiredFields = ['title', 'department', 'location', 'qualification', 'deadline', 'applyLink', 'postedOn', 'sourceUrl'];
+      for (const field of requiredFields) {
+        if (!processedJobData[field] || processedJobData[field] === 'null') {
+          console.error(`Required field ${field} is missing or null:`, processedJobData[field]);
+          return res.status(400).json({ message: `Required field ${field} is missing` });
+        }
+      }
+      
+      const job = await storage.createJob(processedJobData);
+      
+      // Update processing log if logId provided
+      if (logId) {
+        try {
+          await adminStorage.updateProcessingLog(logId, {
+            status: "completed",
+            jobId: job.id
+          });
+        } catch (logError) {
+          console.error("Failed to update processing log:", logError);
+          // Don't fail the request if log update fails
+        }
+      }
       
       res.json({
         success: true,
         job
       });
     } catch (error) {
-      res.status(400).json({ message: "Failed to publish job", error });
+      console.error("Publish job error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      res.status(400).json({ message: "Failed to publish job", error: errorMessage });
     }
   });
 
