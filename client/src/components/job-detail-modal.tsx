@@ -37,7 +37,8 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
   };
 
   const handleApplyNow = () => {
-    window.open(job.applyLink, '_blank');
+    // Always redirect to the source website where users can find the real application link
+    window.open(job.sourceUrl, '_blank');
   };
 
   return (
@@ -157,8 +158,11 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                     onClick={handleApplyNow}
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
-                    Apply Now
+                    Apply on Official Website
                   </Button>
+                  <p className="text-xs text-gray-500 text-center mt-2">
+                    Redirects to {new URL(job.sourceUrl).hostname}
+                  </p>
                   
                   <div className="flex space-x-2 mt-3">
                     <Button
