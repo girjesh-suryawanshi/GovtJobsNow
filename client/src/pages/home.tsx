@@ -4,8 +4,6 @@ import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
 import StatsDashboard from "@/components/stats-dashboard";
 import FeatureShowcase from "@/components/feature-showcase";
-import TestimonialsSection from "@/components/testimonials-section";
-import ProfessionalCTA from "@/components/professional-cta";
 import AdvancedSearchTags from "@/components/advanced-search-tags";
 import FiltersSidebar from "@/components/filters-sidebar";
 import JobCard from "@/components/job-card";
@@ -323,10 +321,6 @@ export default function Home() {
       />
 
       <FeatureShowcase />
-      
-      <TestimonialsSection />
-
-      <ProfessionalCTA />
       
       <Footer />
     </div>
