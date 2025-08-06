@@ -31,6 +31,7 @@ export default function Home() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [compareJobs, setCompareJobs] = useState<Job[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
 
   const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", searchParams],
@@ -63,7 +64,11 @@ export default function Home() {
 
   const handleCompareJob = (job: Job) => {
     if (compareJobs.find(j => j.id === job.id)) {
-      setCompareJobs(compareJobs.filter(j => j.id !== job.id));
+      const newCompareJobs = compareJobs.filter(j => j.id !== job.id);
+      setCompareJobs(newCompareJobs);
+      if (newCompareJobs.length === 0) {
+        setShowComparison(false);
+      }
     } else if (compareJobs.length < 3) {
       setCompareJobs([...compareJobs, job]);
     }
@@ -110,7 +115,7 @@ export default function Home() {
                     <div className="mt-2">
                       <Button 
                         variant="default" 
-                        onClick={() => {}} // This will be handled by showing the comparison modal
+                        onClick={() => setShowComparison(true)}
                         className="mr-2"
                       >
                         View Comparison ({compareJobs.length}/3)
@@ -247,11 +252,20 @@ export default function Home() {
         />
       )}
       
-      {compareJobs.length > 0 && (
+      {showComparison && compareJobs.length > 0 && (
         <JobComparison
           jobs={compareJobs}
-          onRemove={(jobId) => setCompareJobs(compareJobs.filter(j => j.id !== jobId))}
-          onClose={() => setCompareJobs([])}
+          onRemove={(jobId) => {
+            const newCompareJobs = compareJobs.filter(j => j.id !== jobId);
+            setCompareJobs(newCompareJobs);
+            if (newCompareJobs.length === 0) {
+              setShowComparison(false);
+            }
+          }}
+          onClose={() => {
+            setShowComparison(false);
+            setCompareJobs([]);
+          }}
         />
       )}
     </div>
