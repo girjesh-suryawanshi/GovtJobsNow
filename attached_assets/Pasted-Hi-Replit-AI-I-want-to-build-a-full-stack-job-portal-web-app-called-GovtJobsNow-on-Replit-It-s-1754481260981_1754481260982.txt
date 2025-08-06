@@ -1,0 +1,52 @@
+Hi Replit AI! I want to build a full-stack job portal web app called **GovtJobsNow** on Replit. It should automatically scrape Indian government job listings from multiple websites and blogs (simulate with dummy HTML for now), store them, and show them via a clean UI.
+
+📁 Please set up this folder structure:
+govtjobsnow/
+├── backend/              → Flask backend
+│   ├── app.py            → Main entry file
+│   ├── routes/           → REST API route handlers
+│   ├── scraper/          → Python job scraper module using BeautifulSoup
+│   └── db/               → Database (Replit DB or JSON for MVP)
+├── frontend/             → React frontend
+│   └── tailwind/         → Tailwind CSS setup
+├── public/               → Static assets (logos/icons)
+├── .replit               → Replit run config
+├── replit.nix            → Dependencies
+
+🛠 Tech Stack:
+- Frontend: React + Tailwind CSS
+- Backend: Python Flask
+- Scraping: Python + BeautifulSoup
+- Database: Replit DB or fallback to JSON
+- Hosting: Replit native
+- Optional: Console logging for email notifications (SendGrid can be added later)
+
+📦 Features:
+1. **Scraper**:
+   - Scrapes mock job listings with: job_title, department, location, qualification, deadline, apply_link, posted_on, source_url.
+   - Stores in JSON or Replit DB.
+   - Daily or manual scraping via API or button.
+
+2. **Backend (Flask)**:
+   - GET /jobs → returns all jobs
+   - GET /jobs?search=xyz → filters jobs
+   - POST /jobs → manually add a job (admin only)
+   - GET /jobs/:id → single job detail
+   - CORS enabled for frontend access
+
+3. **Frontend (React + Tailwind)**:
+   - Clean job listing UI (card view)
+   - Search bar + filters (by location, department, date)
+   - Clickable job detail page with "Apply Now" link
+   - Save to localStorage, share button
+   - Footer with about/contact info
+
+🚀 MVP Development Steps:
+- Set up folder structure + dependencies
+- Build scraper module
+- Develop backend API
+- Design frontend UI with React + Tailwind
+- Integrate frontend ↔ backend ↔ scraper
+- Deploy and test
+
+Please scaffold this full-stack project and generate working starter code for each part. Let each component be modular and scalable. Include instructions as comments where needed.
