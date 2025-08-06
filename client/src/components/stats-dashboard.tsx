@@ -74,27 +74,22 @@ export default function StatsDashboard() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">
-                {stat.title}
-              </CardTitle>
-              <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                <Icon className={`h-4 w-4 ${stat.color}`} />
+          <Card key={index} className="hover:shadow-md transition-shadow duration-200 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className={`p-1.5 rounded-lg ${stat.bgColor}`}>
+                <Icon className={`h-3 w-3 ${stat.color}`} />
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${stat.color} mb-1`}>
+              <div className={`text-lg font-bold ${stat.color}`}>
                 {stat.value}
               </div>
-              <p className="text-xs text-gray-500">
-                {stat.subtext}
-              </p>
-            </CardContent>
+            </div>
+            <div className="text-xs font-medium text-gray-600">
+              {stat.title}
+            </div>
           </Card>
         );
       })}

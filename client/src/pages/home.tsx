@@ -98,15 +98,11 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <HeroSection onSearch={handleSearch} onLocationChange={(location) => handleFilterChange({ location })} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <StatsDashboard />
       </div>
       
-      <FeatureShowcase />
-      
-      <TestimonialsSection />
-      
-      <section className="py-8">
+      <section className="py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-8">
             <FiltersSidebar 
@@ -327,6 +323,10 @@ export default function Home() {
         onOpenJobTracker={() => setShowJobTracker(true)}
         onOpenExamCalendar={() => setShowExamCalendar(true)}
       />
+
+      <FeatureShowcase />
+      
+      <TestimonialsSection />
 
       <ProfessionalCTA />
       
