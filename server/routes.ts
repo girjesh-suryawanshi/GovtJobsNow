@@ -288,9 +288,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
+      console.log("Publish job request body:", JSON.stringify(req.body, null, 2));
       const { logId, jobData } = req.body;
       
       if (!jobData) {
+        console.error("Missing jobData in request body:", req.body);
         return res.status(400).json({ message: "Missing job data" });
       }
 

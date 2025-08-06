@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import { 
   Table, 
   TableBody, 
@@ -117,6 +118,7 @@ export default function ProcessingHistory() {
 
   const handleReviewJob = (log: ProcessingLog) => {
     if (log.extractedData) {
+      console.log("Starting review for log:", log.id, "with data:", log.extractedData);
       setReviewData(log.extractedData);
       setSelectedLog(log);
       setIsReviewing(true);
@@ -130,35 +132,57 @@ export default function ProcessingHistory() {
   };
 
   const handlePublishJob = async () => {
-    if (!reviewData || !selectedLog) return;
+    if (!reviewData || !selectedLog) {
+      console.error("Missing reviewData or selectedLog:", { reviewData, selectedLog });
+      return;
+    }
     
     try {
       const token = localStorage.getItem("admin_token");
+      const payload = {
+        logId: selectedLog.id,
+        jobData: reviewData
+      };
+      
+      console.log("Publishing job with payload:", payload);
+      
       const response = await fetch("/api/admin/publish-job", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          logId: selectedLog.id,
-          jobData: reviewData
-        })
+        body: JSON.stringify(payload)
       });
+
+      const result = await response.json();
+      console.log("Publish response:", result);
 
       if (response.ok) {
         toast({
           title: "Job Published",
           description: "The job has been successfully published!"
         });
+        
+        // Reset states
         setIsReviewing(false);
         setSelectedLog(null);
         setReviewData(null);
-        fetchProcessingHistory(); // Refresh the list
+        
+        // Refresh the list
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/processing-history"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/jobs"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
       } else {
-        throw new Error("Failed to publish job");
+        console.error("Publish failed:", result);
+        toast({
+          title: "Publication Failed",
+          description: result.message || "Failed to publish the job. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
+      console.error("Publish error:", error);
       toast({
         title: "Publication Failed",
         description: "Failed to publish the job. Please try again.",
