@@ -2,10 +2,12 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
-import StatsSection from "@/components/stats-section";
+import StatsDashboard from "@/components/stats-dashboard";
+import AdvancedSearchTags from "@/components/advanced-search-tags";
 import FiltersSidebar from "@/components/filters-sidebar";
 import JobCard from "@/components/job-card";
 import JobDetailModal from "@/components/job-detail-modal";
+import JobComparison from "@/components/job-comparison";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +30,7 @@ export default function Home() {
   
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [compareJobs, setCompareJobs] = useState<Job[]>([]);
 
   const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", searchParams],
@@ -53,6 +56,19 @@ export default function Home() {
     setSearchParams(prev => ({ ...prev, search: query, page: 1 }));
   };
 
+  const handleAdvancedSearch = (searchTerms: string[]) => {
+    const combinedSearch = searchTerms.join(' OR ');
+    setSearchParams(prev => ({ ...prev, search: combinedSearch, page: 1 }));
+  };
+
+  const handleCompareJob = (job: Job) => {
+    if (compareJobs.find(j => j.id === job.id)) {
+      setCompareJobs(compareJobs.filter(j => j.id !== job.id));
+    } else if (compareJobs.length < 3) {
+      setCompareJobs([...compareJobs, job]);
+    }
+  };
+
   const handleFilterChange = (filters: Partial<SearchJobsParams>) => {
     setSearchParams(prev => ({ ...prev, ...filters, page: 1 }));
   };
@@ -67,7 +83,9 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <HeroSection onSearch={handleSearch} onLocationChange={(location) => handleFilterChange({ location })} />
-      <StatsSection />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <StatsDashboard />
+      </div>
       
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,12 +96,27 @@ export default function Home() {
             />
             
             <main className="lg:w-3/4">
+              <AdvancedSearchTags 
+                onAdvancedSearch={handleAdvancedSearch}
+                currentSearch={searchParams.search || ""}
+              />
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-semibold text-gray-900">Latest Government Jobs</h2>
                   <p className="text-gray-600">
                     Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
                   </p>
+                  {compareJobs.length > 0 && (
+                    <div className="mt-2">
+                      <Button 
+                        variant="default" 
+                        onClick={() => {}} // This will be handled by showing the comparison modal
+                        className="mr-2"
+                      >
+                        View Comparison ({compareJobs.length}/3)
+                      </Button>
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center space-x-4">
                   <Select 
@@ -139,6 +172,8 @@ export default function Home() {
                         key={job.id}
                         job={job}
                         onClick={() => setSelectedJob(job)}
+                        onCompare={() => handleCompareJob(job)}
+                        isComparing={compareJobs.some(j => j.id === job.id)}
                       />
                     ))}
                   </div>
@@ -209,6 +244,14 @@ export default function Home() {
           job={selectedJob}
           isOpen={!!selectedJob}
           onClose={() => setSelectedJob(null)}
+        />
+      )}
+      
+      {compareJobs.length > 0 && (
+        <JobComparison
+          jobs={compareJobs}
+          onRemove={(jobId) => setCompareJobs(compareJobs.filter(j => j.id !== jobId))}
+          onClose={() => setCompareJobs([])}
         />
       )}
     </div>

@@ -3,14 +3,17 @@ import { MapPin, Users, Calendar, Globe, Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import OrganizationLogo from "@/components/organization-logo";
 import type { Job } from "@/types/job";
 
 interface JobCardProps {
   job: Job;
   onClick: () => void;
+  onCompare?: () => void;
+  isComparing?: boolean;
 }
 
-export default function JobCard({ job, onClick }: JobCardProps) {
+export default function JobCard({ job, onClick, onCompare, isComparing = false }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSaveJob = (e: React.MouseEvent) => {
@@ -65,21 +68,26 @@ export default function JobCard({ job, onClick }: JobCardProps) {
     >
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
-              {job.title}
-            </h3>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100">
-                {job.department}
-              </Badge>
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {job.location}
-              </Badge>
-              <Badge className="bg-green-50 text-green-700 hover:bg-green-100">
-                {job.qualification}
-              </Badge>
+          <div className="flex gap-3 flex-1">
+            <div className="flex-shrink-0 mt-1">
+              <OrganizationLogo department={job.department} className="h-10 w-10" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+                {job.title}
+              </h3>
+              <div className="flex flex-wrap gap-2 mb-3">
+                <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100">
+                  {job.department}
+                </Badge>
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {job.location}
+                </Badge>
+                <Badge className="bg-green-50 text-green-700 hover:bg-green-100">
+                  {job.qualification}
+                </Badge>
+              </div>
             </div>
           </div>
           <div className="text-right ml-4">
@@ -124,6 +132,19 @@ export default function JobCard({ job, onClick }: JobCardProps) {
             >
               <Share2 className="h-4 w-4" />
             </Button>
+            {onCompare && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCompare();
+                }}
+                className={`text-xs ${isComparing ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-blue-600'}`}
+              >
+                {isComparing ? '✓ Compare' : 'Compare'}
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
