@@ -32,6 +32,7 @@ export const searchJobsSchema = z.object({
   department: z.string().optional(),
   location: z.string().optional(),
   qualification: z.string().optional(),
+  salaryRange: z.string().optional(),
   postedDate: z.enum(["today", "week", "month"]).optional(),
   sortBy: z.enum(["latest", "deadline", "title", "department"]).optional(),
   page: z.number().min(1).optional(),

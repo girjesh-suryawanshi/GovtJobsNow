@@ -38,7 +38,24 @@ export default function JobCard({ job, onClick }: JobCardProps) {
     const today = new Date();
     const diffTime = deadlineDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? `${diffDays} days left` : 'Expired';
+    return diffDays > 0 ? diffDays : 0;
+  };
+
+  const getUrgencyColor = (deadline: string) => {
+    const daysLeft = getDaysLeft(deadline);
+    if (daysLeft <= 0) return 'text-gray-500 bg-gray-100'; // Expired
+    if (daysLeft <= 3) return 'text-red-700 bg-red-100'; // Critical - 3 days or less
+    if (daysLeft <= 7) return 'text-orange-700 bg-orange-100'; // Urgent - 7 days or less
+    if (daysLeft <= 15) return 'text-yellow-700 bg-yellow-100'; // Soon - 15 days or less
+    return 'text-green-700 bg-green-100'; // Normal - More than 15 days
+  };
+
+  const getUrgencyText = (deadline: string) => {
+    const daysLeft = getDaysLeft(deadline);
+    if (daysLeft <= 0) return 'Expired';
+    if (daysLeft <= 3) return `${daysLeft} days left - Apply NOW!`;
+    if (daysLeft <= 7) return `${daysLeft} days left - Urgent`;
+    return `${daysLeft} days left`;
   };
 
   return (
@@ -66,8 +83,11 @@ export default function JobCard({ job, onClick }: JobCardProps) {
             </div>
           </div>
           <div className="text-right ml-4">
-            <div className="text-sm text-gray-500 mb-1">Posted: {job.postedOn}</div>
-            <div className="text-sm font-medium text-red-600">Deadline: {job.deadline}</div>
+            <div className="text-sm text-gray-500 mb-2">Posted: {job.postedOn}</div>
+            <div className="text-sm font-medium text-gray-700 mb-1">Deadline: {job.deadline}</div>
+            <div className={`text-xs font-bold px-2 py-1 rounded-full ${getUrgencyColor(job.deadline)}`}>
+              {getUrgencyText(job.deadline)}
+            </div>
           </div>
         </div>
         
@@ -75,7 +95,7 @@ export default function JobCard({ job, onClick }: JobCardProps) {
           <div className="flex items-center space-x-4 text-sm text-gray-600">
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
-              {getDaysLeft(job.deadline)}
+              {getUrgencyText(job.deadline)}
             </span>
             <span className="flex items-center gap-1">
               <Users className="h-4 w-4" />

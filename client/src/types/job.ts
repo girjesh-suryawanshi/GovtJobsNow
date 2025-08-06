@@ -22,6 +22,7 @@ export interface SearchJobsParams {
   department?: string;
   location?: string;
   qualification?: string;
+  salaryRange?: string;
   postedDate?: "today" | "week" | "month";
   sortBy?: "latest" | "deadline" | "title" | "department";
   page?: number;

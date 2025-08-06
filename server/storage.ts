@@ -1,6 +1,7 @@
 import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, jobs, users } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -357,6 +358,34 @@ export class DatabaseStorage implements IStorage {
       conditions.push(like(jobs.qualification, `%${params.qualification}%`));
     }
 
+    // Apply salary range filter (skip "all-salaries")
+    if (params.salaryRange && !params.salaryRange.startsWith('all-')) {
+      let salaryCondition;
+      switch (params.salaryRange) {
+        case 'below-20k':
+          salaryCondition = sql`${jobs.salary} ~ '₹[0-9]{1,2},?[0-9]{0,3}'`;
+          break;
+        case '20k-30k':
+          salaryCondition = sql`${jobs.salary} ~ '₹[2-3][0-9],?[0-9]{3}'`;
+          break;
+        case '30k-50k':
+          salaryCondition = sql`${jobs.salary} ~ '₹[3-5][0-9],?[0-9]{3}'`;
+          break;
+        case '50k-75k':
+          salaryCondition = sql`${jobs.salary} ~ '₹[5-7][0-9],?[0-9]{3}'`;
+          break;
+        case '75k-100k':
+          salaryCondition = sql`${jobs.salary} ~ '₹[7-9][0-9],?[0-9]{3}|₹1,?[0-9]{2},?[0-9]{3}'`;
+          break;
+        case 'above-100k':
+          salaryCondition = sql`${jobs.salary} ~ '₹[1-9][0-9]{2},?[0-9]{3}|₹[1-9],?[0-9]{2},?[0-9]{3}'`;
+          break;
+      }
+      if (salaryCondition) {
+        conditions.push(salaryCondition);
+      }
+    }
+
     // Apply date filter
     if (params.postedDate) {
       const now = new Date();
@@ -445,7 +474,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteJob(id: string): Promise<boolean> {
     const result = await db.delete(jobs).where(eq(jobs.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getJobStats(): Promise<{

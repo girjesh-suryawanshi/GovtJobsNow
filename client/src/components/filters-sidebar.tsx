@@ -17,6 +17,7 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
       department: "all-departments",
       location: "all-locations",
       qualification: "all-qualifications",
+      salaryRange: "all-salaries",
       postedDate: undefined,
     });
   };
@@ -152,6 +153,25 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
               <SelectItem value="postgraduate">Post Graduate</SelectItem>
               <SelectItem value="diploma">Diploma</SelectItem>
               <SelectItem value="engineering">B.E./B.Tech</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Salary Range Filter */}
+        <div className="mb-6">
+          <Label className="text-sm font-medium text-gray-700 mb-2 block">Salary Range</Label>
+          <Select value={filters.salaryRange || "all-salaries"} onValueChange={(value) => onFilterChange({ salaryRange: value })}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="All Salary Ranges" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-salaries">All Salary Ranges</SelectItem>
+              <SelectItem value="below-20k">Below ₹20,000</SelectItem>
+              <SelectItem value="20k-30k">₹20,000 - ₹30,000</SelectItem>
+              <SelectItem value="30k-50k">₹30,000 - ₹50,000</SelectItem>
+              <SelectItem value="50k-75k">₹50,000 - ₹75,000</SelectItem>
+              <SelectItem value="75k-100k">₹75,000 - ₹1,00,000</SelectItem>
+              <SelectItem value="above-100k">Above ₹1,00,000</SelectItem>
             </SelectContent>
           </Select>
         </div>

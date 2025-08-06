@@ -19,6 +19,7 @@ export default function Home() {
     department: "all-departments",
     location: "all-locations",
     qualification: "all-qualifications",
+    salaryRange: "all-salaries",
     postedDate: undefined,
     sortBy: "latest",
     page: 1,
