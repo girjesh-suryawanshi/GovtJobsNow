@@ -275,8 +275,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
-
       {selectedJob && (
         <JobDetailModal
           job={selectedJob}
