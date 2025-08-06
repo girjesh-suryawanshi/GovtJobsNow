@@ -61,97 +61,139 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
     return `${daysLeft} days left`;
   };
 
+  const daysLeft = getDaysLeft(job.deadline);
+  const isExpired = daysLeft <= 0;
+
   return (
     <Card 
-      className="hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      className={`hover:shadow-lg transition-all duration-300 cursor-pointer border-l-4 ${
+        isExpired ? 'border-l-gray-400 opacity-75' : 
+        daysLeft <= 3 ? 'border-l-red-500' :
+        daysLeft <= 7 ? 'border-l-orange-500' :
+        daysLeft <= 15 ? 'border-l-yellow-500' : 'border-l-green-500'
+      } ${isExpired ? 'hover:shadow-md' : 'hover:shadow-lg hover:-translate-y-1'}`}
       onClick={onClick}
     >
-      <CardContent className="p-6">
-        <div className="flex justify-between items-start mb-4">
+      <CardContent className="p-5">
+        {/* Header Section */}
+        <div className="flex items-start justify-between mb-4">
           <div className="flex gap-3 flex-1">
-            <div className="flex-shrink-0 mt-1">
-              <OrganizationLogo department={job.department} className="h-10 w-10" />
+            <div className="flex-shrink-0">
+              <OrganizationLogo department={job.department} className="h-12 w-12 rounded-lg shadow-sm" />
             </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">
                 {job.title}
               </h3>
-              <div className="flex flex-wrap gap-2 mb-3">
-                <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100">
-                  {job.department}
-                </Badge>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
+              <p className="text-blue-600 font-medium text-sm mb-2">
+                {job.department}
+              </p>
+              
+              {/* Key Info Tags */}
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
+                  <MapPin className="h-3 w-3 mr-1" />
                   {job.location}
                 </Badge>
-                <Badge className="bg-green-50 text-green-700 hover:bg-green-100">
+                <Badge variant="secondary" className="text-xs bg-purple-50 text-purple-700">
                   {job.qualification}
                 </Badge>
+                {job.positions && (
+                  <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700">
+                    <Users className="h-3 w-3 mr-1" />
+                    {job.positions} positions
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
-          <div className="text-right ml-4">
-            <div className="text-sm text-gray-500 mb-2">Posted: {job.postedOn}</div>
-            <div className="text-sm font-medium text-gray-700 mb-1">Deadline: {job.deadline}</div>
-            <div className={`text-xs font-bold px-2 py-1 rounded-full ${getUrgencyColor(job.deadline)}`}>
+          
+          {/* Deadline & Urgency */}
+          <div className="flex flex-col items-end ml-3">
+            <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getUrgencyColor(job.deadline)} mb-2`}>
               {getUrgencyText(job.deadline)}
+            </div>
+            <div className="text-xs text-gray-500 text-right">
+              <div>Posted: {job.postedOn}</div>
+              <div>Deadline: {job.deadline}</div>
             </div>
           </div>
         </div>
-        
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4 text-sm text-gray-600">
-            {job.salary && (
-              <span className="flex items-center gap-1 font-medium text-green-700">
-                <IndianRupee className="h-4 w-4" />
-                {job.salary}
-              </span>
-            )}
-            <span className="flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              {getUrgencyText(job.deadline)}
-            </span>
-            <span className="flex items-center gap-1">
-              <Users className="h-4 w-4" />
-              {job.positions} positions
-            </span>
-            <span className="flex items-center gap-1">
-              <Globe className="h-4 w-4" />
-              {new URL(job.sourceUrl).hostname}
-            </span>
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSaveJob}
-              className={`${isSaved ? 'text-orange-500' : 'text-gray-400'} hover:text-gray-600`}
-            >
-              <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleShareJob}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <Share2 className="h-4 w-4" />
-            </Button>
-            {onCompare && (
+
+        {/* Salary & Details Section */}
+        <div className="bg-gray-50 rounded-lg p-3 mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              {job.salary && (
+                <div className="flex items-center gap-1 text-green-700 font-semibold">
+                  <IndianRupee className="h-4 w-4" />
+                  <span>{job.salary}</span>
+                </div>
+              )}
+              <div className="text-sm text-gray-600">
+                <Globe className="h-3 w-3 inline mr-1" />
+                {new URL(job.sourceUrl).hostname}
+              </div>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onCompare();
-                }}
-                className={`text-xs ${isComparing ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:text-blue-600'}`}
+                onClick={handleSaveJob}
+                className={`h-8 w-8 p-0 ${isSaved ? 'text-orange-500' : 'text-gray-400'} hover:text-orange-600`}
               >
-                {isComparing ? '✓ Compare' : 'Compare'}
+                <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
               </Button>
-            )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleShareJob}
+                className="h-8 w-8 p-0 text-gray-400 hover:text-blue-600"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+              {onCompare && (
+                <Button
+                  variant={isComparing ? "default" : "outline"}
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCompare();
+                  }}
+                  className={`text-xs px-3 h-8 ${
+                    isComparing 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'border-blue-200 text-blue-600 hover:bg-blue-50'
+                  }`}
+                >
+                  {isComparing ? '✓ Selected' : 'Compare'}
+                </Button>
+              )}
+            </div>
           </div>
+        </div>
+
+        {/* Call to Action */}
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            <Calendar className="h-3 w-3 inline mr-1" />
+            {isExpired ? 'Application closed' : `${daysLeft} days to apply`}
+          </div>
+          
+          <Button
+            size="sm"
+            className={`text-xs px-4 ${
+              isExpired 
+                ? 'bg-gray-400 text-white cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+            onClick={isExpired ? undefined : onClick}
+            disabled={isExpired}
+          >
+            {isExpired ? 'Expired' : 'View Details'}
+          </Button>
         </div>
       </CardContent>
     </Card>
