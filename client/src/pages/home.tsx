@@ -8,10 +8,14 @@ import FiltersSidebar from "@/components/filters-sidebar";
 import JobCard from "@/components/job-card";
 import JobDetailModal from "@/components/job-detail-modal";
 import JobComparison from "@/components/job-comparison";
+import JobAlerts from "@/components/job-alerts";
+import JobTracker from "@/components/job-tracker";
+import ExamCalendar from "@/components/exam-calendar";
+import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Grid3X3, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
 
@@ -32,6 +36,9 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [compareJobs, setCompareJobs] = useState<Job[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [showJobAlerts, setShowJobAlerts] = useState(false);
+  const [showJobTracker, setShowJobTracker] = useState(false);
+  const [showExamCalendar, setShowExamCalendar] = useState(false);
 
   const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", searchParams],
@@ -111,17 +118,40 @@ export default function Home() {
                   <p className="text-gray-600">
                     Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
                   </p>
-                  {compareJobs.length > 0 && (
-                    <div className="mt-2">
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {compareJobs.length > 0 && (
                       <Button 
                         variant="default" 
                         onClick={() => setShowComparison(true)}
-                        className="mr-2"
                       >
                         View Comparison ({compareJobs.length}/3)
                       </Button>
-                    </div>
-                  )}
+                    )}
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowJobAlerts(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Bell className="h-4 w-4" />
+                      Job Alerts
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowJobTracker(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Target className="h-4 w-4" />
+                      Track Applications
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={() => setShowExamCalendar(true)}
+                      className="flex items-center gap-2"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Exam Calendar
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <Select 
@@ -268,6 +298,28 @@ export default function Home() {
           }}
         />
       )}
+      
+      <JobAlerts
+        isOpen={showJobAlerts}
+        onClose={() => setShowJobAlerts(false)}
+      />
+      
+      <JobTracker
+        isOpen={showJobTracker}
+        onClose={() => setShowJobTracker(false)}
+        jobToAdd={selectedJob || undefined}
+      />
+      
+      <ExamCalendar
+        isOpen={showExamCalendar}
+        onClose={() => setShowExamCalendar(false)}
+      />
+      
+      <FloatingActionMenu
+        onOpenJobAlerts={() => setShowJobAlerts(true)}
+        onOpenJobTracker={() => setShowJobTracker(true)}
+        onOpenExamCalendar={() => setShowExamCalendar(true)}
+      />
     </div>
   );
 }
