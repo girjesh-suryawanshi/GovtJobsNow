@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Users, MapPin, Calendar, DollarSign, GraduationCap, Building2 } from "lucide-react";
+import { X, Users, MapPin, Calendar, IndianRupee, GraduationCap, Building2 } from "lucide-react";
 import type { Job } from "@/types/job";
 
 interface JobComparisonProps {
@@ -103,7 +103,7 @@ export default function JobComparison({ jobs, onRemove, onClose }: JobComparison
                     {/* Salary Comparison */}
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="h-4 w-4 text-green-600" />
+                        <IndianRupee className="h-4 w-4 text-green-600" />
                         <span className="text-sm font-medium">Salary</span>
                         <div className="flex ml-auto">
                           {[...Array(5)].map((_, i) => (

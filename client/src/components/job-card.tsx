@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Users, Calendar, Globe, Bookmark, Share2 } from "lucide-react";
+import { MapPin, Users, Calendar, Globe, Bookmark, Share2, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -101,6 +101,12 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
         
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 text-sm text-gray-600">
+            {job.salary && (
+              <span className="flex items-center gap-1 font-medium text-green-700">
+                <IndianRupee className="h-4 w-4" />
+                {job.salary}
+              </span>
+            )}
             <span className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />
               {getUrgencyText(job.deadline)}
