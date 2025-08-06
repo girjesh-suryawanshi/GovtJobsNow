@@ -7,6 +7,7 @@ GovtJobsNow is a full-stack job portal web application designed to aggregate and
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Filter order preference: Location filter should appear first in sidebar, followed by department and other filters.
 
 ## System Architecture
 

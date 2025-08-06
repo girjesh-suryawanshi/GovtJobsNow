@@ -37,51 +37,7 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
           </Button>
         </div>
         
-        {/* Department Filter */}
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Department</Label>
-          <Select value={filters.department || "all-departments"} onValueChange={(value) => onFilterChange({ department: value })}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="All Departments" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all-departments">All Departments</SelectItem>
-              
-              {/* Government Departments */}
-              <SelectItem value="Staff Selection Commission">Staff Selection Commission (SSC)</SelectItem>
-              <SelectItem value="Union Public Service Commission">Union Public Service Commission (UPSC)</SelectItem>
-              <SelectItem value="Railway Recruitment Board">Railway Recruitment Board</SelectItem>
-              <SelectItem value="Indian Army">Indian Army</SelectItem>
-              <SelectItem value="Indian Navy">Indian Navy</SelectItem>
-              <SelectItem value="Indian Air Force">Indian Air Force</SelectItem>
-              <SelectItem value="ISRO">ISRO</SelectItem>
-              <SelectItem value="DRDO">DRDO</SelectItem>
-              <SelectItem value="National Informatics Centre">National Informatics Centre</SelectItem>
-              
-              {/* Banking */}
-              <SelectItem value="State Bank of India">State Bank of India (SBI)</SelectItem>
-              <SelectItem value="Punjab National Bank">Punjab National Bank (PNB)</SelectItem>
-              <SelectItem value="Canara Bank">Canara Bank</SelectItem>
-              <SelectItem value="Union Bank">Union Bank of India</SelectItem>
-              <SelectItem value="Reserve Bank of India">Reserve Bank of India (RBI)</SelectItem>
-              <SelectItem value="Institute of Banking Personnel Selection">IBPS</SelectItem>
-              
-              {/* State Governments */}
-              <SelectItem value="Delhi Government">Delhi Government</SelectItem>
-              <SelectItem value="Maharashtra Government">Maharashtra Government</SelectItem>
-              <SelectItem value="Tamil Nadu Government">Tamil Nadu Government</SelectItem>
-              <SelectItem value="Karnataka Government">Karnataka Government</SelectItem>
-              <SelectItem value="Uttar Pradesh Government">Uttar Pradesh Government</SelectItem>
-              
-              {/* Other Categories */}
-              <SelectItem value="Educational Institutions">Educational Institutions</SelectItem>
-              <SelectItem value="Forest Department">Forest Department</SelectItem>
-              <SelectItem value="Government Offices">Government Offices</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Location Filter */}
+        {/* Location Filter - First Priority */}
         <div className="mb-6">
           <Label className="text-sm font-medium text-gray-700 mb-2 block">Location</Label>
           <Select value={filters.location || "all-locations"} onValueChange={(value) => onFilterChange({ location: value })}>
@@ -133,6 +89,50 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
               <SelectItem value="Ladakh">Ladakh</SelectItem>
               <SelectItem value="Lakshadweep">Lakshadweep</SelectItem>
               <SelectItem value="Puducherry">Puducherry</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Department Filter */}
+        <div className="mb-6">
+          <Label className="text-sm font-medium text-gray-700 mb-2 block">Department</Label>
+          <Select value={filters.department || "all-departments"} onValueChange={(value) => onFilterChange({ department: value })}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="All Departments" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-departments">All Departments</SelectItem>
+              
+              {/* Government Departments */}
+              <SelectItem value="Staff Selection Commission">Staff Selection Commission (SSC)</SelectItem>
+              <SelectItem value="Union Public Service Commission">Union Public Service Commission (UPSC)</SelectItem>
+              <SelectItem value="Railway Recruitment Board">Railway Recruitment Board</SelectItem>
+              <SelectItem value="Indian Army">Indian Army</SelectItem>
+              <SelectItem value="Indian Navy">Indian Navy</SelectItem>
+              <SelectItem value="Indian Air Force">Indian Air Force</SelectItem>
+              <SelectItem value="ISRO">ISRO</SelectItem>
+              <SelectItem value="DRDO">DRDO</SelectItem>
+              <SelectItem value="National Informatics Centre">National Informatics Centre</SelectItem>
+              
+              {/* Banking */}
+              <SelectItem value="State Bank of India">State Bank of India (SBI)</SelectItem>
+              <SelectItem value="Punjab National Bank">Punjab National Bank (PNB)</SelectItem>
+              <SelectItem value="Canara Bank">Canara Bank</SelectItem>
+              <SelectItem value="Union Bank">Union Bank of India</SelectItem>
+              <SelectItem value="Reserve Bank of India">Reserve Bank of India (RBI)</SelectItem>
+              <SelectItem value="Institute of Banking Personnel Selection">IBPS</SelectItem>
+              
+              {/* State Governments */}
+              <SelectItem value="Delhi Government">Delhi Government</SelectItem>
+              <SelectItem value="Maharashtra Government">Maharashtra Government</SelectItem>
+              <SelectItem value="Tamil Nadu Government">Tamil Nadu Government</SelectItem>
+              <SelectItem value="Karnataka Government">Karnataka Government</SelectItem>
+              <SelectItem value="Uttar Pradesh Government">Uttar Pradesh Government</SelectItem>
+              
+              {/* Other Categories */}
+              <SelectItem value="Educational Institutions">Educational Institutions</SelectItem>
+              <SelectItem value="Forest Department">Forest Department</SelectItem>
+              <SelectItem value="Government Offices">Government Offices</SelectItem>
             </SelectContent>
           </Select>
         </div>
