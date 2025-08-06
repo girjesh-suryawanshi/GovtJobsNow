@@ -17,7 +17,7 @@ export default function Home() {
   const [searchParams, setSearchParams] = useState<SearchJobsParams>({
     search: "",
     department: "all-departments",
-    location: "",
+    location: "all-locations",
     qualification: "all-qualifications",
     postedDate: undefined,
     sortBy: "latest",
@@ -36,23 +36,17 @@ export default function Home() {
         if (value !== undefined && value !== "") {
           // Convert "all-*" values to empty strings for API
           if (typeof value === "string" && value.startsWith("all-")) {
-            return; // Skip "all-*" values
+            return; // Skip "all-*" values - don't send them to backend
           }
           params.set(key, value.toString());
         }
       });
       const response = await apiRequest("GET", `/api/jobs?${params}`);
       const data = await response.json() as { jobs: Job[]; total: number };
-      console.log("Jobs data received:", data);
       return data;
     },
-    refetchInterval: 10000, // Refetch every 10 seconds
+    refetchInterval: 30000, // Refetch every 30 seconds for fresh jobs
   });
-
-  // Debug logging
-  console.log("Jobs loading state:", isLoading);
-  console.log("Jobs data:", jobsData);
-  console.log("Jobs error:", error);
 
   const handleSearch = (query: string) => {
     setSearchParams(prev => ({ ...prev, search: query, page: 1 }));
