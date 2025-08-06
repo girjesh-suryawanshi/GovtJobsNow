@@ -1,5 +1,6 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, jobs, users } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -297,4 +298,183 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getJob(id: string): Promise<Job | undefined> {
+    const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
+    return job || undefined;
+  }
+
+  async getAllJobs(): Promise<Job[]> {
+    return await db.select().from(jobs).orderBy(desc(jobs.createdAt));
+  }
+
+  async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> {
+    let query = db.select().from(jobs);
+    let countQuery = db.select({ count: sql<number>`count(*)` }).from(jobs);
+    
+    const conditions = [];
+    
+    // Apply search filter
+    if (params.search) {
+      const searchCondition = sql`(
+        ${jobs.title} ILIKE ${`%${params.search}%`} OR 
+        ${jobs.department} ILIKE ${`%${params.search}%`} OR 
+        ${jobs.qualification} ILIKE ${`%${params.search}%`}
+      )`;
+      conditions.push(searchCondition);
+    }
+
+    // Apply department filter (skip "all-departments")
+    if (params.department && !params.department.startsWith('all-')) {
+      conditions.push(like(jobs.department, `%${params.department}%`));
+    }
+
+    // Apply location filter
+    if (params.location) {
+      conditions.push(like(jobs.location, `%${params.location}%`));
+    }
+
+    // Apply qualification filter (skip "all-qualifications")
+    if (params.qualification && !params.qualification.startsWith('all-')) {
+      conditions.push(like(jobs.qualification, `%${params.qualification}%`));
+    }
+
+    // Apply date filter
+    if (params.postedDate) {
+      const now = new Date();
+      let dateThreshold;
+      
+      switch (params.postedDate) {
+        case 'today':
+          dateThreshold = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+          break;
+        case 'week':
+          dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          dateThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+      }
+      
+      if (dateThreshold) {
+        conditions.push(gte(jobs.createdAt, dateThreshold));
+      }
+    }
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+      countQuery = countQuery.where(and(...conditions));
+    }
+
+    // Apply sorting
+    switch (params.sortBy) {
+      case 'deadline':
+        query = query.orderBy(jobs.deadline);
+        break;
+      case 'title':
+        query = query.orderBy(jobs.title);
+        break;
+      case 'department':
+        query = query.orderBy(jobs.department);
+        break;
+      default: // 'latest'
+        query = query.orderBy(desc(jobs.createdAt));
+    }
+
+    // Get total count
+    const [{ count: total }] = await countQuery;
+    
+    // Apply pagination
+    const page = params.page || 1;
+    const limit = params.limit || 10;
+    const offset = (page - 1) * limit;
+    
+    query = query.limit(limit).offset(offset);
+    
+    const jobResults = await query;
+    return { jobs: jobResults, total };
+  }
+
+  async createJob(insertJob: InsertJob): Promise<Job> {
+    // Check if job already exists to avoid duplicates
+    const existing = await db.select().from(jobs)
+      .where(and(
+        eq(jobs.title, insertJob.title),
+        eq(jobs.department, insertJob.department),
+        eq(jobs.sourceUrl, insertJob.sourceUrl)
+      ))
+      .limit(1);
+
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    const [job] = await db
+      .insert(jobs)
+      .values(insertJob)
+      .returning();
+    return job;
+  }
+
+  async updateJob(id: string, updateJob: Partial<InsertJob>): Promise<Job | undefined> {
+    const [job] = await db
+      .update(jobs)
+      .set(updateJob)
+      .where(eq(jobs.id, id))
+      .returning();
+    return job || undefined;
+  }
+
+  async deleteJob(id: string): Promise<boolean> {
+    const result = await db.delete(jobs).where(eq(jobs.id, id));
+    return result.rowCount > 0;
+  }
+
+  async getJobStats(): Promise<{
+    totalJobs: number;
+    newToday: number;
+    departments: number;
+    applications: number;
+  }> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const [totalResult] = await db.select({ count: sql<number>`count(*)` }).from(jobs);
+    const [todayResult] = await db.select({ count: sql<number>`count(*)` })
+      .from(jobs)
+      .where(gte(jobs.createdAt, today));
+    
+    const [deptResult] = await db.select({ count: sql<number>`count(distinct ${jobs.department})` }).from(jobs);
+    
+    const [positionsResult] = await db.select({ 
+      total: sql<number>`sum(coalesce(${jobs.positions}, 1))` 
+    }).from(jobs);
+
+    return {
+      totalJobs: totalResult.count,
+      newToday: todayResult.count,
+      departments: deptResult.count,
+      applications: Math.floor((positionsResult.total || 0) * 23.7) // Simulate applications
+    };
+  }
+}
+
+export const storage = new DatabaseStorage();

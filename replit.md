@@ -29,11 +29,12 @@ The backend is an **Express.js** server written in **TypeScript** that provides:
 - **Development Integration**: Hot reload and error handling for development workflow
 
 ### Database Design
-Currently uses an in-memory storage system with a well-defined interface that supports:
+Uses **PostgreSQL** with **Drizzle ORM** for persistent data storage:
 
 - **Job Entities**: Comprehensive job records with metadata (title, department, location, qualifications, deadlines, etc.)
-- **Search & Filtering**: Advanced query capabilities with pagination
-- **Future-Ready**: Interface designed for easy migration to PostgreSQL with Drizzle ORM (schema already defined)
+- **Search & Filtering**: Advanced query capabilities with pagination and database-level search
+- **Duplicate Prevention**: Smart job insertion that prevents duplicate entries from scraping
+- **Data Integrity**: Full ACID compliance with automatic cleanup of expired jobs
 
 ### API Structure
 RESTful endpoints following standard conventions:
@@ -52,12 +53,16 @@ Modular React components organized by feature:
 - **UI Components**: Reusable shadcn/ui components
 - **Page Components**: Home, job detail, and error pages
 
-### Scraping Module
-Mock web scraping system that simulates data collection from government job portals:
+### Automated Job Scraping System
+Comprehensive job scraping system that collects data from 25+ government sources:
 
-- **Multi-source Support**: Designed to handle multiple government websites
-- **Data Standardization**: Normalizes job data into consistent format
-- **Scalable Architecture**: Easy to extend with real scraping implementations
+- **Government Departments**: SSC, UPSC, IBPS, Railway Recruitment Board, Indian Army/Navy/Air Force, ISRO, DRDO
+- **Banking Institutions**: State Bank of India, Punjab National Bank, Canara Bank, Union Bank, Reserve Bank of India  
+- **State Governments**: Delhi, Maharashtra, Tamil Nadu, Karnataka, Uttar Pradesh employment portals
+- **Job Blogs & Aggregators**: Sarkari Result, Free Job Alert, Freshers Live, Jagran Jobs, Naukri Government
+- **Automated Scheduling**: Runs 4 times daily (every 6 hours) for fresh job listings
+- **Smart Data Management**: Prevents duplicates and maintains data quality
+- **Scalable Architecture**: Easy to add new job sources and extend functionality
 
 ## External Dependencies
 

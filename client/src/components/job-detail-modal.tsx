@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import type { Job } from "@/types/job";
 
@@ -42,7 +42,8 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="job-description">
+        <DialogTitle className="sr-only">Job Details for {job.title}</DialogTitle>
         <div className="p-6 border-b border-gray-200">
           <div className="flex justify-between items-start">
             <div>
@@ -103,7 +104,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 {job.description && (
                   <div>
                     <h3 className="text-lg font-semibold mb-3">Job Description</h3>
-                    <div className="text-gray-700 space-y-2">
+                    <div id="job-description" className="text-gray-700 space-y-2">
                       <p>{job.description}</p>
                     </div>
                   </div>
