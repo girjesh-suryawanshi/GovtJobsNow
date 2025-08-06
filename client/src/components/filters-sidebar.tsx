@@ -3,7 +3,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { X, MapPin, Building2, GraduationCap, IndianRupee, Calendar, Filter } from "lucide-react";
 import type { SearchJobsParams } from "@/types/job";
 
 interface FiltersSidebarProps {
@@ -22,27 +24,58 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
     });
   };
 
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (filters.location && filters.location !== "all-locations") count++;
+    if (filters.department && filters.department !== "all-departments") count++;
+    if (filters.qualification && filters.qualification !== "all-qualifications") count++;
+    if (filters.salaryRange && filters.salaryRange !== "all-salaries") count++;
+    if (filters.postedDate) count++;
+    return count;
+  };
+
+  const activeFiltersCount = getActiveFiltersCount();
+
   return (
-    <aside className="lg:w-1/4">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Filters</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearFilters}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <X className="h-4 w-4 mr-1" />
-            Clear
-          </Button>
-        </div>
-        
-        {/* Location Filter - First Priority */}
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Location</Label>
+    <aside className="lg:w-1/4 space-y-4">
+      {/* Header Card */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Filter className="h-5 w-5 text-blue-600" />
+              <CardTitle className="text-lg text-blue-900">Job Filters</CardTitle>
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </div>
+            {activeFiltersCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearFilters}
+                className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 text-xs"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Clear All
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+      </Card>
+      {/* Location Filter - Priority */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-orange-600" />
+            <CardTitle className="text-sm font-medium text-gray-900">Location</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
           <Select value={filters.location || "all-locations"} onValueChange={(value) => onFilterChange({ location: value })}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border-gray-200 focus:border-orange-500 focus:ring-orange-500">
               <SelectValue placeholder="All Locations" />
             </SelectTrigger>
             <SelectContent>
@@ -92,13 +125,20 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
               <SelectItem value="Puducherry">Puducherry</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Department Filter */}
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Department</Label>
+      {/* Department Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium text-gray-900">Department</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
           <Select value={filters.department || "all-departments"} onValueChange={(value) => onFilterChange({ department: value })}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border-gray-200 focus:border-blue-500 focus:ring-blue-500">
               <SelectValue placeholder="All Departments" />
             </SelectTrigger>
             <SelectContent>
@@ -136,13 +176,20 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
               <SelectItem value="Government Offices">Government Offices</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Qualification Filter */}
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Qualification</Label>
+      {/* Qualification Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-4 w-4 text-purple-600" />
+            <CardTitle className="text-sm font-medium text-gray-900">Education</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
           <Select value={filters.qualification || "all-qualifications"} onValueChange={(value) => onFilterChange({ qualification: value })}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border-gray-200 focus:border-purple-500 focus:ring-purple-500">
               <SelectValue placeholder="All Qualifications" />
             </SelectTrigger>
             <SelectContent>
@@ -155,13 +202,20 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
               <SelectItem value="engineering">B.E./B.Tech</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Salary Range Filter */}
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Salary Range</Label>
+      {/* Salary Range Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <IndianRupee className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium text-gray-900">Salary Range</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
           <Select value={filters.salaryRange || "all-salaries"} onValueChange={(value) => onFilterChange({ salaryRange: value })}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full border-gray-200 focus:border-green-500 focus:ring-green-500">
               <SelectValue placeholder="All Salary Ranges" />
             </SelectTrigger>
             <SelectContent>
@@ -174,30 +228,38 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
               <SelectItem value="above-100k">Above ₹1,00,000</SelectItem>
             </SelectContent>
           </Select>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Posted Date Filter */}
-        <div className="mb-6">
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Posted Date</Label>
+      {/* Posted Date Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-red-600" />
+            <CardTitle className="text-sm font-medium text-gray-900">Posted Date</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
           <RadioGroup 
             value={filters.postedDate} 
             onValueChange={(value) => onFilterChange({ postedDate: value as any })}
+            className="space-y-3"
           >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="today" id="today" />
-              <Label htmlFor="today" className="text-sm text-gray-600">Today</Label>
+            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
+              <RadioGroupItem value="today" id="today" className="text-red-600 focus:ring-red-500" />
+              <Label htmlFor="today" className="text-sm text-gray-700 cursor-pointer flex-1">Today</Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="week" id="week" />
-              <Label htmlFor="week" className="text-sm text-gray-600">This Week</Label>
+            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
+              <RadioGroupItem value="week" id="week" className="text-red-600 focus:ring-red-500" />
+              <Label htmlFor="week" className="text-sm text-gray-700 cursor-pointer flex-1">This Week</Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="month" id="month" />
-              <Label htmlFor="month" className="text-sm text-gray-600">This Month</Label>
+            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
+              <RadioGroupItem value="month" id="month" className="text-red-600 focus:ring-red-500" />
+              <Label htmlFor="month" className="text-sm text-gray-700 cursor-pointer flex-1">This Month</Label>
             </div>
           </RadioGroup>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </aside>
   );
 }
