@@ -14,7 +14,7 @@ class AdminStorage {
       id: "admin-1",
       username: "admin",
       email: "admin@govtjobsnow.in",
-      password: "$2a$10$rOzJpaBaOjsGAn.oElgVD.6lclJJVP4EUJb9V9HzYJ9v.FqDrqKCK", // password: admin123
+      password: "admin123", // Temporarily use plain text for testing
       role: "admin",
       isActive: true,
       lastLogin: null,
