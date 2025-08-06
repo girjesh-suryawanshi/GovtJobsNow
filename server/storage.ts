@@ -32,15 +32,39 @@ export class MemStorage implements IStorage {
   }
 
   private seedJobs() {
+    const today = new Date();
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    };
+    
+    // Generate dates for active jobs
+    const postedDates = [
+      new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+      new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
+      new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
+      new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    ];
+    
+    const deadlineDates = [
+      new Date(today.getTime() + 25 * 24 * 60 * 60 * 1000), // 25 days from now
+      new Date(today.getTime() + 18 * 24 * 60 * 60 * 1000), // 18 days from now
+      new Date(today.getTime() + 32 * 24 * 60 * 60 * 1000), // 32 days from now
+      new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+    ];
+
     const sampleJobs: InsertJob[] = [
       {
         title: "Assistant Section Officer - Ministry of External Affairs",
         department: "Ministry of External Affairs",
         location: "New Delhi",
         qualification: "Graduate in any discipline",
-        deadline: "Feb 28, 2024",
+        deadline: formatDate(deadlineDates[0]),
         applyLink: "https://mea.gov.in/careers",
-        postedOn: "Jan 15, 2024",
+        postedOn: formatDate(postedDates[0]),
         sourceUrl: "https://mea.gov.in",
         positions: 245,
         salary: "₹44,900 - ₹1,42,400 per month",
@@ -54,9 +78,9 @@ export class MemStorage implements IStorage {
         department: "Indian Railways",
         location: "Multiple Locations",
         qualification: "Diploma/B.E. in relevant engineering discipline",
-        deadline: "Feb 15, 2024",
+        deadline: formatDate(deadlineDates[1]),
         applyLink: "https://rrbcdg.gov.in",
-        postedOn: "Jan 12, 2024",
+        postedOn: formatDate(postedDates[1]),
         sourceUrl: "https://rrbcdg.gov.in",
         positions: 1450,
         salary: "₹35,400 - ₹1,12,400 per month",
@@ -70,9 +94,9 @@ export class MemStorage implements IStorage {
         department: "Banking",
         location: "Pan India",
         qualification: "Graduate in any discipline",
-        deadline: "Mar 05, 2024",
+        deadline: formatDate(deadlineDates[2]),
         applyLink: "https://sbi.co.in/careers",
-        postedOn: "Jan 10, 2024",
+        postedOn: formatDate(postedDates[2]),
         sourceUrl: "https://sbi.co.in",
         positions: 2000,
         salary: "₹27,620 - ₹920,000 per month",
@@ -86,9 +110,9 @@ export class MemStorage implements IStorage {
         department: "Police/Security",
         location: "Multiple States",
         qualification: "12th Pass from recognized board",
-        deadline: "Feb 25, 2024",
+        deadline: formatDate(deadlineDates[3]),
         applyLink: "https://crpf.gov.in/recruitment",
-        postedOn: "Jan 08, 2024",
+        postedOn: formatDate(postedDates[3]),
         sourceUrl: "https://crpf.gov.in",
         positions: 425,
         salary: "₹29,200 - ₹92,300 per month",

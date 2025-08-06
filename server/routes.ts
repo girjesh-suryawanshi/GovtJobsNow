@@ -11,7 +11,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Convert string parameters to appropriate types
       const processedQuery: any = { ...req.query };
-      console.log("Original query:", req.query);
       
       if (processedQuery.page && typeof processedQuery.page === 'string') {
         processedQuery.page = parseInt(processedQuery.page);
@@ -20,12 +19,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         processedQuery.limit = parseInt(processedQuery.limit);
       }
       
-      console.log("Processed query:", processedQuery);
       const params = searchJobsSchema.parse(processedQuery);
       const result = await storage.searchJobs(params);
       res.json(result);
     } catch (error) {
-      console.log("Parsing error:", error);
       res.status(400).json({ message: "Invalid query parameters", error });
     }
   });
