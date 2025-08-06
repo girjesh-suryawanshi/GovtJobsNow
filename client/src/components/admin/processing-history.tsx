@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Table, 
   TableBody, 
@@ -18,7 +22,10 @@ import {
   AlertTriangle,
   Search,
   Eye,
-  MoreHorizontal
+  MoreHorizontal,
+  Edit,
+  Save,
+  X
 } from "lucide-react";
 
 interface ProcessingLog {
@@ -36,6 +43,9 @@ export default function ProcessingHistory() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLog, setSelectedLog] = useState<ProcessingLog | null>(null);
+  const [reviewData, setReviewData] = useState<any>(null);
+  const [isReviewing, setIsReviewing] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchProcessingHistory();
@@ -103,6 +113,64 @@ export default function ProcessingHistory() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
+  };
+
+  const handleReviewJob = (log: ProcessingLog) => {
+    if (log.extractedData) {
+      setReviewData(log.extractedData);
+      setSelectedLog(log);
+      setIsReviewing(true);
+    } else {
+      toast({
+        title: "No Data Available",
+        description: "This extraction has no data available for review.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePublishJob = async () => {
+    if (!reviewData || !selectedLog) return;
+    
+    try {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch("/api/admin/publish-job", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          logId: selectedLog.id,
+          jobData: reviewData
+        })
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Job Published",
+          description: "The job has been successfully published!"
+        });
+        setIsReviewing(false);
+        setSelectedLog(null);
+        setReviewData(null);
+        fetchProcessingHistory(); // Refresh the list
+      } else {
+        throw new Error("Failed to publish job");
+      }
+    } catch (error) {
+      toast({
+        title: "Publication Failed",
+        description: "Failed to publish the job. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDiscardReview = () => {
+    setIsReviewing(false);
+    setSelectedLog(null);
+    setReviewData(null);
   };
 
   if (isLoading) {
@@ -208,13 +276,28 @@ export default function ProcessingHistory() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedLog(log)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedLog(log)}
+                          title="View Details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        
+                        {log.status === "review_required" && log.extractedData && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleReviewJob(log)}
+                            className="text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50"
+                            title="Review & Publish"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -224,8 +307,102 @@ export default function ProcessingHistory() {
         </CardContent>
       </Card>
 
+      {/* Review Dialog */}
+      {isReviewing && reviewData && (
+        <Dialog open={isReviewing} onOpenChange={() => handleDiscardReview()}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                Review Extracted Job Data
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Job Title</Label>
+                  <Input
+                    id="title"
+                    value={reviewData.title || ""}
+                    onChange={(e) => setReviewData(prev => ({...prev, title: e.target.value}))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="department">Department</Label>
+                  <Input
+                    id="department"
+                    value={reviewData.department || ""}
+                    onChange={(e) => setReviewData(prev => ({...prev, department: e.target.value}))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={reviewData.location || ""}
+                    onChange={(e) => setReviewData(prev => ({...prev, location: e.target.value}))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="qualification">Qualification</Label>
+                  <Input
+                    id="qualification"
+                    value={reviewData.qualification || ""}
+                    onChange={(e) => setReviewData(prev => ({...prev, qualification: e.target.value}))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="deadline">Deadline</Label>
+                  <Input
+                    id="deadline"
+                    value={reviewData.deadline || ""}
+                    onChange={(e) => setReviewData(prev => ({...prev, deadline: e.target.value}))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="salary">Salary (Optional)</Label>
+                  <Input
+                    id="salary"
+                    value={reviewData.salary || ""}
+                    onChange={(e) => setReviewData(prev => ({...prev, salary: e.target.value}))}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (Optional)</Label>
+                <Textarea
+                  id="description"
+                  value={reviewData.description || ""}
+                  onChange={(e) => setReviewData(prev => ({...prev, description: e.target.value}))}
+                  rows={4}
+                />
+              </div>
+              
+              <div className="flex gap-4 pt-4">
+                <Button onClick={handlePublishJob} className="bg-green-600 hover:bg-green-700">
+                  <Save className="h-4 w-4 mr-2" />
+                  Publish Job
+                </Button>
+                
+                <Button variant="outline" onClick={handleDiscardReview}>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {/* Log Details Modal */}
-      {selectedLog && (
+      {selectedLog && !isReviewing && (
         <Card className="border-2 border-blue-200">
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -252,6 +429,22 @@ export default function ProcessingHistory() {
                 {getStatusBadge(selectedLog.status)}
               </div>
             </div>
+            
+            {selectedLog.status === "review_required" && selectedLog.extractedData && (
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <h4 className="font-medium mb-2 text-yellow-800">Action Required</h4>
+                <p className="text-sm text-yellow-700 mb-3">
+                  This extraction requires review before publication.
+                </p>
+                <Button 
+                  onClick={() => handleReviewJob(selectedLog)}
+                  className="bg-yellow-600 hover:bg-yellow-700"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Review & Publish
+                </Button>
+              </div>
+            )}
             
             {selectedLog.errorMessage && (
               <div>
