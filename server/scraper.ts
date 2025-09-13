@@ -1,4 +1,5 @@
 import { type InsertJob } from "@shared/schema";
+import * as cron from 'node-cron';
 
 // Comprehensive job scraping sources including government websites and job blogs
 const jobSources = [
@@ -52,7 +53,16 @@ function generateJobsForSource(source: any): InsertJob[] {
     const template = jobTemplates[Math.floor(Math.random() * jobTemplates.length)];
     
     jobs.push({
-      ...template,
+      title: template.title!,
+      department: template.department!,
+      location: template.location!,
+      qualification: template.qualification!,
+      salary: template.salary!,
+      ageLimit: template.ageLimit!,
+      applicationFee: template.applicationFee!,
+      description: template.description!,
+      selectionProcess: template.selectionProcess!,
+      applyLink: template.applyLink!,
       postedOn: postedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       deadline: deadlineDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       sourceUrl: source.url,
@@ -266,49 +276,115 @@ export async function scrapeJobs(): Promise<InsertJob[]> {
   return allJobs;
 }
 
-// Schedule scraping 4 times daily: 6 AM, 12 PM, 6 PM, 12 AM
+// Global flag to prevent concurrent scraping runs
+let isScrapingRunning = false;
+
+// Schedule scraping 3 times daily using reliable cron scheduling: 6 AM, 2 PM, 10 PM
 export function scheduleAutomaticScraping() {
-  const SIX_HOURS = 6 * 60 * 60 * 1000;
+  console.log("Setting up automatic job scraping 3 times daily using cron scheduler...");
+  console.log("Scheduled times: 6:00 AM, 2:00 PM, 10:00 PM (IST)");
   
-  console.log("Setting up automatic job scraping 4 times daily...");
-  
-  // Run initial scraping after 5 seconds
+  // Run initial scraping after 10 seconds (startup delay)
   setTimeout(async () => {
+    console.log("Running initial startup job scraping...");
     await runScheduledScraping();
-  }, 5000);
+  }, 10000);
   
-  // Then run every 6 hours
-  setInterval(async () => {
+  // Schedule 3 times daily at specific times (IST)
+  // At 6:00 AM IST
+  cron.schedule('0 6 * * *', async () => {
+    console.log("🌅 Running morning job scraping (6:00 AM IST)...");
     await runScheduledScraping();
-  }, SIX_HOURS);
+  }, {
+    timezone: "Asia/Kolkata"
+  });
+  
+  // At 2:00 PM IST
+  cron.schedule('0 14 * * *', async () => {
+    console.log("🌞 Running afternoon job scraping (2:00 PM IST)...");
+    await runScheduledScraping();
+  }, {
+    timezone: "Asia/Kolkata"
+  });
+  
+  // At 10:00 PM IST
+  cron.schedule('0 22 * * *', async () => {
+    console.log("🌙 Running evening job scraping (10:00 PM IST)...");
+    await runScheduledScraping();
+  }, {
+    timezone: "Asia/Kolkata"
+  });
+  
+  // Optional test schedule (only in development)
+  if (process.env.NODE_ENV === 'development' && process.env.ENABLE_TEST_SCRAPE === 'true') {
+    cron.schedule('*/30 * * * *', async () => {
+      console.log("⚡ Running test scraping (every 30 minutes for development)...");
+      await runScheduledScraping();
+    });
+    console.log("✅ Cron jobs scheduled! Next runs: 6:00 AM, 2:00 PM, 10:00 PM IST + every 30 min (dev only)");
+  } else {
+    console.log("✅ Cron jobs scheduled! Next runs: 6:00 AM, 2:00 PM, 10:00 PM IST");
+  }
 }
 
 async function runScheduledScraping() {
-  const now = new Date();
-  console.log(`Running scheduled job scraping at ${now.toLocaleString()}...`);
+  // Reentrancy guard: Skip if another scraping is already in progress
+  if (isScrapingRunning) {
+    console.log("⏸️  Skipping scheduled scraping - another run is already in progress");
+    return;
+  }
+  
+  isScrapingRunning = true;
   
   try {
+    const now = new Date();
+    const istTime = now.toLocaleString('en-US', { 
+      timeZone: 'Asia/Kolkata',
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+    
+    console.log(`🚀 Running scheduled job scraping at ${istTime} (IST)...`);
+    const startTime = Date.now();
+    
     const { storage } = await import('./storage');
     const jobs = await scrapeJobs();
     
     // Store all scraped jobs in database
     let newJobsCount = 0;
+    let duplicateJobsCount = 0;
+    
     for (const jobData of jobs) {
       try {
         await storage.createJob(jobData);
         newJobsCount++;
       } catch (error) {
         // Job might already exist, that's ok
+        duplicateJobsCount++;
       }
     }
     
-    console.log(`Scheduled scraping completed: ${newJobsCount} new jobs added to database`);
+    const endTime = Date.now();
+    const duration = Math.round((endTime - startTime) / 1000);
     
-    // Clean up old expired jobs (optional)
-    // await cleanupExpiredJobs();
+    console.log(`✅ Scheduled scraping completed successfully!`);
+    console.log(`📊 Results: ${newJobsCount} new jobs added, ${duplicateJobsCount} duplicates skipped`);
+    console.log(`⏱️  Total time taken: ${duration} seconds`);
+    console.log(`📈 Total jobs processed: ${jobs.length} from ${jobSources.length} sources`);
+    console.log(`⏰ Next scheduled runs: 6:00 AM, 2:00 PM, 10:00 PM (IST)`);
+    console.log('─'.repeat(80));
     
   } catch (error) {
-    console.error("Scheduled scraping failed:", error);
+    console.error("❌ Scheduled scraping failed:", error);
+    console.log('─'.repeat(80));
+  } finally {
+    // Always release the lock
+    isScrapingRunning = false;
   }
 }
 
