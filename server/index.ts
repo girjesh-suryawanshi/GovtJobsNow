@@ -4,6 +4,10 @@ import { setupVite, serveStatic, log } from "./vite";
 import { scheduleAutomaticScraping } from "./scraper";
 
 const app = express();
+
+// Trust proxy for proper client IP handling behind Nginx
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

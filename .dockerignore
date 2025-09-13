@@ -1,0 +1,80 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Production build (will be created during build)
+dist
+
+# Development files
+.replit
+*.repl
+.env.local
+.env.development
+.env.test
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Docker files (don't copy into container)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Documentation and config files not needed in container
+README.md
+*.md
+.editorconfig
+.prettierrc
+.eslintrc*
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directories that might exist
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# Backup files
+db-backup/
+backup/
+
+# SSL certificates (will be mounted as volume)
+ssl/
