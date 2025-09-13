@@ -52,8 +52,12 @@ function generateJobsForSource(source: any): InsertJob[] {
     const jobTemplates = getJobTemplatesForSource(source);
     const template = jobTemplates[Math.floor(Math.random() * jobTemplates.length)];
     
+    // Add unique identifiers to make each job unique (current date + random number)
+    const uniqueId = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}_${Math.floor(Math.random() * 10000)}`;
+    const currentMonth = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    
     jobs.push({
-      title: template.title!,
+      title: `${template.title!} - ${currentMonth} ${uniqueId}`,
       department: template.department!,
       location: template.location!,
       qualification: template.qualification!,
@@ -65,7 +69,7 @@ function generateJobsForSource(source: any): InsertJob[] {
       applyLink: template.applyLink!,
       postedOn: postedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       deadline: deadlineDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
-      sourceUrl: source.url,
+      sourceUrl: `${source.url}/${uniqueId}`, // Make source URL unique too
       positions: Math.floor(Math.random() * 1000) + 50,
     });
   }
@@ -361,11 +365,21 @@ async function runScheduledScraping() {
     
     for (const jobData of jobs) {
       try {
+        // Check if job already exists before creating
+        const statsBefore = await storage.getJobStats();
         await storage.createJob(jobData);
-        newJobsCount++;
+        const statsAfter = await storage.getJobStats();
+        
+        // If count increased, it's a new job; otherwise it's a duplicate
+        if (statsAfter.totalJobs > statsBefore.totalJobs) {
+          newJobsCount++;
+        } else {
+          duplicateJobsCount++;
+        }
       } catch (error) {
-        // Job might already exist, that's ok
+        // Error occurred during creation
         duplicateJobsCount++;
+        console.error("Error creating job:", error);
       }
     }
     
