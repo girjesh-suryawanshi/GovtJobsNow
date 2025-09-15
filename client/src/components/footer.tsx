@@ -1,5 +1,6 @@
 import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Star, Shield, Clock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
 
 export default function Footer() {
   return (
@@ -185,34 +186,34 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                <Link href="/contact" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                   Contact Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                <Link href="/faq" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                   FAQ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                <Link href="/privacy-policy" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                <Link href="/terms-of-service" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                <Link href="/disclaimer" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
                   Disclaimer
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
