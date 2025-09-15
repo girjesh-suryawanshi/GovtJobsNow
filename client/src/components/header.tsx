@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Menu, X, Search, Bell, User, Briefcase, Building2, Calendar, HelpCircle } from "lucide-react";
+import { Menu, X, Search, Bell, User, Briefcase, Building2, Calendar, HelpCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import AuthModal from "@/components/auth-modal";
 import HelpModal from "@/components/help-modal";
+import { useUser } from "@/contexts/user-context";
 
 interface HeaderProps {
   onOpenExamCalendar?: () => void;
@@ -12,6 +13,7 @@ interface HeaderProps {
 }
 
 export default function Header({ onOpenExamCalendar, onScrollToDepartments }: HeaderProps) {
+  const { user, logout, isAuthenticated } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'register'>('signin');
@@ -71,40 +73,52 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
           
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 relative"
-            >
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 bg-red-500 text-white text-xs">
-                3
-              </Badge>
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
-              onClick={() => {
-                setAuthMode('signin');
-                setShowAuthModal(true);
-              }}
-            >
-              <User className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
-            
-            <Button
-              size="sm"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
-              onClick={() => {
-                setAuthMode('register');
-                setShowAuthModal(true);
-              }}
-            >
-              Register Free
-            </Button>
+            {isAuthenticated ? (
+              <>
+                {/* User is logged in */}
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-700">
+                    Welcome, <span className="font-medium text-blue-600">{user?.fullName}</span>
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    onClick={logout}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* User is not logged in */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                  onClick={() => {
+                    setAuthMode('signin');
+                    setShowAuthModal(true);
+                  }}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+                
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+                  onClick={() => {
+                    setAuthMode('register');
+                    setShowAuthModal(true);
+                  }}
+                >
+                  Register Free
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -158,30 +172,54 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
               </button>
               
               <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full justify-start"
-                  onClick={() => {
-                    setAuthMode('signin');
-                    setShowAuthModal(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-                <Button 
-                  size="sm" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
-                  onClick={() => {
-                    setAuthMode('register');
-                    setShowAuthModal(true);
-                    setIsMenuOpen(false);
-                  }}
-                >
-                  Register Free
-                </Button>
+                {isAuthenticated ? (
+                  <>
+                    {/* User is logged in - Mobile */}
+                    <div className="px-4 py-2 text-sm text-gray-700">
+                      Welcome, <span className="font-medium text-blue-600">{user?.fullName}</span>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        logout();
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    {/* User is not logged in - Mobile */}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setAuthMode('signin');
+                        setShowAuthModal(true);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      Sign In
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
+                      onClick={() => {
+                        setAuthMode('register');
+                        setShowAuthModal(true);
+                        setIsMenuOpen(false);
+                      }}
+                    >
+                      Register Free
+                    </Button>
+                  </>
+                )}
               </div>
             </nav>
           </div>
