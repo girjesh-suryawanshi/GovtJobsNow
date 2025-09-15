@@ -37,7 +37,11 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
   const activeFiltersCount = getActiveFiltersCount();
 
   return (
-    <aside className="lg:w-1/4 space-y-4">
+    <aside 
+      id="departments"
+      data-testid="filters-sidebar"
+      className="lg:w-1/4 space-y-4"
+    >
       {/* Header Card */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
         <CardHeader className="pb-3">
@@ -137,8 +141,14 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <Select value={filters.department || "all-departments"} onValueChange={(value) => onFilterChange({ department: value })}>
-            <SelectTrigger className="w-full border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+          <Select 
+            value={filters.department || "all-departments"} 
+            onValueChange={(value) => onFilterChange({ department: value })}
+          >
+            <SelectTrigger 
+              data-testid="department-filter"
+              className="w-full border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+            >
               <SelectValue placeholder="All Departments" />
             </SelectTrigger>
             <SelectContent>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
 import HeroSection from "@/components/hero-section";
@@ -90,11 +90,43 @@ export default function Home() {
     setSearchParams(prev => ({ ...prev, page }));
   };
 
+  const handleScrollToDepartments = () => {
+    // Scroll to filters section and highlight department filter
+    const filtersSection = document.querySelector('[data-testid="filters-sidebar"]');
+    if (filtersSection) {
+      filtersSection.scrollIntoView({ behavior: 'smooth' });
+      
+      // Highlight the department filter after scrolling
+      setTimeout(() => {
+        const departmentFilter = filtersSection.querySelector('[data-testid="department-filter"]');
+        if (departmentFilter) {
+          departmentFilter.classList.add('ring-2', 'ring-blue-500', 'ring-offset-2');
+          setTimeout(() => {
+            departmentFilter.classList.remove('ring-2', 'ring-blue-500', 'ring-offset-2');
+          }, 3000);
+        }
+      }, 500);
+    }
+  };
+
+  // Handle hash-based navigation (e.g., /#departments from job detail page)
+  useEffect(() => {
+    if (window.location.hash === '#departments') {
+      // Small delay to ensure page is fully loaded
+      setTimeout(() => {
+        handleScrollToDepartments();
+      }, 100);
+    }
+  }, []);
+
   const totalPages = Math.ceil((jobsData?.total || 0) / searchParams.limit!);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header 
+        onOpenExamCalendar={() => setShowExamCalendar(true)}
+        onScrollToDepartments={handleScrollToDepartments}
+      />
       <HeroSection onSearch={handleSearch} onLocationChange={(location) => handleFilterChange({ location })} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <StatsDashboard />

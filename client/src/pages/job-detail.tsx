@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
@@ -8,11 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import ExamCalendar from "@/components/exam-calendar";
 import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
 
 export default function JobDetail() {
   const { id } = useParams();
+  const [showExamCalendar, setShowExamCalendar] = useState(false);
 
   const { data: job, isLoading } = useQuery({
     queryKey: ["/api/jobs", id],
@@ -82,7 +85,10 @@ export default function JobDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header 
+        onOpenExamCalendar={() => setShowExamCalendar(true)}
+        onScrollToDepartments={() => window.location.href = '/#departments'}
+      />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/">
@@ -226,6 +232,11 @@ export default function JobDetail() {
       </div>
 
       <Footer />
+      
+      <ExamCalendar
+        isOpen={showExamCalendar}
+        onClose={() => setShowExamCalendar(false)}
+      />
     </div>
   );
 }
