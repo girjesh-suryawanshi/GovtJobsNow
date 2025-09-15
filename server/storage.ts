@@ -182,26 +182,11 @@ export class MemStorage implements IStorage {
       );
     }
 
-    // Apply department filter
-    if (params.department) {
-      jobs = jobs.filter(job => 
-        job.department.toLowerCase().includes(params.department!.toLowerCase())
-      );
-    }
-
-    // Apply location filter
-    if (params.location) {
-      jobs = jobs.filter(job => 
-        job.location.toLowerCase().includes(params.location!.toLowerCase())
-      );
-    }
-
-    // Apply qualification filter
-    if (params.qualification) {
-      jobs = jobs.filter(job => 
-        job.qualification.toLowerCase().includes(params.qualification!.toLowerCase())
-      );
-    }
+    // Use new intelligent filtering system
+    const { normalizeFilters, jobMatchesFilters } = await import('@shared/filters');
+    const normalizedFilters = normalizeFilters(params);
+    
+    jobs = jobs.filter(job => jobMatchesFilters(job, normalizedFilters));
 
     // Apply date filter
     if (params.postedDate) {
@@ -328,12 +313,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> {
-    let query = db.select().from(jobs);
-    let countQuery = db.select({ count: sql<number>`count(*)` }).from(jobs);
+    // Use intelligent filtering system instead of SQL LIKE conditions
+    const { normalizeFilters, jobMatchesFilters } = await import('@shared/filters');
     
+    let query = db.select().from(jobs);
     const conditions = [];
     
-    // Apply search filter
+    // Apply search filter (still use SQL for performance)
     if (params.search) {
       const searchCondition = sql`(
         ${jobs.title} ILIKE ${`%${params.search}%`} OR 
@@ -343,50 +329,7 @@ export class DatabaseStorage implements IStorage {
       conditions.push(searchCondition);
     }
 
-    // Apply department filter (skip "all-departments")
-    if (params.department && !params.department.startsWith('all-')) {
-      conditions.push(like(jobs.department, `%${params.department}%`));
-    }
-
-    // Apply location filter
-    if (params.location) {
-      conditions.push(like(jobs.location, `%${params.location}%`));
-    }
-
-    // Apply qualification filter (skip "all-qualifications")
-    if (params.qualification && !params.qualification.startsWith('all-')) {
-      conditions.push(like(jobs.qualification, `%${params.qualification}%`));
-    }
-
-    // Apply salary range filter (skip "all-salaries")
-    if (params.salaryRange && !params.salaryRange.startsWith('all-')) {
-      let salaryCondition;
-      switch (params.salaryRange) {
-        case 'below-20k':
-          salaryCondition = sql`${jobs.salary} ~ '₹[0-9]{1,2},?[0-9]{0,3}'`;
-          break;
-        case '20k-30k':
-          salaryCondition = sql`${jobs.salary} ~ '₹[2-3][0-9],?[0-9]{3}'`;
-          break;
-        case '30k-50k':
-          salaryCondition = sql`${jobs.salary} ~ '₹[3-5][0-9],?[0-9]{3}'`;
-          break;
-        case '50k-75k':
-          salaryCondition = sql`${jobs.salary} ~ '₹[5-7][0-9],?[0-9]{3}'`;
-          break;
-        case '75k-100k':
-          salaryCondition = sql`${jobs.salary} ~ '₹[7-9][0-9],?[0-9]{3}|₹1,?[0-9]{2},?[0-9]{3}'`;
-          break;
-        case 'above-100k':
-          salaryCondition = sql`${jobs.salary} ~ '₹[1-9][0-9]{2},?[0-9]{3}|₹[1-9],?[0-9]{2},?[0-9]{3}'`;
-          break;
-      }
-      if (salaryCondition) {
-        conditions.push(salaryCondition);
-      }
-    }
-
-    // Apply date filter
+    // Apply date filter using SQL (for performance)
     if (params.postedDate) {
       const now = new Date();
       let dateThreshold;
@@ -408,9 +351,9 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
+    // Apply basic SQL conditions (search and date only)  
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
-      countQuery = countQuery.where(and(...conditions));
     }
 
     // Apply sorting
@@ -428,18 +371,22 @@ export class DatabaseStorage implements IStorage {
         query = query.orderBy(desc(jobs.createdAt));
     }
 
-    // Get total count
-    const [{ count: total }] = await countQuery;
+    // Get all matching jobs (without pagination first)
+    const allJobs = await query;
     
-    // Apply pagination
+    // Apply intelligent JavaScript filtering
+    const normalizedFilters = normalizeFilters(params);
+    const filteredJobs = allJobs.filter(job => jobMatchesFilters(job, normalizedFilters));
+    
+    const total = filteredJobs.length;
+    
+    // Apply pagination to filtered results
     const page = params.page || 1;
     const limit = params.limit || 10;
-    const offset = (page - 1) * limit;
+    const startIndex = (page - 1) * limit;
+    const paginatedJobs = filteredJobs.slice(startIndex, startIndex + limit);
     
-    query = query.limit(limit).offset(offset);
-    
-    const jobResults = await query;
-    return { jobs: jobResults, total };
+    return { jobs: paginatedJobs, total };
   }
 
   async createJob(insertJob: InsertJob): Promise<Job> {
