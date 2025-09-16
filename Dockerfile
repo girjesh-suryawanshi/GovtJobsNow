@@ -4,7 +4,7 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files this
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies for building)
