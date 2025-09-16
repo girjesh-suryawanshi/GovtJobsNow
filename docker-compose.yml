@@ -1,4 +1,4 @@
-version: '3.8'
+# Note: version is deprecated in Docker Compose v2
 
 services:
   # PostgreSQL Database
@@ -125,10 +125,6 @@ services:
 volumes:
   postgres_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./postgres_data
 
 networks:
   govtjobs_network:

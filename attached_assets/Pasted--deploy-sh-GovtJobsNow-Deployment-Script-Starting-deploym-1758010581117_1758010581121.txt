@@ -1,0 +1,62 @@
+ ./deploy.sh
+🚀 GovtJobsNow Deployment Script
+==================================
+Starting deployment process for multi-app VPS...
+
+✅ Docker is installed
+✅ Docker Compose v2 (plugin) is installed
+ℹ️ Checking for port conflicts...
+✅ Port 80 in use (existing web server detected)
+ℹ️ You can integrate GovtJobsNow with your existing web server
+ℹ️ See server-integration.conf for integration instructions
+✅ Port 443 in use (existing HTTPS server detected)
+✅ Port conflict check completed
+ℹ️ Checking system resources...
+✅ Available memory: 6552MB
+✅ Available disk space: 72722MB
+✅ .env.production file exists and configured
+ℹ️ Creating necessary directories...
+✅ Directories created with proper permissions
+ℹ️ Pulling latest Docker images...
+WARN[0000] The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] /home/govtjobnow/GovtJobsNow/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Pulling 1/1
+ ✔ postgres Pulled                                                                                                 2.0s
+✅ Images pulled successfully
+ℹ️ Building and starting services...
+WARN[0000] The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] /home/govtjobnow/GovtJobsNow/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Building 0.9s (21/21) FINISHED
+ => [internal] load local bake definitions                                                                         0.0s
+ => => reading from stdin 505B                                                                                     0.0s
+ => [internal] load build definition from Dockerfile                                                               0.0s
+ => => transferring dockerfile: 1.50kB                                                                             0.0s
+ => [internal] load metadata for docker.io/library/node:20-alpine                                                  0.7s
+ => [internal] load .dockerignore                                                                                  0.0s
+ => => transferring context: 1.73kB                                                                                0.0s
+ => [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:eabac870db94f7342d6c33560d6613f188bbcf4bbe1f4eb47d  0.0s
+ => [internal] load build context                                                                                  0.0s
+ => => transferring context: 6.83kB                                                                                0.0s
+ => CACHED [production 2/9] RUN apk add --no-cache dumb-init curl                                                  0.0s
+ => CACHED [production 3/9] RUN addgroup -g 1001 -S nodejs                                                         0.0s
+ => CACHED [production 4/9] RUN adduser -S nodejs -u 1001                                                          0.0s
+ => CACHED [production 5/9] WORKDIR /app                                                                           0.0s
+ => CACHED [production 6/9] COPY package*.json ./                                                                  0.0s
+ => CACHED [production 7/9] RUN npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache              0.0s
+ => CACHED [builder 2/6] WORKDIR /app                                                                              0.0s
+ => CACHED [builder 3/6] COPY package*.json ./                                                                     0.0s
+ => CACHED [builder 4/6] RUN npm install --include=dev                                                             0.0s
+ => CACHED [builder 5/6] COPY . .                                                                                  0.0s
+ => CACHED [builder 6/6] RUN npm run build                                                                         0.0s
+ => CACHED [production 8/9] COPY --from=builder /app/dist ./dist                                                   0.0s
+ => CACHED [production 9/9] RUN chown -R nodejs:nodejs /app                                                        0.0s
+ => exporting to image                                                                                             0.0s
+ => => exporting layers                                                                                            0.0s
+ => => writing image sha256:e897e2ba4d2c665d4864bf013a1538ab5effb345a13df1c0aa0442ad7b47ae67                       0.0s
+ => => naming to docker.io/library/govtjobsnow-app                                                                 0.0s
+ => resolving provenance for metadata file                                                                         0.0s
+[+] Running 3/3
+ ✔ govtjobsnow-app                       Built                                                                     0.0s
+ ✔ Network govtjobsnow_govtjobs_network  Created                                                                   0.1s
+ ✘ Container govtjobsnow_db              Error response from daemon: failed to popul...                            0.0s
+Error response from daemon: failed to populate volume: error while mounting volume '/var/lib/docker/volumes/govtjobsnow_postgres_data/_data': failed to mount local volume: mount /home/govtjobnow/GovtJobsNow/postgres_data:/var/lib/docker/volumes/govtjobsnow_postgres_data/_data, flags: 0x1000: no such file or directory
