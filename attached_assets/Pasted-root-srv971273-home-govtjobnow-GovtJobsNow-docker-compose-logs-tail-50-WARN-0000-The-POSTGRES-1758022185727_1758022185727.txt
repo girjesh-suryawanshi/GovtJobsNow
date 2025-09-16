@@ -1,0 +1,63 @@
+root@srv971273:/home/govtjobnow/GovtJobsNow# docker compose logs --tail=50
+WARN[0000] The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.
+govtjobsnow_db  |
+govtjobsnow_db  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+govtjobsnow_db  |
+govtjobsnow_db  | 2025-09-16 10:10:48.621 UTC [1] LOG:  starting PostgreSQL 15.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+govtjobsnow_db  | 2025-09-16 10:10:48.622 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+govtjobsnow_db  | 2025-09-16 10:10:48.622 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+govtjobsnow_db  | 2025-09-16 10:10:48.623 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+govtjobsnow_db  | 2025-09-16 10:10:48.629 UTC [29] LOG:  database system was shut down at 2025-09-16 10:10:23 UTC
+govtjobsnow_db  | 2025-09-16 10:10:48.639 UTC [1] LOG:  database system is ready to accept connections
+govtjobsnow_db  | 2025-09-16 10:15:48.691 UTC [27] LOG:  checkpoint starting: time
+govtjobsnow_db  | 2025-09-16 10:15:48.700 UTC [27] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.010 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB
+govtjobsnow_app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+govtjobsnow_app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+govtjobsnow_app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+govtjobsnow_app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+govtjobsnow_app  |   code: 'ERR_MODULE_NOT_FOUND'
+govtjobsnow_app  | }
+govtjobsnow_app  |
+govtjobsnow_app  | Node.js v20.19.5
+govtjobsnow_app  |
+govtjobsnow_app  | > rest-express@1.0.0 start
+govtjobsnow_app  | > NODE_ENV=production node dist/index.js
+govtjobsnow_app  |
+govtjobsnow_app  | node:internal/modules/esm/resolve:873
+govtjobsnow_app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+govtjobsnow_app  |         ^
+govtjobsnow_app  |
+govtjobsnow_app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+govtjobsnow_app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+govtjobsnow_app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+govtjobsnow_app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+govtjobsnow_app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+govtjobsnow_app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+govtjobsnow_app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+govtjobsnow_app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+govtjobsnow_app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+govtjobsnow_app  |   code: 'ERR_MODULE_NOT_FOUND'
+govtjobsnow_app  | }
+govtjobsnow_app  |
+govtjobsnow_app  | Node.js v20.19.5
+govtjobsnow_app  |
+govtjobsnow_app  | > rest-express@1.0.0 start
+govtjobsnow_app  | > NODE_ENV=production node dist/index.js
+govtjobsnow_app  |
+govtjobsnow_app  | node:internal/modules/esm/resolve:873
+govtjobsnow_app  |   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+govtjobsnow_app  |         ^
+govtjobsnow_app  |
+govtjobsnow_app  | Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'vite' imported from /app/dist/index.js
+govtjobsnow_app  |     at packageResolve (node:internal/modules/esm/resolve:873:9)
+govtjobsnow_app  |     at moduleResolve (node:internal/modules/esm/resolve:946:18)
+govtjobsnow_app  |     at defaultResolve (node:internal/modules/esm/resolve:1188:11)
+govtjobsnow_app  |     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:708:12)
+govtjobsnow_app  |     at #cachedDefaultResolve (node:internal/modules/esm/loader:657:25)
+govtjobsnow_app  |     at ModuleLoader.resolve (node:internal/modules/esm/loader:640:38)
+govtjobsnow_app  |     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:264:38)
+govtjobsnow_app  |     at ModuleJob._link (node:internal/modules/esm/module_job:168:49) {
+govtjobsnow_app  |   code: 'ERR_MODULE_NOT_FOUND'
+govtjobsnow_app  | }
+govtjobsnow_app  |
+govtjobsnow_app  | Node.js v20.19.5
