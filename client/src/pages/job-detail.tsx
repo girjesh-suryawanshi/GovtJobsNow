@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import SEOHead from "@/components/seo-head";
+import JobPostingSchema from "@/components/job-posting-schema";
 import ExamCalendar from "@/components/exam-calendar";
 import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
@@ -85,6 +87,13 @@ export default function JobDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title={`${job.title} - ${job.department} | Government Jobs 2025`}
+        description={`Apply for ${job.title} in ${job.department}. Location: ${job.location}. Qualification: ${job.qualification}. Deadline: ${job.deadline}. Get complete job details, eligibility criteria, and application process.`}
+        keywords={`${job.title}, ${job.department}, government jobs, ${job.location} jobs, ${job.qualification} jobs, govt recruitment 2025, sarkari naukri, apply online`}
+        url={`https://govtjobsnow.com/jobs/${job.id}`}
+      />
+      <JobPostingSchema job={job} />
       <Header 
         onOpenExamCalendar={() => setShowExamCalendar(true)}
         onScrollToDepartments={() => window.location.href = '/#departments'}

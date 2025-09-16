@@ -385,6 +385,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // XML Sitemap routes for SEO
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const baseUrl = "https://govtjobsnow.com";
+      const currentDate = new Date().toISOString();
+      
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${baseUrl}/sitemap-main.xml</loc>
+    <lastmod>${currentDate}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-jobs.xml</loc>
+    <lastmod>${currentDate}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${baseUrl}/sitemap-categories.xml</loc>
+    <lastmod>${currentDate}</lastmod>
+  </sitemap>
+</sitemapindex>`;
+
+      res.set('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate sitemap", error });
+    }
+  });
+
+  // Main pages sitemap
+  app.get("/sitemap-main.xml", async (req, res) => {
+    try {
+      const baseUrl = "https://govtjobsnow.com";
+      const currentDate = new Date().toISOString();
+      
+      const mainPages = [
+        { url: "", priority: "1.0", changefreq: "daily" },
+        { url: "/contact", priority: "0.7", changefreq: "monthly" },
+        { url: "/faq", priority: "0.7", changefreq: "monthly" },
+        { url: "/privacy-policy", priority: "0.5", changefreq: "monthly" },
+        { url: "/terms-of-service", priority: "0.5", changefreq: "monthly" },
+        { url: "/disclaimer", priority: "0.5", changefreq: "monthly" }
+      ];
+
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${mainPages.map(page => `  <url>
+    <loc>${baseUrl}${page.url}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>${page.changefreq}</changefreq>
+    <priority>${page.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+      res.set('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate main sitemap", error });
+    }
+  });
+
+  // Jobs sitemap (dynamic from database)
+  app.get("/sitemap-jobs.xml", async (req, res) => {
+    try {
+      const baseUrl = "https://govtjobsnow.com";
+      const result = await storage.searchJobs({ page: 1, limit: 1000 });
+      
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${result.jobs.map(job => `  <url>
+    <loc>${baseUrl}/job/${job.id}</loc>
+    <lastmod>${job.postedOn}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+      res.set('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate jobs sitemap", error });
+    }
+  });
+
+  // Categories sitemap
+  app.get("/sitemap-categories.xml", async (req, res) => {
+    try {
+      const baseUrl = "https://govtjobsnow.com";
+      const currentDate = new Date().toISOString();
+      
+      const categories = [
+        { url: "/jobs/ssc", name: "SSC Jobs" },
+        { url: "/jobs/railway", name: "Railway Jobs" },
+        { url: "/jobs/banking", name: "Banking Jobs" },
+        { url: "/jobs/upsc", name: "UPSC Jobs" },
+        { url: "/jobs/defence", name: "Defence Jobs" },
+        { url: "/jobs/psu", name: "PSU Jobs" },
+        { url: "/state/maharashtra", name: "Maharashtra Govt Jobs" },
+        { url: "/state/delhi", name: "Delhi Govt Jobs" },
+        { url: "/state/uttar-pradesh", name: "UP Govt Jobs" },
+        { url: "/state/karnataka", name: "Karnataka Govt Jobs" },
+        { url: "/state/tamil-nadu", name: "Tamil Nadu Govt Jobs" }
+      ];
+
+      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${categories.map(category => `  <url>
+    <loc>${baseUrl}${category.url}</loc>
+    <lastmod>${currentDate}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+      res.set('Content-Type', 'application/xml');
+      res.send(sitemap);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate categories sitemap", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/header";
+import SEOHead from "@/components/seo-head";
 import HeroSection from "@/components/hero-section";
 import StatsDashboard from "@/components/stats-dashboard";
 import FeatureShowcase from "@/components/feature-showcase";
@@ -123,6 +124,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="GovtJobsNow - Latest Government Jobs, Sarkari Naukri 2025 | 3900+ Govt Jobs"
+        description="Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ verified govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU. Apply for central & state government jobs online."
+        keywords="government jobs, sarkari naukri, govt jobs 2025, SSC jobs, railway jobs, banking jobs, UPSC jobs, latest govt jobs, central government jobs, state government jobs, sarkari result, govt job portal, indian government jobs, sarkari naukri 2025"
+        url="https://govtjobsnow.com"
+      />
       <Header 
         onOpenExamCalendar={() => setShowExamCalendar(true)}
         onScrollToDepartments={handleScrollToDepartments}
