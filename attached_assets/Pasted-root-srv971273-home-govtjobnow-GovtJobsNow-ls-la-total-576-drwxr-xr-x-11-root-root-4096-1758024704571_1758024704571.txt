@@ -1,0 +1,36 @@
+root@srv971273:/home/govtjobnow/GovtJobsNow# ls -la
+total 576
+drwxr-xr-x 11 root    root      4096 Sep 16 12:10 .
+drwxr-xr-x  3 root    root      4096 Sep 16 07:36 ..
+-rw-r--r--  1 root    root      1691 Sep 16 08:09 .dockerignore
+-rw-r--r--  1 root    root       820 Sep 16 11:53 .env.example
+-rw-r--r--  1 root    root      1112 Sep 16 10:03 .env.production
+drwxr-xr-x  8 root    root      4096 Sep 16 11:53 .git
+-rw-r--r--  1 root    root        67 Sep 16 07:36 .gitignore
+-rw-r--r--  1 root    root       820 Sep 16 09:00 .replit
+-rw-r--r--  1 root    root      5839 Sep 16 07:36 DEPLOYMENT.md
+-rw-r--r--  1 root    root      4514 Sep 16 07:36 DEPLOYMENT_GUIDE_MULTI_APP_VPS.md
+-rw-r--r--  1 root    root      1457 Sep 16 11:53 Dockerfile
+drwxr-xr-x  2 root    root      4096 Sep 16 11:34 attached_assets
+drwxr-xr-x  3 root    root      4096 Sep 16 07:36 client
+-rw-r--r--  1 root    root       459 Sep 16 07:36 components.json
+drwxr-xr-x  2 root    root      4096 Sep 16 07:47 db-backup
+-rw-r--r--  1 root    root      9961 Sep 16 11:53 deploy.sh
+-rw-r--r--  1 root    root      3445 Sep 16 09:23 docker-compose.yml
+-rw-r--r--  1 root    root       325 Sep 16 07:36 drizzle.config.ts
+drwxr-xr-x  2 fitbite fitbite   4096 Sep 16 07:47 logs
+-rw-r--r--  1 root    root      3001 Sep 16 11:22 nginx-govtjobnow-http.conf
+-rw-r--r--  1 root    root      7369 Sep 16 07:36 nginx-govtjobnow.conf
+-rw-r--r--  1 root    root      5426 Sep 16 07:36 nginx.conf
+-rw-r--r--  1 root    root    340053 Sep 16 07:36 package-lock.json
+-rw-r--r--  1 root    root      3730 Sep 16 07:36 package.json
+-rw-r--r--  1 root    root        80 Sep 16 07:36 postcss.config.js
+-rw-r--r--  1 root    root      8133 Sep 16 07:36 replit.md
+drwxr-xr-x  2 root    root      4096 Sep 16 11:54 server
+-rw-r--r--  1 root    root      5928 Sep 16 07:36 server-integration.conf
+drwxr-xr-x  2 root    root      4096 Sep 16 07:36 shared
+drwxr-xr-x  2 root    root      4096 Sep 16 07:47 ssl
+-rw-r--r--  1 root    root      2627 Sep 16 07:36 tailwind.config.ts
+-rw-r--r--  1 root    root       657 Sep 16 07:36 tsconfig.json
+drwxr-xr-x  2 fitbite fitbite   4096 Sep 16 07:47 uploads
+-rw-r--r--  1 root    root       971 Sep 16 07:36 vite.config.ts
