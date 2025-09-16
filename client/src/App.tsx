@@ -14,6 +14,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms-of-service";
 import Disclaimer from "@/pages/disclaimer";
 import SSCJobs from "@/pages/ssc-jobs";
+import RailwayJobs from "@/pages/railway-jobs";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -29,6 +30,7 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/jobs/ssc" component={SSCJobs} />
+      <Route path="/jobs/railway" component={RailwayJobs} />
       <Route component={NotFound} />
     </Switch>
   );
