@@ -1,0 +1,92 @@
+root@srv971273:/home/govtjobnow/GovtJobsNow# ./deploy.sh
+🚀 GovtJobsNow Deployment Script
+==================================
+Starting deployment process for multi-app VPS...
+
+✅ Docker is installed
+✅ Docker Compose v2 (plugin) is installed
+ℹ️ Checking for port conflicts...
+✅ Port 80 in use (existing web server detected)
+ℹ️ You can integrate GovtJobsNow with your existing web server
+ℹ️ See server-integration.conf for integration instructions
+✅ Port 443 in use (existing HTTPS server detected)
+✅ Port conflict check completed
+ℹ️ Checking system resources...
+✅ Available memory: 6460MB
+✅ Available disk space: 73791MB
+✅ .env.production file exists and configured
+ℹ️ Creating necessary directories...
+✅ Directories created with proper permissions
+ℹ️ Pulling latest Docker images...
+WARN[0000] The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] /home/govtjobnow/GovtJobsNow/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Pulling 1/1
+ ✔ postgres Pulled                                                                                                 2.0s
+✅ Images pulled successfully
+ℹ️ Building and starting services...
+WARN[0000] The "POSTGRES_PASSWORD" variable is not set. Defaulting to a blank string.
+WARN[0000] /home/govtjobnow/GovtJobsNow/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion
+[+] Building 2.0s (15/19)
+ => [internal] load local bake definitions                                                                         0.0s
+ => => reading from stdin 505B                                                                                     0.0s
+ => [internal] load build definition from Dockerfile                                                               0.0s
+ => => transferring dockerfile: 1.50kB                                                                             0.0s
+ => [internal] load metadata for docker.io/library/node:20-alpine                                                  0.7s
+ => [internal] load .dockerignore                                                                                  0.0s
+ => => transferring context: 1.69kB                                                                                0.0s
+ => [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:eabac870db94f7342d6c33560d6613f188bbcf4bbe1f4eb47d  0.0s
+ => [internal] load build context                                                                                  0.0s
+ => => transferring context: 6.63kB                                                                                0.0s
+ => CACHED [production 2/9] RUN apk add --no-cache dumb-init curl                                                  0.0s
+ => CACHED [production 3/9] RUN addgroup -g 1001 -S nodejs                                                         0.0s
+ => CACHED [production 4/9] RUN adduser -S nodejs -u 1001                                                          0.0s
+ => CACHED [production 5/9] WORKDIR /app                                                                           0.0s
+ => CACHED [production 6/9] COPY package*.json ./                                                                  0.0s
+ => CACHED [builder 2/6] WORKDIR /app                                                                              0.0s
+ => CACHED [builder 3/6] COPY package*.json ./                                                                     0.0s
+ => ERROR [production 7/9] RUN npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache               1.0s
+ => CANCELED [builder 4/6] RUN npm install --include=dev                                                           1.1s
+------
+ > [production 7/9] RUN npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache:
+0.911 npm error code EUSAGE
+0.912 npm error
+0.912 npm error The `npm ci` command can only install with an existing package-lock.json or
+0.912 npm error npm-shrinkwrap.json with lockfileVersion >= 1. Run an install with npm@5 or
+0.912 npm error later to generate a package-lock.json file, then try again.
+0.912 npm error
+0.912 npm error Clean install a project
+0.912 npm error
+0.912 npm error Usage:
+0.912 npm error npm ci
+0.912 npm error
+0.912 npm error Options:
+0.912 npm error [--install-strategy <hoisted|nested|shallow|linked>] [--legacy-bundling]
+0.912 npm error [--global-style] [--omit <dev|optional|peer> [--omit <dev|optional|peer> ...]]
+0.912 npm error [--include <prod|dev|optional|peer> [--include <prod|dev|optional|peer> ...]]
+0.912 npm error [--strict-peer-deps] [--foreground-scripts] [--ignore-scripts] [--no-audit]
+0.912 npm error [--no-bin-links] [--no-fund] [--dry-run]
+0.912 npm error [-w|--workspace <workspace-name> [-w|--workspace <workspace-name> ...]]
+0.912 npm error [-ws|--workspaces] [--include-workspace-root] [--install-links]
+0.912 npm error
+0.912 npm error aliases: clean-install, ic, install-clean, isntall-clean
+0.912 npm error
+0.912 npm error Run "npm help ci" for more info
+0.915 npm error A complete log of this run can be found in: /tmp/empty-cache/_logs/2025-09-16T08_06_58_844Z-debug-0.log
+------
+Dockerfile:36
+
+--------------------
+
+  34 |
+
+  35 |     # Install only production dependencies
+
+  36 | >>> RUN npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache
+
+  37 |
+
+  38 |     # Copy built application from builder stage
+
+--------------------
+
+failed to solve: process "/bin/sh -c npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache" did not complete successfully: exit code: 1

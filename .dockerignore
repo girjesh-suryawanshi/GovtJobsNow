@@ -104,8 +104,8 @@ vitest.config.*
 # TypeScript build info
 *.tsbuildinfo
 
-# Package manager files (will be recreated)
-package-lock.json
+# Package manager files (yarn/pnpm - will be recreated)
+# Keep package-lock.json for npm ci in Docker builds
 yarn.lock
 pnpm-lock.yaml
 
