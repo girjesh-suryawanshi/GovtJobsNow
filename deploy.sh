@@ -46,7 +46,7 @@ check_docker() {
 check_port_conflicts() {
     print_info "Checking for port conflicts..."
     
-    # Check if ports 8080 and 8443 are in use (try netstat, fallback to ss)
+    # Check if port 4007 is in use (application port behind nginx)
     PORT_CHECK_CMD="netstat -tulpn"
     if ! command -v netstat &> /dev/null; then
         if command -v ss &> /dev/null; then
@@ -57,18 +57,12 @@ check_port_conflicts() {
         fi
     fi
     
-    if $PORT_CHECK_CMD 2>/dev/null | grep -q ":8080 "; then
-        print_error "Port 8080 is already in use!"
-        print_info "Current processes using port 8080:"
-        $PORT_CHECK_CMD | grep ":8080 "
-        print_warning "Please stop the service using port 8080 or edit docker-compose.yml to use a different port"
+    if $PORT_CHECK_CMD 2>/dev/null | grep -q ":4007 "; then
+        print_error "Port 4007 is already in use!"
+        print_info "Current processes using port 4007:"
+        $PORT_CHECK_CMD | grep ":4007 "
+        print_warning "Please stop the service using port 4007 or edit docker-compose.yml to use a different port"
         exit 1
-    fi
-    
-    if $PORT_CHECK_CMD 2>/dev/null | grep -q ":8443 "; then
-        print_warning "Port 8443 is already in use - HTTPS will not be available"
-        print_info "Current processes using port 8443:"
-        $PORT_CHECK_CMD | grep ":8443 "
     fi
     
     # Check if standard web ports are in use (existing web server)
@@ -123,28 +117,34 @@ check_docker_compose() {
     fi
 }
 
-# Check if .env file exists and has required values
+# Check if .env.production file exists and has required values
 check_env_file() {
-    if [ ! -f ".env" ]; then
-        print_warning ".env file not found!"
-        print_info "Copying .env.example to .env"
-        cp .env.example .env
-        print_error "CRITICAL: Please edit .env file with a STRONG database password before continuing!"
+    if [ ! -f ".env.production" ]; then
+        print_warning ".env.production file not found!"
+        if [ -f ".env.production.example" ]; then
+            print_info "Copying .env.production.example to .env.production"
+            cp .env.production.example .env.production
+        else
+            print_error "CRITICAL: .env.production.example file not found!"
+            print_info "Create .env.production with required environment variables"
+            exit 1
+        fi
+        print_error "CRITICAL: Please edit .env.production file with production values before continuing!"
         print_info "1. Generate strong password: openssl rand -base64 32"
-        print_info "2. Edit file: nano .env"
-        print_info "3. Replace CHANGE_THIS_TO_STRONG_PASSWORD_NOW with your password"
+        print_info "2. Edit file: nano .env.production"
+        print_info "3. Replace all placeholder values with production values"
         exit 1
     fi
     
     # Check if default password is still being used
-    if grep -q "CHANGE_THIS_TO_STRONG_PASSWORD_NOW" .env; then
-        print_error "SECURITY RISK: Default password found in .env file!"
+    if grep -q "CHANGE_THIS_TO_STRONG_PASSWORD_NOW" .env.production 2>/dev/null; then
+        print_error "SECURITY RISK: Default password found in .env.production file!"
         print_info "Please replace CHANGE_THIS_TO_STRONG_PASSWORD_NOW with a strong password"
         print_info "Generate one with: openssl rand -base64 32"
         exit 1
     fi
     
-    print_status ".env file exists and configured"
+    print_status ".env.production file exists and configured"
 }
 
 # Create necessary directories
@@ -152,16 +152,22 @@ create_directories() {
     print_info "Creating necessary directories..."
     mkdir -p logs
     mkdir -p db-backup
+    mkdir -p uploads
     mkdir -p ssl
-    # Ensure logs directory is writable by the app user (uid 1001)
+    # Ensure directories are writable by the app user (uid 1001)
     chmod 755 logs
+    chmod 755 uploads
+    # Set ownership to user 1001 for container compatibility
+    if command -v chown &> /dev/null; then
+        chown -R 1001:1001 logs uploads 2>/dev/null || true
+    fi
     print_status "Directories created with proper permissions"
 }
 
 # Pull latest images
 pull_images() {
     print_info "Pulling latest Docker images..."
-    $COMPOSE_CMD pull postgres nginx
+    $COMPOSE_CMD pull postgres
     print_status "Images pulled successfully"
 }
 
@@ -190,7 +196,7 @@ wait_for_services() {
     # Wait for application
     echo "Waiting for application to be ready..."
     for i in {1..30}; do
-        if $COMPOSE_CMD exec -T app curl -fsS http://localhost:5000/api/stats > /dev/null 2>&1; then
+        if $COMPOSE_CMD exec -T app curl -fsS http://localhost:3000/api/stats > /dev/null 2>&1; then
             break
         fi
         echo -n "."
@@ -214,14 +220,15 @@ show_status() {
     
     echo ""
     print_info "Application URLs:"
-    echo "🌐 Main Application: http://your-server-ip:8080"
-    echo "🌐 HTTPS (when SSL configured): https://your-server-ip:8443"
-    echo "📊 Health Check: http://your-server-ip:8080/health"
+    echo "🌐 Main Application: http://your-server-ip (via host Nginx)"
+    echo "🌐 Direct Access: http://your-server-ip:4007 (for testing only)"
+    echo "🌐 Production Domain: https://govtjobnow.com (when configured)"
+    echo "📊 Health Check: http://localhost:4007/api/stats (internal)"
     echo ""
     print_info "Integration Options:"
-    echo "• Standalone: Access directly via port 8080"
-    echo "• With existing web server: See server-integration.conf"
-    echo "• Subdomain: Point subdomain to this server on port 8080"
+    echo "• Production: Configure host Nginx with govtjobnow.com domain"
+    echo "• Testing: Access directly via port 4007"
+    echo "• See nginx-govtjobnow.conf for production Nginx configuration"
     
     echo ""
     print_info "Useful Commands:"
@@ -254,33 +261,25 @@ main() {
     
     echo ""
     print_warning "Next Steps:"
-    echo "1. Open firewall ports: ufw allow 8080 && ufw allow 8443"
-    echo "2. Test application: curl http://localhost:8080"
-    echo "3. OPTION A - Standalone Access:"
-    echo "   • Access via http://your-server-ip:8080"
-    echo "4. OPTION B - Integrate with existing web server:"
-    echo "   • Follow instructions in server-integration.conf"
-    echo "   • Add location block to existing Nginx/Apache config"
-    echo "5. OPTION C - Use subdomain:"
-    echo "   • Point subdomain DNS to server IP"
-    echo "   • Access via http://subdomain.yourdomain.com:8080"
-    echo "6. For SSL/HTTPS:"
-    echo "   • Get certificates and place in ssl/ directory"
-    echo "   • Update nginx.conf with your domain"
-    echo "   • Access via https://your-server-ip:8443"
+    echo "1. Configure host Nginx:"
+    echo "   sudo cp nginx-govtjobnow.conf /etc/nginx/sites-available/govtjobnow.com"
+    echo "   sudo ln -s /etc/nginx/sites-available/govtjobnow.com /etc/nginx/sites-enabled/"
+    echo "   sudo nginx -t && sudo systemctl reload nginx"
+    echo "2. Open firewall ports: ufw allow 80 && ufw allow 443"
+    echo "3. Test application: curl http://localhost:4007/api/stats"
+    echo "4. Configure DNS:"
+    echo "   • Point govtjobnow.com A record to your server IP"
+    echo "5. Setup SSL with Let's Encrypt:"
+    echo "   sudo certbot --nginx -d govtjobnow.com -d www.govtjobnow.com"
+    echo "6. Production access: https://govtjobnow.com"
     echo ""
-    print_info "SSL Certificate Setup (Optional):"
-    echo "# Stop nginx temporarily"
-    echo "$COMPOSE_CMD stop nginx"
-    echo "# Install certbot"
-    echo "apt install certbot"
-    echo "# Get certificate (use port 80 temporarily)"
-    echo "certbot certonly --standalone -d your-domain.com"
-    echo "# Copy to ssl directory"
-    echo "cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ./ssl/cert.pem"
-    echo "cp /etc/letsencrypt/live/your-domain.com/privkey.pem ./ssl/key.pem"
-    echo "# Restart services"
-    echo "$COMPOSE_CMD start nginx"
+    print_info "SSL Certificate Setup (Required for production):"
+    echo "# Install certbot and nginx plugin"
+    echo "sudo apt install certbot python3-certbot-nginx"
+    echo "# Get certificate (requires domain pointing to server)"
+    echo "sudo certbot --nginx -d govtjobnow.com -d www.govtjobnow.com"
+    echo "# Verify auto-renewal"
+    echo "sudo certbot renew --dry-run"
 }
 
 # Handle script arguments

@@ -78,3 +78,52 @@ backup/
 
 # SSL certificates (will be mounted as volume)
 ssl/
+
+# Additional deployment files
+deploy.sh
+nginx*.conf
+server-integration.conf
+DEPLOYMENT*.md
+
+# Environment files (use .env.production in container)
+.env
+.env.example
+.env.production.example
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+jest.config.*
+vitest.config.*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Package manager files (will be recreated)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Cache directories
+.cache/
+.parcel-cache/
+.vite/
+.next/
+
+# Uploads and logs directories (will be mounted as volumes)
+uploads/
+
+# PostgreSQL data (will be mounted as volume)
+postgres_data/
+
+# Temporary and build artifacts
+tmp/
+temp/
+*.tmp
+build/
+out/

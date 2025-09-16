@@ -10,9 +10,11 @@ services:
       POSTGRES_DB: govtjobsnow
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # Security hardening
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db-backup:/backup
+      - ./db-backup:/backup:rw
     # PostgreSQL port only accessible internally 
     # Use different port if you need external access to avoid conflicts
     # ports:
@@ -22,60 +24,111 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # PostgreSQL needs write access
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
     networks:
       - govtjobs_network
 
-  # Main Application
+  # Main Application  
   app:
     build: .
     container_name: govtjobsnow_app
     restart: unless-stopped
+    
+    # Bind to localhost only - host Nginx will proxy
+    ports:
+      - "127.0.0.1:4007:3000"
+    
+    # Use environment file for production secrets
+    env_file:
+      - .env.production
+    
     environment:
       NODE_ENV: production
-      PORT: 5000
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/govtjobsnow
-      PGHOST: postgres
-      PGPORT: 5432
-      PGUSER: postgres
-      PGPASSWORD: ${POSTGRES_PASSWORD}
-      PGDATABASE: govtjobsnow
-      # Add any other environment variables your app needs
+      PORT: 3000
       TZ: Asia/Kolkata
-    # App port only accessible through Nginx
-    # ports:
-    #   - "5000:5000"
+      BASE_URL: https://govtjobnow.com
+      
     depends_on:
       postgres:
         condition: service_healthy
+        
     volumes:
-      - ./logs:/app/logs
+      - ./logs:/app/logs:rw
+      - ./uploads:/app/uploads:rw
+      # Create uploads with proper ownership for uid 1001
+      
     networks:
       - govtjobs_network
+      
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5000/api/stats || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/stats || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
-
-  # Nginx Reverse Proxy (optional but recommended for production)
-  nginx:
-    image: nginx:alpine
-    container_name: govtjobsnow_nginx
-    restart: unless-stopped
-    ports:
-      - "8080:80"    # Use port 8080 to avoid conflicts with existing web server
-      - "8443:443"   # Use port 8443 for HTTPS to avoid conflicts
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro  # For SSL certificates
-    depends_on:
-      - app
-    networks:
-      - govtjobs_network
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+    
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+    read_only: false  # App needs write access to logs and uploads
+    user: "1001:1001"  # Run as non-root user
+    tmpfs:
+      - /tmp:exec,size=100M
+    
+    # Process limits
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      nproc:
+        soft: 65536
+        hard: 65536
 
 volumes:
   postgres_data:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./postgres_data
 
 networks:
   govtjobs_network:
@@ -84,3 +137,9 @@ networks:
     ipam:
       config:
         - subnet: 172.25.0.0/16
+    # Network security
+    driver_opts:
+      com.docker.network.bridge.name: govtjobs_br
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.driver.mtu: "1500"
