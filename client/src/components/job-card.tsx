@@ -75,54 +75,118 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
       onClick={onClick}
     >
       <CardContent className="p-5">
-        {/* Header Section */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex gap-3 flex-1">
+        {/* Header Section - Mobile Responsive */}
+        <div className="mb-4">
+          {/* Top Row: Logo, Title, and Urgency */}
+          <div className="flex items-start gap-3 mb-3">
             <div className="flex-shrink-0">
-              <OrganizationLogo department={job.department} className="h-12 w-12 rounded-lg shadow-sm" />
+              <OrganizationLogo department={job.department} className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg shadow-sm" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">
                 {job.title}
               </h3>
-              <p className="text-blue-600 font-medium text-sm mb-2">
+              <p className="text-blue-600 font-medium text-sm mb-2 truncate">
                 {job.department}
               </p>
-              
-              {/* Key Info Tags */}
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  {job.location}
-                </Badge>
-                <Badge variant="secondary" className="text-xs bg-purple-50 text-purple-700">
-                  {job.qualification}
-                </Badge>
-                {job.positions && (
-                  <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700">
-                    <Users className="h-3 w-3 mr-1" />
-                    {job.positions} positions
-                  </Badge>
-                )}
+            </div>
+            <div className="flex-shrink-0">
+              <div className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getUrgencyColor(job.deadline)} whitespace-nowrap`}>
+                {getUrgencyText(job.deadline)}
               </div>
             </div>
           </div>
           
-          {/* Deadline & Urgency */}
-          <div className="flex flex-col items-end ml-3">
-            <div className={`px-3 py-1 rounded-full text-xs font-semibold ${getUrgencyColor(job.deadline)} mb-2`}>
-              {getUrgencyText(job.deadline)}
-            </div>
-            <div className="text-xs text-gray-500 text-right">
-              <div>Posted: {job.postedOn}</div>
-              <div>Deadline: {job.deadline}</div>
-            </div>
+          {/* Key Info Tags - Mobile Optimized */}
+          <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
+            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              <span className="truncate max-w-24 sm:max-w-none">{job.location}</span>
+            </Badge>
+            <Badge variant="secondary" className="text-xs bg-purple-50 text-purple-700 truncate max-w-32 sm:max-w-none">
+              {job.qualification}
+            </Badge>
+            {job.positions && (
+              <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700 flex items-center gap-1 whitespace-nowrap">
+                <Users className="h-3 w-3" />
+                {job.positions} positions
+              </Badge>
+            )}
+          </div>
+          
+          {/* Date Info - Mobile Layout */}
+          <div className="text-xs text-gray-500 sm:hidden flex justify-between">
+            <span>Posted: {job.postedOn}</span>
+            <span>Deadline: {job.deadline}</span>
+          </div>
+          <div className="text-xs text-gray-500 hidden sm:block">
+            <div>Posted: {job.postedOn} • Deadline: {job.deadline}</div>
           </div>
         </div>
 
-        {/* Salary & Details Section */}
+        {/* Salary & Details Section - Mobile Responsive */}
         <div className="bg-gray-50 rounded-lg p-3 mb-4">
-          <div className="flex items-center justify-between">
+          {/* Mobile: Stack vertically */}
+          <div className="sm:hidden space-y-3">
+            <div className="flex items-center justify-between">
+              {job.salary && (
+                <div className="flex items-center gap-1 text-green-700 font-semibold">
+                  <IndianRupee className="h-4 w-4" />
+                  <span className="text-sm">{job.salary}</span>
+                </div>
+              )}
+              <div className="text-xs text-gray-600 truncate max-w-32">
+                <Globe className="h-3 w-3 inline mr-1" />
+                {(() => {
+                  try {
+                    return new URL(job.sourceUrl).hostname;
+                  } catch {
+                    return 'Source site';
+                  }
+                })()}
+              </div>
+            </div>
+            
+            {/* Mobile Action Buttons - Larger Touch Targets */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleSaveJob}
+                className={`h-9 w-9 p-0 rounded-full ${isSaved ? 'text-orange-500 bg-orange-50' : 'text-gray-400'} hover:text-orange-600 hover:bg-orange-50`}
+              >
+                <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleShareJob}
+                className="h-9 w-9 p-0 rounded-full text-gray-400 hover:text-blue-600 hover:bg-blue-50"
+              >
+                <Share2 className="h-4 w-4" />
+              </Button>
+              {onCompare && (
+                <Button
+                  variant={isComparing ? "default" : "outline"}
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCompare();
+                  }}
+                  className={`text-xs px-4 h-9 rounded-full flex-1 max-w-24 ${
+                    isComparing 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'border-blue-200 text-blue-600 hover:bg-blue-50'
+                  }`}
+                >
+                  {isComparing ? '✓' : 'Compare'}
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          {/* Desktop: Horizontal layout */}
+          <div className="hidden sm:flex items-center justify-between">
             <div className="flex items-center gap-4">
               {job.salary && (
                 <div className="flex items-center gap-1 text-green-700 font-semibold">
@@ -132,11 +196,17 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
               )}
               <div className="text-sm text-gray-600">
                 <Globe className="h-3 w-3 inline mr-1" />
-                {new URL(job.sourceUrl).hostname}
+                {(() => {
+                  try {
+                    return new URL(job.sourceUrl).hostname;
+                  } catch {
+                    return 'Source site';
+                  }
+                })()}
               </div>
             </div>
             
-            {/* Action Buttons */}
+            {/* Desktop Action Buttons */}
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -175,19 +245,19 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
           </div>
         </div>
 
-        {/* Call to Action */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            <Calendar className="h-3 w-3 inline mr-1" />
+        {/* Call to Action - Mobile Responsive */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
+          <div className="text-sm text-gray-600 flex items-center">
+            <Calendar className="h-3 w-3 mr-1" />
             {isExpired ? 'Application closed' : `${daysLeft} days to apply`}
           </div>
           
           <Button
             size="sm"
-            className={`text-xs px-4 ${
+            className={`text-sm px-6 h-10 sm:h-8 sm:text-xs sm:px-4 w-full sm:w-auto ${
               isExpired 
                 ? 'bg-gray-400 text-white cursor-not-allowed' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'
             }`}
             onClick={isExpired ? undefined : onClick}
             disabled={isExpired}
