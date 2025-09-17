@@ -403,11 +403,125 @@ export class DatabaseStorage implements IStorage {
       return existing[0];
     }
 
+    // Enhanced duplicate detection - check for content similarity
+    // Use time window of 90 days and proper ordering instead of arbitrary limit
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    
+    const potentialDuplicates = await db.select().from(jobs)
+      .where(and(
+        eq(jobs.department, insertJob.department),
+        gte(jobs.createdAt, ninetyDaysAgo)
+      ))
+      .orderBy(desc(jobs.createdAt))
+      .limit(50); // Increased limit with time constraint
+
+    const duplicate = potentialDuplicates.find(existingJob => {
+      return this.arJobsDuplicate(existingJob, insertJob);
+    });
+
+    if (duplicate) {
+      return duplicate;
+    }
+
     const [job] = await db
       .insert(jobs)
       .values(insertJob)
       .returning();
     return job;
+  }
+
+  private arJobsDuplicate(existing: Job, newJob: InsertJob): boolean {
+    // Add null safety checks
+    if (!existing?.title || !newJob?.title || !existing?.qualification || !newJob?.qualification) {
+      return false;
+    }
+
+    // Normalize titles for comparison
+    const normalizeTitle = (title: string): string => {
+      if (!title) return '';
+      return title.toLowerCase()
+        .replace(/[^\w\s]/g, '') // Remove special characters
+        .replace(/\b(recruitment|notification|vacancy|post|job|hiring|govt|government|sarkari)\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+
+    // Normalize qualifications for better comparison
+    const normalizeQualification = (qualification: string): string => {
+      if (!qualification) return '';
+      return qualification.toLowerCase()
+        .replace(/[^\w\s]/g, '')
+        .replace(/\b(degree|diploma|certificate|graduate|post|under)\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    };
+
+    const existingNormalized = normalizeTitle(existing.title);
+    const newNormalized = normalizeTitle(newJob.title);
+
+    // Calculate title similarity with lower threshold (0.7 instead of 0.8)
+    const titleSimilarity = this.calculateStringSimilarity(existingNormalized, newNormalized);
+    
+    // Check if titles are similar (>70% match instead of 80%)
+    if (titleSimilarity < 0.7) {
+      return false;
+    }
+
+    // Check qualification similarity with normalization
+    const existingQualNorm = normalizeQualification(existing.qualification);
+    const newQualNorm = normalizeQualification(newJob.qualification);
+    const qualificationMatch = (existingQualNorm.includes(newQualNorm) && newQualNorm.length > 3) ||
+                             (newQualNorm.includes(existingQualNorm) && existingQualNorm.length > 3) ||
+                             this.calculateStringSimilarity(existingQualNorm, newQualNorm) > 0.6;
+
+    // Check deadline proximity (within 7 days) with null safety
+    let deadlineClose = false;
+    if (existing.deadline && newJob.deadline) {
+      const deadlineDiff = Math.abs(new Date(existing.deadline).getTime() - new Date(newJob.deadline).getTime());
+      deadlineClose = deadlineDiff <= 7 * 24 * 60 * 60 * 1000; // 7 days
+    }
+
+    // Check salary similarity - default to false, only true when both exist and similar
+    let salarySimilar = false;
+    if (existing.salary && newJob.salary) {
+      const extractNumber = (str: string): number => {
+        const match = str.match(/[\d,]+/);
+        return match ? parseInt(match[0].replace(/,/g, '')) : 0;
+      };
+      
+      const existingSalary = extractNumber(existing.salary);
+      const newSalary = extractNumber(newJob.salary);
+      
+      if (existingSalary > 0 && newSalary > 0) {
+        const salaryDiff = Math.abs(existingSalary - newSalary) / Math.max(existingSalary, newSalary);
+        salarySimilar = salaryDiff <= 0.2; // Within 20% difference
+      }
+    }
+
+    // Consider it a duplicate if:
+    // - High title similarity (>70%)
+    // - Same department (already filtered)
+    // - Similar qualification OR close deadline OR similar salary
+    return titleSimilarity > 0.7 && (qualificationMatch || deadlineClose || salarySimilar);
+  }
+
+  private calculateStringSimilarity(str1: string, str2: string): number {
+    // Add null safety
+    if (!str1 || !str2) return 0;
+    
+    // Simple Jaccard similarity for words with ES5 compatibility
+    const words1 = new Set(str1.split(' ').filter(w => w.length > 2));
+    const words2 = new Set(str2.split(' ').filter(w => w.length > 2));
+    
+    // Use Array.from() for ES5 compatibility
+    const words1Array = Array.from(words1);
+    const words2Array = Array.from(words2);
+    
+    const intersection = new Set(words1Array.filter(w => words2.has(w)));
+    const union = new Set([...words1Array, ...words2Array]);
+    
+    return union.size === 0 ? 0 : intersection.size / union.size;
   }
 
   async updateJob(id: string, updateJob: Partial<InsertJob>): Promise<Job | undefined> {
