@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Menu, X, Search, Bell, User, Briefcase, Building2, Calendar, HelpCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 import AuthModal from "@/components/auth-modal";
 import HelpModal from "@/components/help-modal";
 import { useUser } from "@/contexts/user-context";
@@ -20,7 +21,7 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   return (
-    <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-18">
           {/* Logo Section */}
@@ -44,27 +45,27 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
           
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center space-x-1">
-            <Link href="/" className="px-4 py-2 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium transition-all duration-200 flex items-center gap-2">
+            <Link href="/" className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium transition-all duration-300 flex items-center gap-2">
               <Search className="h-4 w-4" />
               Browse Jobs
             </Link>
             <button 
               onClick={onScrollToDepartments}
-              className="px-4 py-2 rounded-lg text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium transition-all duration-200 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
               <Building2 className="h-4 w-4" />
               Departments
             </button>
             <button 
               onClick={onOpenExamCalendar}
-              className="px-4 py-2 rounded-lg text-gray-700 hover:text-green-600 hover:bg-green-50 font-medium transition-all duration-200 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
               Exam Calendar
             </button>
             <button 
               onClick={() => setShowHelpModal(true)}
-              className="px-4 py-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 font-medium transition-all duration-200 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
               <HelpCircle className="h-4 w-4" />
               Help Center
@@ -73,17 +74,18 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
           
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
             {isAuthenticated ? (
               <>
                 {/* User is logged in */}
                 <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-700">
-                    Welcome, <span className="font-medium text-blue-600">{user?.fullName}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">
+                    Welcome, <span className="font-medium text-blue-600 dark:text-blue-400">{user?.fullName}</span>
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
                     onClick={logout}
                   >
                     <LogOut className="h-4 w-4 mr-2" />
@@ -97,7 +99,7 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
                 <Button
                   variant="outline"
                   size="sm"
-                  className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300"
+                  className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950"
                   onClick={() => {
                     setAuthMode('signin');
                     setShowAuthModal(true);
@@ -134,9 +136,9 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
         
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 py-4 bg-gray-50">
+          <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 py-4 bg-gray-50 dark:bg-gray-800">
             <nav className="flex flex-col space-y-2">
-              <Link href="/" className="px-4 py-3 text-gray-700 hover:text-blue-600 hover:bg-blue-50 font-medium rounded-lg transition-all flex items-center gap-3">
+              <Link href="/" className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3">
                 <Search className="h-4 w-4" />
                 Browse Jobs
               </Link>
@@ -145,7 +147,7 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
                   onScrollToDepartments?.();
                   setIsMenuOpen(false);
                 }}
-                className="px-4 py-3 text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 font-medium rounded-lg transition-all flex items-center gap-3"
+                className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
               >
                 <Building2 className="h-4 w-4" />
                 Departments
@@ -155,7 +157,7 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
                   onOpenExamCalendar?.();
                   setIsMenuOpen(false);
                 }}
-                className="px-4 py-3 text-gray-700 hover:text-green-600 hover:bg-green-50 font-medium rounded-lg transition-all flex items-center gap-3"
+                className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
               >
                 <Calendar className="h-4 w-4" />
                 Exam Calendar
@@ -165,13 +167,17 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
                   setShowHelpModal(true);
                   setIsMenuOpen(false);
                 }}
-                className="px-4 py-3 text-gray-700 hover:text-orange-600 hover:bg-orange-50 font-medium rounded-lg transition-all flex items-center gap-3"
+                className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
               >
                 <HelpCircle className="h-4 w-4" />
                 Help Center
               </button>
               
-              <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
+              <div className="px-4 py-2">
+                <ThemeToggle />
+              </div>
+              
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 space-y-2">
                 {isAuthenticated ? (
                   <>
                     {/* User is logged in - Mobile */}

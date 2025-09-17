@@ -125,7 +125,7 @@ export default function Home() {
   const totalPages = Math.ceil((jobsData?.total || 0) / searchParams.limit!);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <SEOHead
         title="GovtJobsNow - Latest Government Jobs, Sarkari Naukri 2025 | 3900+ Govt Jobs"
         description="Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ verified govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU. Apply for central & state government jobs online."
@@ -171,8 +171,8 @@ export default function Home() {
               <div className="mb-6">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                   <div>
-                    <h2 className="text-2xl font-semibold text-gray-900">Latest Government Jobs</h2>
-                    <p className="text-gray-600">
+                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Latest Government Jobs</h2>
+                    <p className="text-gray-600 dark:text-gray-400">
                       Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -259,11 +259,11 @@ export default function Home() {
               {isLoading ? (
                 <div className="space-y-4">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
-                      <div className="h-6 bg-gray-200 rounded mb-4"></div>
+                    <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
                       <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
                       </div>
                     </div>
                   ))}
@@ -331,9 +331,9 @@ export default function Home() {
                   </div>
                 </>
               ) : (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-                  <p className="text-gray-500 text-lg">No jobs found matching your criteria</p>
-                  <p className="text-gray-400 mt-2">Try adjusting your search or filters</p>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+                  <p className="text-gray-500 dark:text-gray-400 text-lg">No jobs found matching your criteria</p>
+                  <p className="text-gray-400 dark:text-gray-500 mt-2">Try adjusting your search or filters</p>
                 </div>
               )}
             </main>

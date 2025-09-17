@@ -46,11 +46,11 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
 
   const getUrgencyColor = (deadline: string) => {
     const daysLeft = getDaysLeft(deadline);
-    if (daysLeft <= 0) return 'text-gray-500 bg-gray-100'; // Expired
-    if (daysLeft <= 3) return 'text-red-700 bg-red-100'; // Critical - 3 days or less
-    if (daysLeft <= 7) return 'text-orange-700 bg-orange-100'; // Urgent - 7 days or less
-    if (daysLeft <= 15) return 'text-yellow-700 bg-yellow-100'; // Soon - 15 days or less
-    return 'text-green-700 bg-green-100'; // Normal - More than 15 days
+    if (daysLeft <= 0) return 'text-gray-500 bg-gray-100 dark:text-gray-400 dark:bg-gray-800'; // Expired
+    if (daysLeft <= 3) return 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-950'; // Critical - 3 days or less
+    if (daysLeft <= 7) return 'text-orange-700 bg-orange-100 dark:text-orange-400 dark:bg-orange-950'; // Urgent - 7 days or less
+    if (daysLeft <= 15) return 'text-yellow-700 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-950'; // Soon - 15 days or less
+    return 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-950'; // Normal - More than 15 days
   };
 
   const getUrgencyText = (deadline: string) => {
@@ -83,10 +83,10 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
               <OrganizationLogo department={job.department} className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg shadow-sm" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 line-clamp-2 leading-tight">
                 {job.title}
               </h3>
-              <p className="text-blue-600 font-medium text-sm mb-2 truncate">
+              <p className="text-blue-600 dark:text-blue-400 font-medium text-sm mb-2 truncate">
                 {job.department}
               </p>
             </div>
@@ -99,15 +99,15 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
           
           {/* Key Info Tags - Mobile Optimized */}
           <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
-            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 flex items-center gap-1">
+            <Badge variant="secondary" className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 flex items-center gap-1">
               <MapPin className="h-3 w-3" />
               <span className="truncate max-w-24 sm:max-w-none">{job.location}</span>
             </Badge>
-            <Badge variant="secondary" className="text-xs bg-purple-50 text-purple-700 truncate max-w-32 sm:max-w-none">
+            <Badge variant="secondary" className="text-xs bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 truncate max-w-32 sm:max-w-none">
               {job.qualification}
             </Badge>
             {job.positions && (
-              <Badge variant="secondary" className="text-xs bg-blue-50 text-blue-700 flex items-center gap-1 whitespace-nowrap">
+              <Badge variant="secondary" className="text-xs bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center gap-1 whitespace-nowrap">
                 <Users className="h-3 w-3" />
                 {job.positions} positions
               </Badge>
@@ -115,27 +115,27 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
           </div>
           
           {/* Date Info - Mobile Layout */}
-          <div className="text-xs text-gray-500 sm:hidden flex justify-between">
+          <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden flex justify-between">
             <span>Posted: {job.postedOn}</span>
             <span>Deadline: {job.deadline}</span>
           </div>
-          <div className="text-xs text-gray-500 hidden sm:block">
+          <div className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
             <div>Posted: {job.postedOn} • Deadline: {job.deadline}</div>
           </div>
         </div>
 
         {/* Salary & Details Section - Mobile Responsive */}
-        <div className="bg-gray-50 rounded-lg p-3 mb-4">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 mb-4">
           {/* Mobile: Stack vertically */}
           <div className="sm:hidden space-y-3">
             <div className="flex items-center justify-between">
               {job.salary && (
-                <div className="flex items-center gap-1 text-green-700 font-semibold">
+                <div className="flex items-center gap-1 text-green-700 dark:text-green-400 font-semibold">
                   <IndianRupee className="h-4 w-4" />
                   <span className="text-sm">{job.salary}</span>
                 </div>
               )}
-              <div className="text-xs text-gray-600 truncate max-w-32">
+              <div className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-32">
                 <Globe className="h-3 w-3 inline mr-1" />
                 {(() => {
                   try {
@@ -189,12 +189,12 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
           <div className="hidden sm:flex items-center justify-between">
             <div className="flex items-center gap-4">
               {job.salary && (
-                <div className="flex items-center gap-1 text-green-700 font-semibold">
+                <div className="flex items-center gap-1 text-green-700 dark:text-green-400 font-semibold">
                   <IndianRupee className="h-4 w-4" />
                   <span>{job.salary}</span>
                 </div>
               )}
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-400">
                 <Globe className="h-3 w-3 inline mr-1" />
                 {(() => {
                   try {
@@ -247,7 +247,7 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
 
         {/* Call to Action - Mobile Responsive */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0">
-          <div className="text-sm text-gray-600 flex items-center">
+          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center">
             <Calendar className="h-3 w-3 mr-1" />
             {isExpired ? 'Application closed' : `${daysLeft} days to apply`}
           </div>
