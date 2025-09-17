@@ -14,7 +14,7 @@ RUN npm ci --include=dev
 COPY . .
 
 # Build the application with custom esbuild to fix import.meta.dirname
-RUN npx vite build && npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --define:process.env.NODE_ENV='"production"' --define:import.meta.dirname='"/app"'
+RUN npx vite build && npx esbuild server/index.ts --platform=node --bundle --format=esm --outdir=dist --packages=external --define:process.env.NODE_ENV='"production"' --define:import.meta.dirname='"/app"'
 
 # Production stage
 FROM node:20-alpine AS production
