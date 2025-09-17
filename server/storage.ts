@@ -433,26 +433,31 @@ export class DatabaseStorage implements IStorage {
 
   private arJobsDuplicate(existing: Job, newJob: InsertJob): boolean {
     // Add null safety checks
-    if (!existing?.title || !newJob?.title || !existing?.qualification || !newJob?.qualification) {
+    if (!existing?.title || !newJob?.title) {
       return false;
     }
 
-    // Normalize titles for comparison
+    // Enhanced title normalization - remove ID suffixes, dates, and common variations
     const normalizeTitle = (title: string): string => {
       if (!title) return '';
       return title.toLowerCase()
-        .replace(/[^\w\s]/g, '') // Remove special characters
-        .replace(/\b(recruitment|notification|vacancy|post|job|hiring|govt|government|sarkari)\b/g, '')
+        .replace(/\d{8}_\d+/g, '') // Remove ID patterns like 20250917_1971 (more aggressive)
+        .replace(/[^\w\s]/g, ' ') // Replace special characters with spaces
+        .replace(/\b(recruitment|notification|vacancy|post|job|hiring|govt|government|sarkari|exam|test|online)\b/g, '')
+        .replace(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/g, '')
+        .replace(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/g, '')
+        .replace(/\b20\d{2}\b/g, '') // Remove years like 2025
         .replace(/\s+/g, ' ')
         .trim();
     };
 
-    // Normalize qualifications for better comparison
-    const normalizeQualification = (qualification: string): string => {
-      if (!qualification) return '';
-      return qualification.toLowerCase()
-        .replace(/[^\w\s]/g, '')
-        .replace(/\b(degree|diploma|certificate|graduate|post|under)\b/g, '')
+    // Enhanced salary normalization for better comparison
+    const normalizeSalary = (salary: string): string => {
+      if (!salary) return '';
+      // Extract just the salary range numbers, remove currency symbols
+      return salary.toLowerCase()
+        .replace(/[₹$€£,]/g, '')
+        .replace(/per\s+(month|year|annum)/g, '')
         .replace(/\s+/g, ' ')
         .trim();
     };
@@ -460,20 +465,60 @@ export class DatabaseStorage implements IStorage {
     const existingNormalized = normalizeTitle(existing.title);
     const newNormalized = normalizeTitle(newJob.title);
 
-    // Calculate title similarity with lower threshold (0.7 instead of 0.8)
-    const titleSimilarity = this.calculateStringSimilarity(existingNormalized, newNormalized);
+    // Core title match - much stricter for exact job roles
+    const coreTitle = (title: string): string => {
+      return title.replace(/\s+/g, ' ').trim();
+    };
+
+    const existingCore = coreTitle(existingNormalized);
+    const newCore = coreTitle(newNormalized);
+
+    // Enhanced similarity calculation
+    const titleSimilarity = this.calculateStringSimilarity(existingCore, newCore);
     
-    // Check if titles are similar (>70% match instead of 80%)
-    if (titleSimilarity < 0.7) {
+    // Strict salary comparison
+    const salaryExactMatch = existing.salary && newJob.salary && 
+      normalizeSalary(existing.salary) === normalizeSalary(newJob.salary);
+    
+    // Department exact match (case insensitive)
+    const departmentMatch = existing.department?.toLowerCase() === newJob.department?.toLowerCase();
+
+    // Check if this is a clear duplicate based on multiple strong criteria
+    const isStrongDuplicate = titleSimilarity > 0.85 && departmentMatch && salaryExactMatch;
+
+    // If it's a strong duplicate, no need to check other criteria
+    if (isStrongDuplicate) {
+      return true;
+    }
+
+    // For jobs with exact same department and salary, be more strict about title matching
+    if (departmentMatch && salaryExactMatch && titleSimilarity > 0.7) {
+      return true;
+    }
+
+    // For weaker title matches, check additional criteria
+    if (titleSimilarity < 0.75) {
       return false;
     }
 
-    // Check qualification similarity with normalization
-    const existingQualNorm = normalizeQualification(existing.qualification);
-    const newQualNorm = normalizeQualification(newJob.qualification);
-    const qualificationMatch = (existingQualNorm.includes(newQualNorm) && newQualNorm.length > 3) ||
-                             (newQualNorm.includes(existingQualNorm) && existingQualNorm.length > 3) ||
-                             this.calculateStringSimilarity(existingQualNorm, newQualNorm) > 0.6;
+    // Check qualification similarity with normalization (only if qualification exists)
+    let qualificationMatch = false;
+    if (existing.qualification && newJob.qualification) {
+      const normalizeQualification = (qualification: string): string => {
+        if (!qualification) return '';
+        return qualification.toLowerCase()
+          .replace(/[^\w\s]/g, '')
+          .replace(/\b(degree|diploma|certificate|graduate|post|under|education|qualification)\b/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+      };
+
+      const existingQualNorm = normalizeQualification(existing.qualification);
+      const newQualNorm = normalizeQualification(newJob.qualification);
+      qualificationMatch = (existingQualNorm.includes(newQualNorm) && newQualNorm.length > 3) ||
+                          (newQualNorm.includes(existingQualNorm) && existingQualNorm.length > 3) ||
+                          this.calculateStringSimilarity(existingQualNorm, newQualNorm) > 0.7;
+    }
 
     // Check deadline proximity (within 7 days) with null safety
     let deadlineClose = false;
@@ -482,28 +527,35 @@ export class DatabaseStorage implements IStorage {
       deadlineClose = deadlineDiff <= 7 * 24 * 60 * 60 * 1000; // 7 days
     }
 
-    // Check salary similarity - default to false, only true when both exist and similar
+    // Enhanced salary similarity check
     let salarySimilar = false;
-    if (existing.salary && newJob.salary) {
-      const extractNumber = (str: string): number => {
-        const match = str.match(/[\d,]+/);
-        return match ? parseInt(match[0].replace(/,/g, '')) : 0;
+    if (existing.salary && newJob.salary && !salaryExactMatch) {
+      const extractSalaryRange = (str: string): {min: number, max: number} => {
+        const numbers = str.match(/[\d,]+/g);
+        if (!numbers || numbers.length === 0) return {min: 0, max: 0};
+        
+        const nums = numbers.map(n => parseInt(n.replace(/,/g, '')));
+        return {
+          min: Math.min(...nums),
+          max: Math.max(...nums)
+        };
       };
       
-      const existingSalary = extractNumber(existing.salary);
-      const newSalary = extractNumber(newJob.salary);
+      const existingRange = extractSalaryRange(existing.salary);
+      const newRange = extractSalaryRange(newJob.salary);
       
-      if (existingSalary > 0 && newSalary > 0) {
-        const salaryDiff = Math.abs(existingSalary - newSalary) / Math.max(existingSalary, newSalary);
-        salarySimilar = salaryDiff <= 0.2; // Within 20% difference
+      if (existingRange.min > 0 && newRange.min > 0) {
+        // Check if salary ranges overlap or are very close
+        const overlap = Math.min(existingRange.max, newRange.max) - Math.max(existingRange.min, newRange.min);
+        const avgRange = (existingRange.max - existingRange.min + newRange.max - newRange.min) / 2;
+        salarySimilar = overlap > 0 || (avgRange > 0 && Math.abs(overlap) / avgRange < 0.3);
       }
     }
 
     // Consider it a duplicate if:
-    // - High title similarity (>70%)
-    // - Same department (already filtered)
-    // - Similar qualification OR close deadline OR similar salary
-    return titleSimilarity > 0.7 && (qualificationMatch || deadlineClose || salarySimilar);
+    // - Good title similarity (>75%) AND same department AND
+    // - (Exact salary match OR similar qualification OR close deadline OR similar salary range)
+    return titleSimilarity > 0.75 && departmentMatch && (salaryExactMatch || qualificationMatch || deadlineClose || salarySimilar);
   }
 
   private calculateStringSimilarity(str1: string, str2: string): number {
