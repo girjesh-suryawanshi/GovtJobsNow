@@ -53,6 +53,10 @@
     @apply border-border;
   }
 
+  html {
+    scrollbar-gutter: stable both-edges;
+  }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;

@@ -43,7 +43,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby={job.description ? "job-description" : undefined}>
+      <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto sm:max-w-2xl lg:max-w-4xl max-h-[90svh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden p-0" aria-describedby={job.description ? "job-description" : undefined}>
         <DialogTitle className="sr-only">Job Details for {job.title}</DialogTitle>
         <div className="p-3 sm:p-6 border-b border-gray-200">
           <div className="flex justify-between items-start gap-3">
@@ -111,8 +111,8 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 {job.description && (
                   <div>
                     <h3 className="text-base sm:text-lg font-semibold mb-3">Job Description</h3>
-                    <div id="job-description" className="text-gray-700 space-y-2">
-                      <p>{job.description}</p>
+                    <div id="job-description" className="text-gray-700 space-y-2 break-words">
+                      <p className="break-words">{job.description}</p>
                     </div>
                   </div>
                 )}
@@ -167,7 +167,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Apply on Official Website
                   </Button>
-                  <p className="text-xs text-gray-500 text-center mt-2">
+                  <p className="text-xs text-gray-500 text-center mt-2 break-words">
                     Redirects to {new URL(job.sourceUrl).hostname}
                   </p>
                   

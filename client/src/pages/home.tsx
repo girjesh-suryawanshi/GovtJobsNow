@@ -17,6 +17,7 @@ import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
@@ -167,78 +168,91 @@ export default function Home() {
                 </Button>
               </div>
 
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h2 className="text-2xl font-semibold text-gray-900">Latest Government Jobs</h2>
-                  <p className="text-gray-600">
-                    Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {compareJobs.length > 0 && (
+              <div className="mb-6">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900">Latest Government Jobs</h2>
+                    <p className="text-gray-600">
+                      Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {compareJobs.length > 0 && (
+                        <Button 
+                          variant="default" 
+                          onClick={() => setShowComparison(true)}
+                        >
+                          View Comparison ({compareJobs.length}/3)
+                        </Button>
+                      )}
                       <Button 
-                        variant="default" 
-                        onClick={() => setShowComparison(true)}
+                        variant="outline"
+                        onClick={() => setShowJobAlerts(true)}
+                        className="flex items-center gap-2"
                       >
-                        View Comparison ({compareJobs.length}/3)
+                        <Bell className="h-4 w-4" />
+                        Job Alerts
                       </Button>
-                    )}
-                    <Button 
-                      variant="outline"
-                      onClick={() => setShowJobAlerts(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Bell className="h-4 w-4" />
-                      Job Alerts
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => setShowJobTracker(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Target className="h-4 w-4" />
-                      Track Applications
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      onClick={() => setShowExamCalendar(true)}
-                      className="flex items-center gap-2"
-                    >
-                      <Calendar className="h-4 w-4" />
-                      Exam Calendar
-                    </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setShowJobTracker(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Target className="h-4 w-4" />
+                        Track Applications
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => setShowExamCalendar(true)}
+                        className="flex items-center gap-2"
+                      >
+                        <Calendar className="h-4 w-4" />
+                        Exam Calendar
+                      </Button>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <Select 
-                    value={searchParams.sortBy} 
-                    onValueChange={(value) => handleFilterChange({ sortBy: value as any })}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="latest">Latest First</SelectItem>
-                      <SelectItem value="deadline">Deadline</SelectItem>
-                      <SelectItem value="title">Title A-Z</SelectItem>
-                      <SelectItem value="department">Department</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setViewMode("grid")}
-                    className={viewMode === "grid" ? "bg-gray-100" : ""}
-                  >
-                    <Grid3X3 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setViewMode("list")}
-                    className={viewMode === "list" ? "bg-gray-100" : ""}
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
+                  
+                  {/* Mobile-friendly toolbar with overflow handling */}
+                  <div className="flex items-center gap-2 overflow-x-auto -mx-2 px-2 sm:overflow-visible sm:mx-0 sm:px-0">
+                    <Select 
+                      value={searchParams.sortBy} 
+                      onValueChange={(value) => handleFilterChange({ sortBy: value as any })}
+                    >
+                      <SelectTrigger className="w-40 shrink-0">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="latest">Latest First</SelectItem>
+                        <SelectItem value="deadline">Deadline</SelectItem>
+                        <SelectItem value="title">Title A-Z</SelectItem>
+                        <SelectItem value="department">Department</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <ToggleGroup 
+                      type="single" 
+                      value={viewMode} 
+                      onValueChange={(value) => value && setViewMode(value as "grid" | "list")} 
+                      className="shrink-0" 
+                      data-testid="toggle-view"
+                    >
+                      <ToggleGroupItem 
+                        value="list" 
+                        aria-label="List view" 
+                        className="h-10 w-10" 
+                        data-testid="button-list-view"
+                      >
+                        <List className="h-4 w-4" />
+                      </ToggleGroupItem>
+                      <ToggleGroupItem 
+                        value="grid" 
+                        aria-label="Grid view" 
+                        className="h-10 w-10" 
+                        data-testid="button-grid-view"
+                      >
+                        <Grid3X3 className="h-4 w-4" />
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  </div>
                 </div>
               </div>
 
@@ -256,7 +270,7 @@ export default function Home() {
                 </div>
               ) : jobsData?.jobs?.length ? (
                 <>
-                  <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 gap-4" : "space-y-4"}>
+                  <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
                     {jobsData.jobs.map((job) => (
                       <JobCard
                         key={job.id}
