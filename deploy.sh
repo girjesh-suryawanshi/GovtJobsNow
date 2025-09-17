@@ -117,34 +117,34 @@ check_docker_compose() {
     fi
 }
 
-# Check if .env.production file exists and has required values
+# Check if .env file exists and has required values
 check_env_file() {
-    if [ ! -f ".env.production" ]; then
-        print_warning ".env.production file not found!"
-        if [ -f ".env.production.example" ]; then
-            print_info "Copying .env.production.example to .env.production"
-            cp .env.production.example .env.production
+    if [ ! -f ".env" ]; then
+        print_warning ".env file not found!"
+        if [ -f ".env.example" ]; then
+            print_info "Copying .env.example to .env"
+            cp .env.example .env
         else
-            print_error "CRITICAL: .env.production.example file not found!"
-            print_info "Create .env.production with required environment variables"
+            print_error "CRITICAL: .env.example file not found!"
+            print_info "Create .env with required environment variables"
             exit 1
         fi
-        print_error "CRITICAL: Please edit .env.production file with production values before continuing!"
+        print_error "CRITICAL: Please edit .env file with production values before continuing!"
         print_info "1. Generate strong password: openssl rand -base64 32"
-        print_info "2. Edit file: nano .env.production"
+        print_info "2. Edit file: nano .env"
         print_info "3. Replace all placeholder values with production values"
         exit 1
     fi
     
     # Check if default password is still being used
-    if grep -q "CHANGE_THIS_TO_STRONG_PASSWORD_NOW" .env.production 2>/dev/null; then
-        print_error "SECURITY RISK: Default password found in .env.production file!"
+    if grep -q "CHANGE_THIS_TO_STRONG_PASSWORD_NOW" .env 2>/dev/null; then
+        print_error "SECURITY RISK: Default password found in .env file!"
         print_info "Please replace CHANGE_THIS_TO_STRONG_PASSWORD_NOW with a strong password"
         print_info "Generate one with: openssl rand -base64 32"
         exit 1
     fi
     
-    print_status ".env.production file exists and configured"
+    print_status ".env file exists and configured"
 }
 
 # Create necessary directories
