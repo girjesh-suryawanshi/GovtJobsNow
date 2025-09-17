@@ -43,12 +43,12 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby="job-description">
+      <DialogContent className="max-w-[95vw] sm:max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto" aria-describedby={job.description ? "job-description" : undefined}>
         <DialogTitle className="sr-only">Job Details for {job.title}</DialogTitle>
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex justify-between items-start">
+        <div className="p-3 sm:p-6 border-b border-gray-200">
+          <div className="flex justify-between items-start gap-3">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{job.title}</h2>
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 pr-2">{job.title}</h2>
               <div className="flex flex-wrap gap-2">
                 <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100">
                   {job.department}
@@ -59,18 +59,24 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 </Badge>
               </div>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose}
+              className="shrink-0 min-h-[44px] min-w-[44px] h-11 w-11"
+              data-testid="modal-close"
+            >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </div>
         
-        <div className="p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="p-3 sm:p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
             <div className="lg:col-span-2">
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">Job Details</h3>
+                  <h3 className="text-base sm:text-lg font-semibold mb-3">Job Details</h3>
                   <div className="space-y-3">
                     <div className="flex items-center">
                       <span className="text-gray-700">
@@ -104,7 +110,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 
                 {job.description && (
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Job Description</h3>
+                    <h3 className="text-base sm:text-lg font-semibold mb-3">Job Description</h3>
                     <div id="job-description" className="text-gray-700 space-y-2">
                       <p>{job.description}</p>
                     </div>
@@ -113,7 +119,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 
                 {job.selectionProcess && (
                   <div>
-                    <h3 className="text-lg font-semibold mb-3">Selection Process</h3>
+                    <h3 className="text-base sm:text-lg font-semibold mb-3">Selection Process</h3>
                     <div className="space-y-2">
                       {job.selectionProcess.split(',').map((step, index) => (
                         <div key={index} className="flex items-center">
@@ -129,8 +135,8 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
               </div>
             </div>
             
-            <div>
-              <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+            <div className="order-first lg:order-last">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">Important Dates</h4>
                   <div className="space-y-2 text-sm">
@@ -154,8 +160,9 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 
                 <div className="pt-4 border-t border-gray-200">
                   <Button 
-                    className="w-full bg-red-600 hover:bg-red-700"
+                    className="w-full bg-red-600 hover:bg-red-700 h-11 text-sm sm:text-base"
                     onClick={handleApplyNow}
+                    data-testid="apply-now-button"
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Apply on Official Website
@@ -164,19 +171,21 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                     Redirects to {new URL(job.sourceUrl).hostname}
                   </p>
                   
-                  <div className="flex space-x-2 mt-3">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 mt-3">
                     <Button
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 min-h-[44px] h-11 text-sm"
                       onClick={handleSaveJob}
+                      data-testid="save-job-button"
                     >
                       <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? 'fill-current' : ''}`} />
                       Save Job
                     </Button>
                     <Button
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 min-h-[44px] h-11 text-sm"
                       onClick={handleShareJob}
+                      data-testid="share-job-button"
                     >
                       <Share2 className="h-4 w-4 mr-2" />
                       Share
