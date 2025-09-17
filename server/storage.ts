@@ -445,9 +445,9 @@ export class DatabaseStorage implements IStorage {
     }).from(jobs);
 
     return {
-      totalJobs: totalResult.count,
-      newToday: todayResult.count,
-      departments: deptResult.count,
+      totalJobs: totalResult.count || 0,
+      newToday: todayResult.count || 0,
+      departments: deptResult.count || 0,
       applications: Math.floor((positionsResult.total || 0) * 23.7) // Simulate applications
     };
   }
