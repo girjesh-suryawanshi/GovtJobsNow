@@ -38,8 +38,9 @@ RUN npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Note: shared schema is bundled into dist/index.js by esbuild
-# No need to copy shared directory separately
+# Copy drizzle config and schema files needed for database migrations
+COPY --from=builder /app/drizzle.config.ts ./
+COPY --from=builder /app/shared ./shared
 
 # Change ownership to nodejs user
 RUN chown -R nodejs:nodejs /app
