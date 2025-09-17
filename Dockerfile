@@ -13,8 +13,8 @@ RUN npm ci --include=dev
 # Copy source code
 COPY . .
 
-# Build the application (frontend + backend)
-RUN npm run build
+# Build the application with custom esbuild to fix import.meta.dirname
+RUN npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist --define:import.meta.dirname='"/app"'
 
 # Production stage
 FROM node:20-alpine AS production
