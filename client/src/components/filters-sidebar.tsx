@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,9 +12,11 @@ import type { SearchJobsParams } from "@/types/job";
 interface FiltersSidebarProps {
   filters: SearchJobsParams;
   onFilterChange: (filters: Partial<SearchJobsParams>) => void;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-export default function FiltersSidebar({ filters, onFilterChange }: FiltersSidebarProps) {
+export default function FiltersSidebar({ filters, onFilterChange, isOpen = false, onToggle }: FiltersSidebarProps) {
   const handleClearFilters = () => {
     onFilterChange({
       department: "all-departments",
@@ -36,12 +39,8 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
 
   const activeFiltersCount = getActiveFiltersCount();
 
-  return (
-    <aside 
-      id="departments"
-      data-testid="filters-sidebar"
-      className="lg:w-1/4 space-y-4"
-    >
+  const filtersContent = (
+    <div className="space-y-4">
       {/* Header Card */}
       <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
         <CardHeader className="pb-3">
@@ -55,17 +54,30 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
                 </Badge>
               )}
             </div>
-            {activeFiltersCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearFilters}
-                className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 text-xs"
-              >
-                <X className="h-3 w-3 mr-1" />
-                Clear All
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {activeFiltersCount > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearFilters}
+                  className="text-blue-600 hover:text-blue-800 hover:bg-blue-100 text-xs"
+                >
+                  <X className="h-3 w-3 mr-1" />
+                  Clear All
+                </Button>
+              )}
+              {/* Mobile Close Button */}
+              {onToggle && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onToggle}
+                  className="lg:hidden text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -270,6 +282,37 @@ export default function FiltersSidebar({ filters, onFilterChange }: FiltersSideb
           </RadioGroup>
         </CardContent>
       </Card>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside 
+        id="departments"
+        data-testid="filters-sidebar"
+        className="hidden lg:block lg:w-1/4"
+      >
+        {filtersContent}
+      </aside>
+
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            onClick={onToggle}
+          />
+          
+          {/* Sidebar Panel */}
+          <div className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl overflow-y-auto">
+            <div className="p-4">
+              {filtersContent}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

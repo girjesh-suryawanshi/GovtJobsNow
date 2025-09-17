@@ -17,7 +17,7 @@ import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar } from "lucide-react";
+import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
 
@@ -41,6 +41,7 @@ export default function Home() {
   const [showJobAlerts, setShowJobAlerts] = useState(false);
   const [showJobTracker, setShowJobTracker] = useState(false);
   const [showExamCalendar, setShowExamCalendar] = useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", searchParams],
@@ -145,6 +146,8 @@ export default function Home() {
             <FiltersSidebar 
               filters={searchParams} 
               onFilterChange={handleFilterChange}
+              isOpen={isMobileFiltersOpen}
+              onToggle={() => setIsMobileFiltersOpen(false)}
             />
             
             <main className="lg:w-3/4">
@@ -152,6 +155,18 @@ export default function Home() {
                 onAdvancedSearch={handleAdvancedSearch}
                 currentSearch={searchParams.search || ""}
               />
+              {/* Mobile Filter Toggle */}
+              <div className="lg:hidden mb-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsMobileFiltersOpen(true)}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Show Filters
+                </Button>
+              </div>
+
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-semibold text-gray-900">Latest Government Jobs</h2>
