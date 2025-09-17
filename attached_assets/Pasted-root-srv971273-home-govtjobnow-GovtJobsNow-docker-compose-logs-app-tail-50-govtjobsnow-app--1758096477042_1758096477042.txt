@@ -1,0 +1,51 @@
+root@srv971273:/home/govtjobnow/GovtJobsNow# docker compose logs app --tail=50
+govtjobsnow_app  |     port: 443
+govtjobsnow_app  |   },
+govtjobsnow_app  |   [Symbol(kMessage)]: 'connect ECONNREFUSED 172.25.0.2:443'
+govtjobsnow_app  | }
+govtjobsnow_app  | Error creating job: ErrorEvent {
+govtjobsnow_app  |   [Symbol(kTarget)]: WebSocket {
+govtjobsnow_app  |     _events: [Object: null prototype] {
+govtjobsnow_app  |       error: [Function],
+govtjobsnow_app  |       message: [Function],
+govtjobsnow_app  |       close: [Function],
+govtjobsnow_app  |       open: [Function]
+govtjobsnow_app  |     },
+govtjobsnow_app  |     _eventsCount: 4,
+govtjobsnow_app  |     _maxListeners: undefined,
+govtjobsnow_app  |     _binaryType: 'arraybuffer',
+govtjobsnow_app  |     _closeCode: 1006,
+govtjobsnow_app  |     _closeFrameReceived: false,
+govtjobsnow_app  |     _closeFrameSent: false,
+govtjobsnow_app  |     _closeMessage: <Buffer >,
+govtjobsnow_app  |     _closeTimer: null,
+govtjobsnow_app  |     _errorEmitted: true,
+govtjobsnow_app  |     _extensions: {},
+govtjobsnow_app  |     _paused: false,
+govtjobsnow_app  |     _protocol: '',
+govtjobsnow_app  |     _readyState: 3,
+govtjobsnow_app  |     _receiver: null,
+govtjobsnow_app  |     _sender: null,
+govtjobsnow_app  |     _socket: null,
+govtjobsnow_app  |     _bufferedAmount: 0,
+govtjobsnow_app  |     _isServer: false,
+govtjobsnow_app  |     _redirects: 0,
+govtjobsnow_app  |     _autoPong: true,
+govtjobsnow_app  |     _url: 'wss://postgres/v2',
+govtjobsnow_app  |     _req: null,
+govtjobsnow_app  |     [Symbol(shapeMode)]: false,
+govtjobsnow_app  |     [Symbol(kCapture)]: false
+govtjobsnow_app  |   },
+govtjobsnow_app  |   [Symbol(kType)]: 'error',
+govtjobsnow_app  |   [Symbol(kError)]: Error: connect ECONNREFUSED 172.25.0.2:443
+govtjobsnow_app  |       at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16) {
+govtjobsnow_app  |     errno: -111,
+govtjobsnow_app  |     code: 'ECONNREFUSED',
+govtjobsnow_app  |     syscall: 'connect',
+govtjobsnow_app  |     address: '172.25.0.2',
+govtjobsnow_app  |     port: 443
+govtjobsnow_app  |   },
+govtjobsnow_app  |   [Symbol(kMessage)]: 'connect ECONNREFUSED 172.25.0.2:443'
+govtjobsnow_app  | }
+govtjobsnow_app  | 1:36:31 PM [express] GET /api/stats 500 in 4ms :: {"message":"Failed to fetch stats","error":{}}
+govtjobsnow_app  | 1:36:37 PM [express] GET /api/stats 500 in 3ms :: {"message":"Failed to fetch stats","error":{}}
