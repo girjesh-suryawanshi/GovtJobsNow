@@ -1,11 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema } from "@shared/schema";
+import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema } from "@shared/schema";
 import { scrapeJobs } from "./scraper";
 import { adminStorage } from "./admin-storage";
 import { urlProcessor } from "./url-processor";
 import { requireAdminAuth, createAdminSession, verifyPassword, revokeAdminSession } from "./admin-auth";
+import { createUserSession, hashPassword, verifyPassword as verifyUserPassword, requireUserAuth, revokeUserSession } from "./user-auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -196,6 +197,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats", error });
+    }
+  });
+
+  // ========== USER AUTHENTICATION ROUTES ==========
+
+  // User registration
+  app.post("/api/users/register", async (req, res) => {
+    try {
+      const userData = userRegisterSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(409).json({ message: "User with this email already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await hashPassword(userData.password);
+      
+      // Create user
+      const user = await storage.createUser({
+        ...userData,
+        password: hashedPassword
+      });
+
+      // Create session
+      const token = createUserSession(user.id);
+
+      res.status(201).json({
+        token,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone
+        }
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Invalid registration data", error });
+    }
+  });
+
+  // User login
+  app.post("/api/users/login", async (req, res) => {
+    try {
+      const { email, password } = userLoginSchema.parse(req.body);
+      
+      // Get user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user || !user.isActive) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Verify password
+      const isValidPassword = await verifyUserPassword(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Create session
+      const token = createUserSession(user.id);
+
+      res.json({
+        token,
+        user: {
+          id: user.id,
+          fullName: user.fullName,
+          email: user.email,
+          phone: user.phone
+        }
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Invalid login data", error });
+    }
+  });
+
+  // User logout
+  app.post("/api/users/logout", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (token) {
+      revokeUserSession(token);
+    }
+    res.json({ message: "Logged out successfully" });
+  });
+
+  // Get current user
+  app.get("/api/users/me", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const userId = requireUserAuth(token);
+    
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const user = await storage.getUser(userId);
+      if (!user || !user.isActive) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      res.json({
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch user data", error });
     }
   });
 

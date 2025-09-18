@@ -52,30 +52,41 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     }
     
     try {
-      // Simulate API call - in real app, this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Create user object (in real app, this would come from API response)
-      const userData = {
-        id: `user_${Date.now()}`,
-        fullName: signInData.email.split('@')[0],
-        email: signInData.email
-      };
-      
-      // Actually log the user in
-      login(userData);
-      
-      toast({
-        title: "Welcome back!",
-        description: "You have successfully signed in",
+      const response = await fetch("/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(signInData),
       });
-      
-      onClose();
-      setSignInData({ email: '', password: '' });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store auth token
+        localStorage.setItem("auth_token", data.token);
+        
+        // Log the user in with the response data
+        login(data.user);
+        
+        toast({
+          title: "Welcome back!",
+          description: "You have successfully signed in",
+        });
+        
+        onClose();
+        setSignInData({ email: '', password: '' });
+      } else {
+        toast({
+          title: "Sign In Failed",
+          description: data.message || "Please check your credentials and try again",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({
         title: "Sign In Failed",
-        description: "Please check your credentials and try again",
+        description: "Connection error. Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -119,37 +130,52 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
     }
     
     try {
-      // Simulate API call - in real app, this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Create user object (in real app, this would come from API response)
-      const userData = {
-        id: `user_${Date.now()}`,
-        fullName: registerData.fullName,
-        email: registerData.email,
-        phone: registerData.phone
-      };
-      
-      // Actually log the user in after successful registration
-      login(userData);
-      
-      toast({
-        title: "Registration Successful!",
-        description: "Welcome to GovtJobsNow! You are now logged in.",
+      const response = await fetch("/api/users/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: registerData.fullName,
+          email: registerData.email,
+          phone: registerData.phone || null,
+          password: registerData.password,
+        }),
       });
-      
-      onClose();
-      setRegisterData({
-        fullName: '',
-        email: '',
-        phone: '',
-        password: '',
-        confirmPassword: ''
-      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store auth token
+        localStorage.setItem("auth_token", data.token);
+        
+        // Log the user in with the response data
+        login(data.user);
+        
+        toast({
+          title: "Registration Successful!",
+          description: "Welcome to GovtJobsNow! You are now logged in.",
+        });
+        
+        onClose();
+        setRegisterData({
+          fullName: '',
+          email: '',
+          phone: '',
+          password: '',
+          confirmPassword: ''
+        });
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: data.message || "Something went wrong. Please try again.",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
       toast({
         title: "Registration Failed",
-        description: "Something went wrong. Please try again.",
+        description: "Connection error. Please try again later.",
         variant: "destructive"
       });
     } finally {

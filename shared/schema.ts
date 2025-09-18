@@ -45,17 +45,37 @@ export type SearchJobsParams = z.infer<typeof searchJobsSchema>;
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  username: text("username").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull().unique(),
+  phone: text("phone"),
   password: text("password").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const userLoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+});
+
+export const userRegisterSchema = z.object({
+  fullName: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().optional(),
+  password: z.string().min(6),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type UserLogin = z.infer<typeof userLoginSchema>;
+export type UserRegister = z.infer<typeof userRegisterSchema>;
 
 // Admin Users Table
 export const adminUsers = pgTable("admin_users", {
