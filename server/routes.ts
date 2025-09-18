@@ -205,10 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User registration
   app.post("/api/users/register", async (req, res) => {
     try {
-      console.log("Registration attempt with data:", JSON.stringify(req.body, null, 2));
-      
       const userData = userRegisterSchema.parse(req.body);
-      console.log("Successfully parsed data:", JSON.stringify(userData, null, 2));
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(userData.email);
@@ -238,11 +235,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
-      console.error("Registration validation error:", error);
-      if (error instanceof Error) {
-        console.error("Error message:", error.message);
-        console.error("Error name:", error.name);
-      }
       res.status(400).json({ message: "Invalid registration data", error: error instanceof Error ? error.message : error });
     }
   });
