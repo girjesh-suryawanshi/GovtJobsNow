@@ -138,7 +138,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         body: JSON.stringify({
           fullName: registerData.fullName,
           email: registerData.email,
-          phone: registerData.phone || null,
+          ...(registerData.phone ? { phone: registerData.phone } : {}),
           password: registerData.password,
         }),
       });

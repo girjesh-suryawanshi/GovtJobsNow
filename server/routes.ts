@@ -235,7 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
-      res.status(400).json({ message: "Invalid registration data", error });
+      res.status(400).json({ message: "Invalid registration data", error: error instanceof Error ? error.message : error });
     }
   });
 
