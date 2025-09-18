@@ -205,40 +205,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User registration
   app.post("/api/users/register", async (req, res) => {
     try {
-      console.log("🔍 Registration attempt:", JSON.stringify(req.body, null, 2));
-      
       const userData = userRegisterSchema.parse(req.body);
-      console.log("✅ Schema validation passed:", JSON.stringify(userData, null, 2));
       
       // Check if user already exists
-      console.log("🔍 Checking if user exists:", userData.email);
       const existingUser = await storage.getUserByEmail(userData.email);
-      console.log("🔍 Existing user check result:", existingUser ? "User exists" : "User does not exist");
-      
       if (existingUser) {
         return res.status(409).json({ message: "User with this email already exists" });
       }
 
       // Hash password
-      console.log("🔍 Hashing password...");
       const hashedPassword = await hashPassword(userData.password);
-      console.log("✅ Password hashed successfully");
       
       // Create user
-      console.log("🔍 Creating user in database...");
       const user = await storage.createUser({
         ...userData,
         password: hashedPassword
       });
-      console.log("✅ User created successfully:", {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email
-      });
 
       // Create session
       const token = createUserSession(user.id);
-      console.log("✅ Session token created");
 
       res.status(201).json({
         token,
@@ -250,11 +235,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
-      console.error("❌ Registration error details:", {
-        message: error instanceof Error ? error.message : "Unknown error",
-        stack: error instanceof Error ? error.stack : undefined,
-        requestBody: req.body
-      });
       res.status(400).json({ message: "Invalid registration data", error: error instanceof Error ? error.message : error });
     }
   });

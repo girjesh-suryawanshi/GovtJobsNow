@@ -1,0 +1,24 @@
+root@srv971273:/home/govtjobnow/GovtJobsNow# docker logs govtjobsnow_db
+
+PostgreSQL Database directory appears to contain a database; Skipping initialization
+
+2025-09-18 11:52:38.489 UTC [1] LOG:  starting PostgreSQL 15.14 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+2025-09-18 11:52:38.489 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-09-18 11:52:38.489 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+2025-09-18 11:52:38.490 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2025-09-18 11:52:38.495 UTC [29] LOG:  database system was shut down at 2025-09-18 11:52:14 UTC
+2025-09-18 11:52:38.503 UTC [1] LOG:  database system is ready to accept connections
+2025-09-18 11:55:01.051 UTC [134] ERROR:  column "full_name" does not exist at character 14
+2025-09-18 11:55:01.051 UTC [134] STATEMENT:  select "id", "full_name", "email", "phone", "password", "is_active", "created_at", "updated_at" from "users" where "users"."email" = $1
+2025-09-18 11:55:23.258 UTC [158] ERROR:  column "full_name" does not exist at character 14
+2025-09-18 11:55:23.258 UTC [158] STATEMENT:  select "id", "full_name", "email", "phone", "password", "is_active", "created_at", "updated_at" from "users" where "users"."email" = $1
+2025-09-18 11:55:31.521 UTC [157] ERROR:  column "full_name" does not exist at character 14
+2025-09-18 11:55:31.521 UTC [157] STATEMENT:  select "id", "full_name", "email", "phone", "password", "is_active", "created_at", "updated_at" from "users" where "users"."email" = $1
+2025-09-18 11:56:13.518 UTC [204] ERROR:  column "full_name" does not exist at character 14
+2025-09-18 11:56:13.518 UTC [204] STATEMENT:  select "id", "full_name", "email", "phone", "password", "is_active", "created_at", "updated_at" from "users" where "users"."email" = $1
+2025-09-18 11:57:38.583 UTC [27] LOG:  checkpoint starting: time
+2025-09-18 11:57:38.591 UTC [27] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.009 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB
+2025-09-18 11:59:13.781 UTC [341] ERROR:  column "full_name" does not exist at character 14
+2025-09-18 11:59:13.781 UTC [341] STATEMENT:  select "id", "full_name", "email", "phone", "password", "is_active", "created_at", "updated_at" from "users" where "users"."email" = $1
+2025-09-18 11:59:15.958 UTC [342] ERROR:  column "full_name" does not exist at character 14
+2025-09-18 11:59:15.958 UTC [342] STATEMENT:  select "id", "full_name", "email", "phone", "password", "is_active", "created_at", "updated_at" from "users" where "users"."email" = $1
