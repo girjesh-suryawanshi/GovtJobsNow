@@ -44,6 +44,7 @@ export default function AdminManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
   const { toast } = useToast();
 
   // Password change form
@@ -205,6 +206,47 @@ export default function AdminManagement() {
         description: "An error occurred while deleting job",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEditJob = async (jobData: Partial<Job>) => {
+    if (!editingJob) return;
+    
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch(`/api/admin/jobs/${editingJob.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(jobData),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Job Updated",
+          description: "Job has been updated successfully.",
+        });
+        setEditingJob(null);
+        fetchJobs(); // Refresh the list
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Update Failed",
+          description: error.message || "Failed to update job",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while updating job",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -441,13 +483,7 @@ export default function AdminManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          // TODO: Implement edit functionality
-                          toast({
-                            title: "Edit Feature",
-                            description: "Job editing functionality coming soon",
-                          });
-                        }}
+                        onClick={() => setEditingJob(job)}
                         data-testid={`button-edit-${job.id}`}
                       >
                         <Edit className="w-4 h-4" />
@@ -468,6 +504,153 @@ export default function AdminManagement() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Job Modal */}
+      {editingJob && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Edit Job Post</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingJob(null)}
+                  data-testid="button-close-edit-modal"
+                >
+                  ×
+                </Button>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.target as HTMLFormElement);
+                  const jobData = {
+                    title: formData.get("title") as string,
+                    department: formData.get("department") as string,
+                    location: formData.get("location") as string,
+                    qualification: formData.get("qualification") as string,
+                    deadline: formData.get("deadline") as string,
+                    salary: formData.get("salary") as string || undefined,
+                    description: formData.get("description") as string || undefined,
+                  };
+                  handleEditJob(jobData);
+                }}
+                className="space-y-4"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-title">Job Title</Label>
+                    <Input
+                      id="edit-title"
+                      name="title"
+                      defaultValue={editingJob.title}
+                      required
+                      data-testid="input-edit-title"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-department">Department</Label>
+                    <Input
+                      id="edit-department"
+                      name="department"
+                      defaultValue={editingJob.department}
+                      required
+                      data-testid="input-edit-department"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-location">Location</Label>
+                    <Input
+                      id="edit-location"
+                      name="location"
+                      defaultValue={editingJob.location}
+                      required
+                      data-testid="input-edit-location"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-deadline">Deadline</Label>
+                    <Input
+                      id="edit-deadline"
+                      name="deadline"
+                      defaultValue={editingJob.deadline}
+                      required
+                      data-testid="input-edit-deadline"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-qualification">Qualification</Label>
+                    <Input
+                      id="edit-qualification"
+                      name="qualification"
+                      defaultValue={editingJob.qualification}
+                      required
+                      data-testid="input-edit-qualification"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-salary">Salary (Optional)</Label>
+                    <Input
+                      id="edit-salary"
+                      name="salary"
+                      defaultValue={editingJob.salary || ""}
+                      data-testid="input-edit-salary"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Description (Optional)</Label>
+                  <textarea
+                    id="edit-description"
+                    name="description"
+                    className="w-full p-2 border rounded-md"
+                    rows={4}
+                    defaultValue={editingJob.description || ""}
+                    data-testid="input-edit-description"
+                  />
+                </div>
+
+                <div className="flex gap-4 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setEditingJob(null)}
+                    data-testid="button-cancel-edit"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    disabled={isLoading}
+                    data-testid="button-save-edit"
+                  >
+                    {isLoading ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
