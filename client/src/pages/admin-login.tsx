@@ -123,14 +123,6 @@ export default function AdminLogin() {
           </CardContent>
         </Card>
 
-        {/* Demo Credentials */}
-        <Card className="mt-4 border-dashed border-orange-300 bg-orange-50">
-          <CardContent className="pt-4">
-            <p className="text-sm text-orange-800 font-medium mb-2">Demo Credentials:</p>
-            <p className="text-xs text-orange-700">Username: admin</p>
-            <p className="text-xs text-orange-700">Password: admin123</p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
