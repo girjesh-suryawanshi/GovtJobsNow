@@ -21,6 +21,7 @@ import UrlProcessor from "@/components/admin/url-processor";
 import ProcessingHistory from "@/components/admin/processing-history";
 import TemplateManager from "@/components/admin/template-manager";
 import ManualJobEntry from "@/components/admin/manual-job-entry";
+import AdminManagement from "@/components/admin/admin-management";
 
 interface DashboardStats {
   totalProcessed: number;
@@ -184,7 +185,7 @@ export default function AdminDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="manual" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="manual" className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
               Add Job
@@ -200,6 +201,10 @@ export default function AdminDashboard() {
             <TabsTrigger value="templates" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Templates
+            </TabsTrigger>
+            <TabsTrigger value="admin" className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Admin
             </TabsTrigger>
           </TabsList>
 
@@ -217,6 +222,10 @@ export default function AdminDashboard() {
 
           <TabsContent value="templates">
             <TemplateManager />
+          </TabsContent>
+
+          <TabsContent value="admin">
+            <AdminManagement />
           </TabsContent>
         </Tabs>
       </div>
