@@ -121,7 +121,11 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     salary: "",
     description: "",
     applyLink: "",
-    sourceUrl: ""
+    sourceUrl: "",
+    positions: 1,
+    ageLimit: "",
+    applicationFee: "",
+    selectionProcess: ""
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -159,6 +163,11 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     if (!formData.qualification.trim()) errors.push("Qualification is required");
     if (!formData.deadline.trim()) errors.push("Application deadline is required");
     if (!formData.applyLink.trim()) errors.push("Application link is required");
+    
+    // Set default sourceUrl if empty (required field)
+    if (!formData.sourceUrl.trim()) {
+      formData.sourceUrl = "Manual Entry";
+    }
     
     // Validate URL format
     if (formData.applyLink && !isValidUrl(formData.applyLink)) {
@@ -201,13 +210,22 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     
     try {
       const token = localStorage.getItem("admin_token");
+      
+      // Prepare job data with required fields
+      const jobData = {
+        ...formData,
+        postedOn: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+        sourceUrl: formData.sourceUrl || "Manual Entry",
+        positions: formData.positions || 1
+      };
+
       const response = await fetch("/api/admin/jobs", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(jobData),
       });
 
       if (response.ok) {
@@ -226,7 +244,11 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           salary: "",
           description: "",
           applyLink: "",
-          sourceUrl: ""
+          sourceUrl: "",
+          positions: 1,
+          ageLimit: "",
+          applicationFee: "",
+          selectionProcess: ""
         });
         
         onJobAdded();
@@ -259,7 +281,11 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       salary: "",
       description: "",
       applyLink: "",
-      sourceUrl: ""
+      sourceUrl: "",
+      positions: 1,
+      ageLimit: "",
+      applicationFee: "",
+      selectionProcess: ""
     });
     setValidationErrors([]);
   };
@@ -479,6 +505,54 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 </p>
               </div>
 
+              {/* Additional Fields Row 1 */}
+              <div>
+                <Label htmlFor="positions">Number of Positions</Label>
+                <Input
+                  id="positions"
+                  type="number"
+                  value={formData.positions}
+                  onChange={(e) => handleInputChange('positions', parseInt(e.target.value) || 1)}
+                  placeholder="1"
+                  min="1"
+                  data-testid="input-positions"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="ageLimit">Age Limit (Optional)</Label>
+                <Input
+                  id="ageLimit"
+                  value={formData.ageLimit}
+                  onChange={(e) => handleInputChange('ageLimit', e.target.value)}
+                  placeholder="e.g., 18-30 years"
+                  data-testid="input-age-limit"
+                />
+              </div>
+
+              {/* Additional Fields Row 2 */}
+              <div>
+                <Label htmlFor="applicationFee">Application Fee (Optional)</Label>
+                <Input
+                  id="applicationFee"
+                  value={formData.applicationFee}
+                  onChange={(e) => handleInputChange('applicationFee', e.target.value)}
+                  placeholder="e.g., ₹500 (SC/ST: ₹250)"
+                  data-testid="input-application-fee"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="selectionProcess">Selection Process (Optional)</Label>
+                <Input
+                  id="selectionProcess"
+                  value={formData.selectionProcess}
+                  onChange={(e) => handleInputChange('selectionProcess', e.target.value)}
+                  placeholder="e.g., Written Exam + Interview"
+                  data-testid="input-selection-process"
+                />
+              </div>
+
               {/* Source URL */}
               <div className="md:col-span-2">
                 <Label htmlFor="sourceUrl">Source URL (Optional)</Label>
@@ -486,11 +560,11 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   id="sourceUrl"
                   value={formData.sourceUrl}
                   onChange={(e) => handleInputChange('sourceUrl', e.target.value)}
-                  placeholder="https://source-website.gov.in/notification"
+                  placeholder="https://source-website.gov.in/notification (Leave empty for manual entry)"
                   data-testid="input-source-url"
                 />
                 <p className="text-sm text-gray-500 mt-1">
-                  Original notification or source website URL
+                  Original notification or source website URL. Leave empty if manually created.
                 </p>
               </div>
             </div>
