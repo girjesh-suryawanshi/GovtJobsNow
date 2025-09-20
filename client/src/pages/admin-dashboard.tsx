@@ -3,23 +3,25 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Globe, 
   Plus, 
   Settings, 
   BarChart3, 
   Clock, 
   CheckCircle, 
-  XCircle, 
   AlertCircle,
   LogOut,
-  User
+  User,
+  ChevronDown
 } from "lucide-react";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import UrlProcessor from "@/components/admin/url-processor";
-import ProcessingHistory from "@/components/admin/processing-history";
-import TemplateManager from "@/components/admin/template-manager";
 import ManualJobEntry from "@/components/admin/manual-job-entry";
 import AdminManagement from "@/components/admin/admin-management";
 
@@ -37,6 +39,7 @@ export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showAdminManagement, setShowAdminManagement] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -120,10 +123,27 @@ export default function AdminDashboard() {
                 <User className="h-4 w-4" />
                 <span>Welcome, {adminUser?.username}</span>
               </div>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Admin
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem onClick={() => setShowAdminManagement(!showAdminManagement)}>
+                    <User className="h-4 w-4 mr-2" />
+                    Manage Users
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -183,51 +203,34 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="manual" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="manual" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Add Job
-            </TabsTrigger>
-            <TabsTrigger value="process" className="flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              Process URL
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              History
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Templates
-            </TabsTrigger>
-            <TabsTrigger value="admin" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Admin
-            </TabsTrigger>
-          </TabsList>
+        {/* Admin Management Modal/Panel */}
+        {showAdminManagement && (
+          <div className="mb-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Admin Management</CardTitle>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowAdminManagement(false)}
+                >
+                  ×
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <AdminManagement />
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-          <TabsContent value="manual">
-            <ManualJobEntry onJobAdded={checkAuthAndFetchData} />
-          </TabsContent>
-
-          <TabsContent value="process">
-            <UrlProcessor onJobProcessed={checkAuthAndFetchData} />
-          </TabsContent>
-
-          <TabsContent value="history">
-            <ProcessingHistory />
-          </TabsContent>
-
-          <TabsContent value="templates">
-            <TemplateManager />
-          </TabsContent>
-
-          <TabsContent value="admin">
-            <AdminManagement />
-          </TabsContent>
-        </Tabs>
+        {/* Main Content - Manual Job Entry */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold tracking-tight">Job Management</h2>
+          </div>
+          <ManualJobEntry onJobAdded={checkAuthAndFetchData} />
+        </div>
       </div>
     </div>
   );
