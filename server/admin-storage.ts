@@ -46,12 +46,6 @@ class AdminStorage {
       updatedAt: new Date()
     };
     
-    console.log('Created new admin user:', { 
-      id: newAdmin.id, 
-      username: newAdmin.username, 
-      isActive: newAdmin.isActive,
-      hashedPassword: newAdmin.password?.substring(0, 20) + '...' 
-    });
     
     this.adminUsers.push(newAdmin);
     return newAdmin;
