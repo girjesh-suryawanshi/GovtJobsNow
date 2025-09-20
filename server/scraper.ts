@@ -82,40 +82,23 @@ function isValidJobData(job: InsertJob): boolean {
   );
 }
 
-// Comprehensive job scraping sources including government websites and job blogs
+// Configurable job scraping sources - Focus on job blogs and specific job pages
+// You can update this list with specific URLs you want to scrape
 const jobSources = [
-  // Government Department Websites
-  { url: "https://ssc.nic.in/portal/", name: "Staff Selection Commission", type: "government" },
-  { url: "https://upsc.gov.in/", name: "Union Public Service Commission", type: "government" },
-  { url: "https://ibps.in/", name: "Institute of Banking Personnel Selection", type: "government" },
-  { url: "https://www.rrbcdg.gov.in/", name: "Railway Recruitment Board", type: "government" },
-  { url: "https://join.army.in/", name: "Indian Army", type: "government" },
-  { url: "https://joinindiannavy.gov.in/", name: "Indian Navy", type: "government" },
-  { url: "https://joinindianairforce.gov.in/", name: "Indian Air Force", type: "government" },
-  { url: "https://isro.gov.in/careers", name: "ISRO", type: "government" },
-  { url: "https://drdo.gov.in/careers", name: "DRDO", type: "government" },
-  { url: "https://nic.in/careers", name: "National Informatics Centre", type: "government" },
-  
-  // Banking and Financial
-  { url: "https://www.sbi.co.in/careers", name: "State Bank of India", type: "banking" },
-  { url: "https://www.pnb.in/careers.html", name: "Punjab National Bank", type: "banking" },
-  { url: "https://www.canarabank.com/careers", name: "Canara Bank", type: "banking" },
-  { url: "https://www.unionbank.in/careers", name: "Union Bank", type: "banking" },
-  { url: "https://rbi.org.in/careers", name: "Reserve Bank of India", type: "banking" },
-  
-  // State Government Websites
-  { url: "https://delhi.gov.in/employment", name: "Delhi Government", type: "state" },
-  { url: "https://maharashtra.gov.in/jobs", name: "Maharashtra Government", type: "state" },
-  { url: "https://tn.gov.in/employment", name: "Tamil Nadu Government", type: "state" },
-  { url: "https://karnataka.gov.in/careers", name: "Karnataka Government", type: "state" },
-  { url: "https://up.gov.in/employment", name: "Uttar Pradesh Government", type: "state" },
-  
-  // Job Blogs and Aggregators
+  // Job Blogs and Aggregators (these work much better than main government sites)
   { url: "https://www.sarkariresult.com/", name: "Sarkari Result", type: "blog" },
   { url: "https://www.freejobalert.com/", name: "Free Job Alert", type: "blog" },
   { url: "https://www.fresherslive.com/government-jobs", name: "Freshers Live", type: "blog" },
   { url: "https://www.jagran.com/jobs/government-jobs", name: "Jagran Jobs", type: "blog" },
-  { url: "https://www.naukri.com/government-jobs", name: "Naukri Government", type: "blog" }
+  { url: "https://www.naukri.com/government-jobs", name: "Naukri Government", type: "blog" },
+  
+  // Add specific job notification pages here - examples:
+  // { url: "https://www.sarkariresult.com/railway/", name: "Railway Jobs - Sarkari Result", type: "blog" },
+  // { url: "https://www.freejobalert.com/banking-jobs/", name: "Banking Jobs - Free Job Alert", type: "blog" },
+  
+  // TO ADD MORE SOURCES:
+  // Simply add new entries like: { url: "YOUR_URL_HERE", name: "SITE_NAME", type: "blog" }
+  // The scraper will automatically process them in the next run
 ];
 
 // Generate realistic job data based on source type
