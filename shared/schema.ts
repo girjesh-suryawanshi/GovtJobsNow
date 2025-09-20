@@ -19,6 +19,12 @@ export const jobs = pgTable("jobs", {
   applicationFee: text("application_fee"),
   description: text("description"),
   selectionProcess: text("selection_process"),
+  // New priority fields for enhanced admin entry
+  jobCategory: text("job_category"),
+  employmentType: text("employment_type"),
+  recruitingOrganization: text("recruiting_organization"),
+  applicationStartDate: text("application_start_date"),
+  vacancyBreakdown: text("vacancy_breakdown"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

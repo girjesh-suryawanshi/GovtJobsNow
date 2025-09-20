@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Job templates for quick entry
+// Job templates for quick entry with new priority fields
 const jobTemplates = {
   ssc: {
     title: "SSC [Position Name] Recruitment 2025",
@@ -27,7 +27,11 @@ const jobTemplates = {
     location: "All India",
     qualification: "Graduate/Post Graduate",
     description: "Staff Selection Commission has released notification for [Position] posts. Eligible candidates can apply online.",
-    salary: "₹25,500 - ₹81,100 per month"
+    salary: "₹25,500 - ₹81,100 per month",
+    jobCategory: "Central Government",
+    employmentType: "Permanent",
+    recruitingOrganization: "Staff Selection Commission",
+    vacancyBreakdown: "UR:20, OBC:10, SC:5, ST:3, EWS:2"
   },
   upsc: {
     title: "UPSC [Service Name] Examination 2025", 
@@ -35,7 +39,11 @@ const jobTemplates = {
     location: "All India",
     qualification: "Bachelor's Degree",
     description: "Union Public Service Commission has announced [Service] examination. Apply online for civil services positions.",
-    salary: "₹56,100 - ₹1,77,500 per month"
+    salary: "₹56,100 - ₹1,77,500 per month",
+    jobCategory: "Central Government",
+    employmentType: "Permanent",
+    recruitingOrganization: "Union Public Service Commission",
+    vacancyBreakdown: "UR:15, OBC:8, SC:4, ST:2, EWS:1"
   },
   railway: {
     title: "Railway Recruitment [Position] 2025",
@@ -43,7 +51,11 @@ const jobTemplates = {
     location: "Pan India",
     qualification: "10th/12th/ITI/Graduate",
     description: "Railway Recruitment Board has issued notification for [Position] vacancies. Apply online for railway jobs.",
-    salary: "₹19,900 - ₹63,200 per month"
+    salary: "₹19,900 - ₹63,200 per month",
+    jobCategory: "Railway",
+    employmentType: "Permanent",
+    recruitingOrganization: "Railway Recruitment Board",
+    vacancyBreakdown: "UR:100, OBC:50, SC:25, ST:15, EWS:10"
   },
   banking: {
     title: "Bank [Position] Recruitment 2025",
@@ -51,7 +63,11 @@ const jobTemplates = {
     location: "Pan India", 
     qualification: "Graduate with Banking/Finance background",
     description: "Leading bank has announced recruitment for [Position]. Eligible candidates can apply online.",
-    salary: "₹23,700 - ₹42,020 per month"
+    salary: "₹23,700 - ₹42,020 per month",
+    jobCategory: "Banking",
+    employmentType: "Permanent",
+    recruitingOrganization: "State Bank of India",
+    vacancyBreakdown: "UR:50, OBC:25, SC:12, ST:8, EWS:5"
   },
   psu: {
     title: "[PSU Name] [Position] Recruitment 2025",
@@ -59,7 +75,11 @@ const jobTemplates = {
     location: "India Wide",
     qualification: "Engineering/Management Degree",
     description: "Public Sector Undertaking has released notification for [Position] posts. Apply online through official website.",
-    salary: "₹30,000 - ₹1,20,000 per month"
+    salary: "₹30,000 - ₹1,20,000 per month",
+    jobCategory: "PSU",
+    employmentType: "Permanent",
+    recruitingOrganization: "ONGC",
+    vacancyBreakdown: "UR:30, OBC:15, SC:8, ST:5, EWS:2"
   }
 };
 
@@ -107,6 +127,45 @@ const qualificationOptions = [
   "Experience Based"
 ];
 
+// New field options for enhanced entry
+const jobCategoryOptions = [
+  "Central Government",
+  "State Government", 
+  "PSU",
+  "Banking",
+  "Railway",
+  "Defence",
+  "Police",
+  "Healthcare",
+  "Education"
+];
+
+const employmentTypeOptions = [
+  "Permanent",
+  "Contract",
+  "Apprentice", 
+  "Temporary",
+  "Part-time"
+];
+
+const recruitingOrgSuggestions = [
+  "Staff Selection Commission",
+  "Union Public Service Commission",
+  "Railway Recruitment Board",
+  "State Bank of India",
+  "IBPS",
+  "ONGC",
+  "SAIL",
+  "Coal India Limited",
+  "BHEL",
+  "NTPC",
+  "Indian Army",
+  "Indian Navy",
+  "Indian Air Force",
+  "DRDO",
+  "ISRO"
+];
+
 interface ManualJobEntryProps {
   onJobAdded: () => void;
 }
@@ -125,7 +184,13 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     positions: 1,
     ageLimit: "",
     applicationFee: "",
-    selectionProcess: ""
+    selectionProcess: "",
+    // New priority fields for enhanced entry
+    jobCategory: "",
+    employmentType: "",
+    recruitingOrganization: "",
+    applicationStartDate: "",
+    vacancyBreakdown: ""
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -158,13 +223,17 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     const errors: string[] = [];
     
     if (!formData.title.trim()) errors.push("Job title is required");
+    if (!formData.jobCategory.trim()) errors.push("Job category is required");
+    if (!formData.employmentType.trim()) errors.push("Employment type is required");
+    if (!formData.recruitingOrganization.trim()) errors.push("Recruiting organization is required");
     if (!formData.department.trim()) errors.push("Department is required");
     if (!formData.location.trim()) errors.push("Location is required");
     if (!formData.qualification.trim()) errors.push("Qualification is required");
+    if (!formData.applicationStartDate.trim()) errors.push("Application start date is required");
     if (!formData.deadline.trim()) errors.push("Application deadline is required");
     if (!formData.applyLink.trim()) errors.push("Application link is required");
     
-    // Set default sourceUrl if empty (required field)
+    // Set defaults for optional fields
     if (!formData.sourceUrl.trim()) {
       formData.sourceUrl = "Manual Entry";
     }
@@ -211,12 +280,14 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     try {
       const token = localStorage.getItem("admin_token");
       
-      // Prepare job data with required fields
+      // Prepare job data with required fields and smart defaults
       const jobData = {
         ...formData,
-        postedOn: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+        postedOn: new Date().toISOString().split('T')[0], // Today's date
         sourceUrl: formData.sourceUrl || "Manual Entry",
-        positions: formData.positions || 1
+        positions: formData.positions || 1,
+        // Auto-set application start date to today if empty
+        applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0]
       };
 
       const response = await fetch("/api/admin/jobs", {
@@ -248,7 +319,12 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           positions: 1,
           ageLimit: "",
           applicationFee: "",
-          selectionProcess: ""
+          selectionProcess: "",
+          jobCategory: "",
+          employmentType: "",
+          recruitingOrganization: "",
+          applicationStartDate: "",
+          vacancyBreakdown: ""
         });
         
         onJobAdded();
@@ -285,7 +361,12 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       positions: 1,
       ageLimit: "",
       applicationFee: "",
-      selectionProcess: ""
+      selectionProcess: "",
+      jobCategory: "",
+      employmentType: "",
+      recruitingOrganization: "",
+      applicationStartDate: "",
+      vacancyBreakdown: ""
     });
     setValidationErrors([]);
   };
@@ -295,9 +376,9 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       {/* Header with Templates */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Add Job Manually</h2>
+          <h2 className="text-2xl font-bold">⚡ Rapid Job Entry</h2>
           <p className="text-gray-600 dark:text-gray-400">
-            Create and publish government job postings with complete control over content
+            Optimized for 30-45 second job posting • Use templates for instant setup
           </p>
         </div>
         <div className="flex gap-2">
@@ -305,9 +386,10 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
             variant="outline"
             onClick={() => setShowTemplates(!showTemplates)}
             data-testid="button-templates"
+            className="bg-blue-50 hover:bg-blue-100 border-blue-200"
           >
             <BookOpen className="w-4 h-4 mr-2" />
-            Templates
+            Quick Templates
           </Button>
           <Button
             variant="outline"
@@ -398,6 +480,59 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 />
               </div>
 
+              {/* Priority Fields Row for Speed */}
+              <div>
+                <Label htmlFor="jobCategory">Job Category *</Label>
+                <Select 
+                  value={formData.jobCategory} 
+                  onValueChange={(value) => handleInputChange('jobCategory', value)}
+                >
+                  <SelectTrigger data-testid="select-job-category">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {jobCategoryOptions.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="employmentType">Employment Type *</Label>
+                <Select 
+                  value={formData.employmentType} 
+                  onValueChange={(value) => handleInputChange('employmentType', value)}
+                >
+                  <SelectTrigger data-testid="select-employment-type">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {employmentTypeOptions.map(type => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Recruiting Organization */}
+              <div className="md:col-span-2">
+                <Label htmlFor="recruitingOrganization">Recruiting Organization *</Label>
+                <Input
+                  id="recruitingOrganization"
+                  value={formData.recruitingOrganization}
+                  onChange={(e) => handleInputChange('recruitingOrganization', e.target.value)}
+                  placeholder="e.g., Staff Selection Commission, Railway Recruitment Board"
+                  list="recruiting-org-suggestions"
+                  data-testid="input-recruiting-organization"
+                />
+                <datalist id="recruiting-org-suggestions">
+                  {recruitingOrgSuggestions.map(org => (
+                    <option key={org} value={org} />
+                  ))}
+                </datalist>
+              </div>
+
               {/* Department */}
               <div>
                 <Label htmlFor="department">Department *</Label>
@@ -452,7 +587,19 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 </Select>
               </div>
 
-              {/* Deadline */}
+              {/* Application Dates Row */}
+              <div>
+                <Label htmlFor="applicationStartDate">Application Start Date *</Label>
+                <Input
+                  id="applicationStartDate"
+                  type="date"
+                  value={formData.applicationStartDate}
+                  onChange={(e) => handleInputChange('applicationStartDate', e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  data-testid="input-application-start-date"
+                />
+              </div>
+
               <div>
                 <Label htmlFor="deadline">Application Deadline *</Label>
                 <Input
@@ -551,6 +698,21 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   placeholder="e.g., Written Exam + Interview"
                   data-testid="input-selection-process"
                 />
+              </div>
+
+              {/* Vacancy Breakdown */}
+              <div className="md:col-span-2">
+                <Label htmlFor="vacancyBreakdown">Vacancy Breakdown (Optional)</Label>
+                <Input
+                  id="vacancyBreakdown"
+                  value={formData.vacancyBreakdown}
+                  onChange={(e) => handleInputChange('vacancyBreakdown', e.target.value)}
+                  placeholder="e.g., UR:20, OBC:10, SC:5, ST:3, EWS:2"
+                  data-testid="input-vacancy-breakdown"
+                />
+                <p className="text-sm text-gray-500 mt-1">
+                  Category-wise vacancy distribution (UR, OBC, SC, ST, EWS)
+                </p>
               </div>
 
               {/* Source URL */}
