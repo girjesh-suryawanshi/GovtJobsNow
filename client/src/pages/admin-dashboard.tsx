@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import UrlProcessor from "@/components/admin/url-processor";
 import ProcessingHistory from "@/components/admin/processing-history";
 import TemplateManager from "@/components/admin/template-manager";
+import ManualJobEntry from "@/components/admin/manual-job-entry";
 
 interface DashboardStats {
   totalProcessed: number;
@@ -182,10 +183,14 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="process" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="process" className="flex items-center gap-2">
+        <Tabs defaultValue="manual" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="manual" className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
+              Add Job
+            </TabsTrigger>
+            <TabsTrigger value="process" className="flex items-center gap-2">
+              <Globe className="h-4 w-4" />
               Process URL
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
@@ -197,6 +202,10 @@ export default function AdminDashboard() {
               Templates
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="manual">
+            <ManualJobEntry onJobAdded={checkAuthAndFetchData} />
+          </TabsContent>
 
           <TabsContent value="process">
             <UrlProcessor onJobProcessed={checkAuthAndFetchData} />

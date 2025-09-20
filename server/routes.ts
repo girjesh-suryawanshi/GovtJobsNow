@@ -200,6 +200,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin manual job creation
+  app.post("/api/admin/jobs", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const jobData = insertJobSchema.parse(req.body);
+      const job = await storage.createJob(jobData);
+      
+      // Log the manual job creation
+      await adminStorage.createProcessingLog({
+        adminId,
+        url: jobData.sourceUrl || "Manual Entry",
+        status: "completed",
+        extractedData: jobData,
+        validatedData: jobData,
+        errorMessage: null,
+        processingTimeMs: 0,
+        jobId: job.id
+      });
+
+      res.status(201).json(job);
+    } catch (error) {
+      console.error("Failed to create manual job:", error);
+      res.status(400).json({ 
+        message: "Invalid job data", 
+        error: error instanceof Error ? error.message : error 
+      });
+    }
+  });
+
   // ========== USER AUTHENTICATION ROUTES ==========
 
   // User registration
