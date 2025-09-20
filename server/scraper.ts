@@ -82,49 +82,9 @@ function isValidJobData(job: InsertJob): boolean {
   );
 }
 
-// Comprehensive job scraping sources - User provided list of government websites and job portals
+// Focused job scraping - Single high-quality source
 const jobSources = [
-  // Central Government Recruitment
-  { url: "https://ssc.nic.in", name: "Staff Selection Commission", type: "government" },
-  { url: "https://www.sebi.gov.in", name: "Securities and Exchange Board of India", type: "government" },
-  { url: "https://www.indianrailways.gov.in", name: "Indian Railways", type: "government" },
-  { url: "https://www.rbi.org.in", name: "Reserve Bank of India", type: "government" },
-  { url: "https://www.drdo.gov.in", name: "Defence Research and Development Organisation", type: "government" },
-  { url: "https://joinindianarmy.nic.in", name: "Indian Army Recruitment", type: "government" },
-  { url: "https://joinindiannavy.nic.in", name: "Indian Navy Recruitment", type: "government" },
-  { url: "https://recruitment.itbpolice.nic.in", name: "ITB Police Recruitment", type: "government" },
-  { url: "https://cisfrect.in", name: "CISF Recruitment", type: "government" },
-  { url: "https://ncs.gov.in", name: "National Career Service", type: "government" },
-  
-  // Banking and Financial Services
-  { url: "https://sbi.co.in/web/careers", name: "State Bank of India Careers", type: "banking" },
-  { url: "https://rbi.org.in", name: "RBI Careers", type: "banking" },
-  
-  // Education and Training
-  { url: "https://kvsonlineadmission.kvs.gov.in", name: "Kendriya Vidyalaya Sangathan", type: "education" },
-  { url: "https://nta.ac.in", name: "National Testing Agency", type: "education" },
-  { url: "https://ctet.nic.in", name: "Central Teacher Eligibility Test", type: "education" },
-  
-  // State Public Service Commissions
-  { url: "https://tspsc.gov.in", name: "Telangana State Public Service Commission", type: "state" },
-  { url: "https://psc.ap.gov.in", name: "Andhra Pradesh Public Service Commission", type: "state" },
-  { url: "https://hpsc.gov.in", name: "Haryana Public Service Commission", type: "state" },
-  { url: "https://opsc.gov.in", name: "Odisha Public Service Commission", type: "state" },
-  { url: "https://kpsc.nic.in", name: "Karnataka Public Service Commission", type: "state" },
-  { url: "https://mppsc.nic.in", name: "Madhya Pradesh Public Service Commission", type: "state" },
-  { url: "https://tnpsc.gov.in", name: "Tamil Nadu Public Service Commission", type: "state" },
-  { url: "https://rpsc.rajasthan.gov.in", name: "Rajasthan Public Service Commission", type: "state" },
-  { url: "https://gpsc.gujarat.gov.in", name: "Gujarat Public Service Commission", type: "state" },
-  
-  // Job Portals and Blogs
-  { url: "https://indgovtjobs.in", name: "Indian Government Jobs", type: "blog" },
-  { url: "https://freejobalert.com", name: "Free Job Alert", type: "blog" },
-  { url: "https://careerpower.in/government-jobs.html", name: "Career Power Government Jobs", type: "blog" },
-  { url: "https://allgovernmentjobs.in", name: "All Government Jobs", type: "blog" },
-  { url: "https://sarkariexam.in", name: "Sarkari Exam", type: "blog" },
-  { url: "https://govtjobsblog.in", name: "Government Jobs Blog", type: "blog" },
-  { url: "https://indiajoblive.com", name: "India Job Live", type: "blog" },
-  { url: "https://govtjobsdiary.com", name: "Government Jobs Diary", type: "blog" }
+  { url: "https://www.freejobalert.com/latest-notifications/", name: "Free Job Alert - Latest Notifications", type: "blog" }
 ];
 
 // Generate realistic job data based on source type
