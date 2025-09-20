@@ -123,20 +123,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password } = adminLoginSchema.parse(req.body);
       
+      console.log('Admin login attempt:', { username, passwordLength: password.length });
+      
       const admin = await adminStorage.getAdminByUsername(username);
       if (!admin) {
+        console.log('Admin not found:', username);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
+      console.log('Found admin:', { 
+        id: admin.id, 
+        username: admin.username, 
+        isActive: admin.isActive,
+        hashedPasswordStart: admin.password?.substring(0, 20) + '...' 
+      });
+
       // For demo purposes, use simple password comparison
       const isValidPassword = password === admin.password || await verifyPassword(password, admin.password);
+      console.log('Password validation:', { 
+        plainTextMatch: password === admin.password, 
+        hashMatch: await verifyPassword(password, admin.password),
+        finalResult: isValidPassword 
+      });
+      
       if (!isValidPassword) {
+        console.log('Password validation failed for:', username);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       await adminStorage.updateAdminLastLogin(admin.id);
       const token = createAdminSession(admin.id);
       
+      console.log('Login successful for:', username);
       res.json({ 
         token, 
         admin: { 
@@ -146,6 +164,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } 
       });
     } catch (error) {
+      console.error('Admin login error:', error);
       res.status(400).json({ message: "Invalid request", error });
     }
   });

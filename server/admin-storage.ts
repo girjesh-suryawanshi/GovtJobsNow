@@ -40,10 +40,18 @@ class AdminStorage {
       id: `admin-${Date.now()}`,
       ...data,
       role: data.role || "admin",
+      isActive: true, // Explicitly set new users as active
       lastLogin: null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
+    
+    console.log('Created new admin user:', { 
+      id: newAdmin.id, 
+      username: newAdmin.username, 
+      isActive: newAdmin.isActive,
+      hashedPassword: newAdmin.password?.substring(0, 20) + '...' 
+    });
     
     this.adminUsers.push(newAdmin);
     return newAdmin;
