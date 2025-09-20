@@ -152,3 +152,22 @@ export const processUrlSchema = z.object({
 });
 
 export type ProcessUrlRequest = z.infer<typeof processUrlSchema>;
+
+// Admin management schemas
+export const adminPasswordChangeSchema = z.object({
+  currentPassword: z.string().min(6),
+  newPassword: z.string().min(6),
+});
+
+export const createAdminUserSchema = z.object({
+  username: z.string().min(3),
+  email: z.string().email(),
+  password: z.string().min(6),
+  role: z.string().default("admin"),
+});
+
+export const updateJobSchema = insertJobSchema.partial();
+
+export type AdminPasswordChange = z.infer<typeof adminPasswordChangeSchema>;
+export type CreateAdminUser = z.infer<typeof createAdminUserSchema>;
+export type UpdateJob = z.infer<typeof updateJobSchema>;

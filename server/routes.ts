@@ -1,12 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema } from "@shared/schema";
+import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema } from "@shared/schema";
 import { scrapeJobs } from "./scraper";
 import { adminStorage } from "./admin-storage";
 import { urlProcessor } from "./url-processor";
 import { requireAdminAuth, createAdminSession, verifyPassword, revokeAdminSession } from "./admin-auth";
 import { createUserSession, hashPassword, verifyPassword as verifyUserPassword, requireUserAuth, revokeUserSession } from "./user-auth";
+import { hashPassword as hashAdminPassword } from "./admin-auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
@@ -526,6 +527,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(templates);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch templates", error });
+    }
+  });
+
+  // ========== ADMIN MANAGEMENT ROUTES ==========
+
+  // Change admin password
+  app.post("/api/admin/change-password", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body);
+      
+      // Get current admin user
+      const admin = await adminStorage.getAdminById(adminId);
+      if (!admin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+
+      // Verify current password
+      const isValidPassword = currentPassword === admin.password || await verifyPassword(currentPassword, admin.password);
+      if (!isValidPassword) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      // Hash new password and update
+      const hashedNewPassword = await hashAdminPassword(newPassword);
+      const success = await adminStorage.updateAdminPassword(adminId, hashedNewPassword);
+      
+      if (success) {
+        res.json({ message: "Password changed successfully" });
+      } else {
+        res.status(500).json({ message: "Failed to change password" });
+      }
+    } catch (error) {
+      res.status(400).json({ message: "Invalid request", error });
+    }
+  });
+
+  // Create new admin user
+  app.post("/api/admin/users", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const userData = createAdminUserSchema.parse(req.body);
+      
+      // Check if username already exists
+      const existingAdmin = await adminStorage.getAdminByUsername(userData.username);
+      if (existingAdmin) {
+        return res.status(409).json({ message: "Username already exists" });
+      }
+
+      // Hash password
+      const hashedPassword = await hashAdminPassword(userData.password);
+      
+      // Create admin user
+      const newAdmin = await adminStorage.createAdminUser({
+        ...userData,
+        password: hashedPassword
+      });
+
+      res.status(201).json({
+        id: newAdmin.id,
+        username: newAdmin.username,
+        email: newAdmin.email,
+        role: newAdmin.role,
+        isActive: newAdmin.isActive
+      });
+    } catch (error) {
+      res.status(400).json({ message: "Invalid user data", error });
+    }
+  });
+
+  // Get all admin users
+  app.get("/api/admin/users", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const adminUsers = await adminStorage.getAllAdminUsers();
+      
+      // Remove password field from response
+      const safeUsers = adminUsers.map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt
+      }));
+      
+      res.json(safeUsers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch admin users", error });
+    }
+  });
+
+  // Update job post (admin only)
+  app.put("/api/admin/jobs/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const jobData = updateJobSchema.parse(req.body);
+      const job = await storage.updateJob(req.params.id, jobData);
+      
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      
+      res.json(job);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid job data", error });
+    }
+  });
+
+  // Delete job post (admin only)
+  app.delete("/api/admin/jobs/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+    
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const deleted = await storage.deleteJob(req.params.id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      
+      res.json({ message: "Job deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete job", error });
     }
   });
 

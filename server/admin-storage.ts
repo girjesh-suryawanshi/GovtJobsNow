@@ -57,6 +57,43 @@ class AdminStorage {
     }
   }
 
+  async updateAdminPassword(id: string, newPassword: string): Promise<boolean> {
+    const admin = this.adminUsers.find(user => user.id === id);
+    if (admin) {
+      admin.password = newPassword;
+      admin.updatedAt = new Date();
+      return true;
+    }
+    return false;
+  }
+
+  async getAllAdminUsers(): Promise<AdminUser[]> {
+    return this.adminUsers.filter(user => user.isActive);
+  }
+
+  async updateAdminUser(id: string, updates: Partial<Omit<AdminUser, 'id' | 'createdAt'>>): Promise<AdminUser | undefined> {
+    const adminIndex = this.adminUsers.findIndex(user => user.id === id);
+    if (adminIndex === -1) return undefined;
+    
+    this.adminUsers[adminIndex] = {
+      ...this.adminUsers[adminIndex],
+      ...updates,
+      updatedAt: new Date()
+    };
+    
+    return this.adminUsers[adminIndex];
+  }
+
+  async deleteAdminUser(id: string): Promise<boolean> {
+    const adminIndex = this.adminUsers.findIndex(user => user.id === id);
+    if (adminIndex === -1) return false;
+    
+    // Don't actually delete, just mark as inactive
+    this.adminUsers[adminIndex].isActive = false;
+    this.adminUsers[adminIndex].updatedAt = new Date();
+    return true;
+  }
+
   // URL Processing Log Operations
   async createProcessingLog(data: Omit<UrlProcessingLog, 'id' | 'createdAt' | 'updatedAt'>): Promise<UrlProcessingLog> {
     const log: UrlProcessingLog = {
