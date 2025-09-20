@@ -1,5 +1,86 @@
 import { type InsertJob } from "@shared/schema";
 import * as cron from 'node-cron';
+import { UrlProcessor } from './url-processor';
+import * as cheerio from 'cheerio';
+
+// Helper function to extract job links from a webpage
+function extractJobLinks($: cheerio.CheerioAPI, source: any): string[] {
+  const links: string[] = [];
+  const baseUrl = new URL(source.url).origin;
+  
+  // Common selectors for job/notification links
+  const selectors = [
+    'a[href*="notification"]',
+    'a[href*="vacancy"]', 
+    'a[href*="recruitment"]',
+    'a[href*="jobs"]',
+    'a[href*="career"]',
+    'a[href*="employment"]',
+    '.job-link a',
+    '.notification-link a',
+    '.vacancy-link a'
+  ];
+  
+  selectors.forEach(selector => {
+    $(selector).each((_, element) => {
+      let href = $(element).attr('href');
+      if (href) {
+        // Convert relative URLs to absolute
+        if (href.startsWith('/')) {
+          href = baseUrl + href;
+        } else if (!href.startsWith('http')) {
+          href = baseUrl + '/' + href;
+        }
+        
+        // Filter out non-relevant links
+        if (href.includes('job') || href.includes('vacancy') || href.includes('notification') || href.includes('recruitment')) {
+          links.push(href);
+        }
+      }
+    });
+  });
+  
+  return Array.from(new Set(links)); // Remove duplicates
+}
+
+// Helper function to normalize extracted data into InsertJob format
+function normalizeJobData(data: Partial<InsertJob>, source: any, jobUrl: string): InsertJob | null {
+  // Ensure minimum required fields are present
+  if (!data.title || data.title.trim().length < 5) {
+    return null;
+  }
+  
+  const today = new Date();
+  
+  return {
+    title: data.title.trim(),
+    department: data.department || source.name,
+    location: data.location || 'Not specified',
+    qualification: data.qualification || 'As per notification',
+    salary: data.salary || 'As per government norms',
+    ageLimit: data.ageLimit || 'As per rules',
+    applicationFee: data.applicationFee || 'As per category',
+    description: data.description || 'Please refer to official notification for details.',
+    selectionProcess: data.selectionProcess || 'As per notification',
+    applyLink: data.applyLink || jobUrl, // Use the job page URL if no apply link found
+    postedOn: data.postedOn || today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+    deadline: data.deadline || 'Check official notification',
+    sourceUrl: jobUrl,
+    positions: data.positions || 0,
+  };
+}
+
+// Helper function to validate job data quality
+function isValidJobData(job: InsertJob): boolean {
+  // Basic validation to ensure job is meaningful
+  return (
+    job.title.length > 5 &&
+    job.department.length > 0 &&
+    !job.title.includes('undefined') &&
+    !job.title.includes('null') &&
+    job.applyLink.startsWith('http')
+  );
+}
 
 // Comprehensive job scraping sources including government websites and job blogs
 const jobSources = [
@@ -238,23 +319,71 @@ function getJobTemplatesForSource(source: any): Partial<InsertJob>[] {
 
 // Enhanced scraping function that generates realistic job data
 async function scrapeJobsFromSource(source: any): Promise<InsertJob[]> {
+  const urlProcessor = new UrlProcessor();
+  
   try {
     console.log(`Scraping ${source.name} (${source.url})...`);
     
-    // In a real implementation, you would:
-    // const response = await fetch(source.url);
-    // const html = await response.text();
-    // Then parse the HTML using a library like Cheerio
+    // Fetch and parse the webpage
+    const response = await fetch(source.url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+      // Note: Node.js fetch doesn't support timeout option, would need AbortController for timeouts
+    });
     
-    // For now, generate realistic job data based on source type
-    const jobs = generateJobsForSource(source);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
     
-    console.log(`Found ${jobs.length} jobs from ${source.name}`);
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    // Extract job links from the page
+    const jobLinks = extractJobLinks($, source);
+    console.log(`  Found ${jobLinks.length} potential job links from ${source.name}`);
+    const jobs: InsertJob[] = [];
+    
+    if (jobLinks.length === 0) {
+      console.log(`  No job links found on ${source.url}`);
+      return jobs;
+    }
+    
+    // Process each job link (limit to prevent overwhelming)
+    const maxJobs = Math.min(jobLinks.length, 10); // Limit to 10 jobs per source
+    console.log(`  Processing ${maxJobs} job links...`);
+    
+    for (let i = 0; i < maxJobs; i++) {
+      try {
+        const jobUrl = jobLinks[i];
+        console.log(`  Processing job: ${jobUrl}`);
+        
+        const result = await urlProcessor.processUrl(jobUrl);
+        
+        if (result.success && result.data) {
+          const jobData = normalizeJobData(result.data, source, jobUrl);
+          if (jobData && isValidJobData(jobData)) {
+            jobs.push(jobData);
+          }
+        }
+        
+        // Add delay between requests to be respectful
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error) {
+        console.error(`  Failed to process job link: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        continue;
+      }
+    }
+    
+    // If no real jobs found, don't generate fake ones
+    console.log(`✅ Found ${jobs.length} real jobs from ${source.name}`);
+    
     return jobs;
     
   } catch (error) {
-    console.error(`Failed to scrape ${source.name}:`, error);
-    return [];
+    console.error(`Failed to scrape ${source.name}:`, error instanceof Error ? error.message : 'Unknown error');
+    return []; // Return empty array instead of fake jobs
   }
 }
 
@@ -293,6 +422,7 @@ export function scheduleAutomaticScraping() {
     console.log("Running initial startup job scraping...");
     await runScheduledScraping();
   }, 10000);
+  
   
   // Schedule 3 times daily at specific times (IST)
   // At 6:00 AM IST
