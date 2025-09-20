@@ -341,22 +341,22 @@ async function scrapeJobsFromSource(source: any): Promise<InsertJob[]> {
     
     // Extract job links from the page
     const jobLinks = extractJobLinks($, source);
-    console.log(`  Found ${jobLinks.length} potential job links from ${source.name}`);
+    // Debug: console.log(`  Found ${jobLinks.length} potential job links from ${source.name}`);
     const jobs: InsertJob[] = [];
     
     if (jobLinks.length === 0) {
-      console.log(`  No job links found on ${source.url}`);
+      // Debug: console.log(`  No job links found on ${source.url}`);
       return jobs;
     }
     
     // Process each job link (limit to prevent overwhelming)
     const maxJobs = Math.min(jobLinks.length, 10); // Limit to 10 jobs per source
-    console.log(`  Processing ${maxJobs} job links...`);
+    // Debug: console.log(`  Processing ${maxJobs} job links...`);
     
     for (let i = 0; i < maxJobs; i++) {
       try {
         const jobUrl = jobLinks[i];
-        console.log(`  Processing job: ${jobUrl}`);
+        // Debug: console.log(`  Processing job: ${jobUrl}`);
         
         const result = await urlProcessor.processUrl(jobUrl);
         
