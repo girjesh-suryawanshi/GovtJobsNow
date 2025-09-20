@@ -33,9 +33,11 @@ interface Job {
   title: string;
   department: string;
   location: string;
+  qualification: string;
   deadline: string;
   postedOn: string;
   salary?: string;
+  description?: string;
 }
 
 export default function AdminManagement() {

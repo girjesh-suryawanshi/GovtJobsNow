@@ -462,10 +462,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Processed job data:", JSON.stringify(processedJobData, null, 2));
       
       // Validate required fields before insertion
-      const requiredFields = ['title', 'department', 'location', 'qualification', 'deadline', 'applyLink', 'postedOn', 'sourceUrl'];
+      const requiredFields: (keyof typeof processedJobData)[] = ['title', 'department', 'location', 'qualification', 'deadline', 'applyLink', 'postedOn', 'sourceUrl'];
       for (const field of requiredFields) {
-        if (!processedJobData[field] || processedJobData[field] === 'null') {
-          console.error(`Required field ${field} is missing or null:`, processedJobData[field]);
+        const fieldValue = processedJobData[field];
+        if (!fieldValue || fieldValue === 'null') {
+          console.error(`Required field ${field} is missing or null:`, fieldValue);
           return res.status(400).json({ message: `Required field ${field} is missing` });
         }
       }
