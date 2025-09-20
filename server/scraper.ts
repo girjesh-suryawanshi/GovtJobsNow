@@ -383,51 +383,51 @@ let isScrapingRunning = false;
 
 // Schedule scraping 3 times daily using reliable cron scheduling: 6 AM, 2 PM, 10 PM
 export function scheduleAutomaticScraping() {
-  console.log("Setting up automatic job scraping 3 times daily using cron scheduler...");
-  console.log("Scheduled times: 6:00 AM, 2:00 PM, 10:00 PM (IST)");
+  console.log("🚫 Automatic job scraping DISABLED - Using manual curation approach");
+  console.log("📝 Jobs will be added manually through the admin interface");
   
-  // Run initial scraping after 10 seconds (startup delay)
-  setTimeout(async () => {
-    console.log("Running initial startup job scraping...");
-    await runScheduledScraping();
-  }, 10000);
+  // DISABLED: Run initial scraping after 10 seconds (startup delay)
+  // setTimeout(async () => {
+  //   console.log("Running initial startup job scraping...");
+  //   await runScheduledScraping();
+  // }, 10000);
   
   
-  // Schedule 3 times daily at specific times (IST)
+  // DISABLED: Schedule 3 times daily at specific times (IST)
   // At 6:00 AM IST
-  cron.schedule('0 6 * * *', async () => {
-    console.log("🌅 Running morning job scraping (6:00 AM IST)...");
-    await runScheduledScraping();
-  }, {
-    timezone: "Asia/Kolkata"
-  });
+  // cron.schedule('0 6 * * *', async () => {
+  //   console.log("🌅 Running morning job scraping (6:00 AM IST)...");
+  //   await runScheduledScraping();
+  // }, {
+  //   timezone: "Asia/Kolkata"
+  // });
   
   // At 2:00 PM IST
-  cron.schedule('0 14 * * *', async () => {
-    console.log("🌞 Running afternoon job scraping (2:00 PM IST)...");
-    await runScheduledScraping();
-  }, {
-    timezone: "Asia/Kolkata"
-  });
+  // cron.schedule('0 14 * * *', async () => {
+  //   console.log("🌞 Running afternoon job scraping (2:00 PM IST)...");
+  //   await runScheduledScraping();
+  // }, {
+  //   timezone: "Asia/Kolkata"
+  // });
   
   // At 10:00 PM IST
-  cron.schedule('0 22 * * *', async () => {
-    console.log("🌙 Running evening job scraping (10:00 PM IST)...");
-    await runScheduledScraping();
-  }, {
-    timezone: "Asia/Kolkata"
-  });
+  // cron.schedule('0 22 * * *', async () => {
+  //   console.log("🌙 Running evening job scraping (10:00 PM IST)...");
+  //   await runScheduledScraping();
+  // }, {
+  //   timezone: "Asia/Kolkata"
+  // });
   
-  // Optional test schedule (only in development)
-  if (process.env.NODE_ENV === 'development' && process.env.ENABLE_TEST_SCRAPE === 'true') {
-    cron.schedule('*/30 * * * *', async () => {
-      console.log("⚡ Running test scraping (every 30 minutes for development)...");
-      await runScheduledScraping();
-    });
-    console.log("✅ Cron jobs scheduled! Next runs: 6:00 AM, 2:00 PM, 10:00 PM IST + every 30 min (dev only)");
-  } else {
-    console.log("✅ Cron jobs scheduled! Next runs: 6:00 AM, 2:00 PM, 10:00 PM IST");
-  }
+  // DISABLED: Optional test schedule (only in development)
+  // if (process.env.NODE_ENV === 'development' && process.env.ENABLE_TEST_SCRAPE === 'true') {
+  //   cron.schedule('*/30 * * * *', async () => {
+  //     console.log("⚡ Running test scraping (every 30 minutes for development)...");
+  //     await runScheduledScraping();
+  //   });
+  //   console.log("✅ Cron jobs scheduled! Next runs: 6:00 AM, 2:00 PM, 10:00 PM IST + every 30 min (dev only)");
+  // } else {
+  //   console.log("✅ Cron jobs scheduled! Next runs: 6:00 AM, 2:00 PM, 10:00 PM IST");
+  // }
 }
 
 async function runScheduledScraping() {

@@ -235,19 +235,19 @@ export function jobMatchesFilters(job: Job, filters: NormalizedFilters): boolean
   
   // Location filter
   if (filters.location && !jobMatchesLocation(job, filters.location)) {
-    console.log('❌ Location filter rejected');
+    // Location filter rejected (logging disabled)
     return false;
   }
   
   // Department filter
   if (filters.department && !jobMatchesDepartment(job, filters.department)) {
-    console.log('❌ Department filter rejected');
+    // Department filter rejected (logging disabled)
     return false;
   }
   
   // Qualification filter  
   if (filters.qualification && !jobMatchesQualification(job, filters.qualification)) {
-    console.log('❌ Qualification filter rejected');
+    // Qualification filter rejected (logging disabled)
     return false;
   }
   
@@ -257,6 +257,6 @@ export function jobMatchesFilters(job: Job, filters: NormalizedFilters): boolean
     // For now, skip this filter
   }
   
-  console.log('✅ Job passed all filters');
+  // Job passed all filters (removed logging to prevent spam)
   return true;
 }
