@@ -171,6 +171,13 @@ interface ManualJobEntryProps {
 }
 
 export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
+  // Keyboard shortcut handler for Ctrl+Enter
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit(e as any);
+    }
+  };
   const [formData, setFormData] = useState({
     title: "",
     department: "",
@@ -372,7 +379,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onKeyDown={handleKeyDown}>
       {/* Header with Templates */}
       <div className="flex items-center justify-between">
         <div>
@@ -466,7 +473,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" autoComplete="on">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Job Title */}
               <div className="md:col-span-2">
@@ -659,7 +666,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   id="positions"
                   type="number"
                   value={formData.positions}
-                  onChange={(e) => handleInputChange('positions', parseInt(e.target.value) || 1)}
+                  onChange={(e) => handleInputChange('positions', (parseInt(e.target.value) || 1).toString())}
                   placeholder="1"
                   min="1"
                   data-testid="input-positions"
@@ -731,12 +738,23 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               </div>
             </div>
 
+            {/* Speed Tips */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+              <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">⚡ Speed Tips</h3>
+              <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1">
+                <li>• Use templates for instant setup</li>
+                <li>• Tab through fields quickly</li>
+                <li>• Ctrl+Enter to submit from any field</li>
+                <li>• Recruiting org has auto-suggestions</li>
+              </ul>
+            </div>
+
             {/* Submit Button */}
             <div className="flex gap-4 pt-4">
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                 data-testid="button-submit"
               >
                 {isSubmitting ? (
@@ -747,7 +765,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 ) : (
                   <>
                     <Save className="w-4 h-4 mr-2" />
-                    Publish Job
+                    Publish Job (Ctrl+Enter)
                   </>
                 )}
               </Button>
