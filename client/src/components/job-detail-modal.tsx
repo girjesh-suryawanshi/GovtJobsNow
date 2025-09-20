@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import type { Job } from "@/types/job";
 
@@ -43,7 +43,18 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100vw-1rem)] sm:w-auto sm:max-w-2xl lg:max-w-4xl max-h-[90svh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden p-0" aria-describedby={job.description ? "job-description" : undefined}>
+      <DialogPortal>
+        <DialogOverlay className="!z-[55]" />
+        <DialogContent 
+          className="w-[calc(100vw-1rem)] sm:w-auto sm:max-w-2xl lg:max-w-4xl max-h-[90svh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden p-0 !z-[60]" 
+          aria-describedby={job.description ? "job-description" : undefined}
+          onPointerDownOutside={(e) => {
+            // Prevent modal from closing when clicking the floating action button
+            if ((e.target as Element)?.closest('.fixed.bottom-6.right-6.z-50, [data-floating-ui-portal]')) {
+              e.preventDefault();
+            }
+          }}
+        >
         <DialogTitle className="sr-only">Job Details for {job.title}</DialogTitle>
         <div className="p-3 sm:p-6 border-b border-gray-200">
           <div className="flex justify-between items-start gap-3">
@@ -197,6 +208,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
           </div>
         </div>
       </DialogContent>
+      </DialogPortal>
     </Dialog>
   );
 }
