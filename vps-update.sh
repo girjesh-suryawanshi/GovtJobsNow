@@ -79,6 +79,9 @@ docker compose up -d
 echo "⏳ Waiting for services..."
 sleep 20
 
+echo "🗄️ Initializing database..."
+docker compose exec -T app npm run db:push || docker compose exec -T app npx drizzle-kit push --force
+
 echo "✅ Checking application health..."
 for i in {1..10}; do
     if docker compose exec -T app curl -f http://localhost:3000/api/stats >/dev/null 2>&1; then
