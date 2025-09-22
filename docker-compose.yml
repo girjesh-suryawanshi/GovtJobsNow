@@ -14,9 +14,9 @@ services:
     environment:
       POSTGRES_DB: govtjobsnow
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      # Security hardening
-      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-defaultpassword123}
+      # Security hardening  
+      POSTGRES_INITDB_ARGS: --auth-host=md5 --auth-local=md5
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db-backup:/backup:rw
