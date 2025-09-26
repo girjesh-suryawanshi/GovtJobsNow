@@ -211,22 +211,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
 
     try {
-      const jobData = insertJobSchema.parse(req.body);
-      const job = await storage.createJob(jobData);
-      
-      // Log the manual job creation
-      await adminStorage.createProcessingLog({
-        adminId,
-        url: jobData.sourceUrl || "Manual Entry",
-        status: "completed",
-        extractedData: jobData,
-        validatedData: jobData,
-        errorMessage: null,
-        processingTimeMs: 0,
-        jobId: job.id
-      });
+      // Check if it's a multiple positions job
+      if (req.body.useMultiplePositions && req.body.jobPositions) {
+        // Handle multiple positions job
+        const job = await storage.createJobWithPositions(req.body);
+        
+        // Log the manual job creation
+        await adminStorage.createProcessingLog({
+          adminId,
+          url: req.body.sourceUrl || "Manual Entry",
+          status: "completed",
+          extractedData: req.body,
+          validatedData: req.body,
+          errorMessage: null,
+          processingTimeMs: 0,
+          jobId: job.id
+        });
 
-      res.status(201).json(job);
+        res.status(201).json(job);
+      } else {
+        // Handle single position job
+        const jobData = insertJobSchema.parse(req.body);
+        const job = await storage.createJob(jobData);
+        
+        // Log the manual job creation
+        await adminStorage.createProcessingLog({
+          adminId,
+          url: jobData.sourceUrl || "Manual Entry",
+          status: "completed",
+          extractedData: jobData,
+          validatedData: jobData,
+          errorMessage: null,
+          processingTimeMs: 0,
+          jobId: job.id
+        });
+
+        res.status(201).json(job);
+      }
     } catch (error) {
       console.error("Failed to create manual job:", error);
       res.status(400).json({ 

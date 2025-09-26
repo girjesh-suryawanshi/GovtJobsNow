@@ -13,6 +13,8 @@ export interface IStorage {
   getAllJobs(): Promise<Job[]>;
   searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }>;
   createJob(job: InsertJob): Promise<Job>;
+  createJobWithPositions(jobData: any): Promise<Job>; // Handle jobs with multiple positions
+  getJobPositions(jobId: string): Promise<JobPosition[]>;
   updateJob(id: string, job: Partial<InsertJob>): Promise<Job | undefined>;
   deleteJob(id: string): Promise<boolean>;
   getJobStats(): Promise<{
@@ -319,6 +321,17 @@ export class MemStorage implements IStorage {
       departments: new Set(jobs.map(job => job.department)).size,
       applications: Math.floor(jobs.reduce((sum, job) => sum + (job.positions || 1), 0) * 45.7) // Simulated application count
     };
+  }
+
+  async createJobWithPositions(jobData: any): Promise<Job> {
+    // For MemStorage, just create a regular job (stub implementation)
+    const { jobPositions, useMultiplePositions, ...mainJobData } = jobData;
+    return this.createJob(mainJobData);
+  }
+
+  async getJobPositions(jobId: string): Promise<JobPosition[]> {
+    // Stub implementation for MemStorage
+    return [];
   }
 }
 
@@ -654,6 +667,35 @@ export class DatabaseStorage implements IStorage {
       departments: deptResult.count || 0,
       applications: Math.floor((positionsResult.total || 0) * 23.7) // Simulate applications
     };
+  }
+
+  async createJobWithPositions(jobData: any): Promise<Job> {
+    // Extract main job data and positions
+    const { jobPositions: positions, useMultiplePositions, ...mainJobData } = jobData;
+
+    // Create the main job first
+    const job = await this.createJob(mainJobData);
+
+    // If multiple positions are enabled and provided, create position records
+    if (useMultiplePositions && positions && positions.length > 0) {
+      const positionInserts = positions.map((position: any) => ({
+        jobId: job.id,
+        positionName: position.positionName,
+        qualification: position.qualification,
+        experienceRequired: position.experienceRequired || null,
+        salaryRange: position.salaryRange || null,
+        numberOfVacancies: position.numberOfVacancies || 1,
+        specificRequirements: position.specificRequirements || null
+      }));
+
+      await db.insert(jobPositions).values(positionInserts);
+    }
+
+    return job;
+  }
+
+  async getJobPositions(jobId: string): Promise<JobPosition[]> {
+    return await db.select().from(jobPositions).where(eq(jobPositions.jobId, jobId));
   }
 }
 
