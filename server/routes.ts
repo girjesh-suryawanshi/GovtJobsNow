@@ -45,6 +45,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get job positions for a specific job
+  app.get("/api/jobs/:id/positions", async (req, res) => {
+    try {
+      const positions = await storage.getJobPositions(req.params.id);
+      res.json(positions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch job positions", error });
+    }
+  });
+
   // Create new job (admin only)
   app.post("/api/jobs", async (req, res) => {
     try {

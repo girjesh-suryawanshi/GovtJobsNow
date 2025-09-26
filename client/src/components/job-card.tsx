@@ -1,10 +1,20 @@
-import { useState } from "react";
-import { MapPin, Users, Calendar, Globe, Bookmark, Share2, IndianRupee } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MapPin, Users, Calendar, Globe, Bookmark, Share2, IndianRupee, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import OrganizationLogo from "@/components/organization-logo";
 import type { Job } from "@/types/job";
+
+interface JobPosition {
+  id: string;
+  positionName: string;
+  qualification: string;
+  experienceRequired?: string;
+  salaryRange?: string;
+  numberOfVacancies: number;
+  specificRequirements?: string;
+}
 
 interface JobCardProps {
   job: Job;
@@ -15,6 +25,34 @@ interface JobCardProps {
 
 export default function JobCard({ job, onClick, onCompare, isComparing = false }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [positions, setPositions] = useState<JobPosition[]>([]);
+  const [loadingPositions, setLoadingPositions] = useState(false);
+
+  // Fetch job positions when component mounts
+  useEffect(() => {
+    const fetchPositions = async () => {
+      try {
+        setLoadingPositions(true);
+        const response = await fetch(`/api/jobs/${job.id}/positions`);
+        if (response.ok) {
+          const text = await response.text();
+          if (text.trim() === '') {
+            setPositions([]);
+            return;
+          }
+          const positionsData = JSON.parse(text);
+          setPositions(positionsData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch positions:', error);
+        setPositions([]);
+      } finally {
+        setLoadingPositions(false);
+      }
+    };
+
+    fetchPositions();
+  }, [job.id]);
 
   const handleSaveJob = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -113,6 +151,39 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
               </Badge>
             )}
           </div>
+          
+          {/* Multiple Positions Display */}
+          {positions.length > 0 && (
+            <div className="mt-3 mb-2">
+              <div className="flex items-center gap-1 mb-2">
+                <Building2 className="h-3 w-3 text-blue-600" />
+                <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Available Positions:</span>
+              </div>
+              <div className="space-y-2">
+                {positions.map((position, index) => (
+                  <div key={position.id} className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-2 border border-blue-200 dark:border-blue-800">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-blue-800 dark:text-blue-200">
+                        {position.positionName}
+                      </span>
+                      <Badge variant="outline" className="text-xs text-blue-600 border-blue-300">
+                        {position.numberOfVacancies} vacancies
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap gap-2 text-xs text-blue-700 dark:text-blue-300">
+                      <span>• {position.qualification}</span>
+                      {position.experienceRequired && (
+                        <span>• Exp: {position.experienceRequired}</span>
+                      )}
+                      {position.salaryRange && (
+                        <span>• ₹{position.salaryRange}</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Date Info - Mobile Layout */}
           <div className="text-xs text-gray-500 dark:text-gray-400 sm:hidden flex justify-between">
