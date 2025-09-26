@@ -199,10 +199,20 @@ export default function ManualExamEntry() {
         totalMarks: formData.totalMarks ? parseInt(formData.totalMarks) : null
       };
 
-      await apiRequest("/api/admin/exams", {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch("/api/admin/exams", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(examData),
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
 
       toast({
         title: "Success!",
