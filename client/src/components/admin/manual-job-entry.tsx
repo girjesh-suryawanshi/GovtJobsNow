@@ -455,12 +455,17 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         ...formData,
         postedOn: new Date().toISOString().split('T')[0], // Today's date
         sourceUrl: formData.sourceUrl || "Manual Entry",
-        positions: formData.positions || 1,
+        positions: parseInt(formData.positions.toString()) || 1, // Ensure it's a number
         // Auto-set application start date to today if empty
         applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0],
         // Include multiple positions data if enabled
         ...(useMultiplePositions && {
-          jobPositions: jobPositions.filter(pos => pos.positionName.trim() !== ''),
+          jobPositions: jobPositions
+            .filter(pos => pos.positionName.trim() !== '')
+            .map(pos => ({
+              ...pos,
+              numberOfVacancies: parseInt(pos.numberOfVacancies.toString()) || 1 // Ensure number type
+            })),
           useMultiplePositions: true
         })
       };
