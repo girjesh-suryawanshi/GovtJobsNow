@@ -1,10 +1,20 @@
-import { useState } from "react";
-import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import type { Job } from "@/types/job";
+
+interface JobPosition {
+  id: string;
+  positionName: string;
+  qualification: string;
+  experienceRequired?: string;
+  salaryRange?: string;
+  numberOfVacancies: number;
+  specificRequirements?: string;
+}
 
 interface JobDetailModalProps {
   job: Job;
@@ -14,6 +24,36 @@ interface JobDetailModalProps {
 
 export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const [positions, setPositions] = useState<JobPosition[]>([]);
+  const [loadingPositions, setLoadingPositions] = useState(false);
+
+  // Fetch job positions when modal opens
+  useEffect(() => {
+    if (isOpen && job?.id) {
+      const fetchPositions = async () => {
+        try {
+          setLoadingPositions(true);
+          const response = await fetch(`/api/jobs/${job.id}/positions`);
+          if (response.ok) {
+            const text = await response.text();
+            if (text.trim() === '') {
+              setPositions([]);
+              return;
+            }
+            const positionsData = JSON.parse(text);
+            setPositions(positionsData);
+          }
+        } catch (error) {
+          console.error('Failed to fetch positions:', error);
+          setPositions([]);
+        } finally {
+          setLoadingPositions(false);
+        }
+      };
+
+      fetchPositions();
+    }
+  }, [isOpen, job?.id]);
 
   const handleSaveJob = () => {
     setIsSaved(!isSaved);
@@ -118,6 +158,58 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                     )}
                   </div>
                 </div>
+                
+                {/* Multiple Positions Section */}
+                {positions.length > 0 && (
+                  <div>
+                    <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
+                      <Building2 className="h-5 w-5 text-blue-600" />
+                      Available Positions
+                    </h3>
+                    <div className="space-y-4">
+                      {positions.map((position, index) => (
+                        <div key={position.id} className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                          <div className="flex flex-wrap items-center gap-3 mb-3">
+                            <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
+                              {position.positionName}
+                            </h4>
+                            <Badge variant="outline" className="text-blue-600 border-blue-300">
+                              {position.numberOfVacancies} {position.numberOfVacancies === 1 ? 'vacancy' : 'vacancies'}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Qualification:</span>
+                              <p className="text-sm text-blue-700 dark:text-blue-300">{position.qualification}</p>
+                            </div>
+                            
+                            {position.experienceRequired && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Experience:</span>
+                                <p className="text-sm text-blue-700 dark:text-blue-300">{position.experienceRequired}</p>
+                              </div>
+                            )}
+                            
+                            {position.salaryRange && (
+                              <div>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Salary:</span>
+                                <p className="text-sm text-blue-700 dark:text-blue-300">₹{position.salaryRange}</p>
+                              </div>
+                            )}
+                            
+                            {position.specificRequirements && (
+                              <div className="sm:col-span-2">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Specific Requirements:</span>
+                                <p className="text-sm text-blue-700 dark:text-blue-300">{position.specificRequirements}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 
                 {job.description && (
                   <div>
