@@ -19,6 +19,8 @@ export const jobs = pgTable("jobs", {
   applicationFee: text("application_fee"),
   description: text("description"),
   selectionProcess: text("selection_process"),
+  // Experience requirements
+  experienceRequired: text("experience_required"),
   // New priority fields for enhanced admin entry
   jobCategory: text("job_category"),
   employmentType: text("employment_type"),
@@ -28,9 +30,42 @@ export const jobs = pgTable("jobs", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Job Positions table for multiple positions with different requirements
+export const jobPositions = pgTable("job_positions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  jobId: varchar("job_id").references(() => jobs.id, { onDelete: "cascade" }).notNull(),
+  positionName: text("position_name").notNull(),
+  qualification: text("qualification").notNull(),
+  experienceRequired: text("experience_required"),
+  salaryRange: text("salary_range"),
+  numberOfVacancies: integer("number_of_vacancies").default(1),
+  specificRequirements: text("specific_requirements"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const insertJobSchema = createInsertSchema(jobs).omit({
   id: true,
   createdAt: true,
+});
+
+export const insertJobPositionSchema = createInsertSchema(jobPositions).omit({
+  id: true,
+  createdAt: true,
+});
+
+// Enhanced job creation schema with positions
+export const createJobWithPositionsSchema = z.object({
+  // Main job data
+  job: insertJobSchema,
+  // Optional positions array for multi-position jobs
+  positions: z.array(z.object({
+    positionName: z.string().min(1, "Position name is required"),
+    qualification: z.string().min(1, "Qualification is required"),
+    experienceRequired: z.string().optional(),
+    salaryRange: z.string().optional(),
+    numberOfVacancies: z.number().min(1).default(1),
+    specificRequirements: z.string().optional(),
+  })).optional(),
 });
 
 export const searchJobsSchema = z.object({
@@ -47,6 +82,9 @@ export const searchJobsSchema = z.object({
 
 export type InsertJob = z.infer<typeof insertJobSchema>;
 export type Job = typeof jobs.$inferSelect;
+export type InsertJobPosition = z.infer<typeof insertJobPositionSchema>;
+export type JobPosition = typeof jobPositions.$inferSelect;
+export type CreateJobWithPositions = z.infer<typeof createJobWithPositionsSchema>;
 export type SearchJobsParams = z.infer<typeof searchJobsSchema>;
 
 export const users = pgTable("users", {

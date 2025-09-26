@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, jobs, users } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, jobs, users, jobPositions } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -73,7 +73,13 @@ export class MemStorage implements IStorage {
         ageLimit: "21-30 years",
         applicationFee: "General/OBC: ₹100, SC/ST/PWD: Nil",
         description: "The Assistant Section Officer will be responsible for handling administrative work in the Ministry of External Affairs. Key responsibilities include managing correspondence and documentation, coordinating with various departments, preparing reports and maintaining records, and assisting senior officers in policy implementation.",
-        selectionProcess: "Written Examination (Tier-I), Descriptive Paper (Tier-II), Document Verification"
+        selectionProcess: "Written Examination (Tier-I), Descriptive Paper (Tier-II), Document Verification",
+        experienceRequired: "Fresh graduates or up to 2 years of administrative experience",
+        jobCategory: "Central Government",
+        employmentType: "Permanent",
+        recruitingOrganization: "Ministry of External Affairs",
+        applicationStartDate: formatDate(new Date()),
+        vacancyBreakdown: "General: 150, OBC: 60, SC: 25, ST: 10"
       },
       {
         title: "Junior Engineer - Indian Railways",
@@ -89,7 +95,13 @@ export class MemStorage implements IStorage {
         ageLimit: "18-33 years",
         applicationFee: "General/OBC: ₹500, SC/ST/PWD: ₹250",
         description: "Junior Engineers in Indian Railways are responsible for maintenance and operation of railway systems including signals, telecommunications, electrical systems, and mechanical equipment.",
-        selectionProcess: "Computer Based Test (CBT), Document Verification, Medical Examination"
+        selectionProcess: "Computer Based Test (CBT), Document Verification, Medical Examination",
+        experienceRequired: "Fresh graduates or up to 3 years of relevant engineering experience",
+        jobCategory: "PSU",
+        employmentType: "Permanent",
+        recruitingOrganization: "Railway Recruitment Board",
+        applicationStartDate: formatDate(new Date()),
+        vacancyBreakdown: "General: 800, OBC: 400, SC: 200, ST: 50"
       },
       {
         title: "Probationary Officer - State Bank of India",
@@ -105,7 +117,13 @@ export class MemStorage implements IStorage {
         ageLimit: "21-30 years",
         applicationFee: "General/OBC: ₹750, SC/ST/PWD: ₹125",
         description: "Probationary Officers in SBI handle various banking operations including customer service, loan processing, account management, and branch operations.",
-        selectionProcess: "Preliminary Exam, Main Exam, Group Exercise & Interview"
+        selectionProcess: "Preliminary Exam, Main Exam, Group Exercise & Interview",
+        experienceRequired: "Fresh graduates with no experience required",
+        jobCategory: "Banking",
+        employmentType: "Permanent",
+        recruitingOrganization: "State Bank of India",
+        applicationStartDate: formatDate(new Date()),
+        vacancyBreakdown: "General: 1200, OBC: 540, SC: 200, ST: 60"
       },
       {
         title: "Sub Inspector - Central Reserve Police Force",
@@ -121,7 +139,13 @@ export class MemStorage implements IStorage {
         ageLimit: "20-25 years",
         applicationFee: "General/OBC: ₹100, SC/ST: Nil",
         description: "Sub Inspectors in CRPF are responsible for maintaining law and order, counter-insurgency operations, and internal security duties.",
-        selectionProcess: "Written Exam, Physical Standard Test, Physical Efficiency Test, Medical Exam"
+        selectionProcess: "Written Exam, Physical Standard Test, Physical Efficiency Test, Medical Exam",
+        experienceRequired: "No prior experience required, training will be provided",
+        jobCategory: "Central Government",
+        employmentType: "Permanent",
+        recruitingOrganization: "Central Reserve Police Force",
+        applicationStartDate: formatDate(new Date()),
+        vacancyBreakdown: "General: 250, OBC: 115, SC: 40, ST: 20"
       }
     ];
 
@@ -136,6 +160,12 @@ export class MemStorage implements IStorage {
         applicationFee: job.applicationFee ?? null,
         description: job.description ?? null,
         selectionProcess: job.selectionProcess ?? null,
+        experienceRequired: job.experienceRequired ?? null,
+        jobCategory: job.jobCategory ?? null,
+        employmentType: job.employmentType ?? null,
+        recruitingOrganization: job.recruitingOrganization ?? null,
+        applicationStartDate: job.applicationStartDate ?? null,
+        vacancyBreakdown: job.vacancyBreakdown ?? null,
         createdAt: new Date(),
       };
       this.jobs.set(id, jobWithId);

@@ -15,7 +15,9 @@ import {
   AlertCircle,
   BookOpen,
   Copy,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Plus,
+  X
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -312,6 +314,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     ageLimit: "",
     applicationFee: "",
     selectionProcess: "",
+    experienceRequired: "",
     // New priority fields for enhanced entry
     jobCategory: "",
     employmentType: "",
@@ -319,6 +322,20 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     applicationStartDate: "",
     vacancyBreakdown: ""
   });
+  
+  // State for multiple positions
+  const [jobPositions, setJobPositions] = useState([
+    {
+      id: crypto.randomUUID(),
+      positionName: "",
+      qualification: "",
+      experienceRequired: "",
+      salaryRange: "",
+      numberOfVacancies: 1,
+      specificRequirements: ""
+    }
+  ]);
+  const [useMultiplePositions, setUseMultiplePositions] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
@@ -355,10 +372,36 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     if (!formData.recruitingOrganization.trim()) errors.push("Recruiting organization is required");
     if (!formData.department.trim()) errors.push("Department is required");
     if (!formData.location.trim()) errors.push("Location is required");
-    if (!formData.qualification.trim()) errors.push("Qualification is required");
+    
+    // Validate qualification based on mode
+    if (!useMultiplePositions && !formData.qualification.trim()) {
+      errors.push("Qualification is required");
+    }
+    
     if (!formData.applicationStartDate.trim()) errors.push("Application start date is required");
     if (!formData.deadline.trim()) errors.push("Application deadline is required");
     if (!formData.applyLink.trim()) errors.push("Application link is required");
+    
+    // Validate multiple positions if enabled
+    if (useMultiplePositions) {
+      const validPositions = jobPositions.filter(pos => pos.positionName.trim() !== '');
+      
+      if (validPositions.length === 0) {
+        errors.push("At least one position with a name is required");
+      }
+      
+      validPositions.forEach((position, index) => {
+        if (!position.positionName.trim()) {
+          errors.push(`Position ${index + 1}: Position name is required`);
+        }
+        if (!position.qualification.trim()) {
+          errors.push(`Position ${index + 1}: Qualification is required`);
+        }
+        if (position.numberOfVacancies < 1) {
+          errors.push(`Position ${index + 1}: Number of vacancies must be at least 1`);
+        }
+      });
+    }
     
     // Set defaults for optional fields
     if (!formData.sourceUrl.trim()) {
@@ -414,7 +457,12 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         sourceUrl: formData.sourceUrl || "Manual Entry",
         positions: formData.positions || 1,
         // Auto-set application start date to today if empty
-        applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0]
+        applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0],
+        // Include multiple positions data if enabled
+        ...(useMultiplePositions && {
+          jobPositions: jobPositions.filter(pos => pos.positionName.trim() !== ''),
+          useMultiplePositions: true
+        })
       };
 
       const response = await fetch("/api/admin/jobs", {
@@ -447,6 +495,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           ageLimit: "",
           applicationFee: "",
           selectionProcess: "",
+          experienceRequired: "",
           jobCategory: "",
           employmentType: "",
           recruitingOrganization: "",
@@ -489,13 +538,65 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       ageLimit: "",
       applicationFee: "",
       selectionProcess: "",
+      experienceRequired: "",
       jobCategory: "",
       employmentType: "",
       recruitingOrganization: "",
       applicationStartDate: "",
       vacancyBreakdown: ""
     });
+    setJobPositions([{
+      id: crypto.randomUUID(),
+      positionName: "",
+      qualification: "",
+      experienceRequired: "",
+      salaryRange: "",
+      numberOfVacancies: 1,
+      specificRequirements: ""
+    }]);
+    setUseMultiplePositions(false);
     setValidationErrors([]);
+  };
+
+  // Position management functions
+  const addPosition = () => {
+    setJobPositions(prev => [...prev, {
+      id: crypto.randomUUID(),
+      positionName: "",
+      qualification: "",
+      experienceRequired: "",
+      salaryRange: "",
+      numberOfVacancies: 1,
+      specificRequirements: ""
+    }]);
+  };
+
+  const removePosition = (positionId: string) => {
+    if (jobPositions.length > 1) {
+      setJobPositions(prev => prev.filter(pos => pos.id !== positionId));
+    }
+  };
+
+  const updatePosition = (positionId: string, field: string, value: string | number) => {
+    setJobPositions(prev => prev.map(pos => 
+      pos.id === positionId ? { ...pos, [field]: value } : pos
+    ));
+  };
+
+  const toggleMultiplePositions = (enabled: boolean) => {
+    setUseMultiplePositions(enabled);
+    if (!enabled) {
+      // Reset to single position
+      setJobPositions([{
+        id: crypto.randomUUID(),
+        positionName: "",
+        qualification: "",
+        experienceRequired: "",
+        salaryRange: "",
+        numberOfVacancies: 1,
+        specificRequirements: ""
+      }]);
+    }
   };
 
   return (
@@ -714,6 +815,18 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 </Select>
               </div>
 
+              {/* Experience Required */}
+              <div>
+                <Label htmlFor="experienceRequired">Experience Required</Label>
+                <Input
+                  id="experienceRequired"
+                  value={formData.experienceRequired}
+                  onChange={(e) => handleInputChange('experienceRequired', e.target.value)}
+                  placeholder="e.g., Fresh graduates, 2-5 years, No experience required"
+                  data-testid="input-experience"
+                />
+              </div>
+
               {/* Application Dates Row */}
               <div>
                 <Label htmlFor="applicationStartDate">Application Start Date *</Label>
@@ -858,6 +971,145 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               </div>
             </div>
 
+            {/* Multiple Positions Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Multiple Positions</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Enable for jobs with different posts having different requirements
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="multiple-positions">Enable Multiple Positions</Label>
+                  <input
+                    id="multiple-positions"
+                    type="checkbox"
+                    checked={useMultiplePositions}
+                    onChange={(e) => toggleMultiplePositions(e.target.checked)}
+                    className="rounded"
+                    data-testid="checkbox-multiple-positions"
+                  />
+                </div>
+              </div>
+
+              {useMultiplePositions && (
+                <div className="space-y-4">
+                  <div className="text-sm text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <strong>Note:</strong> When using multiple positions, the main qualification and salary fields above will be ignored. 
+                    Each position will have its own specific requirements.
+                  </div>
+                  
+                  {jobPositions.map((position, index) => (
+                    <div key={position.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium">Position {index + 1}</h4>
+                        {jobPositions.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => removePosition(position.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            data-testid={`button-remove-position-${index}`}
+                          >
+                            <X className="w-4 h-4" />
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Position Name */}
+                        <div>
+                          <Label htmlFor={`position-name-${position.id}`}>Position Name *</Label>
+                          <Input
+                            id={`position-name-${position.id}`}
+                            value={position.positionName}
+                            onChange={(e) => updatePosition(position.id, 'positionName', e.target.value)}
+                            placeholder="e.g., Assistant, Inspector, Officer"
+                            data-testid={`input-position-name-${index}`}
+                          />
+                        </div>
+
+                        {/* Number of Vacancies */}
+                        <div>
+                          <Label htmlFor={`vacancies-${position.id}`}>Number of Vacancies</Label>
+                          <Input
+                            id={`vacancies-${position.id}`}
+                            type="number"
+                            min="1"
+                            value={position.numberOfVacancies}
+                            onChange={(e) => updatePosition(position.id, 'numberOfVacancies', parseInt(e.target.value) || 1)}
+                            data-testid={`input-vacancies-${index}`}
+                          />
+                        </div>
+
+                        {/* Qualification */}
+                        <div>
+                          <Label htmlFor={`position-qualification-${position.id}`}>Required Qualification *</Label>
+                          <Input
+                            id={`position-qualification-${position.id}`}
+                            value={position.qualification}
+                            onChange={(e) => updatePosition(position.id, 'qualification', e.target.value)}
+                            placeholder="e.g., Graduate, Post Graduate, Diploma"
+                            data-testid={`input-position-qualification-${index}`}
+                          />
+                        </div>
+
+                        {/* Experience */}
+                        <div>
+                          <Label htmlFor={`position-experience-${position.id}`}>Experience Required</Label>
+                          <Input
+                            id={`position-experience-${position.id}`}
+                            value={position.experienceRequired}
+                            onChange={(e) => updatePosition(position.id, 'experienceRequired', e.target.value)}
+                            placeholder="e.g., 2-5 years, Fresh graduates"
+                            data-testid={`input-position-experience-${index}`}
+                          />
+                        </div>
+
+                        {/* Salary Range */}
+                        <div>
+                          <Label htmlFor={`position-salary-${position.id}`}>Salary Range</Label>
+                          <Input
+                            id={`position-salary-${position.id}`}
+                            value={position.salaryRange}
+                            onChange={(e) => updatePosition(position.id, 'salaryRange', e.target.value)}
+                            placeholder="e.g., ₹25,500 - ₹81,100 per month"
+                            data-testid={`input-position-salary-${index}`}
+                          />
+                        </div>
+
+                        {/* Specific Requirements */}
+                        <div>
+                          <Label htmlFor={`position-requirements-${position.id}`}>Specific Requirements</Label>
+                          <Input
+                            id={`position-requirements-${position.id}`}
+                            value={position.specificRequirements}
+                            onChange={(e) => updatePosition(position.id, 'specificRequirements', e.target.value)}
+                            placeholder="Any position-specific requirements"
+                            data-testid={`input-position-requirements-${index}`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addPosition}
+                    className="w-full border-dashed border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-800"
+                    data-testid="button-add-position"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Another Position
+                  </Button>
+                </div>
+              )}
+            </div>
+
             {/* Speed Tips */}
             <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
               <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">⚡ Speed Tips</h3>
@@ -866,6 +1118,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 <li>• Tab through fields quickly</li>
                 <li>• Ctrl+Enter to submit from any field</li>
                 <li>• Recruiting org has auto-suggestions</li>
+                <li>• Enable multiple positions for jobs like SSC CGL with different posts</li>
               </ul>
             </div>
 
