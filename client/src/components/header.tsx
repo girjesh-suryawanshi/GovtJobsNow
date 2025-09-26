@@ -56,13 +56,13 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
               <Building2 className="h-4 w-4" />
               Departments
             </button>
-            <button 
-              onClick={onOpenExamCalendar}
+            <Link 
+              href="/exams"
               className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
               Exam Calendar
-            </button>
+            </Link>
             <button 
               onClick={() => setShowHelpModal(true)}
               className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 font-medium transition-all duration-300 flex items-center gap-2"
@@ -152,16 +152,14 @@ export default function Header({ onOpenExamCalendar, onScrollToDepartments }: He
                 <Building2 className="h-4 w-4" />
                 Departments
               </button>
-              <button 
-                onClick={() => {
-                  onOpenExamCalendar?.();
-                  setIsMenuOpen(false);
-                }}
+              <Link 
+                href="/exams"
+                onClick={() => setIsMenuOpen(false)}
                 className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
               >
                 <Calendar className="h-4 w-4" />
                 Exam Calendar
-              </button>
+              </Link>
               <button 
                 onClick={() => {
                   setShowHelpModal(true);

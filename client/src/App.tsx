@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "@/contexts/user-context";
 import Home from "@/pages/home";
 import JobDetail from "@/pages/job-detail";
+import ExamCalendarPage from "@/pages/exam-calendar-page";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
 import Contact from "@/pages/contact";
@@ -22,6 +23,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/job/:id" component={JobDetail} />
+      <Route path="/exams" component={ExamCalendarPage} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/contact" component={Contact} />
