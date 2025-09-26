@@ -34,42 +34,7 @@ interface JobTrackerProps {
 export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProps) {
   const { toast } = useToast();
   
-  const [applications, setApplications] = useState<Application[]>([
-    {
-      id: '1',
-      jobId: 'job1',
-      jobTitle: 'Assistant Manager - State Bank of India',
-      department: 'Banking',
-      appliedDate: '2025-01-10',
-      deadline: '2025-02-15',
-      status: 'exam_scheduled',
-      examDate: '2025-02-20',
-      notes: 'Preliminary exam scheduled. Need to prepare quantitative aptitude.',
-      documents: ['Application Form', 'Photo', 'Signature', 'Certificate']
-    },
-    {
-      id: '2', 
-      jobId: 'job2',
-      jobTitle: 'Junior Engineer - Railway Recruitment Board',
-      department: 'Railway',
-      appliedDate: '2025-01-08',
-      deadline: '2025-02-10',
-      status: 'under_review',
-      notes: 'Applied with all required documents. Waiting for response.',
-      documents: ['Application Form', 'Educational Certificates', 'Experience Letter']
-    },
-    {
-      id: '3',
-      jobId: 'job3', 
-      jobTitle: 'Tax Assistant - Staff Selection Commission',
-      department: 'SSC',
-      appliedDate: '2025-01-05',
-      deadline: '2025-01-25',
-      status: 'selected',
-      notes: 'Successfully cleared all rounds. Offer letter received!',
-      documents: ['Application Form', 'All Certificates', 'Medical Reports']
-    }
-  ]);
+  const [applications, setApplications] = useState<Application[]>([]);
 
   const [newApplication, setNewApplication] = useState({
     jobTitle: jobToAdd?.title || '',

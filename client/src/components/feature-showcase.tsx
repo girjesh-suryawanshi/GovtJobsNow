@@ -22,7 +22,7 @@ export default function FeatureShowcase() {
       title: "Exam Calendar",
       description: "Never miss important exam dates with comprehensive scheduling and reminders",
       color: "bg-purple-500",
-      stats: "200+ Exam Schedules"
+      stats: "Comprehensive Scheduling"
     },
     {
       icon: GitCompare,
