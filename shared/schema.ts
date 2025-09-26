@@ -206,6 +206,37 @@ export const createAdminUserSchema = z.object({
 
 export const updateJobSchema = insertJobSchema.partial();
 
+// Exam Calendar & Schedule Schema
+export const exams = pgTable("exams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  conductingOrganization: text("conducting_organization").notNull(),
+  examDate: text("exam_date").notNull(),
+  registrationStartDate: text("registration_start_date").notNull(),
+  registrationEndDate: text("registration_end_date").notNull(),
+  applicationFee: text("application_fee"),
+  examPattern: text("exam_pattern"),
+  eligibility: text("eligibility").notNull(),
+  officialWebsite: text("official_website").notNull(),
+  resultsDate: text("results_date"),
+  admitCardDate: text("admit_card_date"),
+  syllabus: text("syllabus"),
+  location: text("location"),
+  duration: text("duration"),
+  totalMarks: integer("total_marks"),
+  examMode: text("exam_mode"), // Online/Offline/Both
+  languagesAvailable: text("languages_available"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertExamSchema = createInsertSchema(exams).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertExam = z.infer<typeof insertExamSchema>;
+export type Exam = typeof exams.$inferSelect;
+
 export type AdminPasswordChange = z.infer<typeof adminPasswordChangeSchema>;
 export type CreateAdminUser = z.infer<typeof createAdminUserSchema>;
 export type UpdateJob = z.infer<typeof updateJobSchema>;
