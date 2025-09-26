@@ -12,7 +12,9 @@ import {
   AlertCircle,
   LogOut,
   User,
-  ChevronDown
+  ChevronDown,
+  Briefcase,
+  Calendar
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -23,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import ManualJobEntry from "@/components/admin/manual-job-entry";
+import ManualExamEntry from "@/components/admin/manual-exam-entry";
 import AdminManagement from "@/components/admin/admin-management";
 
 interface DashboardStats {
@@ -40,6 +43,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAdminManagement, setShowAdminManagement] = useState(false);
+  const [activeTab, setActiveTab] = useState<"jobs" | "exams">("jobs");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -224,12 +228,48 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* Main Content - Manual Job Entry */}
+        {/* Main Content - Tabbed Management Interface */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold tracking-tight">Job Management</h2>
+            <h2 className="text-2xl font-bold tracking-tight">Content Management</h2>
           </div>
-          <ManualJobEntry onJobAdded={checkAuthAndFetchData} />
+          
+          {/* Tab Navigation */}
+          <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+            <Button
+              variant={activeTab === "jobs" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("jobs")}
+              className="flex items-center gap-2"
+              data-testid="tab-jobs"
+            >
+              <Briefcase className="h-4 w-4" />
+              Job Management
+            </Button>
+            <Button
+              variant={activeTab === "exams" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setActiveTab("exams")}
+              className="flex items-center gap-2"
+              data-testid="tab-exams"
+            >
+              <Calendar className="h-4 w-4" />
+              Exam Calendar
+            </Button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === "jobs" && (
+            <div className="space-y-6" data-testid="content-jobs">
+              <ManualJobEntry onJobAdded={checkAuthAndFetchData} />
+            </div>
+          )}
+
+          {activeTab === "exams" && (
+            <div className="space-y-6" data-testid="content-exams">
+              <ManualExamEntry />
+            </div>
+          )}
         </div>
       </div>
     </div>
