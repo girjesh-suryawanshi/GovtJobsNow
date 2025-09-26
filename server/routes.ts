@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema } from "@shared/schema";
+import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema, insertExamSchema } from "@shared/schema";
 import { scrapeJobs } from "./scraper";
 import { adminStorage } from "./admin-storage";
 import { urlProcessor } from "./url-processor";
@@ -100,6 +100,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats", error });
+    }
+  });
+
+  // ======== EXAM ROUTES ========
+  
+  // Get all exams
+  app.get("/api/exams", async (req, res) => {
+    try {
+      const exams = await storage.getAllExams();
+      res.json(exams);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch exams", error });
+    }
+  });
+
+  // Get single exam by ID
+  app.get("/api/exams/:id", async (req, res) => {
+    try {
+      const exam = await storage.getExam(req.params.id);
+      if (!exam) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+      res.json(exam);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch exam", error });
+    }
+  });
+
+  // Create new exam (admin only)
+  app.post("/api/admin/exams", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const examData = insertExamSchema.parse(req.body);
+      const exam = await storage.createExam(examData);
+      res.status(201).json(exam);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid exam data", error });
+    }
+  });
+
+  // Update exam (admin only)
+  app.put("/api/admin/exams/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const examData = insertExamSchema.partial().parse(req.body);
+      const exam = await storage.updateExam(req.params.id, examData);
+      if (!exam) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+      res.json(exam);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid exam data", error });
+    }
+  });
+
+  // Delete exam (admin only)
+  app.delete("/api/admin/exams/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const success = await storage.deleteExam(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+      res.json({ message: "Exam deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete exam", error });
     }
   });
 

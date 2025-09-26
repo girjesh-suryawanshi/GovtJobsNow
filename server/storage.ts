@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, jobs, users, jobPositions } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -23,6 +23,13 @@ export interface IStorage {
     departments: number;
     applications: number;
   }>;
+
+  // Exam-related methods
+  getExam(id: string): Promise<Exam | undefined>;
+  getAllExams(): Promise<Exam[]>;
+  createExam(exam: InsertExam): Promise<Exam>;
+  updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined>;
+  deleteExam(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -332,6 +339,33 @@ export class MemStorage implements IStorage {
   async getJobPositions(jobId: string): Promise<JobPosition[]> {
     // Stub implementation for MemStorage
     return [];
+  }
+
+  // Exam-related methods (stub implementations for MemStorage)
+  async getExam(id: string): Promise<Exam | undefined> {
+    return undefined;
+  }
+
+  async getAllExams(): Promise<Exam[]> {
+    return [];
+  }
+
+  async createExam(exam: InsertExam): Promise<Exam> {
+    const id = randomUUID();
+    const newExam: Exam = {
+      ...exam,
+      id,
+      createdAt: new Date(),
+    };
+    return newExam;
+  }
+
+  async updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined> {
+    return undefined;
+  }
+
+  async deleteExam(id: string): Promise<boolean> {
+    return false;
   }
 }
 
@@ -696,6 +730,31 @@ export class DatabaseStorage implements IStorage {
 
   async getJobPositions(jobId: string): Promise<JobPosition[]> {
     return await db.select().from(jobPositions).where(eq(jobPositions.jobId, jobId));
+  }
+
+  // Exam-related methods
+  async getExam(id: string): Promise<Exam | undefined> {
+    const result = await db.select().from(exams).where(eq(exams.id, id));
+    return result[0];
+  }
+
+  async getAllExams(): Promise<Exam[]> {
+    return await db.select().from(exams).orderBy(desc(exams.createdAt));
+  }
+
+  async createExam(exam: InsertExam): Promise<Exam> {
+    const result = await db.insert(exams).values(exam).returning();
+    return result[0];
+  }
+
+  async updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined> {
+    const result = await db.update(exams).set(exam).where(eq(exams.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteExam(id: string): Promise<boolean> {
+    const result = await db.delete(exams).where(eq(exams.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 }
 
