@@ -9,11 +9,10 @@ import HelpModal from "@/components/help-modal";
 import { useUser } from "@/contexts/user-context";
 
 interface HeaderProps {
-  onOpenExamCalendar?: () => void;
   onScrollToDepartments?: () => void;
 }
 
-export default function Header({ onOpenExamCalendar, onScrollToDepartments }: HeaderProps) {
+export default function Header({ onScrollToDepartments }: HeaderProps) {
   const { user, logout, isAuthenticated } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);

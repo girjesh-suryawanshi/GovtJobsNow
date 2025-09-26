@@ -12,7 +12,6 @@ import JobDetailModal from "@/components/job-detail-modal";
 import JobComparison from "@/components/job-comparison";
 import JobAlerts from "@/components/job-alerts";
 import JobTracker from "@/components/job-tracker";
-import ExamCalendar from "@/components/exam-calendar";
 import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -41,7 +40,6 @@ export default function Home() {
   const [showComparison, setShowComparison] = useState(false);
   const [showJobAlerts, setShowJobAlerts] = useState(false);
   const [showJobTracker, setShowJobTracker] = useState(false);
-  const [showExamCalendar, setShowExamCalendar] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
   const { data: jobsData, isLoading, error } = useQuery({
@@ -133,7 +131,6 @@ export default function Home() {
         url="https://govtjobsnow.com"
       />
       <Header 
-        onOpenExamCalendar={() => setShowExamCalendar(true)}
         onScrollToDepartments={handleScrollToDepartments}
       />
       <HeroSection onSearch={handleSearch} onLocationChange={(location) => handleFilterChange({ location })} />
@@ -202,7 +199,7 @@ export default function Home() {
                       </Button>
                       <Button 
                         variant="outline"
-                        onClick={() => setShowExamCalendar(true)}
+                        onClick={() => window.location.href = '/exams'}
                         className="flex items-center gap-2"
                       >
                         <Calendar className="h-4 w-4" />
@@ -377,15 +374,11 @@ export default function Home() {
         jobToAdd={selectedJob || undefined}
       />
       
-      <ExamCalendar
-        isOpen={showExamCalendar}
-        onClose={() => setShowExamCalendar(false)}
-      />
       
       <FloatingActionMenu
         onOpenJobAlerts={() => setShowJobAlerts(true)}
         onOpenJobTracker={() => setShowJobTracker(true)}
-        onOpenExamCalendar={() => setShowExamCalendar(true)}
+        onOpenExamCalendar={() => window.location.href = '/exams'}
       />
 
       <FeatureShowcase />
