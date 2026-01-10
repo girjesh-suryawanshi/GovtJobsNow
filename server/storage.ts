@@ -13,7 +13,7 @@ export interface IStorage {
   getAllJobs(): Promise<Job[]>;
   searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }>;
   createJob(job: InsertJob): Promise<Job>;
-  createJobWithPositions(jobData: any): Promise<Job>; // Handle jobs with multiple positions
+  createJobWithPositions(jobData: any): Promise<Job>;
   getJobPositions(jobId: string): Promise<JobPosition[]>;
   updateJob(id: string, job: Partial<InsertJob>): Promise<Job | undefined>;
   deleteJob(id: string): Promise<boolean>;
@@ -30,343 +30,90 @@ export interface IStorage {
   createExam(exam: InsertExam): Promise<Exam>;
   updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined>;
   deleteExam(id: string): Promise<boolean>;
+
+  // URL Processing methods
+  getUrlProcessingLogs(adminId: string): Promise<any[]>;
+  getExtractionTemplates(): Promise<any[]>;
+  createUrlProcessingLog(log: any): Promise<any>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private jobs: Map<string, Job>;
+  private jobPositions: Map<string, JobPosition>;
+  private exams: Map<string, Exam>;
 
   constructor() {
     this.users = new Map();
     this.jobs = new Map();
-    this.seedJobs();
+    this.jobPositions = new Map();
+    this.exams = new Map();
   }
 
-  private seedJobs() {
-    const today = new Date();
-    const formatDate = (date: Date) => {
-      return date.toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      });
-    };
-    
-    // Generate dates for active jobs
-    const postedDates = [
-      new Date(today.getTime() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
-      new Date(today.getTime() - 3 * 24 * 60 * 60 * 1000), // 3 days ago
-      new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000), // 1 week ago
-      new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-    ];
-    
-    const deadlineDates = [
-      new Date(today.getTime() + 25 * 24 * 60 * 60 * 1000), // 25 days from now
-      new Date(today.getTime() + 18 * 24 * 60 * 60 * 1000), // 18 days from now
-      new Date(today.getTime() + 32 * 24 * 60 * 60 * 1000), // 32 days from now
-      new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
-    ];
-
-    const sampleJobs: InsertJob[] = [
-      {
-        title: "Assistant Section Officer - Ministry of External Affairs",
-        department: "Ministry of External Affairs",
-        location: "New Delhi",
-        qualification: "Graduate in any discipline",
-        deadline: formatDate(deadlineDates[0]),
-        applyLink: "https://mea.gov.in/careers",
-        postedOn: formatDate(postedDates[0]),
-        sourceUrl: "https://mea.gov.in",
-        positions: 245,
-        salary: "₹44,900 - ₹1,42,400 per month",
-        ageLimit: "21-30 years",
-        applicationFee: "General/OBC: ₹100, SC/ST/PWD: Nil",
-        description: "The Assistant Section Officer will be responsible for handling administrative work in the Ministry of External Affairs. Key responsibilities include managing correspondence and documentation, coordinating with various departments, preparing reports and maintaining records, and assisting senior officers in policy implementation.",
-        selectionProcess: "Written Examination (Tier-I), Descriptive Paper (Tier-II), Document Verification",
-        experienceRequired: "Fresh graduates or up to 2 years of administrative experience",
-        jobCategory: "Central Government",
-        employmentType: "Permanent",
-        recruitingOrganization: "Ministry of External Affairs",
-        applicationStartDate: formatDate(new Date()),
-        vacancyBreakdown: "General: 150, OBC: 60, SC: 25, ST: 10"
-      },
-      {
-        title: "Junior Engineer - Indian Railways",
-        department: "Indian Railways",
-        location: "Multiple Locations",
-        qualification: "Diploma/B.E. in relevant engineering discipline",
-        deadline: formatDate(deadlineDates[1]),
-        applyLink: "https://rrbcdg.gov.in",
-        postedOn: formatDate(postedDates[1]),
-        sourceUrl: "https://rrbcdg.gov.in",
-        positions: 1450,
-        salary: "₹35,400 - ₹1,12,400 per month",
-        ageLimit: "18-33 years",
-        applicationFee: "General/OBC: ₹500, SC/ST/PWD: ₹250",
-        description: "Junior Engineers in Indian Railways are responsible for maintenance and operation of railway systems including signals, telecommunications, electrical systems, and mechanical equipment.",
-        selectionProcess: "Computer Based Test (CBT), Document Verification, Medical Examination",
-        experienceRequired: "Fresh graduates or up to 3 years of relevant engineering experience",
-        jobCategory: "PSU",
-        employmentType: "Permanent",
-        recruitingOrganization: "Railway Recruitment Board",
-        applicationStartDate: formatDate(new Date()),
-        vacancyBreakdown: "General: 800, OBC: 400, SC: 200, ST: 50"
-      },
-      {
-        title: "Probationary Officer - State Bank of India",
-        department: "Banking",
-        location: "Pan India",
-        qualification: "Graduate in any discipline",
-        deadline: formatDate(deadlineDates[2]),
-        applyLink: "https://sbi.co.in/careers",
-        postedOn: formatDate(postedDates[2]),
-        sourceUrl: "https://sbi.co.in",
-        positions: 2000,
-        salary: "₹27,620 - ₹920,000 per month",
-        ageLimit: "21-30 years",
-        applicationFee: "General/OBC: ₹750, SC/ST/PWD: ₹125",
-        description: "Probationary Officers in SBI handle various banking operations including customer service, loan processing, account management, and branch operations.",
-        selectionProcess: "Preliminary Exam, Main Exam, Group Exercise & Interview",
-        experienceRequired: "Fresh graduates with no experience required",
-        jobCategory: "Banking",
-        employmentType: "Permanent",
-        recruitingOrganization: "State Bank of India",
-        applicationStartDate: formatDate(new Date()),
-        vacancyBreakdown: "General: 1200, OBC: 540, SC: 200, ST: 60"
-      },
-      {
-        title: "Sub Inspector - Central Reserve Police Force",
-        department: "Police/Security",
-        location: "Multiple States",
-        qualification: "12th Pass from recognized board",
-        deadline: formatDate(deadlineDates[3]),
-        applyLink: "https://crpf.gov.in/recruitment",
-        postedOn: formatDate(postedDates[3]),
-        sourceUrl: "https://crpf.gov.in",
-        positions: 425,
-        salary: "₹29,200 - ₹92,300 per month",
-        ageLimit: "20-25 years",
-        applicationFee: "General/OBC: ₹100, SC/ST: Nil",
-        description: "Sub Inspectors in CRPF are responsible for maintaining law and order, counter-insurgency operations, and internal security duties.",
-        selectionProcess: "Written Exam, Physical Standard Test, Physical Efficiency Test, Medical Exam",
-        experienceRequired: "No prior experience required, training will be provided",
-        jobCategory: "Central Government",
-        employmentType: "Permanent",
-        recruitingOrganization: "Central Reserve Police Force",
-        applicationStartDate: formatDate(new Date()),
-        vacancyBreakdown: "General: 250, OBC: 115, SC: 40, ST: 20"
-      }
-    ];
-
-    sampleJobs.forEach(job => {
-      const id = randomUUID();
-      const jobWithId: Job = {
-        ...job,
-        id,
-        positions: job.positions ?? null,
-        salary: job.salary ?? null,
-        ageLimit: job.ageLimit ?? null,
-        applicationFee: job.applicationFee ?? null,
-        description: job.description ?? null,
-        selectionProcess: job.selectionProcess ?? null,
-        experienceRequired: job.experienceRequired ?? null,
-        jobCategory: job.jobCategory ?? null,
-        employmentType: job.employmentType ?? null,
-        recruitingOrganization: job.recruitingOrganization ?? null,
-        applicationStartDate: job.applicationStartDate ?? null,
-        vacancyBreakdown: job.vacancyBreakdown ?? null,
-        createdAt: new Date(),
-      };
-      this.jobs.set(id, jobWithId);
-    });
-  }
-
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
+  async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
   async getUserByEmail(email: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.email === email,
-    );
+    return Array.from(this.users.values()).find(u => u.email === email);
   }
-
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const now = new Date();
-    const user: User = { 
-      ...insertUser, 
-      id,
-      phone: insertUser.phone ?? null,
-      isActive: true,
-      createdAt: now,
-      updatedAt: now
-    };
-    this.users.set(id, user);
-    return user;
+    const user = { ...insertUser, id, isActive: true, createdAt: new Date(), updatedAt: new Date(), phone: insertUser.phone || null };
+    this.users.set(id, user as User);
+    return user as User;
   }
 
-  async getJob(id: string): Promise<Job | undefined> {
-    return this.jobs.get(id);
-  }
-
-  async getAllJobs(): Promise<Job[]> {
-    return Array.from(this.jobs.values()).sort((a, b) => 
-      new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-    );
-  }
-
-  async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> {
-    let jobs = Array.from(this.jobs.values());
-
-    // Apply search filter
-    if (params.search) {
-      const searchTerm = params.search.toLowerCase();
-      jobs = jobs.filter(job => 
-        job.title.toLowerCase().includes(searchTerm) ||
-        job.department.toLowerCase().includes(searchTerm) ||
-        job.qualification.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    // Use new intelligent filtering system
-    const { normalizeFilters, jobMatchesFilters } = await import('@shared/filters');
-    const normalizedFilters = normalizeFilters(params);
-    
-    jobs = jobs.filter(job => jobMatchesFilters(job, normalizedFilters));
-
-    // Apply date filter
-    if (params.postedDate) {
-      const now = new Date();
-      jobs = jobs.filter(job => {
-        const postedDate = new Date(job.createdAt!);
-        switch (params.postedDate) {
-          case 'today':
-            return postedDate.toDateString() === now.toDateString();
-          case 'week':
-            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-            return postedDate >= weekAgo;
-          case 'month':
-            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-            return postedDate >= monthAgo;
-          default:
-            return true;
-        }
-      });
-    }
-
-    // Apply sorting
-    switch (params.sortBy) {
-      case 'deadline':
-        jobs.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
-        break;
-      case 'title':
-        jobs.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      case 'department':
-        jobs.sort((a, b) => a.department.localeCompare(b.department));
-        break;
-      default: // 'latest'
-        jobs.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
-    }
-
-    const total = jobs.length;
-    
-    // Apply pagination
-    const page = params.page || 1;
-    const limit = params.limit || 10;
-    const startIndex = (page - 1) * limit;
-    jobs = jobs.slice(startIndex, startIndex + limit);
-
-    return { jobs, total };
-  }
-
+  async getJob(id: string): Promise<Job | undefined> { return this.jobs.get(id); }
+  async getAllJobs(): Promise<Job[]> { return Array.from(this.jobs.values()).sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()); }
+  async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: [], total: 0 }; }
   async createJob(insertJob: InsertJob): Promise<Job> {
     const id = randomUUID();
-    const job: Job = {
-      ...insertJob,
-      id,
-      positions: insertJob.positions ?? null,
-      salary: insertJob.salary ?? null,
-      ageLimit: insertJob.ageLimit ?? null,
-      applicationFee: insertJob.applicationFee ?? null,
-      description: insertJob.description ?? null,
-      selectionProcess: insertJob.selectionProcess ?? null,
-      createdAt: new Date(),
-    };
+    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || 1 } as Job;
     this.jobs.set(id, job);
     return job;
   }
-
-  async updateJob(id: string, updateJob: Partial<InsertJob>): Promise<Job | undefined> {
-    const existingJob = this.jobs.get(id);
-    if (!existingJob) return undefined;
-
-    const updatedJob: Job = { ...existingJob, ...updateJob };
-    this.jobs.set(id, updatedJob);
-    return updatedJob;
-  }
-
-  async deleteJob(id: string): Promise<boolean> {
-    return this.jobs.delete(id);
-  }
-
-  async getJobStats(): Promise<{
-    totalJobs: number;
-    newToday: number;
-    departments: number;
-    applications: number;
-  }> {
-    const jobs = Array.from(this.jobs.values());
-    const today = new Date().toDateString();
-    
-    return {
-      totalJobs: jobs.length,
-      newToday: jobs.filter(job => 
-        new Date(job.createdAt!).toDateString() === today
-      ).length,
-      departments: new Set(jobs.map(job => job.department)).size,
-      applications: Math.floor(jobs.reduce((sum, job) => sum + (job.positions || 1), 0) * 45.7) // Simulated application count
-    };
-  }
-
   async createJobWithPositions(jobData: any): Promise<Job> {
-    // For MemStorage, just create a regular job (stub implementation)
-    const { jobPositions, useMultiplePositions, ...mainJobData } = jobData;
-    return this.createJob(mainJobData);
+    const { jobPositions: positions, ...mainJobData } = jobData;
+    const job = await this.createJob(mainJobData);
+    if (positions) {
+      positions.forEach((p: any) => {
+        const pid = randomUUID();
+        this.jobPositions.set(pid, { ...p, id: pid, jobId: job.id, createdAt: new Date() });
+      });
+    }
+    return job;
   }
-
   async getJobPositions(jobId: string): Promise<JobPosition[]> {
-    // Stub implementation for MemStorage
-    return [];
+    return Array.from(this.jobPositions.values()).filter(p => p.jobId === jobId);
   }
-
-  // Exam-related methods (stub implementations for MemStorage)
-  async getExam(id: string): Promise<Exam | undefined> {
-    return undefined;
+  async updateJob(id: string, job: Partial<InsertJob>): Promise<Job | undefined> {
+    const existing = this.jobs.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...job };
+    this.jobs.set(id, updated);
+    return updated;
   }
+  async deleteJob(id: string): Promise<boolean> { return this.jobs.delete(id); }
+  async getJobStats() { return { totalJobs: 0, newToday: 0, departments: 0, applications: 0 }; }
 
-  async getAllExams(): Promise<Exam[]> {
-    return [];
-  }
-
+  async getExam(id: string): Promise<Exam | undefined> { return this.exams.get(id); }
+  async getAllExams(): Promise<Exam[]> { return Array.from(this.exams.values()); }
   async createExam(exam: InsertExam): Promise<Exam> {
     const id = randomUUID();
-    const newExam: Exam = {
-      ...exam,
-      id,
-      createdAt: new Date(),
-    };
-    return newExam;
+    const e = { ...exam, id, createdAt: new Date() } as Exam;
+    this.exams.set(id, e);
+    return e;
   }
-
   async updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined> {
-    return undefined;
+    const existing = this.exams.get(id);
+    if (!existing) return undefined;
+    const updated = { ...existing, ...exam };
+    this.exams.set(id, updated);
+    return updated;
   }
+  async deleteExam(id: string): Promise<boolean> { return this.exams.delete(id); }
 
-  async deleteExam(id: string): Promise<boolean> {
-    return false;
-  }
+  async getUrlProcessingLogs(adminId: string): Promise<any[]> { return []; }
+  async getExtractionTemplates(): Promise<any[]> { return []; }
+  async createUrlProcessingLog(log: any): Promise<any> { return log; }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -374,387 +121,91 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
-
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
-
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
-
   async getJob(id: string): Promise<Job | undefined> {
     const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
     return job || undefined;
   }
-
   async getAllJobs(): Promise<Job[]> {
     return await db.select().from(jobs).orderBy(desc(jobs.createdAt));
   }
-
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> {
-    // Use intelligent filtering system instead of SQL LIKE conditions
     const { normalizeFilters, jobMatchesFilters } = await import('@shared/filters');
-    
     let query = db.select().from(jobs);
     const conditions = [];
-    
-    // Apply search filter (still use SQL for performance)
     if (params.search) {
-      const searchCondition = sql`(
-        ${jobs.title} ILIKE ${`%${params.search}%`} OR 
-        ${jobs.department} ILIKE ${`%${params.search}%`} OR 
-        ${jobs.qualification} ILIKE ${`%${params.search}%`}
-      )`;
-      conditions.push(searchCondition);
+      conditions.push(sql`(${jobs.title} ILIKE ${`%${params.search}%`} OR ${jobs.department} ILIKE ${`%${params.search}%`})`);
     }
-
-    // Apply date filter using SQL (for performance)
-    if (params.postedDate) {
-      const now = new Date();
-      let dateThreshold;
-      
-      switch (params.postedDate) {
-        case 'today':
-          dateThreshold = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-          break;
-        case 'week':
-          dateThreshold = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case 'month':
-          dateThreshold = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          break;
-      }
-      
-      if (dateThreshold) {
-        conditions.push(gte(jobs.createdAt, dateThreshold));
-      }
-    }
-
-    // Apply basic SQL conditions (search and date only)  
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-
-    // Apply sorting
-    switch (params.sortBy) {
-      case 'deadline':
-        query = query.orderBy(jobs.deadline);
-        break;
-      case 'title':
-        query = query.orderBy(jobs.title);
-        break;
-      case 'department':
-        query = query.orderBy(jobs.department);
-        break;
-      default: // 'latest'
-        query = query.orderBy(desc(jobs.createdAt));
-    }
-
-    // Get all matching jobs (without pagination first)
+    if (conditions.length > 0) query = query.where(and(...conditions));
     const allJobs = await query;
-    
-    // Apply intelligent JavaScript filtering
     const normalizedFilters = normalizeFilters(params);
     const filteredJobs = allJobs.filter(job => jobMatchesFilters(job, normalizedFilters));
-    
-    const total = filteredJobs.length;
-    
-    // Apply pagination to filtered results
     const page = params.page || 1;
     const limit = params.limit || 10;
-    const startIndex = (page - 1) * limit;
-    const paginatedJobs = filteredJobs.slice(startIndex, startIndex + limit);
-    
-    return { jobs: paginatedJobs, total };
+    return { jobs: filteredJobs.slice((page - 1) * limit, page * limit), total: filteredJobs.length };
   }
-
   async createJob(insertJob: InsertJob): Promise<Job> {
-    // Check if job already exists to avoid duplicates
-    const existing = await db.select().from(jobs)
-      .where(and(
-        eq(jobs.title, insertJob.title),
-        eq(jobs.department, insertJob.department),
-        eq(jobs.sourceUrl, insertJob.sourceUrl)
-      ))
-      .limit(1);
-
-    if (existing.length > 0) {
-      return existing[0];
-    }
-
-    // Enhanced duplicate detection - check for content similarity
-    // Use time window of 90 days and proper ordering instead of arbitrary limit
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-    
-    const potentialDuplicates = await db.select().from(jobs)
-      .where(and(
-        eq(jobs.department, insertJob.department),
-        gte(jobs.createdAt, ninetyDaysAgo)
-      ))
-      .orderBy(desc(jobs.createdAt))
-      .limit(50); // Increased limit with time constraint
-
-    const duplicate = potentialDuplicates.find(existingJob => {
-      return this.arJobsDuplicate(existingJob, insertJob);
-    });
-
-    if (duplicate) {
-      return duplicate;
-    }
-
-    const [job] = await db
-      .insert(jobs)
-      .values(insertJob)
-      .returning();
+    const [job] = await db.insert(jobs).values(insertJob).returning();
     return job;
   }
-
-  private arJobsDuplicate(existing: Job, newJob: InsertJob): boolean {
-    // Add null safety checks
-    if (!existing?.title || !newJob?.title) {
-      return false;
+  async createJobWithPositions(jobData: any): Promise<Job> {
+    const { jobPositions: positions, ...mainJobData } = jobData;
+    const job = await this.createJob(mainJobData);
+    if (positions && positions.length > 0) {
+      await db.insert(jobPositions).values(positions.map((p: any) => ({ ...p, jobId: job.id })));
     }
-
-    // Enhanced title normalization - remove ID suffixes, dates, and common variations
-    const normalizeTitle = (title: string): string => {
-      if (!title) return '';
-      return title.toLowerCase()
-        .replace(/\d{8}_\d+/g, '') // Remove ID patterns like 20250917_1971 (more aggressive)
-        .replace(/[^\w\s]/g, ' ') // Replace special characters with spaces
-        .replace(/\b(recruitment|notification|vacancy|post|job|hiring|govt|government|sarkari|exam|test|online)\b/g, '')
-        .replace(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/g, '')
-        .replace(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/g, '')
-        .replace(/\b20\d{2}\b/g, '') // Remove years like 2025
-        .replace(/\s+/g, ' ')
-        .trim();
-    };
-
-    // Enhanced salary normalization for better comparison
-    const normalizeSalary = (salary: string): string => {
-      if (!salary) return '';
-      // Extract just the salary range numbers, remove currency symbols
-      return salary.toLowerCase()
-        .replace(/[₹$€£,]/g, '')
-        .replace(/per\s+(month|year|annum)/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-    };
-
-    const existingNormalized = normalizeTitle(existing.title);
-    const newNormalized = normalizeTitle(newJob.title);
-
-    // Core title match - much stricter for exact job roles
-    const coreTitle = (title: string): string => {
-      return title.replace(/\s+/g, ' ').trim();
-    };
-
-    const existingCore = coreTitle(existingNormalized);
-    const newCore = coreTitle(newNormalized);
-
-    // Enhanced similarity calculation
-    const titleSimilarity = this.calculateStringSimilarity(existingCore, newCore);
-    
-    // Strict salary comparison
-    const salaryExactMatch = existing.salary && newJob.salary && 
-      normalizeSalary(existing.salary) === normalizeSalary(newJob.salary);
-    
-    // Department exact match (case insensitive)
-    const departmentMatch = existing.department?.toLowerCase() === newJob.department?.toLowerCase();
-
-    // Check if this is a clear duplicate based on multiple strong criteria
-    const isStrongDuplicate = titleSimilarity > 0.85 && departmentMatch && salaryExactMatch;
-
-    // If it's a strong duplicate, no need to check other criteria
-    if (isStrongDuplicate) {
-      return true;
-    }
-
-    // For jobs with exact same department and salary, be more strict about title matching
-    if (departmentMatch && salaryExactMatch && titleSimilarity > 0.7) {
-      return true;
-    }
-
-    // For weaker title matches, check additional criteria
-    if (titleSimilarity < 0.75) {
-      return false;
-    }
-
-    // Check qualification similarity with normalization (only if qualification exists)
-    let qualificationMatch = false;
-    if (existing.qualification && newJob.qualification) {
-      const normalizeQualification = (qualification: string): string => {
-        if (!qualification) return '';
-        return qualification.toLowerCase()
-          .replace(/[^\w\s]/g, '')
-          .replace(/\b(degree|diploma|certificate|graduate|post|under|education|qualification)\b/g, '')
-          .replace(/\s+/g, ' ')
-          .trim();
-      };
-
-      const existingQualNorm = normalizeQualification(existing.qualification);
-      const newQualNorm = normalizeQualification(newJob.qualification);
-      qualificationMatch = (existingQualNorm.includes(newQualNorm) && newQualNorm.length > 3) ||
-                          (newQualNorm.includes(existingQualNorm) && existingQualNorm.length > 3) ||
-                          this.calculateStringSimilarity(existingQualNorm, newQualNorm) > 0.7;
-    }
-
-    // Check deadline proximity (within 7 days) with null safety
-    let deadlineClose = false;
-    if (existing.deadline && newJob.deadline) {
-      const deadlineDiff = Math.abs(new Date(existing.deadline).getTime() - new Date(newJob.deadline).getTime());
-      deadlineClose = deadlineDiff <= 7 * 24 * 60 * 60 * 1000; // 7 days
-    }
-
-    // Enhanced salary similarity check
-    let salarySimilar = false;
-    if (existing.salary && newJob.salary && !salaryExactMatch) {
-      const extractSalaryRange = (str: string): {min: number, max: number} => {
-        const numbers = str.match(/[\d,]+/g);
-        if (!numbers || numbers.length === 0) return {min: 0, max: 0};
-        
-        const nums = numbers.map(n => parseInt(n.replace(/,/g, '')));
-        return {
-          min: Math.min(...nums),
-          max: Math.max(...nums)
-        };
-      };
-      
-      const existingRange = extractSalaryRange(existing.salary);
-      const newRange = extractSalaryRange(newJob.salary);
-      
-      if (existingRange.min > 0 && newRange.min > 0) {
-        // Check if salary ranges overlap or are very close
-        const overlap = Math.min(existingRange.max, newRange.max) - Math.max(existingRange.min, newRange.min);
-        const avgRange = (existingRange.max - existingRange.min + newRange.max - newRange.min) / 2;
-        salarySimilar = overlap > 0 || (avgRange > 0 && Math.abs(overlap) / avgRange < 0.3);
-      }
-    }
-
-    // Consider it a duplicate if:
-    // - Good title similarity (>75%) AND same department AND
-    // - (Exact salary match OR similar qualification OR close deadline OR similar salary range)
-    return titleSimilarity > 0.75 && departmentMatch && (salaryExactMatch || qualificationMatch || deadlineClose || salarySimilar);
+    return job;
   }
-
-  private calculateStringSimilarity(str1: string, str2: string): number {
-    // Add null safety
-    if (!str1 || !str2) return 0;
-    
-    // Simple Jaccard similarity for words with ES5 compatibility
-    const words1 = new Set(str1.split(' ').filter(w => w.length > 2));
-    const words2 = new Set(str2.split(' ').filter(w => w.length > 2));
-    
-    // Use Array.from() for ES5 compatibility
-    const words1Array = Array.from(words1);
-    const words2Array = Array.from(words2);
-    
-    const intersection = new Set(words1Array.filter(w => words2.has(w)));
-    const union = new Set([...words1Array, ...words2Array]);
-    
-    return union.size === 0 ? 0 : intersection.size / union.size;
+  async getJobPositions(jobId: string): Promise<JobPosition[]> {
+    return await db.select().from(jobPositions).where(eq(jobPositions.jobId, jobId));
   }
-
-  async updateJob(id: string, updateJob: Partial<InsertJob>): Promise<Job | undefined> {
-    const [job] = await db
-      .update(jobs)
-      .set(updateJob)
-      .where(eq(jobs.id, id))
-      .returning();
-    return job || undefined;
+  async updateJob(id: string, job: Partial<InsertJob>): Promise<Job | undefined> {
+    const [updated] = await db.update(jobs).set(job).where(eq(jobs.id, id)).returning();
+    return updated || undefined;
   }
-
   async deleteJob(id: string): Promise<boolean> {
     const result = await db.delete(jobs).where(eq(jobs.id, id));
     return (result.rowCount ?? 0) > 0;
   }
-
-  async getJobStats(): Promise<{
-    totalJobs: number;
-    newToday: number;
-    departments: number;
-    applications: number;
-  }> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const [totalResult] = await db.select({ count: sql<number>`count(*)` }).from(jobs);
-    const [todayResult] = await db.select({ count: sql<number>`count(*)` })
-      .from(jobs)
-      .where(gte(jobs.createdAt, today));
-    
-    const [deptResult] = await db.select({ count: sql<number>`count(distinct ${jobs.department})` }).from(jobs);
-    
-    const [positionsResult] = await db.select({ 
-      total: sql<number>`sum(coalesce(${jobs.positions}, 1))` 
-    }).from(jobs);
-
-    return {
-      totalJobs: totalResult.count || 0,
-      newToday: todayResult.count || 0,
-      departments: deptResult.count || 0,
-      applications: Math.floor((positionsResult.total || 0) * 23.7) // Simulate applications
-    };
+  async getJobStats() {
+    const [total] = await db.select({ count: sql<number>`count(*)` }).from(jobs);
+    return { totalJobs: Number(total.count), newToday: 0, departments: 0, applications: 0 };
   }
-
-  async createJobWithPositions(jobData: any): Promise<Job> {
-    // Extract main job data and positions
-    const { jobPositions: positions, useMultiplePositions, ...mainJobData } = jobData;
-
-    // Create the main job first
-    const job = await this.createJob(mainJobData);
-
-    // If multiple positions are enabled and provided, create position records
-    if (useMultiplePositions && positions && positions.length > 0) {
-      const positionInserts = positions.map((position: any) => ({
-        jobId: job.id,
-        positionName: position.positionName,
-        qualification: position.qualification,
-        experienceRequired: position.experienceRequired || null,
-        salaryRange: position.salaryRange || null,
-        numberOfVacancies: position.numberOfVacancies || 1,
-        specificRequirements: position.specificRequirements || null
-      }));
-
-      await db.insert(jobPositions).values(positionInserts);
-    }
-
-    return job;
-  }
-
-  async getJobPositions(jobId: string): Promise<JobPosition[]> {
-    return await db.select().from(jobPositions).where(eq(jobPositions.jobId, jobId));
-  }
-
-  // Exam-related methods
   async getExam(id: string): Promise<Exam | undefined> {
-    const result = await db.select().from(exams).where(eq(exams.id, id));
-    return result[0];
+    const [exam] = await db.select().from(exams).where(eq(exams.id, id));
+    return exam || undefined;
   }
-
   async getAllExams(): Promise<Exam[]> {
     return await db.select().from(exams).orderBy(desc(exams.createdAt));
   }
-
   async createExam(exam: InsertExam): Promise<Exam> {
-    const result = await db.insert(exams).values(exam).returning();
-    return result[0];
+    const [newExam] = await db.insert(exams).values(exam).returning();
+    return newExam;
   }
-
   async updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined> {
-    const result = await db.update(exams).set(exam).where(eq(exams.id, id)).returning();
-    return result[0];
+    const [updated] = await db.update(exams).set(exam).where(eq(exams.id, id)).returning();
+    return updated || undefined;
   }
-
   async deleteExam(id: string): Promise<boolean> {
     const result = await db.delete(exams).where(eq(exams.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+  async getUrlProcessingLogs(adminId: string): Promise<any[]> {
+    return await db.select().from(urlProcessingLogs).where(eq(urlProcessingLogs.adminId, adminId)).orderBy(desc(urlProcessingLogs.createdAt));
+  }
+  async getExtractionTemplates(): Promise<any[]> {
+    return await db.select().from(extractionTemplates).where(eq(extractionTemplates.isActive, true));
+  }
+  async createUrlProcessingLog(log: any): Promise<any> {
+    const [newLog] = await db.insert(urlProcessingLogs).values(log).returning();
+    return newLog;
   }
 }
 
