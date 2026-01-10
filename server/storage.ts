@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
