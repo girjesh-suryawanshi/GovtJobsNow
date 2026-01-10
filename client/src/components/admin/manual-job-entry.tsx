@@ -17,11 +17,13 @@ import {
   Copy,
   FileSpreadsheet,
   Plus,
-  X
+  X,
+  Sparkles,
+  Loader2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Job templates for quick entry with new priority fields
+// ... (existing job templates and options)
 const jobTemplates = {
   ssc: {
     title: "SSC [Position Name] Recruitment 2025",
@@ -338,9 +340,43 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
   const [useMultiplePositions, setUseMultiplePositions] = useState(false);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+  const [rawText, setRawText] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const handleExtract = async () => {
+    if (!rawText.trim()) {
+      toast({ title: "Error", description: "Please paste job details first", variant: "destructive" });
+      return;
+    }
+
+    setIsExtracting(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch("/api/admin/extract-job", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rawText }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(prev => ({ ...prev, ...data }));
+        toast({ title: "Extraction Successful", description: "Job details have been organized. Please review before publishing." });
+      } else {
+        throw new Error("Failed to extract");
+      }
+    } catch (error) {
+      toast({ title: "Extraction Failed", description: "Could not organize job details. Please try again.", variant: "destructive" });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -606,6 +642,44 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
 
   return (
     <div className="space-y-6" onKeyDown={handleKeyDown}>
+      {/* AI Extraction Section */}
+      <Card className="border-purple-200 bg-purple-50/30">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-purple-600" />
+            AI Smart Extraction
+          </CardTitle>
+          <CardDescription>
+            Paste raw job details or notification text below. Gemini will extract and organize it into the form.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Textarea
+            placeholder="Paste raw job description, notification text, or advertisement details here..."
+            className="min-h-[150px] bg-white border-purple-100 focus-visible:ring-purple-500"
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+          />
+          <Button 
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-md transition-all flex items-center gap-2"
+            onClick={handleExtract}
+            disabled={isExtracting}
+          >
+            {isExtracting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Processing with Gemini...
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Organize Job Details
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
       {/* Header with Templates */}
       <div className="flex items-center justify-between">
         <div>

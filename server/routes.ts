@@ -290,6 +290,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin manual job creation
+  // Gemini AI Job Extraction
+  app.post("/api/admin/extract-job", async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const { rawText } = req.body;
+    if (!rawText) return res.status(400).json({ message: "Raw text is required" });
+
+    try {
+      const { generateText } = await import("./gemini");
+      const prompt = `Extract job details from the following text and return a JSON object compatible with the following schema:
+      {
+        "title": string,
+        "department": string,
+        "location": string,
+        "qualification": string,
+        "deadline": string (YYYY-MM-DD),
+        "salary": string,
+        "description": string,
+        "applyLink": string,
+        "positions": number,
+        "ageLimit": string,
+        "applicationFee": string,
+        "selectionProcess": string,
+        "experienceRequired": string,
+        "jobCategory": string,
+        "employmentType": string,
+        "recruitingOrganization": string,
+        "applicationStartDate": string (YYYY-MM-DD),
+        "vacancyBreakdown": string
+      }
+      
+      Text: ${rawText}`;
+
+      const response = await generateText(prompt);
+      // Basic JSON cleaning if needed
+      const jsonStr = response.replace(/```json|```/g, "").trim();
+      res.json(JSON.parse(jsonStr));
+    } catch (error) {
+      console.error("Gemini extraction error:", error);
+      res.status(500).json({ message: "Failed to extract job data" });
+    }
+  });
+
   app.post("/api/admin/jobs", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
