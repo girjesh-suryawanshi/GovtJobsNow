@@ -300,26 +300,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const { generateText } = await import("./gemini");
-      const prompt = `Extract job details from the following text and return a JSON object compatible with the following schema:
+      const prompt = `Extract job details from the following text and return a ONLY a JSON object (no markdown, no backticks) compatible with the following schema:
       {
-        "title": string,
-        "department": string,
-        "location": string,
-        "qualification": string,
-        "deadline": string (YYYY-MM-DD),
-        "salary": string,
-        "description": string,
-        "applyLink": string,
-        "positions": number,
-        "ageLimit": string,
-        "applicationFee": string,
-        "selectionProcess": string,
-        "experienceRequired": string,
-        "jobCategory": string,
-        "employmentType": string,
-        "recruitingOrganization": string,
-        "applicationStartDate": string (YYYY-MM-DD),
-        "vacancyBreakdown": string
+        "title": "Job Title",
+        "department": "Department Name",
+        "location": "Location",
+        "qualification": "Required Qualification",
+        "deadline": "YYYY-MM-DD",
+        "salary": "Salary Details",
+        "description": "Full Job Description",
+        "applyLink": "https://example.com/apply",
+        "positions": 1,
+        "ageLimit": "Age Range",
+        "applicationFee": "Fee Details",
+        "selectionProcess": "Process Details",
+        "experienceRequired": "Experience Level",
+        "jobCategory": "Category",
+        "employmentType": "Type",
+        "recruitingOrganization": "Organization",
+        "applicationStartDate": "YYYY-MM-DD",
+        "vacancyBreakdown": "Breakdown Details"
       }
       
       Text: ${rawText}`;
