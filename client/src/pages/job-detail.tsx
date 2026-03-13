@@ -94,11 +94,10 @@ export default function JobDetail() {
         url={`https://govtjobsnow.com/jobs/${job.id}`}
       />
       <JobPostingSchema job={job} />
-      <Header 
-        onOpenExamCalendar={() => setShowExamCalendar(true)}
+      <Header
         onScrollToDepartments={() => window.location.href = '/#departments'}
       />
-      
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link href="/">
           <Button variant="ghost" className="mb-6">
@@ -208,6 +207,10 @@ export default function JobDetail() {
                         <span className="text-gray-600">Last Date:</span>
                         <span className="font-medium text-red-600">{job.deadline}</span>
                       </div>
+                      <div className="flex justify-between pt-2 border-t border-gray-100">
+                        <span className="text-gray-600">Posted by:</span>
+                        <span className="font-medium text-blue-700">GovtJobsNow Editorial Team</span>
+                      </div>
                     </div>
                   </div>
 
@@ -221,7 +224,7 @@ export default function JobDetail() {
                   )}
 
                   <div className="pt-4">
-                    <Button 
+                    <Button
                       className="w-full bg-red-600 hover:bg-red-700"
                       onClick={() => window.open(job.applyLink, '_blank')}
                     >
@@ -241,7 +244,7 @@ export default function JobDetail() {
       </div>
 
       <Footer />
-      
+
       <ExamCalendar
         isOpen={showExamCalendar}
         onClose={() => setShowExamCalendar(false)}

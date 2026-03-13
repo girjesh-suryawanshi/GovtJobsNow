@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Menu, X, Search, Bell, User, Briefcase, Building2, Calendar, HelpCircle, LogOut } from "lucide-react";
+import { Menu, X, Search, Bell, User, Briefcase, Building2, Calendar, HelpCircle, LogOut, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -41,28 +41,35 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
               </div>
             </Link>
           </div>
-          
+
           {/* Navigation Menu */}
           <nav className="hidden lg:flex items-center space-x-1">
             <Link href="/" className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium transition-all duration-300 flex items-center gap-2">
               <Search className="h-4 w-4" />
               Browse Jobs
             </Link>
-            <button 
+            <button
               onClick={onScrollToDepartments}
               className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
               <Building2 className="h-4 w-4" />
               Departments
             </button>
-            <Link 
+            <Link
               href="/exams"
               className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
               <Calendar className="h-4 w-4" />
               Exam Calendar
             </Link>
-            <button 
+            <Link
+              href="/about-us"
+              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 font-medium transition-all duration-300 flex items-center gap-2"
+            >
+              <Users className="h-4 w-4" />
+              About Us
+            </Link>
+            <button
               onClick={() => setShowHelpModal(true)}
               className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 font-medium transition-all duration-300 flex items-center gap-2"
             >
@@ -70,7 +77,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
               Help Center
             </button>
           </nav>
-          
+
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-3">
             <ThemeToggle />
@@ -107,7 +114,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                   <User className="h-4 w-4 mr-2" />
                   Sign In
                 </Button>
-                
+
                 <Button
                   size="sm"
                   className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
@@ -132,7 +139,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
-        
+
         {/* Mobile menu */}
         {isMenuOpen && (
           <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 py-4 bg-gray-50 dark:bg-gray-800">
@@ -141,7 +148,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                 <Search className="h-4 w-4" />
                 Browse Jobs
               </Link>
-              <button 
+              <button
                 onClick={() => {
                   onScrollToDepartments?.();
                   setIsMenuOpen(false);
@@ -151,7 +158,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                 <Building2 className="h-4 w-4" />
                 Departments
               </button>
-              <Link 
+              <Link
                 href="/exams"
                 onClick={() => setIsMenuOpen(false)}
                 className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
@@ -159,7 +166,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                 <Calendar className="h-4 w-4" />
                 Exam Calendar
               </Link>
-              <button 
+              <button
                 onClick={() => {
                   setShowHelpModal(true);
                   setIsMenuOpen(false);
@@ -169,11 +176,11 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                 <HelpCircle className="h-4 w-4" />
                 Help Center
               </button>
-              
+
               <div className="px-4 py-2">
                 <ThemeToggle />
               </div>
-              
+
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 space-y-2">
                 {isAuthenticated ? (
                   <>
@@ -181,9 +188,9 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                     <div className="px-4 py-2 text-sm text-gray-700">
                       Welcome, <span className="font-medium text-blue-600">{user?.fullName}</span>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50"
                       onClick={() => {
                         logout();
@@ -197,9 +204,9 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                 ) : (
                   <>
                     {/* User is not logged in - Mobile */}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       className="w-full justify-start"
                       onClick={() => {
                         setAuthMode('signin');
@@ -210,8 +217,8 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                       <User className="h-4 w-4 mr-2" />
                       Sign In
                     </Button>
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
                       onClick={() => {
                         setAuthMode('register');
@@ -228,16 +235,16 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
           </div>
         )}
       </div>
-      
+
       {/* Auth Modal */}
-      <AuthModal 
+      <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
       />
-      
+
       {/* Help Modal */}
-      <HelpModal 
+      <HelpModal
         isOpen={showHelpModal}
         onClose={() => setShowHelpModal(false)}
       />

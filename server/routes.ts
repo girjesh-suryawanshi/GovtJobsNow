@@ -11,6 +11,48 @@ import { hashPassword as hashAdminPassword } from "./admin-auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
+  // Serve strict robots.txt for AdSense & generic bots
+  app.get("/robots.txt", (req, res) => {
+    res.type("text/plain");
+    res.send(`User-agent: *
+Allow: /
+
+User-agent: Mediapartners-Google
+Allow: /`);
+  });
+
+  // Serve dynamic sitemap.xml
+  app.get("/sitemap.xml", async (req, res) => {
+    try {
+      const allJobs = await storage.getAllJobs();
+
+      const baseUrl = "https://govtjobsnow.com";
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+      // Add static routes
+      const staticRoutes = ["", "/exams", "/about-us", "/contact", "/faq", "/privacy-policy", "/terms-of-service", "/disclaimer", "/jobs/ssc", "/jobs/railway"];
+      for (const route of staticRoutes) {
+        xml += `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <changefreq>daily</changefreq>\n    <priority>${route === "" ? "1.0" : "0.8"}</priority>\n  </url>\n`;
+      }
+
+      // Add Job routes
+      for (const job of allJobs) {
+        const lastMod = job.createdAt ? new Date(job.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        xml += `  <url>\n    <loc>${baseUrl}/job/${job.id}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+      }
+
+      xml += `</urlset>`;
+
+      res.header("Content-Type", "application/xml");
+      res.send(xml);
+    } catch (error) {
+      console.error("Sitemap generation error:", error);
+      res.status(500).send("Error generating sitemap");
+    }
+  });
+
   // Get all jobs
   app.get("/api/jobs", async (req, res) => {
     try {

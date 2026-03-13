@@ -55,10 +55,10 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-gray-400 mb-6 leading-relaxed">
-              India's most trusted government job portal. We connect millions of job seekers with 
+              India's most trusted government job portal. We connect millions of job seekers with
               authentic opportunities across all government departments and PSUs.
             </p>
-            
+
             {/* Contact Info */}
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3 text-gray-400">
@@ -91,7 +91,7 @@ export default function Footer() {
               </a>
             </div>
           </div>
-          
+
           {/* Job Categories */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
@@ -137,7 +137,7 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          
+
           {/* Quick Links */}
           <div>
             <h4 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
@@ -186,6 +186,12 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
+                <Link href="/about-us" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
+                  About Us
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                   Contact Us
@@ -218,7 +224,7 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-        
+
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm text-center md:text-left">

@@ -17,6 +17,8 @@ import Disclaimer from "@/pages/disclaimer";
 import SSCJobs from "@/pages/ssc-jobs";
 import RailwayJobs from "@/pages/railway-jobs";
 import NotFound from "@/pages/not-found";
+import AboutUs from "@/pages/about-us";
+import CookieBanner from "@/components/cookie-banner";
 
 function Router() {
   return (
@@ -31,6 +33,7 @@ function Router() {
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/disclaimer" component={Disclaimer} />
+      <Route path="/about-us" component={AboutUs} />
       <Route path="/jobs/ssc" component={SSCJobs} />
       <Route path="/jobs/railway" component={RailwayJobs} />
       <Route component={NotFound} />
@@ -45,6 +48,7 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
+          <CookieBanner />
         </TooltipProvider>
       </UserProvider>
     </QueryClientProvider>
