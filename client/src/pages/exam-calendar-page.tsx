@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, MapPin, Globe, Users, Filter, Search, ChevronDown } from "lucide-react";
+import { Calendar, Clock, MapPin, Globe, Users, Filter, Search, ChevronDown, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import type { Exam } from "@shared/schema";
@@ -38,7 +39,7 @@ function ExamCard({ exam }: ExamCardProps) {
     const now = new Date();
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (now < start) {
       return { status: 'upcoming', text: 'Registration Not Started', color: 'bg-gray-100 text-gray-700' };
     } else if (now >= start && now <= end) {
@@ -69,7 +70,7 @@ function ExamCard({ exam }: ExamCardProps) {
           </Badge>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Important Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,7 +114,7 @@ function ExamCard({ exam }: ExamCardProps) {
               </Badge>
             </div>
           )}
-          
+
           <div className="flex flex-wrap gap-2">
             {exam.examMode && (
               <Badge variant="secondary" className="text-xs">
@@ -158,8 +159,8 @@ function ExamCard({ exam }: ExamCardProps) {
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          <Button 
-            size="sm" 
+          <Button
+            size="sm"
             className="flex-1"
             onClick={() => window.open(exam.officialWebsite, '_blank')}
             data-testid="visit-website"
@@ -168,9 +169,25 @@ function ExamCard({ exam }: ExamCardProps) {
             Visit Official Website
           </Button>
           {exam.syllabus && (
-            <Button variant="outline" size="sm" data-testid="view-syllabus">
-              View Syllabus
-            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm" data-testid="view-syllabus">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  View Syllabus
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{exam.title} - Syllabus</DialogTitle>
+                  <DialogDescription>
+                    {exam.conductingOrganization}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap font-medium">
+                  {exam.syllabus}
+                </div>
+              </DialogContent>
+            </Dialog>
           )}
         </div>
       </CardContent>
@@ -223,11 +240,11 @@ export default function ExamCalendarPage() {
     select: (data: Exam[]) => {
       // Filter exams based on search and organization
       let filtered = data.filter((exam) => {
-        const matchesSearch = !searchTerm || 
+        const matchesSearch = !searchTerm ||
           exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           exam.conductingOrganization.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        const matchesOrg = selectedOrganization === "all" || 
+
+        const matchesOrg = selectedOrganization === "all" ||
           exam.conductingOrganization.toLowerCase().includes(selectedOrganization.toLowerCase());
 
         return matchesSearch && matchesOrg;
@@ -256,7 +273,7 @@ export default function ExamCalendarPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="text-center mb-8">
@@ -367,7 +384,7 @@ export default function ExamCalendarPage() {
           )}
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );
