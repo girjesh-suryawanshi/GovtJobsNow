@@ -311,9 +311,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       - employmentType: "Permanent", "Contract", "Apprentice", "Temporary", "Part-time"
       - dates (applicationStartDate, deadline): Must strictly be in YYYY-MM-DD format.
 
+      CRITICAL SEO INSTRUCTION:
+      The "title" and "description" fields must NOT be exact copy-pastes from the source text. You must REWRITE them to be highly readable, attractive, and 100% unique human-written content to avoid Google SEO duplicate content penalties.
+      - "title": Create a catchy, clear, and professional job title.
+      - "description": Write a comprehensive, highly engaging, completely original summary of the job role, responsibilities, and key instructions in easy-to-read paragraphs. Do NOT just copy the source text sentences.
+      
       SCHEMA:
       {
-        "title": "Job Title",
+        "title": "Rewritten SEO Job Title",
         "department": "Department Name (Must be from allowed options)",
         "location": "Location (Must be from allowed options)",
         "qualification": "Required Qualification (Must be from allowed options)",
@@ -374,9 +379,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       - examMode: "Online", "Offline", "Both"
       - dates (registrationStartDate, registrationEndDate, examDate, admitCardDate, resultsDate): Must strictly be in YYYY-MM-DD format.
 
+      CRITICAL SEO INSTRUCTION:
+      The "title" and "syllabus" fields must NOT be exact copy-pastes from the source text. You must REWRITE them to be highly attractive and 100% unique human-written content to avoid Google SEO duplicate content penalties.
+      - "title": Create a catchy, clear, and professional exam title.
+      - "syllabus": Write a comprehensive, highly engaging, and original summary of the exam syllabus, topics, and structure in easy-to-read paragraphs.
+      
       SCHEMA:
       {
-        "title": "Exam Title",
+        "title": "Rewritten SEO Exam Title",
         "conductingOrganization": "Organization Name",
         "registrationStartDate": "YYYY-MM-DD",
         "registrationEndDate": "YYYY-MM-DD",
