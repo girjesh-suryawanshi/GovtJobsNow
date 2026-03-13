@@ -132,8 +132,71 @@ export default function ManualExamEntry() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isScraping, setIsScraping] = useState(false);
   const [rawText, setRawText] = useState("");
+  const [scrapeUrl, setScrapeUrl] = useState("");
   const { toast } = useToast();
+
+  const handleScrapeAndExtract = async () => {
+    if (!scrapeUrl.trim() || !scrapeUrl.startsWith("http")) {
+      toast({ title: "Invalid URL", description: "Please enter a valid HTTP/HTTPS URL", variant: "destructive" });
+      return;
+    }
+
+    setIsScraping(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+
+      // 1. Scrape the URL
+      const scrapeResponse = await fetch("/api/admin/scrape-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ url: scrapeUrl }),
+      });
+
+      if (!scrapeResponse.ok) {
+        const errData = await scrapeResponse.json();
+        throw new Error(errData.message || "Failed to scrape URL");
+      }
+
+      const { text } = await scrapeResponse.json();
+      setRawText(text); // Plug text into the textarea so the admin can verify what the bot saw
+
+      toast({ title: "Scraping Complete", description: "Running AI extraction now...", duration: 2000 });
+
+      // 2. Feed scraped text directly into the AI Extraction endpoint
+      setIsExtracting(true);
+      const extractResponse = await fetch("/api/admin/extract-exam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rawText: text }),
+      });
+
+      if (extractResponse.ok) {
+        const data = await extractResponse.json();
+        setFormData(prev => ({
+          ...prev,
+          ...data,
+          officialWebsite: scrapeUrl // Automatically pre-fill the officialWebsite field
+        }));
+        toast({ title: "Pipeline Successful", description: "URL Scraped and Exam details organized automatically. Please review carefully." });
+      } else {
+        throw new Error("Failed to extract data from scraped text");
+      }
+
+    } catch (error: any) {
+      toast({ title: "Scraping Failed", description: error.message || "Pipeline interrupted", variant: "destructive" });
+    } finally {
+      setIsScraping(false);
+      setIsExtracting(false);
+    }
+  };
 
   const handleExtract = async () => {
     if (!rawText.trim()) {
@@ -296,6 +359,41 @@ export default function ManualExamEntry() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="bg-white/80 p-4 rounded-lg border border-purple-100 flex flex-col md:flex-row gap-3">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="scrapeUrl" className="text-purple-900 font-semibold flex items-center gap-2 relative">
+                <Globe className="w-4 h-4" />
+                Scrape from URL (Automated Pipeline)
+              </Label>
+              <Input
+                id="scrapeUrl"
+                placeholder="https://example.gov.in/notification"
+                className="border-purple-200 focus-visible:ring-purple-500"
+                value={scrapeUrl}
+                onChange={(e) => setScrapeUrl(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                onClick={handleScrapeAndExtract}
+                disabled={isScraping || isExtracting}
+                className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white shadow"
+              >
+                {isScraping ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Fetching...</>
+                ) : (
+                  <><Globe className="w-4 h-4 mr-2" /> Scrape & Extract</>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t border-purple-200"></div>
+            <span className="flex-shrink-0 mx-4 text-purple-400 text-xs uppercase font-medium">Or paste raw text manually</span>
+            <div className="flex-grow border-t border-purple-200"></div>
+          </div>
+
           <Textarea
             placeholder="Paste raw exam description, important dates, or notification details here..."
             className="min-h-[150px] bg-white border-purple-100 focus-visible:ring-purple-500"
