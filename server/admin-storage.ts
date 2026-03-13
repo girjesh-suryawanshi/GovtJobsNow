@@ -1,8 +1,8 @@
-import type { 
-  AdminUser, 
-  InsertAdminUser, 
-  UrlProcessingLog, 
-  ExtractionTemplate 
+import type {
+  AdminUser,
+  InsertAdminUser,
+  UrlProcessingLog,
+  ExtractionTemplate
 } from "@shared/schema";
 
 // In-memory storage for admin functionality
@@ -12,9 +12,9 @@ class AdminStorage {
   private adminUsers: AdminUser[] = [
     {
       id: "admin-1",
-      username: "admin",
+      username: "34420124",
       email: "admin@govtjobsnow.in",
-      password: "admin123", // Temporarily use plain text for testing
+      password: "pass@123", // Temporarily use plain text for testing
       role: "admin",
       isActive: true,
       lastLogin: null,
@@ -22,7 +22,7 @@ class AdminStorage {
       updatedAt: new Date()
     }
   ];
-  
+
   private processingLogs: UrlProcessingLog[] = [];
   private templates: ExtractionTemplate[] = [];
 
@@ -45,8 +45,8 @@ class AdminStorage {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
-    
+
+
     this.adminUsers.push(newAdmin);
     return newAdmin;
   }
@@ -76,20 +76,20 @@ class AdminStorage {
   async updateAdminUser(id: string, updates: Partial<Omit<AdminUser, 'id' | 'createdAt'>>): Promise<AdminUser | undefined> {
     const adminIndex = this.adminUsers.findIndex(user => user.id === id);
     if (adminIndex === -1) return undefined;
-    
+
     this.adminUsers[adminIndex] = {
       ...this.adminUsers[adminIndex],
       ...updates,
       updatedAt: new Date()
     };
-    
+
     return this.adminUsers[adminIndex];
   }
 
   async deleteAdminUser(id: string): Promise<boolean> {
     const adminIndex = this.adminUsers.findIndex(user => user.id === id);
     if (adminIndex === -1) return false;
-    
+
     // Don't actually delete, just mark as inactive
     this.adminUsers[adminIndex].isActive = false;
     this.adminUsers[adminIndex].updatedAt = new Date();
@@ -104,7 +104,7 @@ class AdminStorage {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
     this.processingLogs.push(log);
     return log;
   }
@@ -112,13 +112,13 @@ class AdminStorage {
   async updateProcessingLog(id: string, updates: Partial<UrlProcessingLog>): Promise<UrlProcessingLog | undefined> {
     const logIndex = this.processingLogs.findIndex(log => log.id === id);
     if (logIndex === -1) return undefined;
-    
+
     this.processingLogs[logIndex] = {
       ...this.processingLogs[logIndex],
       ...updates,
       updatedAt: new Date()
     };
-    
+
     return this.processingLogs[logIndex];
   }
 
@@ -155,7 +155,7 @@ class AdminStorage {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-    
+
     this.templates.push(template);
     return template;
   }
@@ -178,17 +178,17 @@ class AdminStorage {
     recentActivity: UrlProcessingLog[];
   }> {
     const adminLogs = await this.getProcessingLogsByAdmin(adminId);
-    
+
     const totalProcessed = adminLogs.length;
     const successfulExtractions = adminLogs.filter(log => log.status === 'completed').length;
     const failedExtractions = adminLogs.filter(log => log.status === 'failed').length;
     const reviewRequired = adminLogs.filter(log => log.status === 'review_required').length;
-    
+
     const totalTime = adminLogs.reduce((sum, log) => sum + (log.processingTimeMs || 0), 0);
     const avgProcessingTime = totalProcessed > 0 ? Math.round(totalTime / totalProcessed) : 0;
-    
+
     const recentActivity = adminLogs.slice(0, 10);
-    
+
     return {
       totalProcessed,
       successfulExtractions,

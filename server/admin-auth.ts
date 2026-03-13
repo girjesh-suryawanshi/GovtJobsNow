@@ -1,6 +1,4 @@
 import bcrypt from "bcryptjs";
-import type { AdminUser } from "@shared/schema";
-
 // Simple session storage for admin users
 const adminSessions = new Map<string, { adminId: string; expiresAt: number }>();
 
@@ -11,7 +9,7 @@ export function generateSessionToken(): string {
 export function createAdminSession(adminId: string): string {
   const token = generateSessionToken();
   const expiresAt = Date.now() + (24 * 60 * 60 * 1000); // 24 hours
-  
+
   adminSessions.set(token, { adminId, expiresAt });
   return token;
 }
