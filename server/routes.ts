@@ -10,20 +10,20 @@ import { createUserSession, hashPassword, verifyPassword as verifyUserPassword, 
 import { hashPassword as hashAdminPassword } from "./admin-auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Get all jobs
   app.get("/api/jobs", async (req, res) => {
     try {
       // Convert string parameters to appropriate types
       const processedQuery: any = { ...req.query };
-      
+
       if (processedQuery.page && typeof processedQuery.page === 'string') {
         processedQuery.page = parseInt(processedQuery.page);
       }
       if (processedQuery.limit && typeof processedQuery.limit === 'string') {
         processedQuery.limit = parseInt(processedQuery.limit);
       }
-      
+
       const params = searchJobsSchema.parse(processedQuery);
       const result = await storage.searchJobs(params);
       res.json(result);
@@ -104,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // ======== EXAM ROUTES ========
-  
+
   // Get all exams
   app.get("/api/exams", async (req, res) => {
     try {
@@ -195,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error("Failed to create job:", error);
         }
       }
-      res.json({ 
+      res.json({
         message: `Successfully scraped and stored ${createdJobs.length} jobs`,
         jobs: createdJobs
       });
@@ -210,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/login", async (req, res) => {
     try {
       const { username, password } = adminLoginSchema.parse(req.body);
-      
+
       const admin = await adminStorage.getAdminByUsername(username);
       if (!admin) {
         return res.status(401).json({ message: "Invalid credentials" });
@@ -224,14 +224,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       await adminStorage.updateAdminLastLogin(admin.id);
       const token = createAdminSession(admin.id);
-      
-      res.json({ 
-        token, 
-        admin: { 
-          id: admin.id, 
-          username: admin.username, 
-          email: admin.email 
-        } 
+
+      res.json({
+        token,
+        admin: {
+          id: admin.id,
+          username: admin.username,
+          email: admin.email
+        }
       });
     } catch (error) {
       res.status(400).json({ message: "Invalid request", error });
@@ -251,7 +251,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/me", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -276,7 +276,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/stats", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -300,23 +300,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     try {
       const { generateText } = await import("./gemini");
-      const prompt = `Extract job details from the following text and return a ONLY a JSON object (no markdown, no backticks) compatible with the following schema:
+      const prompt = `Extract job details from the following text and return ONLY a JSON object compatible with the following schema.
+      For fields with specific options, you MUST choose the closest matching option from the allowed list. If no exact match or the data is missing, return an empty string "" (never return null).
+      
+      ALLOWED OPTIONS:
+      - department: "Staff Selection Commission", "Union Public Service Commission", "Railway Recruitment Board", "Banking Sector", "Defense Services", "Public Sector Undertaking", "State Government", "Police & Security Forces", "Education & Teaching", "Healthcare & Medical", "Other Government Department"
+      - location: "All India", "Pan India", "India Wide", "Delhi NCR", "Mumbai", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Pune", "Ahmedabad", "State Wise", "Multiple Locations"
+      - qualification: "10th Pass", "12th Pass", "ITI/Diploma", "Graduate (Any Stream)", "Post Graduate", "Engineering Degree", "Medical Degree", "Law Degree", "Management Degree", "Professional Qualification", "Experience Based"
+      - jobCategory: "Central Government", "State Government", "PSU", "Banking", "Railway", "Defence", "Police", "Healthcare", "Education"
+      - employmentType: "Permanent", "Contract", "Apprentice", "Temporary", "Part-time"
+      - dates (applicationStartDate, deadline): Must strictly be in YYYY-MM-DD format.
+
+      SCHEMA:
       {
         "title": "Job Title",
-        "department": "Department Name",
-        "location": "Location",
-        "qualification": "Required Qualification",
+        "department": "Department Name (Must be from allowed options)",
+        "location": "Location (Must be from allowed options)",
+        "qualification": "Required Qualification (Must be from allowed options)",
         "deadline": "YYYY-MM-DD",
         "salary": "Salary Details",
         "description": "Full Job Description",
         "applyLink": "https://example.com/apply",
-        "positions": 1,
+        "positions": "1",
         "ageLimit": "Age Range",
         "applicationFee": "Fee Details",
         "selectionProcess": "Process Details",
         "experienceRequired": "Experience Level",
-        "jobCategory": "Category",
-        "employmentType": "Type",
+        "jobCategory": "Category (Must be from allowed options)",
+        "employmentType": "Type (Must be from allowed options)",
         "recruitingOrganization": "Organization",
         "applicationStartDate": "YYYY-MM-DD",
         "vacancyBreakdown": "Breakdown Details"
@@ -325,9 +336,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       Text: ${rawText}`;
 
       const response = await generateText(prompt);
-      // Basic JSON cleaning if needed
-      const jsonStr = response.replace(/```json|```/g, "").trim();
-      res.json(JSON.parse(jsonStr));
+      // Robust JSON cleaning to strip markdown and conversational text
+      const match = response.match(/\{[\s\S]*\}/);
+      if (!match) {
+        throw new Error("No JSON object found in response");
+      }
+      const jsonStr = match[0];
+
+      const parsedData = JSON.parse(jsonStr);
+      // Clean nulls to empty strings for UI components
+      for (const key in parsedData) {
+        if (parsedData[key] === null) parsedData[key] = "";
+        if (typeof parsedData[key] === "number") parsedData[key] = parsedData[key].toString();
+      }
+
+      res.json(parsedData);
     } catch (error) {
       console.error("Gemini extraction error:", error);
       res.status(500).json({ message: "Failed to extract job data" });
@@ -337,7 +360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/jobs", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -347,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.body.useMultiplePositions && req.body.jobPositions) {
         // Handle multiple positions job
         const job = await storage.createJobWithPositions(req.body);
-        
+
         // Log the manual job creation
         await adminStorage.createProcessingLog({
           adminId,
@@ -365,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Handle single position job
         const jobData = insertJobSchema.parse(req.body);
         const job = await storage.createJob(jobData);
-        
+
         // Log the manual job creation
         await adminStorage.createProcessingLog({
           adminId,
@@ -382,9 +405,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     } catch (error) {
       console.error("Failed to create manual job:", error);
-      res.status(400).json({ 
-        message: "Invalid job data", 
-        error: error instanceof Error ? error.message : error 
+      res.status(400).json({
+        message: "Invalid job data",
+        error: error instanceof Error ? error.message : error
       });
     }
   });
@@ -395,7 +418,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users/register", async (req, res) => {
     try {
       const userData = userRegisterSchema.parse(req.body);
-      
+
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(userData.email);
       if (existingUser) {
@@ -404,7 +427,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Hash password
       const hashedPassword = await hashPassword(userData.password);
-      
+
       // Create user
       const user = await storage.createUser({
         ...userData,
@@ -432,7 +455,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/users/login", async (req, res) => {
     try {
       const { email, password } = userLoginSchema.parse(req.body);
-      
+
       // Get user by email
       const user = await storage.getUserByEmail(email);
       if (!user || !user.isActive) {
@@ -475,7 +498,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/users/me", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const userId = requireUserAuth(token);
-    
+
     if (!userId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -501,14 +524,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/process-url", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
     try {
       const { url, templateId, autoPublish } = processUrlSchema.parse(req.body);
-      
+
       // Create processing log
       const processingLog = await adminStorage.createProcessingLog({
         adminId,
@@ -523,15 +546,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Process URL
       const result = await urlProcessor.processUrl(url, templateId);
-      
+
       if (result.success && result.data) {
         // Determine if extraction quality is good enough for auto-publish
         const extractionQuality = calculateExtractionQuality(result.data);
         const shouldAutoPublish = autoPublish && extractionQuality >= 0.8;
-        
+
         let jobId = null;
         let status = shouldAutoPublish ? "completed" : "review_required";
-        
+
         if (shouldAutoPublish) {
           try {
             const job = await storage.createJob(result.data as any);
@@ -580,7 +603,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/publish-job", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -588,7 +611,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       console.log("Publish job request body:", JSON.stringify(req.body, null, 2));
       const { logId, jobData } = req.body;
-      
+
       if (!jobData) {
         console.error("Missing jobData in request body:", req.body);
         return res.status(400).json({ message: "Missing job data" });
@@ -597,7 +620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Ensure jobData has required fields and proper format
       const processedJobData = {
         title: String(jobData.title || "Untitled Position"),
-        department: String(jobData.department || "Government Department"), 
+        department: String(jobData.department || "Government Department"),
         location: String(jobData.location || "India"),
         qualification: String(jobData.qualification || "As per official notification"),
         deadline: String(jobData.deadline || new Date().toISOString().split('T')[0]),
@@ -613,19 +636,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       console.log("Processed job data:", JSON.stringify(processedJobData, null, 2));
-      
+
       // Validate required fields before insertion
       const requiredFields: (keyof typeof processedJobData)[] = ['title', 'department', 'location', 'qualification', 'deadline', 'applyLink', 'postedOn', 'sourceUrl'];
       for (const field of requiredFields) {
         const fieldValue = processedJobData[field];
         if (!fieldValue || fieldValue === 'null') {
-          console.error(`Required field ${field} is missing or null:`, fieldValue);
+          console.error(`Required field ${field} is missing or null: `, fieldValue);
           return res.status(400).json({ message: `Required field ${field} is missing` });
         }
       }
-      
+
       const job = await storage.createJob(processedJobData);
-      
+
       // Update processing log if logId provided
       if (logId) {
         try {
@@ -638,7 +661,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Don't fail the request if log update fails
         }
       }
-      
+
       res.json({
         success: true,
         job
@@ -654,7 +677,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/processing-history", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -671,7 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/templates", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -690,14 +713,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/change-password", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
     try {
       const { currentPassword, newPassword } = adminPasswordChangeSchema.parse(req.body);
-      
+
       // Get current admin user
       const admin = await adminStorage.getAdminById(adminId);
       if (!admin) {
@@ -713,7 +736,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash new password and update
       const hashedNewPassword = await hashAdminPassword(newPassword);
       const success = await adminStorage.updateAdminPassword(adminId, hashedNewPassword);
-      
+
       if (success) {
         res.json({ message: "Password changed successfully" });
       } else {
@@ -728,14 +751,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/admin/users", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
     try {
       const userData = createAdminUserSchema.parse(req.body);
-      
+
       // Check if username already exists
       const existingAdmin = await adminStorage.getAdminByUsername(userData.username);
       if (existingAdmin) {
@@ -744,7 +767,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Hash password
       const hashedPassword = await hashAdminPassword(userData.password);
-      
+
       // Create admin user
       const newAdmin = await adminStorage.createAdminUser({
         ...userData,
@@ -767,14 +790,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/admin/users", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
     try {
       const adminUsers = await adminStorage.getAllAdminUsers();
-      
+
       // Remove password field from response
       const safeUsers = adminUsers.map(user => ({
         id: user.id,
@@ -785,7 +808,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         lastLogin: user.lastLogin,
         createdAt: user.createdAt
       }));
-      
+
       res.json(safeUsers);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch admin users", error });
@@ -796,7 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/jobs/:id", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
@@ -804,11 +827,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const jobData = updateJobSchema.parse(req.body);
       const job = await storage.updateJob(req.params.id, jobData);
-      
+
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
       }
-      
+
       res.json(job);
     } catch (error) {
       res.status(400).json({ message: "Invalid job data", error });
@@ -819,18 +842,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/admin/jobs/:id", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
-    
+
     if (!adminId) {
       return res.status(401).json({ message: "Authentication required" });
     }
 
     try {
       const deleted = await storage.deleteJob(req.params.id);
-      
+
       if (!deleted) {
         return res.status(404).json({ message: "Job not found" });
       }
-      
+
       res.json({ message: "Job deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete job", error });
@@ -842,22 +865,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const baseUrl = "https://govtjobsnow.com";
       const currentDate = new Date().toISOString();
-      
-      const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>${baseUrl}/sitemap-main.xml</loc>
-    <lastmod>${currentDate}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>${baseUrl}/sitemap-jobs.xml</loc>
-    <lastmod>${currentDate}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>${baseUrl}/sitemap-categories.xml</loc>
-    <lastmod>${currentDate}</lastmod>
-  </sitemap>
-</sitemapindex>`;
+
+      const sitemap = `<? xml version = "1.0" encoding = "UTF-8" ?>
+        <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
+          <sitemap>
+          <loc>${baseUrl} /sitemap-main.xml</loc >
+            <lastmod>${currentDate} </lastmod>
+              </sitemap>
+              < sitemap >
+              <loc>${baseUrl} /sitemap-jobs.xml</loc >
+                <lastmod>${currentDate} </lastmod>
+                  </sitemap>
+                  < sitemap >
+                  <loc>${baseUrl} /sitemap-categories.xml</loc >
+                    <lastmod>${currentDate} </lastmod>
+                      </sitemap>
+                      </sitemapindex>`;
 
       res.set('Content-Type', 'application/xml');
       res.send(sitemap);
@@ -871,7 +894,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const baseUrl = "https://govtjobsnow.com";
       const currentDate = new Date().toISOString();
-      
+
       const mainPages = [
         { url: "", priority: "1.0", changefreq: "daily" },
         { url: "/contact", priority: "0.7", changefreq: "monthly" },
@@ -903,7 +926,7 @@ ${mainPages.map(page => `  <url>
     try {
       const baseUrl = "https://govtjobsnow.com";
       const result = await storage.searchJobs({ page: 1, limit: 1000 });
-      
+
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${result.jobs.map(job => `  <url>
@@ -926,7 +949,7 @@ ${result.jobs.map(job => `  <url>
     try {
       const baseUrl = "https://govtjobsnow.com";
       const currentDate = new Date().toISOString();
-      
+
       const categories = [
         { url: "/jobs/ssc", name: "SSC Jobs" },
         { url: "/jobs/railway", name: "Railway Jobs" },
@@ -966,17 +989,17 @@ ${categories.map(category => `  <url>
 function calculateExtractionQuality(data: any): number {
   const requiredFields = ['title', 'department', 'location', 'qualification', 'deadline'];
   let score = 0;
-  
+
   for (const field of requiredFields) {
     if (data[field] && typeof data[field] === 'string' && data[field].length > 5) {
       score += 0.2; // Each required field is worth 20%
     }
   }
-  
+
   // Bonus points for additional useful fields
   if (data.salary && data.salary.length > 3) score += 0.05;
   if (data.description && data.description.length > 50) score += 0.05;
   if (data.positions && !isNaN(data.positions)) score += 0.05;
-  
+
   return Math.min(score, 1.0);
 }
