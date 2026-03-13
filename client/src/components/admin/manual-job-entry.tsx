@@ -7,11 +7,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  PlusCircle, 
-  Save, 
-  RefreshCw, 
-  CheckCircle, 
+import {
+  PlusCircle,
+  Save,
+  RefreshCw,
+  CheckCircle,
   AlertCircle,
   BookOpen,
   Copy,
@@ -19,7 +19,8 @@ import {
   Plus,
   X,
   Sparkles,
-  Loader2
+  Loader2,
+  Globe
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -71,7 +72,7 @@ const jobTemplates = {
     vacancyBreakdown: "General: 50%, OBC: 27%, SC: 15%, ST: 7.5%, EWS: 10%"
   },
   sbi: {
-    title: "SBI [Position] Recruitment 2025", 
+    title: "SBI [Position] Recruitment 2025",
     department: "State Bank of India",
     location: "All India",
     qualification: "Graduate in any discipline with minimum 60% marks",
@@ -209,7 +210,7 @@ const jobTemplates = {
 
 const departmentOptions = [
   "Staff Selection Commission",
-  "Union Public Service Commission", 
+  "Union Public Service Commission",
   "Railway Recruitment Board",
   "Banking Sector",
   "Defense Services",
@@ -223,7 +224,7 @@ const departmentOptions = [
 
 const locationOptions = [
   "All India",
-  "Pan India", 
+  "Pan India",
   "India Wide",
   "Delhi NCR",
   "Mumbai",
@@ -239,7 +240,7 @@ const locationOptions = [
 
 const qualificationOptions = [
   "10th Pass",
-  "12th Pass", 
+  "12th Pass",
   "ITI/Diploma",
   "Graduate (Any Stream)",
   "Post Graduate",
@@ -254,7 +255,7 @@ const qualificationOptions = [
 // New field options for enhanced entry
 const jobCategoryOptions = [
   "Central Government",
-  "State Government", 
+  "State Government",
   "PSU",
   "Banking",
   "Railway",
@@ -267,7 +268,7 @@ const jobCategoryOptions = [
 const employmentTypeOptions = [
   "Permanent",
   "Contract",
-  "Apprentice", 
+  "Apprentice",
   "Temporary",
   "Part-time"
 ];
@@ -324,7 +325,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     applicationStartDate: "",
     vacancyBreakdown: ""
   });
-  
+
   // State for multiple positions
   const [jobPositions, setJobPositions] = useState([
     {
@@ -338,13 +339,76 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     }
   ]);
   const [useMultiplePositions, setUseMultiplePositions] = useState(false);
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isScraping, setIsScraping] = useState(false);
   const [rawText, setRawText] = useState("");
+  const [scrapeUrl, setScrapeUrl] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const handleScrapeAndExtract = async () => {
+    if (!scrapeUrl.trim() || !scrapeUrl.startsWith("http")) {
+      toast({ title: "Invalid URL", description: "Please enter a valid HTTP/HTTPS URL", variant: "destructive" });
+      return;
+    }
+
+    setIsScraping(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+
+      // 1. Scrape the URL
+      const scrapeResponse = await fetch("/api/admin/scrape-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ url: scrapeUrl }),
+      });
+
+      if (!scrapeResponse.ok) {
+        const errData = await scrapeResponse.json();
+        throw new Error(errData.message || "Failed to scrape URL");
+      }
+
+      const { text } = await scrapeResponse.json();
+      setRawText(text); // Plug text into the textarea so the admin can verify what the bot saw
+
+      toast({ title: "Scraping Complete", description: "Running AI extraction now...", duration: 2000 });
+
+      // 2. Feed scraped text directly into the AI Extraction endpoint
+      setIsExtracting(true);
+      const extractResponse = await fetch("/api/admin/extract-job", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rawText: text }),
+      });
+
+      if (extractResponse.ok) {
+        const data = await extractResponse.json();
+        setFormData(prev => ({
+          ...prev,
+          ...data,
+          sourceUrl: scrapeUrl // Automatically pre-fill the source URL field too
+        }));
+        toast({ title: "Pipeline Successful", description: "URL Scraped and Job details organized automatically. Please review carefully." });
+      } else {
+        throw new Error("Failed to extract data from scraped text");
+      }
+
+    } catch (error: any) {
+      toast({ title: "Scraping Failed", description: error.message || "Pipeline interrupted", variant: "destructive" });
+    } finally {
+      setIsScraping(false);
+      setIsExtracting(false);
+    }
+  };
 
   const handleExtract = async () => {
     if (!rawText.trim()) {
@@ -401,31 +465,31 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
 
   const validateForm = (): boolean => {
     const errors: string[] = [];
-    
+
     if (!formData.title.trim()) errors.push("Job title is required");
     if (!formData.jobCategory.trim()) errors.push("Job category is required");
     if (!formData.employmentType.trim()) errors.push("Employment type is required");
     if (!formData.recruitingOrganization.trim()) errors.push("Recruiting organization is required");
     if (!formData.department.trim()) errors.push("Department is required");
     if (!formData.location.trim()) errors.push("Location is required");
-    
+
     // Validate qualification based on mode
     if (!useMultiplePositions && !formData.qualification.trim()) {
       errors.push("Qualification is required");
     }
-    
+
     if (!formData.applicationStartDate.trim()) errors.push("Application start date is required");
     if (!formData.deadline.trim()) errors.push("Application deadline is required");
     if (!formData.applyLink.trim()) errors.push("Application link is required");
-    
+
     // Validate multiple positions if enabled
     if (useMultiplePositions) {
       const validPositions = jobPositions.filter(pos => pos.positionName.trim() !== '');
-      
+
       if (validPositions.length === 0) {
         errors.push("At least one position with a name is required");
       }
-      
+
       validPositions.forEach((position, index) => {
         if (!position.positionName.trim()) {
           errors.push(`Position ${index + 1}: Position name is required`);
@@ -438,12 +502,12 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         }
       });
     }
-    
+
     // Set defaults for optional fields
     if (!formData.sourceUrl.trim()) {
       formData.sourceUrl = "Manual Entry";
     }
-    
+
     // Validate URL format
     if (formData.applyLink && !isValidUrl(formData.applyLink)) {
       errors.push("Application link must be a valid URL");
@@ -476,16 +540,16 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const token = localStorage.getItem("admin_token");
-      
+
       // Prepare job data with required fields and smart defaults
       const jobData = {
         ...formData,
@@ -517,10 +581,10 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
 
       if (response.ok) {
         toast({
-          title: "Job Added Successfully", 
+          title: "Job Added Successfully",
           description: "The job posting has been published and is now live.",
         });
-        
+
         // Reset form
         setFormData({
           title: "",
@@ -543,7 +607,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           applicationStartDate: "",
           vacancyBreakdown: ""
         });
-        
+
         onJobAdded();
       } else {
         const error = await response.json();
@@ -619,7 +683,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
   };
 
   const updatePosition = (positionId: string, field: string, value: string | number) => {
-    setJobPositions(prev => prev.map(pos => 
+    setJobPositions(prev => prev.map(pos =>
       pos.id === positionId ? { ...pos, [field]: value } : pos
     ));
   };
@@ -654,13 +718,48 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="bg-white/80 p-4 rounded-lg border border-purple-100 flex flex-col md:flex-row gap-3">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="scrapeUrl" className="text-purple-900 font-semibold flex items-center gap-2 relative">
+                <Globe className="w-4 h-4" />
+                Scrape from URL (Automated Pipeline)
+              </Label>
+              <Input
+                id="scrapeUrl"
+                placeholder="https://example.gov.in/notification"
+                className="border-purple-200 focus-visible:ring-purple-500"
+                value={scrapeUrl}
+                onChange={(e) => setScrapeUrl(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                onClick={handleScrapeAndExtract}
+                disabled={isScraping || isExtracting}
+                className="w-full md:w-auto bg-purple-600 hover:bg-purple-700 text-white shadow"
+              >
+                {isScraping ? (
+                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Fetching...</>
+                ) : (
+                  <><Globe className="w-4 h-4 mr-2" /> Scrape & Extract</>
+                )}
+              </Button>
+            </div>
+          </div>
+
+          <div className="relative flex items-center py-2">
+            <div className="flex-grow border-t border-purple-200"></div>
+            <span className="flex-shrink-0 mx-4 text-purple-400 text-xs uppercase font-medium">Or paste raw text manually</span>
+            <div className="flex-grow border-t border-purple-200"></div>
+          </div>
+
           <Textarea
             placeholder="Paste raw job description, notification text, or advertisement details here..."
             className="min-h-[150px] bg-white border-purple-100 focus-visible:ring-purple-500"
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
           />
-          <Button 
+          <Button
             className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-md transition-all flex items-center gap-2"
             onClick={handleExtract}
             disabled={isExtracting}
@@ -724,7 +823,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {Object.entries(jobTemplates).map(([key, template]) => (
-                <Card 
+                <Card
                   key={key}
                   className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   onClick={() => applyTemplate(key)}
@@ -790,8 +889,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               {/* Priority Fields Row for Speed */}
               <div>
                 <Label htmlFor="jobCategory">Job Category *</Label>
-                <Select 
-                  value={formData.jobCategory} 
+                <Select
+                  value={formData.jobCategory}
                   onValueChange={(value) => handleInputChange('jobCategory', value)}
                 >
                   <SelectTrigger data-testid="select-job-category">
@@ -807,8 +906,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
 
               <div>
                 <Label htmlFor="employmentType">Employment Type *</Label>
-                <Select 
-                  value={formData.employmentType} 
+                <Select
+                  value={formData.employmentType}
                   onValueChange={(value) => handleInputChange('employmentType', value)}
                 >
                   <SelectTrigger data-testid="select-employment-type">
@@ -843,8 +942,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               {/* Department */}
               <div>
                 <Label htmlFor="department">Department *</Label>
-                <Select 
-                  value={formData.department} 
+                <Select
+                  value={formData.department}
                   onValueChange={(value) => handleInputChange('department', value)}
                 >
                   <SelectTrigger data-testid="select-department">
@@ -861,8 +960,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               {/* Location */}
               <div>
                 <Label htmlFor="location">Location *</Label>
-                <Select 
-                  value={formData.location} 
+                <Select
+                  value={formData.location}
                   onValueChange={(value) => handleInputChange('location', value)}
                 >
                   <SelectTrigger data-testid="select-location">
@@ -879,8 +978,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               {/* Qualification */}
               <div>
                 <Label htmlFor="qualification">Required Qualification *</Label>
-                <Select 
-                  value={formData.qualification} 
+                <Select
+                  value={formData.qualification}
                   onValueChange={(value) => handleInputChange('qualification', value)}
                 >
                   <SelectTrigger data-testid="select-qualification">
@@ -1075,10 +1174,10 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               {useMultiplePositions && (
                 <div className="space-y-4">
                   <div className="text-sm text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
-                    <strong>Note:</strong> When using multiple positions, the main qualification and salary fields above will be ignored. 
+                    <strong>Note:</strong> When using multiple positions, the main qualification and salary fields above will be ignored.
                     Each position will have its own specific requirements.
                   </div>
-                  
+
                   {jobPositions.map((position, index) => (
                     <div key={position.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-4">
                       <div className="flex items-center justify-between">
@@ -1097,7 +1196,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                           </Button>
                         )}
                       </div>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Position Name */}
                         <div>
@@ -1174,7 +1273,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                       </div>
                     </div>
                   ))}
-                  
+
                   <Button
                     type="button"
                     variant="outline"

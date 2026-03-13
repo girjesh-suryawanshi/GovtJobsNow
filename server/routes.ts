@@ -419,6 +419,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fetch URL HTML and return cleaned text payload for AI
+  app.post("/api/admin/scrape-url", async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const { url } = req.body;
+    if (!url || !url.startsWith("http")) {
+      return res.status(400).json({ message: "Valid URL is required" });
+    }
+
+    try {
+      // Import cheerio dynamically so we don't bloat initial boot if not running scrapers
+      const cheerio = await import("cheerio");
+
+      // Set user-agent to avoid basic anti-bot blockers on gov sites
+      const scrapeRes = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+        }
+      });
+
+      if (!scrapeRes.ok) {
+        throw new Error(`Server responded with ${scrapeRes.status}: ${scrapeRes.statusText}`);
+      }
+
+      const html = await scrapeRes.text();
+
+      // Load into Cheerio to parse the DOM
+      const $ = cheerio.load(html);
+
+      // Remove noisy elements that confuse AI text extraction
+      $("script, style, noscript, iframe, img, svg, header, footer, nav, .menu, .sidebar").remove();
+
+      // Extract the raw text from the remaining body
+      let text = $("body").text() || $.text();
+
+      // Strip out excessive newlines and tabs to compress payload size
+      text = text.replace(/\\s+/g, ' ').trim();
+
+      if (text.length < 50) {
+        throw new Error("Scraped page appears to be almost empty. It may be blocked by a Captcha, or the jobs are loaded via Javascript instead of static HTML.");
+      }
+
+      // Truncate to save Gemini tokens if the site is massive (e.g., huge TOCs)
+      const MAX_CHARS = 15000;
+      if (text.length > MAX_CHARS) {
+        text = text.slice(0, MAX_CHARS);
+      }
+
+      res.json({ text });
+    } catch (error: any) {
+      console.error("URL Scraping error:", error);
+      res.status(500).json({
+        message: "Failed to scrape URL. The site might block bots or require Javascript.",
+        details: error.message
+      });
+    }
+  });
+
   app.post("/api/admin/jobs", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
