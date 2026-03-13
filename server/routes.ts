@@ -357,6 +357,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Gemini AI Exam Extraction
+  app.post("/api/admin/extract-exam", async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    const { rawText } = req.body;
+    if (!rawText) return res.status(400).json({ message: "Raw text is required" });
+
+    try {
+      const { generateText } = await import("./gemini");
+      const prompt = `Extract exam details from the following text and return ONLY a JSON object compatible with the following schema.
+      For fields with specific options, you MUST choose the closest matching option from the allowed list. If no exact match or the data is missing, return an empty string "" (never return null).
+      
+      ALLOWED OPTIONS:
+      - examMode: "Online", "Offline", "Both"
+      - dates (registrationStartDate, registrationEndDate, examDate, admitCardDate, resultsDate): Must strictly be in YYYY-MM-DD format.
+
+      SCHEMA:
+      {
+        "title": "Exam Title",
+        "conductingOrganization": "Organization Name",
+        "registrationStartDate": "YYYY-MM-DD",
+        "registrationEndDate": "YYYY-MM-DD",
+        "examDate": "YYYY-MM-DD",
+        "admitCardDate": "YYYY-MM-DD",
+        "resultsDate": "YYYY-MM-DD",
+        "examPattern": "Pattern Details",
+        "examMode": "Mode (Must be from allowed options)",
+        "duration": "Duration (e.g., 60 minutes)",
+        "totalMarks": "Total Marks (e.g., 100)",
+        "location": "Location",
+        "applicationFee": "Fee Details",
+        "languagesAvailable": "Languages",
+        "eligibility": "Eligibility Criteria",
+        "officialWebsite": "https://example.com/apply",
+        "syllabus": "Syllabus Details"
+      }
+      
+      Text: \${rawText}`;
+
+      const response = await generateText(prompt);
+      // Robust JSON cleaning to strip markdown and conversational text
+      const match = response.match(/\{[\s\S]*\}/);
+      if (!match) {
+        throw new Error("No JSON object found in response");
+      }
+      const jsonStr = match[0];
+
+      const parsedData = JSON.parse(jsonStr);
+      // Clean nulls to empty strings for UI components
+      for (const key in parsedData) {
+        if (parsedData[key] === null) parsedData[key] = "";
+        if (typeof parsedData[key] === "number") parsedData[key] = parsedData[key].toString();
+      }
+
+      res.json(parsedData);
+    } catch (error) {
+      console.error("Gemini extraction error:", error);
+      res.status(500).json({ message: "Failed to extract exam data" });
+    }
+  });
+
   app.post("/api/admin/jobs", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const adminId = requireAdminAuth(token);
