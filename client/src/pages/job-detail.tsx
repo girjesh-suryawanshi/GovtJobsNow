@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, FileText } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, FileText, MessageCircle, Send, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -299,6 +299,42 @@ export default function JobDetail() {
                         Download Notification
                       </Button>
                     )}
+                  </div>
+
+                  <div className="flex items-center justify-center gap-4 py-3 bg-gray-50/50 rounded-lg border border-dashed border-gray-200 mt-2">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold px-1">Share:</span>
+                    <button
+                      onClick={() => {
+                        const text = `Check out this job: ${job.title}`;
+                        const url = window.location.href;
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${encodeURIComponent(url)}`, '_blank');
+                      }}
+                      className="p-2 bg-[#25D366] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                      title="Share on WhatsApp"
+                    >
+                      <MessageCircle className="h-4 w-4 fill-current" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = window.location.href;
+                        const text = `Check out this job: ${job.title}`;
+                        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                      }}
+                      className="p-2 bg-[#0088cc] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                      title="Share on Telegram"
+                    >
+                      <Send className="h-4 w-4 fill-current ml-[-1px]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = window.location.href;
+                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                      }}
+                      className="p-2 bg-[#1877F2] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                      title="Share on Facebook"
+                    >
+                      <Facebook className="h-4 w-4 fill-current" />
+                    </button>
                   </div>
 
                   <div className="text-xs text-gray-500">

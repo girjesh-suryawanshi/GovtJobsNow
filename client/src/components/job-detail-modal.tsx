@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, Building2, FileText } from "lucide-react";
+import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, Building2, FileText, MessageCircle, Send, Facebook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
@@ -359,7 +359,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                       data-testid="save-job-button"
                     >
                       <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? 'fill-current' : ''}`} />
-                      Save Job
+                      Save
                     </Button>
                     <Button
                       variant="outline"
@@ -370,6 +370,42 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                       <Share2 className="h-4 w-4 mr-2" />
                       Share
                     </Button>
+                  </div>
+
+                  <div className="flex items-center justify-center gap-4 mt-4 py-3 bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
+                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold px-2">Direct Share:</span>
+                    <button
+                      onClick={() => {
+                        const text = `Check out this job: ${job.title}`;
+                        const url = `${window.location.origin}/job/${job.id}`;
+                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${encodeURIComponent(url)}`, '_blank');
+                      }}
+                      className="p-2 bg-[#25D366] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                      title="Share on WhatsApp"
+                    >
+                      <MessageCircle className="h-5 w-5 fill-current" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/job/${job.id}`;
+                        const text = `Check out this job: ${job.title}`;
+                        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                      }}
+                      className="p-2 bg-[#0088cc] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                      title="Share on Telegram"
+                    >
+                      <Send className="h-5 w-5 fill-current ml-[-2px]" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = `${window.location.origin}/job/${job.id}`;
+                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+                      }}
+                      className="p-2 bg-[#1877F2] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                      title="Share on Facebook"
+                    >
+                      <Facebook className="h-5 w-5 fill-current" />
+                    </button>
                   </div>
                 </div>
               </div>
