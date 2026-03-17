@@ -27,6 +27,7 @@ export const jobs = pgTable("jobs", {
   recruitingOrganization: text("recruiting_organization"),
   applicationStartDate: text("application_start_date"),
   vacancyBreakdown: text("vacancy_breakdown"),
+  notificationFileUrl: text("notification_file_url"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,12 +12,14 @@ import Footer from "@/components/footer";
 import SEOHead from "@/components/seo-head";
 import JobPostingSchema from "@/components/job-posting-schema";
 import ExamCalendar from "@/components/exam-calendar";
+import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
 
 export default function JobDetail() {
   const { id } = useParams();
   const [showExamCalendar, setShowExamCalendar] = useState(false);
+  const { toast } = useToast();
 
   const { data: job, isLoading } = useQuery({
     queryKey: ["/api/jobs", id],
@@ -69,19 +71,74 @@ export default function JobDetail() {
   }
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
     if (navigator.share) {
       try {
         await navigator.share({
           title: job.title,
           text: `Check out this government job opportunity: ${job.title}`,
-          url: window.location.href,
+          url: shareUrl,
+        });
+        toast({
+          title: "Shared successfully",
+          description: "Thank you for sharing!",
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          // Fallback to clipboard if sharing fails
+          copyToClipboard(shareUrl);
+        }
       }
     } else {
-      // Fallback to copying URL to clipboard
-      navigator.clipboard.writeText(window.location.href);
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (url: string) => {
+    // Try modern API first if available and in secure context
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied",
+          description: "The job link has been copied to your clipboard.",
+        });
+        return;
+      } catch (err) {
+        console.warn('Modern clipboard API failed, trying fallback:', err);
+      }
+    }
+
+    // Fallback for insecure contexts or if modern API fails
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        toast({
+          title: "Link copied",
+          description: "The job link has been copied to your clipboard.",
+        });
+      } else {
+        throw new Error("execCommand copy failed");
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      toast({
+        title: "Copy failed",
+        description: "Please copy the URL manually from your browser address bar.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -136,9 +193,9 @@ export default function JobDetail() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 sm:p-6">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 order-last lg:order-none">
               <div>
                 <h3 className="text-xl font-semibold mb-4">Job Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -231,6 +288,17 @@ export default function JobDetail() {
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Apply Now
                     </Button>
+
+                    {job.notificationFileUrl && (
+                      <Button
+                        variant="outline"
+                        className="w-full mt-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
+                        onClick={() => window.open(job.notificationFileUrl as string, '_blank')}
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Download Notification
+                      </Button>
+                    )}
                   </div>
 
                   <div className="text-xs text-gray-500">

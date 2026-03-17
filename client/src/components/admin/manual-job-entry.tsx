@@ -323,7 +323,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     employmentType: "",
     recruitingOrganization: "",
     applicationStartDate: "",
-    vacancyBreakdown: ""
+    vacancyBreakdown: "",
+    notificationFileUrl: ""
   });
 
   // State for multiple positions
@@ -343,6 +344,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [isScraping, setIsScraping] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [rawText, setRawText] = useState("");
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
@@ -538,6 +540,55 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload a file smaller than 10MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+
+    try {
+      const token = localStorage.getItem('admin_token');
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: uploadData
+      });
+
+      if (!response.ok) {
+        throw new Error('Upload failed');
+      }
+
+      const data = await response.json();
+      handleInputChange("notificationFileUrl", data.url);
+      toast({
+        title: "Success",
+        description: "Official Notification uploaded successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload the file. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+      e.target.value = ''; // Reset input to allow identical file selection
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -599,13 +650,14 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           positions: 1,
           ageLimit: "",
           applicationFee: "",
-          selectionProcess: "",
           experienceRequired: "",
           jobCategory: "",
           employmentType: "",
           recruitingOrganization: "",
           applicationStartDate: "",
-          vacancyBreakdown: ""
+          vacancyBreakdown: "",
+          selectionProcess: "",
+          notificationFileUrl: ""
         });
 
         onJobAdded();
@@ -642,13 +694,14 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       positions: 1,
       ageLimit: "",
       applicationFee: "",
-      selectionProcess: "",
       experienceRequired: "",
       jobCategory: "",
       employmentType: "",
       recruitingOrganization: "",
       applicationStartDate: "",
-      vacancyBreakdown: ""
+      vacancyBreakdown: "",
+      selectionProcess: "",
+      notificationFileUrl: ""
     });
     setJobPositions([{
       id: crypto.randomUUID(),
@@ -1145,6 +1198,64 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   Original notification or source website URL. Leave empty if manually created.
+                </p>
+              </div>
+            </div>
+
+            {/* Official Notification Document */}
+            <div className="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Official Notification</h3>
+              </div>
+              <div>
+                <Label htmlFor="notificationFileUrl">Notification PDF/Image (Optional)</Label>
+                <div className="flex gap-4 items-center mt-2">
+                  <div className="flex-1">
+                    <Input
+                      id="notificationFileUrl"
+                      placeholder="Upload a file or paste URL manually..."
+                      value={formData.notificationFileUrl || ''}
+                      onChange={(e) => handleInputChange('notificationFileUrl', e.target.value)}
+                    />
+                  </div>
+                  <div className="shrink-0 relative">
+                    <Input
+                      type="file"
+                      accept=".pdf,image/*"
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                    />
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={isUploading}
+                      className="pointer-events-none w-[120px]"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Upload File
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                {formData.notificationFileUrl && (
+                  <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" /> File linked successfully:
+                    <a href={formData.notificationFileUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-green-800">
+                      {formData.notificationFileUrl.split('/').pop()}
+                    </a>
+                  </p>
+                )}
+                <p className="text-sm text-gray-500 mt-1">
+                  Upload the official notification PDF. It will be explicitly available to download on the job details page.
                 </p>
               </div>
             </div>

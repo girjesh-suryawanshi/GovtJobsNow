@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import OrganizationLogo from "@/components/organization-logo";
+import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@/types/job";
 
 interface JobCardProps {
@@ -15,6 +16,7 @@ interface JobCardProps {
 
 export default function JobCard({ job, onClick, onCompare, isComparing = false }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false);
+  const { toast } = useToast();
 
   const handleSaveJob = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -22,17 +24,78 @@ export default function JobCard({ job, onClick, onCompare, isComparing = false }
     // TODO: Implement save to localStorage or backend
   };
 
-  const handleShareJob = (e: React.MouseEvent) => {
+  const handleShareJob = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    const shareUrl = `${window.location.origin}/job/${job.id}`;
+
     if (navigator.share) {
-      navigator.share({
-        title: job.title,
-        text: `Check out this government job: ${job.title}`,
-        url: `${window.location.origin}/job/${job.id}`,
+      try {
+        await navigator.share({
+          title: job.title,
+          text: `Check out this government job: ${job.title}`,
+          url: shareUrl,
+        });
+        toast({
+          title: "Shared successfully",
+          description: "Thank you for sharing!",
+        });
+        return;
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          copyToClipboard(shareUrl);
+        }
+        return;
+      }
+    }
+    
+    copyToClipboard(shareUrl);
+  };
+
+  const copyToClipboard = async (url: string) => {
+    // Try modern API first if available and in secure context
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied",
+          description: "The job link has been copied to your clipboard.",
+        });
+        return;
+      } catch (err) {
+        console.warn('Modern clipboard API failed, trying fallback:', err);
+      }
+    }
+
+    // Fallback for insecure contexts or if modern API fails
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        toast({
+          title: "Link copied",
+          description: "The job link has been copied to your clipboard.",
+        });
+      } else {
+        throw new Error("execCommand copy failed");
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      toast({
+        title: "Copy failed",
+        description: "Please copy the URL manually from your browser address bar.",
+        variant: "destructive",
       });
-    } else {
-      // Fallback to copying URL
-      navigator.clipboard.writeText(`${window.location.origin}/job/${job.id}`);
     }
   };
 

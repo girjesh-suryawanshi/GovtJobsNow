@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, Building2 } from "lucide-react";
+import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, Building2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@/types/job";
 
 interface JobPosition {
@@ -26,6 +27,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
   const [isSaved, setIsSaved] = useState(false);
   const [positions, setPositions] = useState<JobPosition[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(false);
+  const { toast } = useToast();
 
   // Fetch job positions when modal opens
   useEffect(() => {
@@ -61,24 +63,88 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
   };
 
   const handleShareJob = async () => {
+    const shareUrl = `${window.location.origin}/job/${job.id}`;
     if (navigator.share) {
       try {
         await navigator.share({
           title: job.title,
           text: `Check out this government job: ${job.title}`,
-          url: `${window.location.origin}/job/${job.id}`,
+          url: shareUrl,
+        });
+        toast({
+          title: "Shared successfully",
+          description: "Thank you for sharing!",
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          // Fallback to clipboard if sharing fails
+          copyToClipboard(shareUrl);
+        }
       }
     } else {
-      navigator.clipboard.writeText(`${window.location.origin}/job/${job.id}`);
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (url: string) => {
+    // Try modern API first if available and in secure context
+    if (navigator.clipboard && window.isSecureContext) {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied",
+          description: "The job link has been copied to your clipboard.",
+        });
+        return;
+      } catch (err) {
+        console.warn('Modern clipboard API failed, trying fallback:', err);
+      }
+    }
+
+    // Fallback for insecure contexts or if modern API fails
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = url;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-9999px";
+      textArea.style.top = "0";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        toast({
+          title: "Link copied",
+          description: "The job link has been copied to your clipboard.",
+        });
+      } else {
+        throw new Error("execCommand copy failed");
+      }
+    } catch (err) {
+      console.error('Fallback copy failed:', err);
+      toast({
+        title: "Copy failed",
+        description: "Please copy the URL manually from your browser address bar.",
+        variant: "destructive",
+      });
     }
   };
 
   const handleApplyNow = () => {
-    // Always redirect to the source website where users can find the real application link
-    window.open(job.sourceUrl, '_blank');
+    const targetUrl = job.applyLink || job.sourceUrl;
+    window.open(targetUrl, '_blank');
+  };
+
+  const getSafeHostname = (url: string) => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return url;
+    }
   };
 
   return (
@@ -238,7 +304,7 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
               </div>
             </div>
             
-            <div className="order-first lg:order-last">
+            <div className="order-last lg:order-none">
               <div className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
                 <div>
                   <h4 className="font-semibold mb-2">Important Dates</h4>
@@ -263,16 +329,27 @@ export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalP
                 
                 <div className="pt-4 border-t border-gray-200">
                   <Button 
-                    className="w-full bg-red-600 hover:bg-red-700 h-11 text-sm sm:text-base"
+                    className="w-full bg-red-600 hover:bg-red-700 h-11 text-xs sm:text-sm lg:text-base px-2"
                     onClick={handleApplyNow}
                     data-testid="apply-now-button"
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
-                    Apply on Official Website
+                    Apply Now
                   </Button>
-                  <p className="text-xs text-gray-500 text-center mt-2 break-words">
-                    Redirects to {new URL(job.sourceUrl).hostname}
+                  <p className="text-[10px] text-gray-400 text-center mt-2 break-all px-1">
+                    Via: {getSafeHostname(job.sourceUrl)}
                   </p>
+
+                  {job.notificationFileUrl && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 h-11 text-sm"
+                      onClick={() => window.open(job.notificationFileUrl as string, '_blank')}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      Download Notification
+                    </Button>
+                  )}
                   
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 mt-3">
                     <Button

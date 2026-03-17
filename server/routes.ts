@@ -8,6 +8,10 @@ import { urlProcessor } from "./url-processor";
 import { requireAdminAuth, createAdminSession, verifyPassword, revokeAdminSession } from "./admin-auth";
 import { createUserSession, hashPassword, verifyPassword as verifyUserPassword, requireUserAuth, revokeUserSession } from "./user-auth";
 import { hashPassword as hashAdminPassword } from "./admin-auth";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import express from "express";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
@@ -19,6 +23,51 @@ Allow: /
 
 User-agent: Mediapartners-Google
 Allow: /`);
+  });
+
+  // Setup Multer for PDF/Image Notification Uploads
+  const uploadDir = path.join(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const storageConfig = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, uploadDir);
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, 'notification-' + uniqueSuffix + path.extname(file.originalname));
+    }
+  });
+
+  const upload = multer({
+    storage: storageConfig,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  });
+
+  // Serve the uploads directory statically
+  app.use("/uploads", express.static(uploadDir));
+
+  // File Upload Endpoint
+  // @ts-ignore
+  app.post("/api/upload", upload.single("file"), (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const fileUrl = `/uploads/${req.file.filename}`;
+      res.status(200).json({ url: fileUrl });
+    } catch (error) {
+      console.error("Upload Error:", error);
+      res.status(500).json({ message: "File upload failed", error });
+    }
   });
 
   // Serve dynamic sitemap.xml
@@ -577,11 +626,12 @@ Allow: /`);
 
         res.status(201).json(job);
       }
-    } catch (error) {
-      console.error("Failed to create manual job:", error);
+    } catch (error: any) {
+      console.error("Failed to create manual job. Payload:", JSON.stringify(req.body, null, 2));
+      console.error("Zod Error Details:", error.errors ? JSON.stringify(error.errors, null, 2) : error);
       res.status(400).json({
         message: "Invalid job data",
-        error: error instanceof Error ? error.message : error
+        error: error.errors ? error.errors : (error.message || String(error))
       });
     }
   });

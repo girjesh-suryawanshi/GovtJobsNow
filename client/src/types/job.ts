@@ -14,6 +14,7 @@ export interface Job {
   applicationFee?: string | null;
   description?: string | null;
   selectionProcess?: string | null;
+  notificationFileUrl?: string | null;
   createdAt?: Date | string | null;
 }
 
