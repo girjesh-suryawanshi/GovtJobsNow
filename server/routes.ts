@@ -426,7 +426,18 @@ Allow: /`);
         "employmentType": "Type (Must be from allowed options)",
         "recruitingOrganization": "Organization",
         "applicationStartDate": "YYYY-MM-DD",
-        "vacancyBreakdown": "Breakdown Details"
+        "vacancyBreakdown": "Breakdown Details",
+        "useMultiplePositions": true/false (Set true if you detect multiple distinct positions with different qualifications/salaries),
+        "jobPositions": [
+          {
+            "positionName": "Position Name",
+            "qualification": "Required Qualification",
+            "experienceRequired": "Experience Range",
+            "salaryRange": "Salary Range",
+            "numberOfVacancies": 1 (As number),
+            "specificRequirements": "Any specific details"
+          }
+        ]
       }
       
       Text: ${rawText}`;
@@ -443,7 +454,21 @@ Allow: /`);
       // Clean nulls to empty strings for UI components
       for (const key in parsedData) {
         if (parsedData[key] === null) parsedData[key] = "";
-        if (typeof parsedData[key] === "number") parsedData[key] = parsedData[key].toString();
+        if (typeof parsedData[key] === "number" && key !== "positions") {
+          parsedData[key] = parsedData[key].toString();
+        }
+      }
+
+      // Special handling for jobPositions if present
+      if (parsedData.jobPositions && Array.isArray(parsedData.jobPositions)) {
+        parsedData.jobPositions = parsedData.jobPositions.map((pos: any) => {
+          const cleanedPos = { ...pos };
+          for (const k in cleanedPos) {
+            if (cleanedPos[k] === null) cleanedPos[k] = "";
+          }
+          return cleanedPos;
+        });
+        parsedData.useMultiplePositions = parsedData.jobPositions.length > 1;
       }
 
       res.json(parsedData);

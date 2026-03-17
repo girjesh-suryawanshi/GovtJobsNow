@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, FileText, MessageCircle, Send, Facebook } from "lucide-react";
+import { ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, FileText, MessageCircle, Send, Facebook, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,16 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
 
+interface JobPosition {
+  id: string;
+  positionName: string;
+  qualification: string;
+  experienceRequired?: string;
+  salaryRange?: string;
+  numberOfVacancies: number;
+  specificRequirements?: string;
+}
+
 export default function JobDetail() {
   const { id } = useParams();
   const [showExamCalendar, setShowExamCalendar] = useState(false);
@@ -26,6 +36,15 @@ export default function JobDetail() {
     queryFn: async () => {
       const response = await apiRequest("GET", `/api/jobs/${id}`);
       return response.json() as Promise<Job>;
+    },
+  });
+
+  const { data: positions = [] } = useQuery({
+    queryKey: ["/api/jobs", id, "positions"],
+    enabled: !!job,
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/jobs/${id}/positions`);
+      return response.json() as Promise<JobPosition[]>;
     },
   });
 
@@ -219,6 +238,58 @@ export default function JobDetail() {
                   </div>
                 </div>
               </div>
+
+              {/* Multiple Positions Section */}
+              {positions.length > 0 && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-blue-600" />
+                    Available Positions
+                  </h3>
+                  <div className="space-y-4">
+                    {positions.map((position) => (
+                      <div key={position.id} className="bg-blue-50 rounded-lg p-4 border border-blue-100">
+                        <div className="flex flex-wrap items-center gap-3 mb-3">
+                          <h4 className="text-lg font-semibold text-blue-900">
+                            {position.positionName}
+                          </h4>
+                          <Badge variant="outline" className="bg-white text-blue-700 border-blue-200">
+                            {position.numberOfVacancies} {position.numberOfVacancies === 1 ? 'vacancy' : 'vacancies'}
+                          </Badge>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="flex items-start gap-2">
+                            <span className="text-sm font-medium text-gray-500 mt-0.5">Qualification:</span>
+                            <span className="text-sm text-gray-900">{position.qualification}</span>
+                          </div>
+                          
+                          {position.experienceRequired && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-sm font-medium text-gray-500 mt-0.5">Experience:</span>
+                              <span className="text-sm text-gray-900">{position.experienceRequired}</span>
+                            </div>
+                          )}
+                          
+                          {position.salaryRange && (
+                            <div className="flex items-start gap-2">
+                              <span className="text-sm font-medium text-gray-500 mt-0.5">Salary:</span>
+                              <span className="text-sm text-gray-900">{position.salaryRange}</span>
+                            </div>
+                          )}
+                          
+                          {position.specificRequirements && (
+                            <div className="col-span-1 md:col-span-2 flex items-start gap-2">
+                              <span className="text-sm font-medium text-gray-500 mt-0.5">Requirements:</span>
+                              <span className="text-sm text-gray-900">{position.specificRequirements}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {job.description && (
                 <div>

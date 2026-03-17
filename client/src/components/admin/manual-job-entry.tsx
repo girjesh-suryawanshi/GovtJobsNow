@@ -392,15 +392,26 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         body: JSON.stringify({ rawText: text }),
       });
 
-      if (extractResponse.ok) {
-        const data = await extractResponse.json();
-        setFormData(prev => ({
-          ...prev,
-          ...data,
-          sourceUrl: scrapeUrl // Automatically pre-fill the source URL field too
-        }));
-        toast({ title: "Pipeline Successful", description: "URL Scraped and Job details organized automatically. Please review carefully." });
-      } else {
+        if (extractResponse.ok) {
+          const data = await extractResponse.json();
+          const { jobPositions: extractedPositions, useMultiplePositions: aiDetectedMulti, ...jobData } = data;
+          
+          setFormData(prev => ({
+            ...prev,
+            ...jobData,
+            sourceUrl: scrapeUrl // Automatically pre-fill the source URL field too
+          }));
+
+          if (aiDetectedMulti && extractedPositions && extractedPositions.length > 0) {
+            setUseMultiplePositions(true);
+            setJobPositions(extractedPositions.map((pos: any) => ({
+              ...pos,
+              id: pos.id || crypto.randomUUID()
+            })));
+          }
+
+          toast({ title: "Pipeline Successful", description: "URL Scraped and Job details organized automatically. Please review carefully." });
+        } else {
         throw new Error("Failed to extract data from scraped text");
       }
 
@@ -432,7 +443,18 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, ...data }));
+        const { jobPositions: extractedPositions, useMultiplePositions: aiDetectedMulti, ...jobData } = data;
+        
+        setFormData(prev => ({ ...prev, ...jobData }));
+
+        if (aiDetectedMulti && extractedPositions && extractedPositions.length > 0) {
+          setUseMultiplePositions(true);
+          setJobPositions(extractedPositions.map((pos: any) => ({
+            ...pos,
+            id: pos.id || crypto.randomUUID()
+          })));
+        }
+
         toast({ title: "Extraction Successful", description: "Job details have been organized. Please review before publishing." });
       } else {
         throw new Error("Failed to extract");
