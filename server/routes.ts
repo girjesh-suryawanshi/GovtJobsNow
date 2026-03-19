@@ -1154,35 +1154,6 @@ Allow: /`);
     }
   });
 
-  // Get all admin users
-  app.get("/api/admin/users", async (req, res) => {
-    const token = req.headers.authorization?.replace("Bearer ", "");
-    const adminId = requireAdminAuth(token);
-
-    if (!adminId) {
-      return res.status(401).json({ message: "Authentication required" });
-    }
-
-    try {
-      const adminUsers = await adminStorage.getAllAdminUsers();
-
-      // Remove password field from response
-      const safeUsers = adminUsers.map(user => ({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        role: user.role,
-        isActive: user.isActive,
-        lastLogin: user.lastLogin,
-        createdAt: user.createdAt
-      }));
-
-      res.json(safeUsers);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch admin users", error });
-    }
-  });
-
   // Update job post (admin only)
   app.put("/api/admin/jobs/:id", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
