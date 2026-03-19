@@ -73,6 +73,8 @@ services:
       PORT: 3000
       TZ: Asia/Kolkata
       BASE_URL: https://govtjobnow.com
+      # Ensure DATABASE_URL uses the container name 'postgres' for internal networking
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-deergh}@postgres:5432/govtjobsnow
       
     depends_on:
       postgres:

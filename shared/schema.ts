@@ -28,6 +28,9 @@ export const jobs = pgTable("jobs", {
   applicationStartDate: text("application_start_date"),
   vacancyBreakdown: text("vacancy_breakdown"),
   notificationFileUrl: text("notification_file_url"),
+  // SEO-specific enrichment fields
+  prepGuide: text("prep_guide"),
+  syllabus: text("syllabus"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

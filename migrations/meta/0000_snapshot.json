@@ -1,0 +1,892 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.exams": {
+      "name": "exams",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "conducting_organization": {
+          "name": "conducting_organization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "exam_date": {
+          "name": "exam_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registration_start_date": {
+          "name": "registration_start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "registration_end_date": {
+          "name": "registration_end_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "application_fee": {
+          "name": "application_fee",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exam_pattern": {
+          "name": "exam_pattern",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "eligibility": {
+          "name": "eligibility",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "official_website": {
+          "name": "official_website",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "results_date": {
+          "name": "results_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "admit_card_date": {
+          "name": "admit_card_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "syllabus": {
+          "name": "syllabus",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration": {
+          "name": "duration",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "total_marks": {
+          "name": "total_marks",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exam_mode": {
+          "name": "exam_mode",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "languages_available": {
+          "name": "languages_available",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "exams_id_not_null": {
+          "name": "exams_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "exams_title_not_null": {
+          "name": "exams_title_not_null",
+          "value": "NOT NULL title"
+        },
+        "exams_conducting_organization_not_null": {
+          "name": "exams_conducting_organization_not_null",
+          "value": "NOT NULL conducting_organization"
+        },
+        "exams_exam_date_not_null": {
+          "name": "exams_exam_date_not_null",
+          "value": "NOT NULL exam_date"
+        },
+        "exams_registration_start_date_not_null": {
+          "name": "exams_registration_start_date_not_null",
+          "value": "NOT NULL registration_start_date"
+        },
+        "exams_registration_end_date_not_null": {
+          "name": "exams_registration_end_date_not_null",
+          "value": "NOT NULL registration_end_date"
+        },
+        "exams_eligibility_not_null": {
+          "name": "exams_eligibility_not_null",
+          "value": "NOT NULL eligibility"
+        },
+        "exams_official_website_not_null": {
+          "name": "exams_official_website_not_null",
+          "value": "NOT NULL official_website"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.extraction_templates": {
+      "name": "extraction_templates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "domain": {
+          "name": "domain",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "selectors": {
+          "name": "selectors",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "patterns": {
+          "name": "patterns",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "success_rate": {
+          "name": "success_rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "extraction_templates_id_not_null": {
+          "name": "extraction_templates_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "extraction_templates_name_not_null": {
+          "name": "extraction_templates_name_not_null",
+          "value": "NOT NULL name"
+        },
+        "extraction_templates_domain_not_null": {
+          "name": "extraction_templates_domain_not_null",
+          "value": "NOT NULL domain"
+        },
+        "extraction_templates_selectors_not_null": {
+          "name": "extraction_templates_selectors_not_null",
+          "value": "NOT NULL selectors"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "full_name": {
+          "name": "full_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false,
+          "name": "users_email_unique"
+        }
+      },
+      "checkConstraints": {
+        "users_id_not_null": {
+          "name": "users_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "users_full_name_not_null": {
+          "name": "users_full_name_not_null",
+          "value": "NOT NULL full_name"
+        },
+        "users_email_not_null": {
+          "name": "users_email_not_null",
+          "value": "NOT NULL email"
+        },
+        "users_password_not_null": {
+          "name": "users_password_not_null",
+          "value": "NOT NULL password"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.job_positions": {
+      "name": "job_positions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position_name": {
+          "name": "position_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "qualification": {
+          "name": "qualification",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "experience_required": {
+          "name": "experience_required",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "salary_range": {
+          "name": "salary_range",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "number_of_vacancies": {
+          "name": "number_of_vacancies",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 1
+        },
+        "specific_requirements": {
+          "name": "specific_requirements",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "job_positions_job_id_jobs_id_fk": {
+          "name": "job_positions_job_id_jobs_id_fk",
+          "tableFrom": "job_positions",
+          "tableTo": "jobs",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "job_positions_id_not_null": {
+          "name": "job_positions_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "job_positions_job_id_not_null": {
+          "name": "job_positions_job_id_not_null",
+          "value": "NOT NULL job_id"
+        },
+        "job_positions_position_name_not_null": {
+          "name": "job_positions_position_name_not_null",
+          "value": "NOT NULL position_name"
+        },
+        "job_positions_qualification_not_null": {
+          "name": "job_positions_qualification_not_null",
+          "value": "NOT NULL qualification"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.admin_users": {
+      "name": "admin_users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'admin'"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "last_login": {
+          "name": "last_login",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "admin_users_username_unique": {
+          "columns": [
+            "username"
+          ],
+          "nullsNotDistinct": false,
+          "name": "admin_users_username_unique"
+        },
+        "admin_users_email_unique": {
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false,
+          "name": "admin_users_email_unique"
+        }
+      },
+      "checkConstraints": {
+        "admin_users_id_not_null": {
+          "name": "admin_users_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "admin_users_username_not_null": {
+          "name": "admin_users_username_not_null",
+          "value": "NOT NULL username"
+        },
+        "admin_users_email_not_null": {
+          "name": "admin_users_email_not_null",
+          "value": "NOT NULL email"
+        },
+        "admin_users_password_not_null": {
+          "name": "admin_users_password_not_null",
+          "value": "NOT NULL password"
+        },
+        "admin_users_role_not_null": {
+          "name": "admin_users_role_not_null",
+          "value": "NOT NULL role"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.url_processing_logs": {
+      "name": "url_processing_logs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "admin_id": {
+          "name": "admin_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "extracted_data": {
+          "name": "extracted_data",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "validated_data": {
+          "name": "validated_data",
+          "type": "json",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error_message": {
+          "name": "error_message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "processing_time_ms": {
+          "name": "processing_time_ms",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_id": {
+          "name": "job_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "url_processing_logs_admin_id_admin_users_id_fk": {
+          "name": "url_processing_logs_admin_id_admin_users_id_fk",
+          "tableFrom": "url_processing_logs",
+          "tableTo": "admin_users",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "admin_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "url_processing_logs_job_id_jobs_id_fk": {
+          "name": "url_processing_logs_job_id_jobs_id_fk",
+          "tableFrom": "url_processing_logs",
+          "tableTo": "jobs",
+          "schemaTo": "public",
+          "columnsFrom": [
+            "job_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "url_processing_logs_id_not_null": {
+          "name": "url_processing_logs_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "url_processing_logs_admin_id_not_null": {
+          "name": "url_processing_logs_admin_id_not_null",
+          "value": "NOT NULL admin_id"
+        },
+        "url_processing_logs_url_not_null": {
+          "name": "url_processing_logs_url_not_null",
+          "value": "NOT NULL url"
+        },
+        "url_processing_logs_status_not_null": {
+          "name": "url_processing_logs_status_not_null",
+          "value": "NOT NULL status"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    },
+    "public.jobs": {
+      "name": "jobs",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "department": {
+          "name": "department",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "qualification": {
+          "name": "qualification",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "deadline": {
+          "name": "deadline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "apply_link": {
+          "name": "apply_link",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "posted_on": {
+          "name": "posted_on",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_url": {
+          "name": "source_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "positions": {
+          "name": "positions",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 1
+        },
+        "salary": {
+          "name": "salary",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "age_limit": {
+          "name": "age_limit",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "application_fee": {
+          "name": "application_fee",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "selection_process": {
+          "name": "selection_process",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "experience_required": {
+          "name": "experience_required",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "job_category": {
+          "name": "job_category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "employment_type": {
+          "name": "employment_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recruiting_organization": {
+          "name": "recruiting_organization",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "application_start_date": {
+          "name": "application_start_date",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vacancy_breakdown": {
+          "name": "vacancy_breakdown",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "notification_file_url": {
+          "name": "notification_file_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "jobs_id_not_null": {
+          "name": "jobs_id_not_null",
+          "value": "NOT NULL id"
+        },
+        "jobs_title_not_null": {
+          "name": "jobs_title_not_null",
+          "value": "NOT NULL title"
+        },
+        "jobs_department_not_null": {
+          "name": "jobs_department_not_null",
+          "value": "NOT NULL department"
+        },
+        "jobs_location_not_null": {
+          "name": "jobs_location_not_null",
+          "value": "NOT NULL location"
+        },
+        "jobs_qualification_not_null": {
+          "name": "jobs_qualification_not_null",
+          "value": "NOT NULL qualification"
+        },
+        "jobs_deadline_not_null": {
+          "name": "jobs_deadline_not_null",
+          "value": "NOT NULL deadline"
+        },
+        "jobs_apply_link_not_null": {
+          "name": "jobs_apply_link_not_null",
+          "value": "NOT NULL apply_link"
+        },
+        "jobs_posted_on_not_null": {
+          "name": "jobs_posted_on_not_null",
+          "value": "NOT NULL posted_on"
+        },
+        "jobs_source_url_not_null": {
+          "name": "jobs_source_url_not_null",
+          "value": "NOT NULL source_url"
+        }
+      },
+      "policies": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {}
+  }
+}

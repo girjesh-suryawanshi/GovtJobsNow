@@ -3,7 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>GovtJobsNow - India's #1 Government Job Portal</title>
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+    <title>GovtJobsNow - Official Job Portal</title>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('SW registered!', reg))
+            .catch(err => console.log('SW registration failed', err));
+        });
+      }
+    </script>
     <meta name="description" content="Find the latest government jobs, exam calendars, syllabus, and admit cards on GovtJobsNow. 100% verified opportunities across banking, railways, defense, and PSU sectors." />
     <meta name="keywords" content="Government Jobs, Sarkari Naukri, SSC Jobs, Railway Jobs, Banking Jobs, UPSC, PSU Jobs, Latest Govt Jobs 2026, Exam Calendar" />
     <meta name="author" content="GovtJobsNow" />

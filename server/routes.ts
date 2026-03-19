@@ -20,6 +20,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.type("text/plain");
     res.send(`User-agent: *
 Allow: /
+Sitemap: https://govtjobsnow.com/sitemap.xml
 
 User-agent: Mediapartners-Google
 Allow: /`);
@@ -437,7 +438,9 @@ Allow: /`);
             "numberOfVacancies": 1 (As number),
             "specificRequirements": "Any specific details"
           }
-        ]
+        ],
+        "prepGuide": "A unique 100-150 word career preparation strategy for this specific role. Do NOT use generic text. Mention specific subjects or skills needed.",
+        "syllabus": "A structured summary of the exam syllabus or key topics to study for this position."
       }
       
       Text: ${rawText}`;

@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "@/contexts/user-context";
+import { PWAProvider } from "@/contexts/pwa-context";
 import Home from "@/pages/home";
 import JobDetail from "@/pages/job-detail";
 import ExamCalendarPage from "@/pages/exam-calendar-page";
@@ -19,6 +20,8 @@ import RailwayJobs from "@/pages/railway-jobs";
 import NotFound from "@/pages/not-found";
 import AboutUs from "@/pages/about-us";
 import CookieBanner from "@/components/cookie-banner";
+import InstallPWA from "@/components/install-pwa";
+import PWAManualGuide from "@/components/pwa-manual-guide";
 
 function Router() {
   return (
@@ -45,11 +48,15 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <UserProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-          <CookieBanner />
-        </TooltipProvider>
+        <PWAProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+            <CookieBanner />
+            <InstallPWA />
+            <PWAManualGuide />
+          </TooltipProvider>
+        </PWAProvider>
       </UserProvider>
     </QueryClientProvider>
   );

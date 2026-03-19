@@ -7,6 +7,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import AuthModal from "@/components/auth-modal";
 import HelpModal from "@/components/help-modal";
 import { useUser } from "@/contexts/user-context";
+import { usePWA } from "@/contexts/pwa-context";
+import { Download } from "lucide-react";
 
 interface HeaderProps {
   onScrollToDepartments?: () => void;
@@ -18,6 +20,11 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'register'>('signin');
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const { isInstallable, installApp, isInstalled } = usePWA();
+  
+  // High-visibility fallback for all mobile/desktop users
+  const isMobileOrDesktop = /iPhone|iPad|iPod|Android|Windows|Mac|Linux/i.test(navigator.userAgent);
+  const shouldShowInstall = (isInstallable || isMobileOrDesktop) && !isInstalled;
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
@@ -81,6 +88,17 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
           {/* Right Actions */}
           <div className="hidden md:flex items-center space-x-3">
             <ThemeToggle />
+            {shouldShowInstall && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950 animate-pulse-subtle"
+                onClick={installApp}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Install App
+              </Button>
+            )}
             {isAuthenticated ? (
               <>
                 {/* User is logged in */}
@@ -129,15 +147,29 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
+          {/* Mobile Right Actions */}
+          <div className="flex lg:hidden items-center space-x-2">
+            {shouldShowInstall && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 animate-pulse-subtle"
+                onClick={installApp}
+                title="Install App"
+              >
+                <Download className="h-5 w-5" />
+              </Button>
+            )}
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
         </div>
 
         {/* Mobile menu */}
@@ -177,8 +209,21 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                 Help Center
               </button>
 
-              <div className="px-4 py-2">
+              <div className="px-4 py-2 flex flex-col gap-2">
                 <ThemeToggle />
+                {shouldShowInstall && (
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start border-blue-200 text-blue-600 hover:bg-blue-50"
+                    onClick={() => {
+                      installApp();
+                      setIsMenuOpen(false);
+                    }}
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Install Official App
+                  </Button>
+                )}
               </div>
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 space-y-2">

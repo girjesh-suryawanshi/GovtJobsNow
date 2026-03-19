@@ -20,7 +20,9 @@ import {
   X,
   Sparkles,
   Loader2,
-  Globe
+  Globe,
+  Building2,
+  Upload
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -324,6 +326,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     recruitingOrganization: "",
     applicationStartDate: "",
     vacancyBreakdown: "",
+    prepGuide: "",
+    syllabus: "",
     notificationFileUrl: ""
   });
 
@@ -399,6 +403,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           setFormData(prev => ({
             ...prev,
             ...jobData,
+            prepGuide: data.prepGuide || "",
+            syllabus: data.syllabus || "",
             sourceUrl: scrapeUrl // Automatically pre-fill the source URL field too
           }));
 
@@ -445,7 +451,12 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         const data = await response.json();
         const { jobPositions: extractedPositions, useMultiplePositions: aiDetectedMulti, ...jobData } = data;
         
-        setFormData(prev => ({ ...prev, ...jobData }));
+        setFormData(prev => ({ 
+          ...prev, 
+          ...jobData,
+          prepGuide: data.prepGuide || "",
+          syllabus: data.syllabus || ""
+        }));
 
         if (aiDetectedMulti && extractedPositions && extractedPositions.length > 0) {
           setUseMultiplePositions(true);
@@ -679,6 +690,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           applicationStartDate: "",
           vacancyBreakdown: "",
           selectionProcess: "",
+          prepGuide: "",
+          syllabus: "",
           notificationFileUrl: ""
         });
 
@@ -723,6 +736,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       applicationStartDate: "",
       vacancyBreakdown: "",
       selectionProcess: "",
+      prepGuide: "",
+      syllabus: "",
       notificationFileUrl: ""
     });
     setJobPositions([{
@@ -1182,13 +1197,13 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="selectionProcess">Selection Process (Optional)</Label>
-                <Input
+              <div className="space-y-2">
+                <Label htmlFor="selectionProcess">Selection Process</Label>
+                <Textarea
                   id="selectionProcess"
-                  value={formData.selectionProcess}
-                  onChange={(e) => handleInputChange('selectionProcess', e.target.value)}
-                  placeholder="e.g., Written Exam + Interview"
+                  placeholder="e.g., CBT, Physical, Interview"
+                  value={formData.selectionProcess || ""}
+                  onChange={(e) => setFormData({ ...formData, selectionProcess: e.target.value })}
                   data-testid="input-selection-process"
                 />
               </div>
@@ -1244,24 +1259,24 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                     <Input
                       type="file"
                       accept=".pdf,image/*"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      className="hidden"
+                      id="file-upload"
                       onChange={handleFileUpload}
-                      disabled={isUploading}
                     />
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="outline"
+                      onClick={() => document.getElementById('file-upload')?.click()}
                       disabled={isUploading}
-                      className="pointer-events-none w-[120px]"
                     >
                       {isUploading ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
                           Uploading...
                         </>
                       ) : (
                         <>
-                          <Plus className="mr-2 h-4 w-4" />
+                          <Upload className="mr-2 h-4 w-4" />
                           Upload File
                         </>
                       )}
@@ -1279,6 +1294,41 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 <p className="text-sm text-gray-500 mt-1">
                   Upload the official notification PDF. It will be explicitly available to download on the job details page.
                 </p>
+              </div>
+
+              {/* SEO Enrichment Section */}
+              <div className="md:col-span-2 space-y-4 pt-6 mt-6 border-t-2 border-blue-100 bg-blue-50/30 p-4 rounded-xl">
+                <div className="flex items-center gap-2 text-blue-800">
+                  <Building2 className="h-6 w-6" />
+                  <h3 className="text-xl font-bold">SEO & AdSense Booster (Unique Content)</h3>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="prepGuide" className="text-blue-900 font-semibold">Preparation Strategy & Tips</Label>
+                    <Textarea
+                      id="prepGuide"
+                      rows={5}
+                      className="bg-white border-blue-200 focus:border-blue-500"
+                      placeholder="AI will generate unique strategy here..."
+                      value={formData.prepGuide || ""}
+                      onChange={(e) => setFormData({ ...formData, prepGuide: e.target.value })}
+                    />
+                    <p className="text-xs text-blue-600 font-medium">✨ This unique content is key for ranking on Google's first page and AdSense approval.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="syllabus" className="text-blue-900 font-semibold">Syllabus Overview</Label>
+                    <Textarea
+                      id="syllabus"
+                      rows={5}
+                      className="bg-white border-blue-200 focus:border-blue-500"
+                      placeholder="AI will generate structured syllabus here..."
+                      value={formData.syllabus || ""}
+                      onChange={(e) => setFormData({ ...formData, syllabus: e.target.value })}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 

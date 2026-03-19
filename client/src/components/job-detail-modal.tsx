@@ -1,418 +1,243 @@
 import { useState, useEffect } from "react";
-import { X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, ExternalLink, Building2, FileText, MessageCircle, Send, Facebook } from "lucide-react";
+import { 
+  X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, 
+  ExternalLink, Building2, FileText, MessageCircle, Send, Facebook, 
+  Sparkles, BookOpen, ShieldCheck, Target 
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import OrganizationLogo from "@/components/organization-logo";
 import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@/types/job";
+import { apiRequest } from "@/lib/api";
 
 interface JobPosition {
-  id: string;
-  positionName: string;
+  id: number;
+  name: string;
+  vacancies: string;
   qualification: string;
-  experienceRequired?: string;
-  salaryRange?: string;
-  numberOfVacancies: number;
-  specificRequirements?: string;
+  experience: string;
+  salary: string;
+  requirements: string[];
 }
 
 interface JobDetailModalProps {
   job: Job;
   isOpen: boolean;
   onClose: () => void;
+  onTrack?: () => void;
 }
 
-export default function JobDetailModal({ job, isOpen, onClose }: JobDetailModalProps) {
+export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDetailModalProps) {
   const [isSaved, setIsSaved] = useState(false);
   const [positions, setPositions] = useState<JobPosition[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(false);
   const { toast } = useToast();
 
-  // Fetch job positions when modal opens
   useEffect(() => {
-    if (isOpen && job?.id) {
-      const fetchPositions = async () => {
-        try {
-          setLoadingPositions(true);
-          const response = await fetch(`/api/jobs/${job.id}/positions`);
-          if (response.ok) {
-            const text = await response.text();
-            if (text.trim() === '') {
-              setPositions([]);
-              return;
-            }
-            const positionsData = JSON.parse(text);
-            setPositions(positionsData);
-          }
-        } catch (error) {
-          console.error('Failed to fetch positions:', error);
-          setPositions([]);
-        } finally {
+    if (isOpen && job.id) {
+      setLoadingPositions(true);
+      fetch(`/api/jobs/${job.id}/positions`)
+        .then(res => res.json())
+        .then(data => {
+          setPositions(data);
           setLoadingPositions(false);
-        }
-      };
-
-      fetchPositions();
+        })
+        .catch(() => setLoadingPositions(false));
     }
-  }, [isOpen, job?.id]);
+  }, [isOpen, job.id]);
 
-  const handleSaveJob = () => {
+  const handleSaveJob = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsSaved(!isSaved);
-    // TODO: Implement save functionality
+    toast({
+      title: isSaved ? "Removed from Watchlist" : "Added to Watchlist",
+      description: job.title
+    });
   };
 
-  const handleShareJob = async () => {
-    const shareUrl = `${window.location.origin}/job/${job.id}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: job.title,
-          text: `Check out this government job: ${job.title}`,
-          url: shareUrl,
-        });
-        toast({
-          title: "Shared successfully",
-          description: "Thank you for sharing!",
-        });
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          console.error('Error sharing:', error);
-          // Fallback to clipboard if sharing fails
-          copyToClipboard(shareUrl);
-        }
-      }
-    } else {
-      copyToClipboard(shareUrl);
+  const handleShare = (platform: string) => {
+    const url = window.location.href;
+    const text = `Check out this job: ${job.title}`;
+    let shareUrl = "";
+
+    switch (platform) {
+      case "whatsapp": shareUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`; break;
+      case "telegram": shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`; break;
+      case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`; break;
     }
+    if (shareUrl) window.open(shareUrl, "_blank");
   };
 
-  const copyToClipboard = async (url: string) => {
-    // Try modern API first if available and in secure context
-    if (navigator.clipboard && window.isSecureContext) {
-      try {
-        await navigator.clipboard.writeText(url);
-        toast({
-          title: "Link copied",
-          description: "The job link has been copied to your clipboard.",
-        });
-        return;
-      } catch (err) {
-        console.warn('Modern clipboard API failed, trying fallback:', err);
-      }
-    }
-
-    // Fallback for insecure contexts or if modern API fails
-    try {
-      const textArea = document.createElement("textarea");
-      textArea.value = url;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
-      textArea.style.top = "0";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      
-      if (successful) {
-        toast({
-          title: "Link copied",
-          description: "The job link has been copied to your clipboard.",
-        });
-      } else {
-        throw new Error("execCommand copy failed");
-      }
-    } catch (err) {
-      console.error('Fallback copy failed:', err);
-      toast({
-        title: "Copy failed",
-        description: "Please copy the URL manually from your browser address bar.",
-        variant: "destructive",
-      });
-    }
+  const handleQuickSyllabus = () => {
+    toast({
+      title: "Syllabus Extracted",
+      description: "You can find the detailed syllabus in the section below.",
+    });
+    const element = document.getElementById('syllabus-section');
+    if (element) element.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleApplyNow = () => {
-    const targetUrl = job.applyLink || job.sourceUrl;
-    window.open(targetUrl, '_blank');
-  };
-
-  const getSafeHostname = (url: string) => {
-    try {
-      return new URL(url).hostname;
-    } catch {
-      return url;
-    }
-  };
+  const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogPortal>
-        <DialogOverlay className="!z-[55]" />
-        <DialogContent 
-          className="w-[calc(100vw-1rem)] sm:w-auto sm:max-w-2xl lg:max-w-4xl max-h-[90svh] sm:max-h-[90vh] overflow-y-auto overflow-x-hidden p-0 !z-[60]" 
-          aria-describedby={job.description ? "job-description" : undefined}
-          onPointerDownOutside={(e) => {
-            // Prevent modal from closing when clicking the floating action button
-            if ((e.target as Element)?.closest('.fixed.bottom-6.right-6.z-50, [data-floating-ui-portal]')) {
-              e.preventDefault();
-            }
-          }}
-        >
-        <DialogTitle className="sr-only">Job Details for {job.title}</DialogTitle>
-        <div className="p-3 sm:p-6 border-b border-gray-200">
-          <div className="flex justify-between items-start gap-3">
-            <div>
-              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 pr-2">{job.title}</h2>
-              <div className="flex flex-wrap gap-2">
-                <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100">
-                  {job.department}
-                </Badge>
-                <Badge variant="secondary" className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  {job.location}
-                </Badge>
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={onClose}
-              className="shrink-0 min-h-[44px] min-w-[44px] h-11 w-11"
-              data-testid="modal-close"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-        
-        <div className="p-3 sm:p-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div className="lg:col-span-2">
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-base sm:text-lg font-semibold mb-3">Job Details</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center">
-                      <span className="text-gray-700">
-                        <span className="font-medium">Qualification:</span> {job.qualification}
-                      </span>
-                    </div>
-                    <div className="flex items-center">
-                      <Users className="text-gray-400 w-5 h-5 mr-3" />
-                      <span className="text-gray-700">
-                        <span className="font-medium">Positions:</span> {job.positions || 'Not specified'}
-                      </span>
-                    </div>
-                    {job.ageLimit && (
-                      <div className="flex items-center">
-                        <Calendar className="text-gray-400 w-5 h-5 mr-3" />
-                        <span className="text-gray-700">
-                          <span className="font-medium">Age Limit:</span> {job.ageLimit}
-                        </span>
-                      </div>
-                    )}
-                    {job.salary && (
-                      <div className="flex items-center">
-                        <IndianRupee className="text-gray-400 w-5 h-5 mr-3" />
-                        <span className="text-gray-700">
-                          <span className="font-medium">Salary:</span> {job.salary}
-                        </span>
-                      </div>
+        <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
+        <DialogContent className="max-w-4xl h-[90vh] p-0 overflow-hidden border-none rounded-3xl shadow-2xl flex flex-col bg-white">
+            {/* Header - Fixed with shrink-0 */}
+            <div className="relative p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 flex justify-between items-start shrink-0">
+              <div className="flex gap-4 sm:gap-6 items-start flex-1">
+                <OrganizationLogo department={job.department} className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl shadow-md bg-white p-1" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Badge className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-lg">
+                      {job.jobCategory || "Government Job"}
+                    </Badge>
+                    {isVerified && (
+                      <Badge className="bg-green-50 text-green-700 border-green-100 flex items-center gap-1.5 px-3 py-1 rounded-lg">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Verified Source
+                      </Badge>
                     )}
                   </div>
+                  <h2 className="text-xl sm:text-3xl font-black text-gray-900 leading-tight mb-2 tracking-tight line-clamp-2">
+                    {job.title}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-400 font-bold uppercase tracking-widest">
+                    <span className="flex items-center gap-1.5 text-blue-600">
+                      <Building2 className="h-4 w-4" /> {job.department}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4" /> {job.location}
+                    </span>
+                  </div>
                 </div>
-                
-                {/* Multiple Positions Section */}
-                {positions.length > 0 && (
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-3 flex items-center gap-2">
-                      <Building2 className="h-5 w-5 text-blue-600" />
-                      Available Positions
-                    </h3>
-                    <div className="space-y-4">
-                      {positions.map((position, index) => (
-                        <div key={position.id} className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
-                          <div className="flex flex-wrap items-center gap-3 mb-3">
-                            <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200">
-                              {position.positionName}
-                            </h4>
-                            <Badge variant="outline" className="text-blue-600 border-blue-300">
-                              {position.numberOfVacancies} {position.numberOfVacancies === 1 ? 'vacancy' : 'vacancies'}
-                            </Badge>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Qualification:</span>
-                              <p className="text-sm text-blue-700 dark:text-blue-300">{position.qualification}</p>
-                            </div>
-                            
-                            {position.experienceRequired && (
-                              <div>
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Experience:</span>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">{position.experienceRequired}</p>
-                              </div>
-                            )}
-                            
-                            {position.salaryRange && (
-                              <div>
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Salary:</span>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">₹{position.salaryRange}</p>
-                              </div>
-                            )}
-                            
-                            {position.specificRequirements && (
-                              <div className="sm:col-span-2">
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Specific Requirements:</span>
-                                <p className="text-sm text-blue-700 dark:text-blue-300">{position.specificRequirements}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                
-                {job.description && (
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-3">Job Description</h3>
-                    <div id="job-description" className="text-gray-700 space-y-2 break-words">
-                      <p className="break-words">{job.description}</p>
-                    </div>
-                  </div>
-                )}
-                
-                {job.selectionProcess && (
-                  <div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-3">Selection Process</h3>
-                    <div className="space-y-2">
-                      {job.selectionProcess.split(',').map((step, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="w-6 h-6 bg-blue-600 text-white rounded-full text-xs flex items-center justify-center mr-3">
-                            {index + 1}
-                          </span>
-                          <span className="text-gray-700">{step.trim()}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
+              <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full h-10 w-10 text-gray-300 hover:text-gray-900 transition-colors">
+                <X className="h-6 w-6" />
+              </Button>
             </div>
-            
-            <div className="order-last lg:order-none">
-              <div className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-3 sm:space-y-4">
-                <div>
-                  <h4 className="font-semibold mb-2">Important Dates</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Posted On:</span>
-                      <span className="font-medium">{job.postedOn}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Last Date:</span>
-                      <span className="font-medium text-red-600">{job.deadline}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {job.applicationFee && (
-                  <div>
-                    <h4 className="font-semibold mb-2">Application Fee</h4>
-                    <p className="text-sm text-gray-700">{job.applicationFee}</p>
-                  </div>
-                )}
-                
-                <div className="pt-4 border-t border-gray-200">
-                  <Button 
-                    className="w-full bg-red-600 hover:bg-red-700 h-11 text-xs sm:text-sm lg:text-base px-2"
-                    onClick={handleApplyNow}
-                    data-testid="apply-now-button"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    Apply Now
-                  </Button>
-                  <p className="text-[10px] text-gray-400 text-center mt-2 break-all px-1">
-                    Via: {getSafeHostname(job.sourceUrl)}
-                  </p>
 
-                  {job.notificationFileUrl && (
-                    <Button
-                      variant="outline"
-                      className="w-full mt-2 bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 h-11 text-sm"
-                      onClick={() => window.open(job.notificationFileUrl as string, '_blank')}
-                    >
-                      <FileText className="h-4 w-4 mr-2" />
-                      Download Notification
-                    </Button>
-                  )}
-                  
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 mt-3">
-                    <Button
-                      variant="outline"
-                      className="flex-1 min-h-[44px] h-11 text-sm"
-                      onClick={handleSaveJob}
-                      data-testid="save-job-button"
-                    >
-                      <Bookmark className={`h-4 w-4 mr-2 ${isSaved ? 'fill-current' : ''}`} />
-                      Save
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 min-h-[44px] h-11 text-sm"
-                      onClick={handleShareJob}
-                      data-testid="share-job-button"
-                    >
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Share
-                    </Button>
+            {/* Content Container - Triple-layer flex for absolute scroll reliability */}
+            <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+              <div className="p-6 sm:p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  {/* Main Content */}
+                  <div className="lg:col-span-2 space-y-10">
+                    {/* Key Highlights */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-blue-50/50 rounded-3xl border border-blue-100/50 shadow-sm shadow-blue-50/50">
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Salary</p>
+                        <p className="text-sm font-black text-blue-900 flex items-center gap-1">
+                          <IndianRupee className="h-3.5 w-3.5" /> {job.salary || "Best in Industry"}
+                        </p>
+                      </div>
+                      <div className="space-y-1 border-l border-blue-100 pl-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Positions</p>
+                        <p className="text-sm font-black text-blue-900 flex items-center gap-1">
+                          <Users className="h-3.5 w-3.5" /> {job.positions}
+                        </p>
+                      </div>
+                      <div className="space-y-1 border-l border-blue-100 pl-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Type</p>
+                        <p className="text-sm font-black text-blue-900">{job.employmentType || "Full-time"}</p>
+                      </div>
+                      <div className="space-y-1 border-l border-blue-100 pl-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Deadline</p>
+                        <p className="text-sm font-black text-orange-600 flex items-center gap-1">
+                          <Calendar className="h-3.5 w-3.5" /> {job.deadline}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <section>
+                      <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
+                         <FileText className="h-4 w-4" /> About Recruitment
+                      </h4>
+                      <div className="prose prose-sm max-w-none text-gray-600 leading-relaxed font-medium">
+                        {job.description}
+                      </div>
+                    </section>
+
+                    {/* Winning Sections */}
+                    {job.prepGuide && (
+                      <section className="p-6 bg-yellow-50/30 rounded-3xl border border-yellow-100/50">
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-yellow-600 mb-4 flex items-center gap-2">
+                           <Sparkles className="h-4 w-4" /> Preparation Strategy
+                        </h4>
+                        <div className="text-sm text-yellow-900/80 font-medium whitespace-pre-line leading-relaxed">
+                          {job.prepGuide}
+                        </div>
+                      </section>
+                    )}
+
+                    {job.syllabus && (
+                      <section id="syllabus-section" className="p-6 bg-purple-50/30 rounded-3xl border border-purple-100/50">
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 mb-4 flex items-center gap-2">
+                           <BookOpen className="h-4 w-4" /> Comprehensive Syllabus
+                        </h4>
+                        <div className="text-sm text-purple-900/80 font-medium whitespace-pre-line leading-relaxed">
+                          {job.syllabus}
+                        </div>
+                      </section>
+                    )}
                   </div>
 
-                  <div className="flex items-center justify-center gap-4 mt-4 py-3 bg-gray-50/50 rounded-lg border border-dashed border-gray-200">
-                    <span className="text-[10px] uppercase tracking-wider text-gray-400 font-bold px-2">Direct Share:</span>
-                    <button
-                      onClick={() => {
-                        const text = `Check out this job: ${job.title}`;
-                        const url = `${window.location.origin}/job/${job.id}`;
-                        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}%20${encodeURIComponent(url)}`, '_blank');
-                      }}
-                      className="p-2 bg-[#25D366] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
-                      title="Share on WhatsApp"
-                    >
-                      <MessageCircle className="h-5 w-5 fill-current" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        const url = `${window.location.origin}/job/${job.id}`;
-                        const text = `Check out this job: ${job.title}`;
-                        window.open(`https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-                      }}
-                      className="p-2 bg-[#0088cc] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
-                      title="Share on Telegram"
-                    >
-                      <Send className="h-5 w-5 fill-current ml-[-2px]" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        const url = `${window.location.origin}/job/${job.id}`;
-                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-                      }}
-                      className="p-2 bg-[#1877F2] text-white rounded-full hover:scale-110 transition-transform shadow-sm"
-                      title="Share on Facebook"
-                    >
-                      <Facebook className="h-5 w-5 fill-current" />
-                    </button>
+                  {/* Sidebar */}
+                  <div className="space-y-8">
+                    <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-6">
+                      <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Actions & Quick Links</h4>
+                      
+                      <div className="space-y-3">
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-12 shadow-xl shadow-blue-100" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                          Apply Now <ExternalLink className="ml-2 h-4 w-4" />
+                        </Button>
+                        
+                        {onTrack && (
+                          <Button variant="outline" className="w-full border-blue-100 text-blue-600 hover:bg-white font-black rounded-2xl h-12" onClick={onTrack}>
+                            <Target className="mr-2 h-4 w-4" /> Track Application
+                          </Button>
+                        )}
+
+                        {job.syllabus && (
+                          <Button variant="outline" className="w-full border-purple-100 text-purple-600 hover:bg-white font-black rounded-2xl h-12" onClick={handleQuickSyllabus}>
+                            <BookOpen className="mr-2 h-4 w-4" /> View Syllabus
+                          </Button>
+                        )}
+                      </div>
+
+                      <Separator className="bg-gray-200/50" />
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex gap-2">
+                          <Button variant="ghost" size="icon" onClick={handleSaveJob} className={`rounded-xl h-10 w-10 ${isSaved ? 'text-orange-500' : 'text-gray-300'}`}>
+                            <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-current' : ''}`} />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleShare('whatsapp')} className="rounded-xl h-10 w-10 text-gray-300 hover:text-green-500">
+                            <MessageCircle className="h-5 w-5" />
+                          </Button>
+                        </div>
+                        <Badge variant="outline" className="border-gray-200 text-gray-400 font-bold text-[10px]">
+                          ID: GJ-{job.id}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="p-6 bg-orange-50/20 rounded-3xl border border-orange-100/30">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-2">Pro Tip</p>
+                      <p className="text-xs text-orange-900/70 font-medium leading-relaxed italic">
+                        "Track this application to receive milestone alerts like Admit Card releases and Result declarations directly on your dashboard."
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </DialogContent>
+        </DialogContent>
       </DialogPortal>
     </Dialog>
   );

@@ -14,6 +14,12 @@ export interface Job {
   applicationFee?: string | null;
   description?: string | null;
   selectionProcess?: string | null;
+  experienceRequired?: string | null;
+  jobCategory?: string | null;
+  employmentType?: string | null;
+  recruitingOrganization?: string | null;
+  prepGuide?: string | null;
+  syllabus?: string | null;
   notificationFileUrl?: string | null;
   createdAt?: Date | string | null;
 }

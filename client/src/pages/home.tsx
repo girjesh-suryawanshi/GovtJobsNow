@@ -14,10 +14,12 @@ import JobAlerts from "@/components/job-alerts";
 import JobTracker from "@/components/job-tracker";
 import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
+import UserProfileModal from "@/components/user-profile-modal";
+import { useUserProfile } from "@/hooks/use-user-profile";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Filter } from "lucide-react";
+import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Filter, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
 
@@ -40,7 +42,10 @@ export default function Home() {
   const [showComparison, setShowComparison] = useState(false);
   const [showJobAlerts, setShowJobAlerts] = useState(false);
   const [showJobTracker, setShowJobTracker] = useState(false);
+  const [jobToTrack, setJobToTrack] = useState<Job | undefined>(undefined);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const { profile, saveProfile } = useUserProfile();
 
   const { data: jobsData, isLoading, error } = useQuery({
     queryKey: ["/api/jobs", searchParams],
@@ -137,6 +142,58 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <StatsDashboard />
       </div>
+
+      {/* AI Eligibility Setup Banner */}
+      {!profile && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+              <Target className="h-32 w-32" />
+            </div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-left">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
+                  <Sparkles className="h-6 w-6 text-yellow-300" />
+                  See Jobs You Are Eligible For!
+                </h3>
+                <p className="text-blue-100 max-w-xl">
+                  Set up your profile once & we'll instantly check age limits, qualifications, and category relaxations for every job.
+                </p>
+              </div>
+              <Button 
+                onClick={() => setIsProfileModalOpen(true)}
+                className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+              >
+                Set Up AI Matcher
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {profile && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-blue-900/50 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
+                <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-white">Matching for your profile</p>
+                <p className="text-xs text-gray-500">{profile.qualification} • {profile.category} • Born {profile.dob}</p>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setIsProfileModalOpen(true)}
+              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+            >
+              Edit Profile
+            </Button>
+          </div>
+        </div>
+      )}
       
       <section className="py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -274,6 +331,10 @@ export default function Home() {
                         job={job}
                         onClick={() => setSelectedJob(job)}
                         onCompare={() => handleCompareJob(job)}
+                        onTrack={() => {
+                          setJobToTrack(job);
+                          setShowJobTracker(true);
+                        }}
                         isComparing={compareJobs.some(j => j.id === job.id)}
                       />
                     ))}
@@ -343,6 +404,10 @@ export default function Home() {
           job={selectedJob}
           isOpen={!!selectedJob}
           onClose={() => setSelectedJob(null)}
+          onTrack={() => {
+             setJobToTrack(selectedJob);
+             setShowJobTracker(true);
+          }}
         />
       )}
       
@@ -370,8 +435,11 @@ export default function Home() {
       
       <JobTracker
         isOpen={showJobTracker}
-        onClose={() => setShowJobTracker(false)}
-        jobToAdd={selectedJob || undefined}
+        onClose={() => {
+          setShowJobTracker(false);
+          setJobToTrack(undefined);
+        }}
+        jobToAdd={jobToTrack}
       />
       
       
@@ -384,6 +452,13 @@ export default function Home() {
       <FeatureShowcase />
       
       <Footer />
+
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        onSave={saveProfile}
+        initialProfile={profile}
+      />
     </div>
   );
 }
