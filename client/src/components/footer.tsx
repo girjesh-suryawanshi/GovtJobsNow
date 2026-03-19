@@ -1,8 +1,14 @@
-import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Star, Shield, Clock, Users } from "lucide-react";
+import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Star, Shield, Clock, Users, BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Footer() {
+  const { data: stats } = useQuery<{ totalVisitors: number; uniqueVisitors: number }>({
+    queryKey: ["/api/visitor-stats"],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
   return (
     <footer className="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-gray-300 py-16 mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -230,12 +236,16 @@ export default function Footer() {
             <p className="text-gray-400 text-sm text-center md:text-left">
               &copy; 2025 GovtJobsNow. All rights reserved. India's most trusted government job portal.
             </p>
-            <div className="flex items-center gap-4 text-sm text-gray-400">
-              <span className="flex items-center gap-2">
+            <div className="flex items-center gap-6 text-sm text-gray-400">
+              <span className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">
+                <BarChart3 className="h-4 w-4 text-blue-400" />
+                <span className="font-bold text-blue-300">{stats?.uniqueVisitors?.toLocaleString() || "..."}</span> Unique Visitors
+              </span>
+              <span className="hidden sm:flex items-center gap-2">
                 <Shield className="h-4 w-4 text-green-400" />
                 Secure & Verified
               </span>
-              <span className="flex items-center gap-2">
+              <span className="hidden sm:flex items-center gap-2">
                 <Clock className="h-4 w-4 text-blue-400" />
                 Updated Daily
               </span>

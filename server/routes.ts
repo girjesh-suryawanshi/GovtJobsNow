@@ -12,8 +12,41 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import express from "express";
+import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Visitor Tracking Middleware
+  app.use(async (req, res, next) => {
+    // Only track non-API and non-static asset requests to avoid over-counting
+    if (req.method === "GET" && 
+        !req.path.startsWith("/api") && 
+        !req.path.startsWith("/uploads") && 
+        !req.path.includes(".")) {
+      
+      try {
+        const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
+        const userAgent = req.headers["user-agent"] || "";
+        const ipHash = crypto.createHash("sha256").update(`${ip}-${userAgent}`).digest("hex");
+        
+        // Manual cookie parsing since cookie-parser might not be installed
+        const cookies = req.headers.cookie || "";
+        const hasVisitorCookie = cookies.split(";").some(c => c.trim().startsWith("gj_visitor="));
+        
+        const isNewSession = !hasVisitorCookie;
+        
+        if (isNewSession) {
+          // Set a long-lived cookie (1 month)
+          res.cookie("gj_visitor", ipHash, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, path: "/" });
+          await storage.recordVisitor(ipHash, true);
+        } else {
+          await storage.recordVisitor(ipHash, false);
+        }
+      } catch (error) {
+        console.error("Visitor tracking error:", error);
+      }
+    }
+    next();
+  });
 
   // Serve strict robots.txt for AdSense & generic bots
   app.get("/robots.txt", (req, res) => {
@@ -192,6 +225,16 @@ Allow: /`);
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats", error });
+    }
+  });
+
+  // Public visitor stats for footer
+  app.get("/api/visitor-stats", async (req, res) => {
+    try {
+      const stats = await storage.getVisitorStats();
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch visitor stats", error });
     }
   });
 
@@ -378,6 +421,79 @@ Allow: /`);
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch stats", error });
+    }
+  });
+
+  // Get all signup users (admin only)
+  app.get("/api/admin/users", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users.map(u => ({ id: u.id, fullName: u.fullName, email: u.email, phone: u.phone, createdAt: u.createdAt })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch users", error });
+    }
+  });
+
+  // Delete signup user (admin only)
+  app.delete("/api/admin/users/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const success = await storage.deleteUser(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete user", error });
+    }
+  });
+
+  // Get all admin users (admin only)
+  app.get("/api/admin/admins", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const admins = await adminStorage.getAllAdminUsers();
+      res.json(admins.map(a => ({ id: a.id, username: a.username, email: a.email, role: a.role, createdAt: a.createdAt })));
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch admins", error });
+    }
+  });
+
+  // Delete admin user (admin only)
+  app.delete("/api/admin/admins/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const currentAdminId = requireAdminAuth(token);
+    
+    if (!currentAdminId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Prevent deleting self
+    if (currentAdminId === req.params.id) {
+      return res.status(400).json({ message: "You cannot delete your own admin account" });
+    }
+
+    try {
+      const success = await adminStorage.deleteAdminUser(req.params.id);
+      if (!success) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+      res.json({ message: "Admin deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete admin", error });
     }
   });
 

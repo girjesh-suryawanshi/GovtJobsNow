@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer, boolean, json } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean, json, serial } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -231,6 +231,21 @@ export const exams = pgTable("exams", {
   examMode: text("exam_mode"), // Online/Offline/Both
   languagesAvailable: text("languages_available"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Site Analytics Table
+export const siteAnalytics = pgTable("site_analytics", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  totalVisitors: integer("total_visitors").default(0).notNull(),
+  uniqueVisitors: integer("unique_visitors").default(0).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Visitor Logs for Unique Tracking (IP/Session based)
+export const visitorLogs = pgTable("visitor_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ipHash: text("ip_hash").unique().notNull(),
+  visitedAt: timestamp("visited_at").defaultNow().notNull(),
 });
 
 export const insertExamSchema = createInsertSchema(exams).omit({

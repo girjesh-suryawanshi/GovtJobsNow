@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -6,7 +6,9 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>; // Added for admin management
   createUser(user: InsertUser): Promise<User>;
+  deleteUser(id: string): Promise<boolean>; // Added for admin management
   
   // Job-related methods
   getJob(id: string): Promise<Job | undefined>;
@@ -35,6 +37,10 @@ export interface IStorage {
   getUrlProcessingLogs(adminId: string): Promise<any[]>;
   getExtractionTemplates(): Promise<any[]>;
   createUrlProcessingLog(log: any): Promise<any>;
+
+  // Site Analytics methods
+  getVisitorStats(): Promise<{ totalVisitors: number; uniqueVisitors: number }>;
+  recordVisitor(ipHash: string, isUnique: boolean): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -59,6 +65,12 @@ export class MemStorage implements IStorage {
     const user = { ...insertUser, id, isActive: true, createdAt: new Date(), updatedAt: new Date(), phone: insertUser.phone || null };
     this.users.set(id, user as User);
     return user as User;
+  }
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values()).sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+  }
+  async deleteUser(id: string): Promise<boolean> {
+    return this.users.delete(id);
   }
 
   async getJob(id: string): Promise<Job | undefined> { return this.jobs.get(id); }
@@ -114,6 +126,11 @@ export class MemStorage implements IStorage {
   async getUrlProcessingLogs(adminId: string): Promise<any[]> { return []; }
   async getExtractionTemplates(): Promise<any[]> { return []; }
   async createUrlProcessingLog(log: any): Promise<any> { return log; }
+  
+  async getVisitorStats(): Promise<{ totalVisitors: number; uniqueVisitors: number }> {
+    return { totalVisitors: 0, uniqueVisitors: 0 };
+  }
+  async recordVisitor(ipHash: string, isUnique: boolean): Promise<void> {}
 }
 
 export class DatabaseStorage implements IStorage {
@@ -129,6 +146,13 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await db.delete(users).where(eq(users.id, id));
+    return (result.rowCount ?? 0) > 0;
+  }
   async getJob(id: string): Promise<Job | undefined> {
     const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
     return job || undefined;
@@ -138,15 +162,15 @@ export class DatabaseStorage implements IStorage {
   }
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> {
     const { normalizeFilters, jobMatchesFilters } = await import('@shared/filters');
-    let query = db.select().from(jobs);
+    let query: any = db.select().from(jobs);
     const conditions = [];
     if (params.search) {
       conditions.push(sql`(${jobs.title} ILIKE ${`%${params.search}%`} OR ${jobs.department} ILIKE ${`%${params.search}%`})`);
     }
     if (conditions.length > 0) query = query.where(and(...conditions));
-    const allJobs = await query;
+    const allJobs = await query as Job[];
     const normalizedFilters = normalizeFilters(params);
-    const filteredJobs = allJobs.filter(job => jobMatchesFilters(job, normalizedFilters));
+    const filteredJobs = allJobs.filter((job: Job) => jobMatchesFilters(job, normalizedFilters));
     const page = params.page || 1;
     const limit = params.limit || 10;
     return { jobs: filteredJobs.slice((page - 1) * limit, page * limit), total: filteredJobs.length };
@@ -206,6 +230,56 @@ export class DatabaseStorage implements IStorage {
   async createUrlProcessingLog(log: any): Promise<any> {
     const [newLog] = await db.insert(urlProcessingLogs).values(log).returning();
     return newLog;
+  }
+
+  // Site Analytics Implementation
+  async getVisitorStats(): Promise<{ totalVisitors: number; uniqueVisitors: number }> {
+    const STATS_ID = "00000000-0000-0000-0000-000000000001";
+    try {
+      const [stats] = await db.select().from(siteAnalytics).where(eq(siteAnalytics.id, STATS_ID));
+      if (!stats) {
+        // Initialize if doesn't exist
+        const [newStats] = await db.insert(siteAnalytics).values({ 
+          id: STATS_ID, 
+          totalVisitors: 0, 
+          uniqueVisitors: 0 
+        }).returning();
+        return { totalVisitors: newStats.totalVisitors, uniqueVisitors: newStats.uniqueVisitors };
+      }
+      return { totalVisitors: stats.totalVisitors, uniqueVisitors: stats.uniqueVisitors };
+    } catch (error) {
+      console.error('Error fetching visitor stats:', error);
+      return { totalVisitors: 0, uniqueVisitors: 0 };
+    }
+  }
+
+  async recordVisitor(ipHash: string, isUnique: boolean): Promise<void> {
+    const STATS_ID = "00000000-0000-0000-0000-000000000001";
+    try {
+      // 1. Log the visit if it's a new combination for this DB
+      const result = await db.insert(visitorLogs)
+        .values({ ipHash })
+        .onConflictDoNothing({ target: visitorLogs.ipHash })
+        .returning();
+      
+      const isNewIpForDB = result.length > 0;
+
+      // 2. Increment counts in site_analytics
+      const stats = await this.getVisitorStats();
+      
+      // Increment unique if middleware said it's a new session OR if it's a new IP/UA we haven't seen in this DB yet
+      const incrementUnique = isUnique || isNewIpForDB;
+
+      await db.update(siteAnalytics)
+        .set({ 
+          totalVisitors: stats.totalVisitors + 1,
+          uniqueVisitors: incrementUnique ? stats.uniqueVisitors + 1 : stats.uniqueVisitors,
+          updatedAt: new Date()
+        })
+        .where(eq(siteAnalytics.id, STATS_ID));
+    } catch (error) {
+      console.error('Error recording visitor:', error);
+    }
   }
 }
 

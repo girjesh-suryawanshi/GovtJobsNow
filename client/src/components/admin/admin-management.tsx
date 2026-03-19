@@ -71,7 +71,7 @@ export default function AdminManagement() {
   const fetchAdminUsers = async () => {
     try {
       const token = localStorage.getItem("admin_token");
-      const response = await fetch("/api/admin/users", {
+      const response = await fetch("/api/admin/admins", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -133,6 +133,41 @@ export default function AdminManagement() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDeleteAdmin = async (adminId: string) => {
+    if (!confirm("Are you sure you want to delete this admin user? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch(`/api/admin/admins/${adminId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Admin Deleted",
+          description: "Admin user has been deleted successfully.",
+        });
+        fetchAdminUsers();
+      } else {
+        const error = await response.json();
+        toast({
+          title: "Delete Failed",
+          description: error.message || "Failed to delete admin",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred while deleting admin",
+        variant: "destructive",
+      });
     }
   };
 
@@ -448,6 +483,14 @@ export default function AdminManagement() {
                         Last login: {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Never"}
                       </p>
                     </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-red-600 hover:text-red-700 h-8 w-8 p-0"
+                      onClick={() => handleDeleteAdmin(user.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 ))}
               </div>

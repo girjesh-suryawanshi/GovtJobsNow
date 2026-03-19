@@ -90,9 +90,8 @@ class AdminStorage {
     const adminIndex = this.adminUsers.findIndex(user => user.id === id);
     if (adminIndex === -1) return false;
 
-    // Don't actually delete, just mark as inactive
-    this.adminUsers[adminIndex].isActive = false;
-    this.adminUsers[adminIndex].updatedAt = new Date();
+    // Actual deletion as requested
+    this.adminUsers.splice(adminIndex, 1);
     return true;
   }
 
