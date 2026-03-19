@@ -81,7 +81,7 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
     >
       <CardContent className="p-5">
         <div className="flex items-start gap-4 mb-4">
-          <OrganizationLogo department={job.department} className="h-12 w-12 rounded-xl shadow-sm bg-white p-1" />
+          <OrganizationLogo department={job.department} recruitingOrganization={job.recruitingOrganization} className="h-12 w-12 rounded-xl shadow-sm bg-white p-1" />
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2 leading-snug">{job.title}</h3>
             <p className="text-blue-600 font-semibold text-xs uppercase tracking-wider">{job.department}</p>

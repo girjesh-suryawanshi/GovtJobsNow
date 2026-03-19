@@ -21,6 +21,8 @@ export interface Job {
   prepGuide?: string | null;
   syllabus?: string | null;
   notificationFileUrl?: string | null;
+  applicationStartDate?: string | null;
+  vacancyBreakdown?: string | null;
   createdAt?: Date | string | null;
 }
 

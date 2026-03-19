@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { 
   X, MapPin, Users, Calendar, IndianRupee, Bookmark, Share2, 
   ExternalLink, Building2, FileText, MessageCircle, Send, Facebook, 
-  Sparkles, BookOpen, ShieldCheck, Target 
+  Sparkles, BookOpen, ShieldCheck, Target, Download, ArrowUpRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,7 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
   const [isSaved, setIsSaved] = useState(false);
   const [positions, setPositions] = useState<JobPosition[]>([]);
   const [loadingPositions, setLoadingPositions] = useState(false);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -81,6 +83,11 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
     if (element) element.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleViewFullDetails = () => {
+    onClose();
+    setLocation(`/job/${job.id}`);
+  };
+
   const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');
 
   return (
@@ -91,7 +98,7 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
             {/* Header - Fixed with shrink-0 */}
             <div className="relative p-6 sm:p-8 bg-gradient-to-br from-gray-50 to-white border-b border-gray-100 flex justify-between items-start shrink-0">
               <div className="flex gap-4 sm:gap-6 items-start flex-1">
-                <OrganizationLogo department={job.department} className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl shadow-md bg-white p-1" />
+                <OrganizationLogo department={job.department} recruitingOrganization={job.recruitingOrganization} className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl shadow-md bg-white p-1" />
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Badge className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1 rounded-lg">
@@ -146,12 +153,118 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                         <p className="text-sm font-black text-blue-900">{job.employmentType || "Full-time"}</p>
                       </div>
                       <div className="space-y-1 border-l border-blue-100 pl-4">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Experience</p>
+                        <p className="text-sm font-black text-blue-900">{job.experienceRequired || "Not Specified"}</p>
+                      </div>
+                      <div className="space-y-1 border-l border-blue-100 pl-4">
                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Deadline</p>
-                        <p className="text-sm font-black text-orange-600 flex items-center gap-1">
+                        <p className="text-sm font-black text-orange-600 flex items-center gap-1 shrink-0 whitespace-nowrap">
                           <Calendar className="h-3.5 w-3.5" /> {job.deadline}
                         </p>
                       </div>
                     </div>
+
+                    {/* Eligibility & Fees */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
+                      <div className="space-y-4">
+                         <h5 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                           <Target className="h-4 w-4 text-blue-500" /> Eligibility Criteria
+                         </h5>
+                         <div className="space-y-3">
+                           <div>
+                             <p className="text-[10px] font-bold text-gray-400 uppercase">Age Limit</p>
+                             <p className="text-sm font-black text-gray-900">{job.ageLimit || "As per rules"}</p>
+                           </div>
+                           <div>
+                             <p className="text-[10px] font-bold text-gray-400 uppercase">Qualification</p>
+                             <p className="text-sm font-black text-gray-900">{job.qualification}</p>
+                           </div>
+                         </div>
+                      </div>
+                      <div className="space-y-4 sm:border-l sm:border-gray-200 sm:pl-6">
+                         <h5 className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                           <IndianRupee className="h-4 w-4 text-green-500" /> Application Details
+                         </h5>
+                         <div className="space-y-3">
+                           <div>
+                             <p className="text-[10px] font-bold text-gray-400 uppercase">Application Fee</p>
+                              <p className="text-sm font-extrabold text-gray-900">{job.applicationFee || "Check Notification"}</p>
+                           </div>
+                           <div>
+                             <p className="text-[10px] font-bold text-gray-400 uppercase">Start Date</p>
+                              <p className="text-sm font-extrabold text-gray-900">{job.applicationStartDate || "Refer to link"}</p>
+                           </div>
+                         </div>
+                      </div>
+                    </div>
+
+                    {/* Positions Section */}
+                    {positions.length > 0 && (
+                      <section className="space-y-4">
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
+                           <Users className="h-4 w-4" /> Available Positions ({positions.length})
+                        </h4>
+                        <div className="border rounded-2xl overflow-hidden bg-white shadow-sm overflow-x-auto">
+                          <table className="w-full text-left text-xs sm:text-sm">
+                            <thead className="bg-gray-50/50 border-b border-gray-100">
+                              <tr>
+                                <th className="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-gray-400">Position & Salary</th>
+                                <th className="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-gray-400">Eligibility</th>
+                                <th className="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-gray-400 text-center">Total</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50 font-medium">
+                              {positions.map((pos: any) => (
+                                <tr key={pos.id} className="hover:bg-blue-50/30 transition-colors align-top">
+                                  <td className="px-4 py-4 min-w-[200px]">
+                                    <p className="font-black text-gray-900 mb-1">{pos.positionName}</p>
+                                    <p className="text-[10px] text-blue-600 font-bold uppercase tracking-tight"> {pos.salaryRange || "As per rules"}</p>
+                                  </td>
+                                  <td className="px-4 py-4 min-w-[200px] space-y-1">
+                                    <p className="text-gray-900 font-bold">{pos.qualification}</p>
+                                    <p className="text-[10px] text-gray-400">Exp: {pos.experienceRequired || "N/A"}</p>
+                                    {pos.specificRequirements && (
+                                      <p className="text-[10px] text-gray-500 italic mt-2 border-l border-gray-100 pl-2">
+                                        Note: {pos.specificRequirements}
+                                      </p>
+                                    )}
+                                  </td>
+                                  <td className="px-4 py-4 text-center">
+                                    <Badge variant="outline" className="bg-blue-50 text-blue-600 border-none font-black text-[10px]">
+                                      {pos.numberOfVacancies || 1}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </section>
+                    )}
+
+                    {/* Vacancy Breakdown */}
+                    {job.vacancyBreakdown && (
+                      <section className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
+                           <Users className="h-4 w-4 text-blue-400" /> Vacancy Breakdown
+                        </h4>
+                        <p className="text-sm text-gray-600 font-medium whitespace-pre-line leading-relaxed italic">
+                          {job.vacancyBreakdown}
+                        </p>
+                      </section>
+                    )}
+
+                    {/* Selection Process */}
+                    {job.selectionProcess && (
+                      <section className="p-6 bg-blue-50/20 rounded-3xl border border-blue-100/30">
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-blue-600 mb-4 flex items-center gap-2">
+                           <Target className="h-4 w-4" /> Selection Process
+                        </h4>
+                        <p className="text-sm text-blue-900/80 font-medium leading-relaxed">
+                          {job.selectionProcess}
+                        </p>
+                      </section>
+                    )}
 
                     {/* Description */}
                     <section>
@@ -193,9 +306,19 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Actions & Quick Links</h4>
                       
                       <div className="space-y-3">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-12 shadow-xl shadow-blue-100" onClick={() => window.open(job.sourceUrl, '_blank')}>
-                          Apply Now <ExternalLink className="ml-2 h-4 w-4" />
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl h-12 shadow-xl shadow-blue-100 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                          Apply Online <ExternalLink className="ml-2 h-4 w-4" />
                         </Button>
+
+                        <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 font-extrabold rounded-2xl h-12 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={handleViewFullDetails}>
+                          View Full Details <ArrowUpRight className="ml-2 h-4 w-4" />
+                        </Button>
+
+                        {job.notificationFileUrl && (
+                          <Button variant="outline" className="w-full border-gray-200 text-gray-600 hover:bg-white font-black rounded-2xl h-12" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
+                             Download Notification <Download className="ml-2 h-4 w-4 text-blue-500" />
+                          </Button>
+                        )}
                         
                         {onTrack && (
                           <Button variant="outline" className="w-full border-blue-100 text-blue-600 hover:bg-white font-black rounded-2xl h-12" onClick={onTrack}>

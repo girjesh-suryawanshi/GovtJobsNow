@@ -19,6 +19,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import OrganizationLogo from "@/components/organization-logo";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SEOHead from "@/components/seo-head";
@@ -120,9 +121,7 @@ export default function JobDetail() {
           <div className="p-8 md:p-12 border-b border-gray-50 bg-gradient-to-br from-gray-50/50 to-white">
             <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
               <div className="flex gap-6 items-start flex-1">
-                <div className="bg-white p-2 rounded-2xl shadow-md border border-gray-50">
-                  <Building2 className="h-16 w-16 text-blue-600" />
-                </div>
+                <OrganizationLogo department={job.department} recruitingOrganization={job.recruitingOrganization} className="h-24 w-24 sm:h-32 sm:w-32 rounded-3xl shadow-2xl bg-white p-1.5" />
                 <div className="flex-1">
                   <div className="flex flex-wrap gap-2 mb-4">
                     <Badge className="bg-blue-600 text-white font-black text-[10px] uppercase px-3 py-1 rounded-lg">
@@ -134,13 +133,16 @@ export default function JobDetail() {
                       </Badge>
                     )}
                   </div>
-                  <h1 className="text-3xl md:text-5xl font-black text-gray-900 mb-4 leading-tight tracking-tighter">{job.title}</h1>
-                  <div className="flex flex-wrap gap-6 text-gray-400 font-bold uppercase tracking-widest text-xs">
-                    <span className="flex items-center gap-2 text-blue-600">
-                      <Building2 className="h-4 w-4" /> {job.department}
+                  <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight">{job.title}</h1>
+                  <div className="flex flex-wrap gap-x-6 gap-y-3 text-gray-500 font-bold uppercase tracking-[0.15em] text-[10px]">
+                    <span className="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
+                      <Building2 className="h-3.5 w-3.5" /> {job.department}
                     </span>
-                    <span className="flex items-center gap-2">
-                       <MapPin className="h-4 w-4" /> {job.location}
+                    <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                      <Building2 className="h-3.5 w-3.5 text-gray-400" /> {job.recruitingOrganization || job.department}
+                    </span>
+                    <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
+                       <MapPin className="h-3.5 w-3.5 text-gray-400" /> {job.location}
                     </span>
                   </div>
                 </div>
@@ -160,22 +162,22 @@ export default function JobDetail() {
             {/* Main Content */}
             <div className="lg:col-span-2 p-8 md:p-12 space-y-12 border-r border-gray-50">
               {/* Quick Info Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 bg-gray-50/50 rounded-[2rem] border border-gray-100">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 bg-gray-50/50 rounded-[2rem] border border-gray-100 shadow-inner">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 underline decoration-blue-200 decoration-2 underline-offset-4">Salary</p>
-                  <p className="text-sm font-black text-gray-900">₹{job.salary || "Best in Field"}</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-blue-200 decoration-2 underline-offset-4">Salary Range</p>
+                  <p className="text-sm font-extrabold text-gray-900">₹{job.salary || "Best in Field"}</p>
                 </div>
                 <div className="space-y-1 border-l border-gray-200 pl-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 underline decoration-purple-200 decoration-2 underline-offset-4">Education</p>
-                  <p className="text-sm font-black text-gray-900">{job.qualification}</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-purple-200 decoration-2 underline-offset-4">Education</p>
+                  <p className="text-sm font-extrabold text-gray-900">{job.qualification}</p>
                 </div>
                 <div className="space-y-1 border-l border-gray-200 pl-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 underline decoration-orange-200 decoration-2 underline-offset-4">Vacancies</p>
-                  <p className="text-sm font-black text-gray-900">{job.positions || "N/A"}</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-blue-200 decoration-2 underline-offset-4">Experience</p>
+                  <p className="text-sm font-extrabold text-gray-900">{job.experienceRequired || "N/A"}</p>
                 </div>
                 <div className="space-y-1 border-l border-gray-200 pl-6">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 underline decoration-green-200 decoration-2 underline-offset-4">Valid Until</p>
-                  <p className="text-sm font-black text-red-600">{job.deadline}</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-green-200 decoration-2 underline-offset-4">Valid Until</p>
+                  <p className="text-sm font-extrabold text-red-600">{job.deadline}</p>
                 </div>
               </div>
 
@@ -233,30 +235,28 @@ export default function JobDetail() {
                   <div className="border rounded-[2rem] overflow-hidden bg-white shadow-sm">
                     <Table>
                       <TableHeader className="bg-gray-50/50">
-                        <TableRow className="hover:bg-transparent border-b-gray-100">
-                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 pl-8">Position Name</TableHead>
-                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6">Qualification</TableHead>
-                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 text-center">Vacancies</TableHead>
+                        <TableRow className="hover:bg-transparent border-b-gray-100">                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 pl-8">Position & Salary</TableHead>
+                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6">Eligibility & Exp</TableHead>
+                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 text-center">Posts</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {positions.map((pos) => (
-                          <TableRow key={pos.id} className="group hover:bg-blue-50/30 transition-colors border-b-gray-50 last:border-0">
+                          <TableRow key={pos.id} className="group hover:bg-blue-50/30 transition-colors border-b-gray-50 last:border-0 align-top">
                             <TableCell className="py-6 pl-8">
                               <div className="font-black text-gray-900 group-hover:text-blue-600 transition-colors">{pos.positionName}</div>
-                              {pos.salaryRange && (
-                                <div className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">
-                                  Salary: {pos.salaryRange}
-                                </div>
-                              )}
+                              <div className="text-[10px] font-bold text-blue-600 mt-1 uppercase tracking-tighter">
+                                {pos.salaryRange || "As per notification"}
+                              </div>
                             </TableCell>
                             <TableCell className="py-6">
-                              <div className="text-xs font-bold text-gray-600 leading-relaxed max-w-[200px]">{pos.qualification}</div>
-                              {pos.experienceRequired && (
-                                <div className="text-[10px] font-medium text-blue-500 mt-1 italic">
-                                  {pos.experienceRequired}
-                                </div>
-                              )}
+                               <div className="font-bold text-gray-700 text-sm mb-1">{pos.qualification}</div>
+                               <div className="text-[10px] text-gray-400 font-bold uppercase">Exp: {pos.experienceRequired || "None"}</div>
+                               {pos.specificRequirements && (
+                                 <div className="text-[11px] text-gray-500 italic mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                   <span className="text-blue-500 font-black mr-2">Note:</span> {pos.specificRequirements}
+                                 </div>
+                               )}
                             </TableCell>
                             <TableCell className="py-6 text-center">
                               <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none font-black px-3 py-1">
@@ -270,6 +270,67 @@ export default function JobDetail() {
                   </div>
                 </section>
               )}
+
+              {/* Eligibility & Fees */}
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-8 border rounded-[2rem] p-8 bg-gray-50/30">
+                <div className="space-y-6">
+                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center gap-2">
+                    <Target className="h-5 w-5 text-blue-600" /> Eligibility Details
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Age Limit</p>
+                      <p className="text-sm font-black text-gray-900">{job.ageLimit || "As per official rules"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Educational Qualification</p>
+                      <p className="text-sm font-black text-gray-900">{job.qualification}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-6 md:border-l md:pl-8">
+                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center gap-2">
+                    <IndianRupee className="h-5 w-5 text-green-600" /> Fees & Dates
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Application Fee</p>
+                      <p className="text-sm font-black text-gray-900">{job.applicationFee || "Refer to Official Notification"}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Application Start Date</p>
+                      <p className="text-sm font-black text-gray-900">{job.applicationStartDate || "Refer to link"}</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Selection Process */}
+              {job.selectionProcess && (
+                <section className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100/50">
+                  <h3 className="text-xl font-black text-blue-900 mb-4 flex items-center gap-3">
+                    <Target className="h-7 w-7 text-blue-600" /> Selection Process
+                  </h3>
+                  <div className="text-blue-900/80 leading-relaxed font-bold text-sm">
+                    {job.selectionProcess}
+                  </div>
+                </section>
+              )}
+
+              {/* Vacancy Breakdown */}
+              {job.vacancyBreakdown && (
+                <section className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 relative overflow-hidden group">
+                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                     <Users className="h-20 w-20" />
+                   </div>
+                   <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3 relative z-10">
+                     <Users className="h-7 w-7 text-gray-400" /> Detailed Vacancy Breakdown
+                   </h3>
+                   <div className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium text-sm italic relative z-10">
+                     {job.vacancyBreakdown}
+                   </div>
+                </section>
+              )}
             </div>
 
             {/* Sidebar Sticky */}
@@ -278,11 +339,18 @@ export default function JobDetail() {
                 <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 space-y-8">
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Application Status</h4>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black h-14 rounded-2xl shadow-lg shadow-blue-100 text-base" onClick={() => window.open(job.sourceUrl, '_blank')}>
-                      Apply Now <ExternalLink className="ml-2 h-5 w-5" />
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-14 shadow-2xl shadow-blue-100 flex items-center justify-center gap-2" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                      Apply Online <ExternalLink className="h-5 w-5" />
                     </Button>
-                    <Button variant="outline" className="w-full border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition-all font-black h-14 rounded-2xl text-base" onClick={handleTrackJob}>
-                      <Target className="mr-2 h-5 w-5" /> Track Milestones
+
+                    {job.notificationFileUrl && (
+                      <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-white font-black rounded-2xl h-14 flex items-center justify-center gap-2" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
+                        Official Notification <Download className="h-5 w-5 text-blue-500" />
+                      </Button>
+                    )}
+                    
+                    <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-black rounded-2xl h-14" onClick={() => handleShare('whatsapp')}>
+                      <Share2 className="mr-2 h-5 w-5" /> Share Openings
                     </Button>
                   </div>
 
