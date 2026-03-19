@@ -8,7 +8,8 @@ export default function InstallPWA() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (isInstallable && !isInstalled) {
+    const dismissed = localStorage.getItem("gj_pwa_dismissed");
+    if (isInstallable && !isInstalled && !dismissed) {
       setIsVisible(true);
     }
   }, [isInstallable, isInstalled]);
@@ -18,6 +19,11 @@ export default function InstallPWA() {
   const handleInstallClick = () => {
     installApp();
     setIsVisible(false);
+  };
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    localStorage.setItem("gj_pwa_dismissed", "true");
   };
 
   return (
@@ -37,7 +43,7 @@ export default function InstallPWA() {
         </div>
         
         <div className="flex flex-col gap-2">
-           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300" onClick={() => setIsVisible(false)}>
+           <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-gray-300" onClick={handleDismiss}>
              <X className="h-4 w-4" />
            </Button>
            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-10 px-6 font-bold text-xs" onClick={handleInstallClick}>

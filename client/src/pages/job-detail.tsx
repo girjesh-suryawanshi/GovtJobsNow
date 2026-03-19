@@ -11,6 +11,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SEOHead from "@/components/seo-head";
@@ -209,6 +217,59 @@ export default function JobDetail() {
                   {job.description}
                 </div>
               </section>
+
+              {/* Specific Positions Table */}
+              {positions.length > 0 && (
+                <section className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                      <Users className="h-7 w-7 text-blue-600" /> Positions Available
+                    </h3>
+                    <Badge variant="outline" className="font-bold text-blue-600 border-blue-100">
+                      {positions.length} Total Posts
+                    </Badge>
+                  </div>
+                  
+                  <div className="border rounded-[2rem] overflow-hidden bg-white shadow-sm">
+                    <Table>
+                      <TableHeader className="bg-gray-50/50">
+                        <TableRow className="hover:bg-transparent border-b-gray-100">
+                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 pl-8">Position Name</TableHead>
+                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6">Qualification</TableHead>
+                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 text-center">Vacancies</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {positions.map((pos) => (
+                          <TableRow key={pos.id} className="group hover:bg-blue-50/30 transition-colors border-b-gray-50 last:border-0">
+                            <TableCell className="py-6 pl-8">
+                              <div className="font-black text-gray-900 group-hover:text-blue-600 transition-colors">{pos.positionName}</div>
+                              {pos.salaryRange && (
+                                <div className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">
+                                  Salary: {pos.salaryRange}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-6">
+                              <div className="text-xs font-bold text-gray-600 leading-relaxed max-w-[200px]">{pos.qualification}</div>
+                              {pos.experienceRequired && (
+                                <div className="text-[10px] font-medium text-blue-500 mt-1 italic">
+                                  {pos.experienceRequired}
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-6 text-center">
+                              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none font-black px-3 py-1">
+                                {pos.numberOfVacancies}
+                              </Badge>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </section>
+              )}
             </div>
 
             {/* Sidebar Sticky */}
