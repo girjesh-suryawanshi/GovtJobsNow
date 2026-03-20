@@ -186,6 +186,7 @@ export function jobMatchesDepartment(job: Job, departmentFilter: string): boolea
 export interface NormalizedFilters {
   location?: LocationFilter;
   department?: string;  
+  jobCategory?: string;
   qualification?: QualificationCategory;
   salaryRange?: string;
   postedDate?: 'today' | 'week' | 'month';
@@ -200,6 +201,10 @@ export function normalizeFilters(params: any): NormalizedFilters {
   
   if (params.department && params.department !== 'all-departments') {
     normalized.department = normalizeDepartmentFilter(params.department);
+  }
+  
+  if (params.jobCategory && params.jobCategory !== 'all-categories') {
+    normalized.jobCategory = params.jobCategory;
   }
   
   if (params.qualification && params.qualification !== 'all-qualifications') {
@@ -291,6 +296,13 @@ export function jobMatchesFilters(job: Job, filters: NormalizedFilters): boolean
   if (filters.department && !jobMatchesDepartment(job, filters.department)) {
     // Department filter rejected (logging disabled)
     return false;
+  }
+  
+  // Job Category filter
+  if (filters.jobCategory && job.jobCategory) {
+    if (!job.jobCategory.toLowerCase().includes(filters.jobCategory.toLowerCase())) {
+      return false;
+    }
   }
   
   // Qualification filter  

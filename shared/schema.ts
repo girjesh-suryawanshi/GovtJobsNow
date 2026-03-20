@@ -76,6 +76,7 @@ export const createJobWithPositionsSchema = z.object({
 export const searchJobsSchema = z.object({
   search: z.string().optional(),
   department: z.string().optional(),
+  jobCategory: z.string().optional(),
   location: z.string().optional(),
   qualification: z.string().optional(),
   salaryRange: z.string().optional(),

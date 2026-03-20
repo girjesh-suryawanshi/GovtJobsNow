@@ -30,6 +30,7 @@ export interface Job {
 export interface SearchJobsParams {
   search?: string;
   department?: string;
+  jobCategory?: string;
   location?: string;
   qualification?: string;
   salaryRange?: string;

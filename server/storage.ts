@@ -209,7 +209,7 @@ export class DatabaseStorage implements IStorage {
     if (params.search) {
       const terms = params.search.split(/\s+OR\s+/i);
       const searchConditions = terms.map(term => 
-        sql`(${jobs.title} ILIKE ${`%${term.trim()}%`} OR ${jobs.department} ILIKE ${`%${term.trim()}%`} OR ${jobs.description} ILIKE ${`%${term.trim()}%`})`
+        sql`(${jobs.title} ILIKE ${`%${term.trim()}%`} OR ${jobs.department} ILIKE ${`%${term.trim()}%`} OR ${jobs.jobCategory} ILIKE ${`%${term.trim()}%`} OR ${jobs.description} ILIKE ${`%${term.trim()}%`})`
       );
       conditions.push(sql`(${sql.join(searchConditions, sql` OR `)})`);
     }

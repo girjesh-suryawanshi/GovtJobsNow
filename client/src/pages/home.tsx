@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import Header from "@/components/header";
 import SEOHead from "@/components/seo-head";
 import HeroSection from "@/components/hero-section";
@@ -25,6 +26,7 @@ import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
 
 export default function Home() {
+  const [, setLocation] = useLocation();
   const [searchParams, setSearchParams] = useState<SearchJobsParams>({
     search: "",
     department: "all-departments",
@@ -68,8 +70,25 @@ export default function Home() {
     refetchInterval: 30000, // Refetch every 30 seconds for fresh jobs
   });
 
+  // URL query parameter synchronization
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const updates: Partial<SearchJobsParams> = {};
+    
+    if (params.has('search')) updates.search = params.get('search')!;
+    if (params.has('department')) updates.department = params.get('department')!;
+    if (params.has('jobCategory')) updates.jobCategory = params.get('jobCategory')!;
+    if (params.has('location')) updates.location = params.get('location')!;
+    if (params.has('qualification')) updates.qualification = params.get('qualification')!;
+    if (params.has('salaryRange')) updates.salaryRange = params.get('salaryRange')!;
+    
+    if (Object.keys(updates).length > 0) {
+      setSearchParams(prev => ({ ...prev, ...updates }));
+    }
+  }, [window.location.search]);
+
   const handleSearch = (query: string) => {
-    setSearchParams(prev => ({ ...prev, search: query, page: 1 }));
+    handleFilterChange({ search: query });
   };
 
   const handleAdvancedSearch = (searchTerms: string[]) => {
@@ -90,11 +109,36 @@ export default function Home() {
   };
 
   const handleFilterChange = (filters: Partial<SearchJobsParams>) => {
-    setSearchParams(prev => ({ ...prev, ...filters, page: 1 }));
+    setSearchParams(prev => {
+      const next = { ...prev, ...filters, page: 1 };
+      
+      // Update URL search parameters
+      const params = new URLSearchParams();
+      Object.entries(next).forEach(([key, value]) => {
+        if (value !== undefined && value !== "" && value !== 0) {
+          if (typeof value === "string" && value.startsWith("all-")) return;
+          if (key === 'page' && value === 1) return;
+          if (key === 'limit' && value === 10) return;
+          params.set(key, value.toString());
+        }
+      });
+      
+      const newRelativePathQuery = window.location.pathname + '?' + params.toString();
+      window.history.pushState(null, '', newRelativePathQuery);
+      
+      return next;
+    });
   };
 
   const handlePageChange = (page: number) => {
-    setSearchParams(prev => ({ ...prev, page }));
+    setSearchParams(prev => {
+      const next = { ...prev, page };
+      // Also sync URL on page change
+      const params = new URLSearchParams(window.location.search);
+      params.set('page', page.toString());
+      window.history.pushState(null, '', window.location.pathname + '?' + params.toString());
+      return next;
+    });
   };
 
   const handleScrollToDepartments = () => {
@@ -455,7 +499,7 @@ export default function Home() {
 
       <FeatureShowcase />
       
-      <Footer />
+      <Footer onFilterChange={handleFilterChange} />
 
       <UserProfileModal
         isOpen={isProfileModalOpen}
