@@ -6,9 +6,9 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getAllUsers(): Promise<User[]>; // Added for admin management
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
-  deleteUser(id: string): Promise<boolean>; // Added for admin management
+  deleteUser(id: string): Promise<boolean>;
   
   // Job-related methods
   getJob(id: string): Promise<Job | undefined>;
@@ -25,6 +25,9 @@ export interface IStorage {
     departments: number;
     applications: number;
   }>;
+  getRelatedJobs(jobId: string, category?: string, department?: string, limit?: number): Promise<Job[]>;
+  getTrendingJobs(limit?: number): Promise<Job[]>;
+  incrementJobViewCount(jobId: string): Promise<void>;
 
   // Exam-related methods
   getExam(id: string): Promise<Exam | undefined>;
@@ -78,7 +81,7 @@ export class MemStorage implements IStorage {
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: [], total: 0 }; }
   async createJob(insertJob: InsertJob): Promise<Job> {
     const id = randomUUID();
-    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || 1 } as Job;
+    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || 1, viewCount: 0 } as Job;
     this.jobs.set(id, job);
     return job;
   }
@@ -105,6 +108,22 @@ export class MemStorage implements IStorage {
   }
   async deleteJob(id: string): Promise<boolean> { return this.jobs.delete(id); }
   async getJobStats() { return { totalJobs: 0, newToday: 0, departments: 0, applications: 0 }; }
+  async getRelatedJobs(jobId: string, category?: string, department?: string, limit: number = 4): Promise<Job[]> {
+    return Array.from(this.jobs.values())
+      .filter(j => j.id !== jobId && (j.jobCategory === category || j.department === department))
+      .slice(0, limit);
+  }
+  async getTrendingJobs(limit: number = 5): Promise<Job[]> {
+    return Array.from(this.jobs.values())
+      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+      .slice(0, limit);
+  }
+  async incrementJobViewCount(jobId: string): Promise<void> {
+    const job = this.jobs.get(jobId);
+    if (job) {
+      this.jobs.set(jobId, { ...job, viewCount: (job.viewCount || 0) + 1 });
+    }
+  }
 
   async getExam(id: string): Promise<Exam | undefined> { return this.exams.get(id); }
   async getAllExams(): Promise<Exam[]> { return Array.from(this.exams.values()); }
@@ -201,6 +220,22 @@ export class DatabaseStorage implements IStorage {
   async getJobStats() {
     const [total] = await db.select({ count: sql<number>`count(*)` }).from(jobs);
     return { totalJobs: Number(total.count), newToday: 0, departments: 0, applications: 0 };
+  }
+  async getRelatedJobs(jobId: string, category?: string, department?: string, limit: number = 4): Promise<Job[]> {
+    const conditions = [sql`${jobs.id} != ${jobId}`];
+    if (category || department) {
+      const orConditions = [];
+      if (category) orConditions.push(eq(jobs.jobCategory, category));
+      if (department) orConditions.push(eq(jobs.department, department));
+      conditions.push(sql`(${sql.join(orConditions, sql` OR `)})`);
+    }
+    return await db.select().from(jobs).where(and(...conditions)).limit(limit).orderBy(desc(jobs.createdAt));
+  }
+  async getTrendingJobs(limit: number = 5): Promise<Job[]> {
+    return await db.select().from(jobs).orderBy(desc(jobs.viewCount), desc(jobs.createdAt)).limit(limit);
+  }
+  async incrementJobViewCount(jobId: string): Promise<void> {
+    await db.update(jobs).set({ viewCount: sql`${jobs.viewCount} + 1` }).where(eq(jobs.id, jobId));
   }
   async getExam(id: string): Promise<Exam | undefined> {
     const [exam] = await db.select().from(exams).where(eq(exams.id, id));

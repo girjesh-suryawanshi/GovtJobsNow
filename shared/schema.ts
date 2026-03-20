@@ -31,6 +31,7 @@ export const jobs = pgTable("jobs", {
   // SEO-specific enrichment fields
   prepGuide: text("prep_guide"),
   syllabus: text("syllabus"),
+  viewCount: integer("view_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

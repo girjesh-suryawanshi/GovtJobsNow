@@ -164,9 +164,39 @@ Allow: /`);
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
       }
+      
+      // Increment view count asynchronously
+      storage.incrementJobViewCount(req.params.id).catch(err => {
+        console.error("Error incrementing job view count:", err);
+      });
+
       res.json(job);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch job", error });
+    }
+  });
+
+  // Get related jobs
+  app.get("/api/jobs/:id/related", async (req, res) => {
+    try {
+      const job = await storage.getJob(req.params.id);
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      const related = await storage.getRelatedJobs(job.id, job.jobCategory || undefined, job.department, 4);
+      res.json(related);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch related jobs", error });
+    }
+  });
+
+  // Get trending jobs
+  app.get("/api/jobs/trending", async (req, res) => {
+    try {
+      const trending = await storage.getTrendingJobs(5);
+      res.json(trending);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch trending jobs", error });
     }
   });
 
