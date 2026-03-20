@@ -31,6 +31,7 @@ export const jobs = pgTable("jobs", {
   // SEO-specific enrichment fields
   prepGuide: text("prep_guide"),
   syllabus: text("syllabus"),
+  viewCount: integer("view_count").default(0),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -75,6 +76,7 @@ export const createJobWithPositionsSchema = z.object({
 export const searchJobsSchema = z.object({
   search: z.string().optional(),
   department: z.string().optional(),
+  jobCategory: z.string().optional(),
   location: z.string().optional(),
   qualification: z.string().optional(),
   salaryRange: z.string().optional(),
@@ -247,6 +249,23 @@ export const visitorLogs = pgTable("visitor_logs", {
   ipHash: text("ip_hash").unique().notNull(),
   visitedAt: timestamp("visited_at").defaultNow().notNull(),
 });
+
+// Site Settings Table (AdSense, etc.)
+export const siteSettings = pgTable("site_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adsEnabled: boolean("ads_enabled").default(false).notNull(),
+  adsHeaderCode: text("ads_header_code"), // Global AdSense script (<script async ...>)
+  adsContentCode: text("ads_content_code"), // Default Ad unit HTML code
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
 
 export const insertExamSchema = createInsertSchema(exams).omit({
   id: true,

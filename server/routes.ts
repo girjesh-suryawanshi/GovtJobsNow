@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema, insertExamSchema } from "@shared/schema";
+import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema, insertExamSchema, insertSiteSettingsSchema } from "@shared/schema";
 import { scrapeJobs } from "./scraper";
 import { adminStorage } from "./admin-storage";
 import { urlProcessor } from "./url-processor";
@@ -164,9 +164,39 @@ Allow: /`);
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
       }
+      
+      // Increment view count asynchronously
+      storage.incrementJobViewCount(req.params.id).catch(err => {
+        console.error("Error incrementing job view count:", err);
+      });
+
       res.json(job);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch job", error });
+    }
+  });
+
+  // Get related jobs
+  app.get("/api/jobs/:id/related", async (req, res) => {
+    try {
+      const job = await storage.getJob(req.params.id);
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      const related = await storage.getRelatedJobs(job.id, job.jobCategory || undefined, job.department, 4);
+      res.json(related);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch related jobs", error });
+    }
+  });
+
+  // Get trending jobs
+  app.get("/api/jobs/trending", async (req, res) => {
+    try {
+      const trending = await storage.getTrendingJobs(5);
+      res.json(trending);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch trending jobs", error });
     }
   });
 
@@ -497,6 +527,31 @@ Allow: /`);
     }
   });
 
+  // Site Settings Management (AdSense Control)
+  app.get("/api/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch site settings", error });
+    }
+  });
+
+  app.patch("/api/admin/site-settings", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const data = insertSiteSettingsSchema.partial().parse(req.body);
+      const updated = await storage.updateSiteSettings(data);
+      res.json(updated);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid settings data", error });
+    }
+  });
+
   // Admin manual job creation
   // Gemini AI Job Extraction
   app.post("/api/admin/extract-job", async (req, res) => {
@@ -640,7 +695,7 @@ Allow: /`);
         "syllabus": "Syllabus Details"
       }
       
-      Text: \${rawText}`;
+      Text: ${rawText}`;
 
       const response = await generateText(prompt);
       // Robust JSON cleaning to strip markdown and conversational text
@@ -702,7 +757,7 @@ Allow: /`);
       let text = $("body").text() || $.text();
 
       // Strip out excessive newlines and tabs to compress payload size
-      text = text.replace(/\\s+/g, ' ').trim();
+      text = text.replace(/\s+/g, ' ').trim();
 
       if (text.length < 50) {
         throw new Error("Scraped page appears to be almost empty. It may be blocked by a Captcha, or the jobs are loaded via Javascript instead of static HTML.");

@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, type SiteSettings, type InsertSiteSettings, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs, siteSettings } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -6,9 +6,9 @@ import { randomUUID } from "crypto";
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getAllUsers(): Promise<User[]>; // Added for admin management
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
-  deleteUser(id: string): Promise<boolean>; // Added for admin management
+  deleteUser(id: string): Promise<boolean>;
   
   // Job-related methods
   getJob(id: string): Promise<Job | undefined>;
@@ -25,6 +25,9 @@ export interface IStorage {
     departments: number;
     applications: number;
   }>;
+  getRelatedJobs(jobId: string, category?: string, department?: string, limit?: number): Promise<Job[]>;
+  getTrendingJobs(limit?: number): Promise<Job[]>;
+  incrementJobViewCount(jobId: string): Promise<void>;
 
   // Exam-related methods
   getExam(id: string): Promise<Exam | undefined>;
@@ -41,6 +44,10 @@ export interface IStorage {
   // Site Analytics methods
   getVisitorStats(): Promise<{ totalVisitors: number; uniqueVisitors: number }>;
   recordVisitor(ipHash: string, isUnique: boolean): Promise<void>;
+
+  // Site Settings methods
+  getSiteSettings(): Promise<SiteSettings>;
+  updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
 }
 
 export class MemStorage implements IStorage {
@@ -78,7 +85,7 @@ export class MemStorage implements IStorage {
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: [], total: 0 }; }
   async createJob(insertJob: InsertJob): Promise<Job> {
     const id = randomUUID();
-    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || 1 } as Job;
+    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || 1, viewCount: 0 } as Job;
     this.jobs.set(id, job);
     return job;
   }
@@ -105,6 +112,22 @@ export class MemStorage implements IStorage {
   }
   async deleteJob(id: string): Promise<boolean> { return this.jobs.delete(id); }
   async getJobStats() { return { totalJobs: 0, newToday: 0, departments: 0, applications: 0 }; }
+  async getRelatedJobs(jobId: string, category?: string, department?: string, limit: number = 4): Promise<Job[]> {
+    return Array.from(this.jobs.values())
+      .filter(j => j.id !== jobId && (j.jobCategory === category || j.department === department))
+      .slice(0, limit);
+  }
+  async getTrendingJobs(limit: number = 5): Promise<Job[]> {
+    return Array.from(this.jobs.values())
+      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+      .slice(0, limit);
+  }
+  async incrementJobViewCount(jobId: string): Promise<void> {
+    const job = this.jobs.get(jobId);
+    if (job) {
+      this.jobs.set(jobId, { ...job, viewCount: (job.viewCount || 0) + 1 });
+    }
+  }
 
   async getExam(id: string): Promise<Exam | undefined> { return this.exams.get(id); }
   async getAllExams(): Promise<Exam[]> { return Array.from(this.exams.values()); }
@@ -131,6 +154,25 @@ export class MemStorage implements IStorage {
     return { totalVisitors: 0, uniqueVisitors: 0 };
   }
   async recordVisitor(ipHash: string, isUnique: boolean): Promise<void> {}
+
+  private siteSettings?: SiteSettings;
+  async getSiteSettings(): Promise<SiteSettings> {
+    if (!this.siteSettings) {
+      this.siteSettings = {
+        id: "default",
+        adsEnabled: false,
+        adsHeaderCode: null,
+        adsContentCode: null,
+        updatedAt: new Date()
+      };
+    }
+    return this.siteSettings;
+  }
+  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    const current = await this.getSiteSettings();
+    this.siteSettings = { ...current, ...settings, updatedAt: new Date() };
+    return this.siteSettings;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -165,7 +207,11 @@ export class DatabaseStorage implements IStorage {
     let query: any = db.select().from(jobs);
     const conditions = [];
     if (params.search) {
-      conditions.push(sql`(${jobs.title} ILIKE ${`%${params.search}%`} OR ${jobs.department} ILIKE ${`%${params.search}%`})`);
+      const terms = params.search.split(/\s+OR\s+/i);
+      const searchConditions = terms.map(term => 
+        sql`(${jobs.title} ILIKE ${`%${term.trim()}%`} OR ${jobs.department} ILIKE ${`%${term.trim()}%`} OR ${jobs.jobCategory} ILIKE ${`%${term.trim()}%`} OR ${jobs.description} ILIKE ${`%${term.trim()}%`})`
+      );
+      conditions.push(sql`(${sql.join(searchConditions, sql` OR `)})`);
     }
     if (conditions.length > 0) query = query.where(and(...conditions));
     const allJobs = await query as Job[];
@@ -201,6 +247,22 @@ export class DatabaseStorage implements IStorage {
   async getJobStats() {
     const [total] = await db.select({ count: sql<number>`count(*)` }).from(jobs);
     return { totalJobs: Number(total.count), newToday: 0, departments: 0, applications: 0 };
+  }
+  async getRelatedJobs(jobId: string, category?: string, department?: string, limit: number = 4): Promise<Job[]> {
+    const conditions = [sql`${jobs.id} != ${jobId}`];
+    if (category || department) {
+      const orConditions = [];
+      if (category) orConditions.push(eq(jobs.jobCategory, category));
+      if (department) orConditions.push(eq(jobs.department, department));
+      conditions.push(sql`(${sql.join(orConditions, sql` OR `)})`);
+    }
+    return await db.select().from(jobs).where(and(...conditions)).limit(limit).orderBy(desc(jobs.createdAt));
+  }
+  async getTrendingJobs(limit: number = 5): Promise<Job[]> {
+    return await db.select().from(jobs).orderBy(desc(jobs.viewCount), desc(jobs.createdAt)).limit(limit);
+  }
+  async incrementJobViewCount(jobId: string): Promise<void> {
+    await db.update(jobs).set({ viewCount: sql`${jobs.viewCount} + 1` }).where(eq(jobs.id, jobId));
   }
   async getExam(id: string): Promise<Exam | undefined> {
     const [exam] = await db.select().from(exams).where(eq(exams.id, id));
@@ -280,6 +342,45 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error recording visitor:', error);
     }
+  }
+
+  // Site Settings Implementation
+  async getSiteSettings(): Promise<SiteSettings> {
+    const SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
+    try {
+      const [settings] = await db.select().from(siteSettings).where(eq(siteSettings.id, SETTINGS_ID));
+      if (!settings) {
+        // Initialize if doesn't exist
+        const [newSettings] = await db.insert(siteSettings).values({ 
+          id: SETTINGS_ID, 
+          adsEnabled: false, 
+          adsHeaderCode: "", 
+          adsContentCode: "" 
+        }).returning();
+        return newSettings;
+      }
+      return settings;
+    } catch (error) {
+      console.error('Error fetching site settings:', error);
+      return { 
+        id: SETTINGS_ID, 
+        adsEnabled: false, 
+        adsHeaderCode: "", 
+        adsContentCode: "", 
+        updatedAt: new Date() 
+      };
+    }
+  }
+
+  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    const SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
+    // Ensure settings exist first
+    await this.getSiteSettings();
+    const [updated] = await db.update(siteSettings)
+      .set({ ...settings, updatedAt: new Date() })
+      .where(eq(siteSettings.id, SETTINGS_ID))
+      .returning();
+    return updated;
   }
 }
 

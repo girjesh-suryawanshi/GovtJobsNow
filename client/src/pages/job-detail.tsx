@@ -24,6 +24,11 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import SEOHead from "@/components/seo-head";
 import JobPostingSchema from "@/components/job-posting-schema";
+import { AdUnit } from "@/components/ad-unit";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { RelatedJobs } from "@/components/related-jobs";
+import { TrendingJobs } from "@/components/trending-jobs";
+import { JobFAQ } from "@/components/job-faq";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
@@ -110,11 +115,20 @@ export default function JobDetail() {
       <Header onScrollToDepartments={() => window.location.href = '/#departments'} />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <Link href="/">
-          <Button variant="ghost" className="mb-8 hover:bg-transparent hover:text-blue-600 p-0 text-gray-400 font-bold uppercase tracking-widest text-[10px]">
-            <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
-          </Button>
-        </Link>
+        <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <Link href="/">
+            <Button variant="ghost" className="hover:bg-transparent hover:text-blue-600 p-0 text-gray-400 font-black uppercase tracking-widest text-[10px]">
+              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+            </Button>
+          </Link>
+          
+          <Breadcrumbs 
+            items={[
+              { label: job.jobCategory || "Jobs", href: "/#departments" },
+              { label: job.title }
+            ]} 
+          />
+        </div>
 
         <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-gray-100 overflow-hidden">
           {/* Hero Section */}
@@ -134,6 +148,10 @@ export default function JobDetail() {
                     )}
                   </div>
                   <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight">{job.title}</h1>
+                  
+                  {/* Top Ad Placement */}
+                  <AdUnit slot="job-top-fluid" className="my-2" />
+
                   <div className="flex flex-wrap gap-x-6 gap-y-3 text-gray-500 font-bold uppercase tracking-[0.15em] text-[10px]">
                     <span className="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
                       <Building2 className="h-3.5 w-3.5" /> {job.department}
@@ -209,6 +227,9 @@ export default function JobDetail() {
                   </div>
                 </section>
               )}
+
+              {/* Middle Ad Placement */}
+              <AdUnit slot="job-middle-content" />
 
               {/* Experience & Requirements */}
               <section className="space-y-6">
@@ -331,11 +352,27 @@ export default function JobDetail() {
                    </div>
                 </section>
               )}
+
+              {/* FAQ Section (Rich Snippets) */}
+              <JobFAQ job={job} />
+
+              {/* Bottom Ad Placement */}
+              <AdUnit slot="job-bottom-post" />
+
+              {/* Related Content (Internal Linking) */}
+              <RelatedJobs jobId={job.id} />
             </div>
 
             {/* Sidebar Sticky */}
             <div className="p-8 md:p-12 bg-gray-50/50 space-y-8">
-              <div className="sticky top-12 space-y-6">
+              <div className="sticky top-12 space-y-8">
+                {/* Trending Jobs Widget */}
+                <Card className="rounded-[2rem] border border-primary/10 shadow-lg shadow-primary/5 overflow-hidden bg-white">
+                  <CardContent className="p-6">
+                    <TrendingJobs />
+                  </CardContent>
+                </Card>
+
                 <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 space-y-8">
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Application Status</h4>

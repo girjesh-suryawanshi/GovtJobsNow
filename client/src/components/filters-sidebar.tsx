@@ -291,7 +291,7 @@ export default function FiltersSidebar({ filters, onFilterChange, isOpen = false
       <aside 
         id="departments"
         data-testid="filters-sidebar"
-        className="hidden lg:block lg:w-1/4"
+        className="hidden lg:block lg:w-1/4 sticky top-24 self-start"
       >
         {filtersContent}
       </aside>

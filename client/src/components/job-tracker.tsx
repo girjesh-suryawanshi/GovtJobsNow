@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogTitle, DialogOverlay, DialogPortal } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import type { Job } from "@/types/job";
 
 interface Application {
@@ -95,7 +97,7 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
       });
       setShowAddForm(true);
     }
-  }, [isOpen, jobToAdd, applications.length]); // Added applications.length to avoid dependency loop if needed
+  }, [isOpen, jobToAdd, applications.length]);
 
   const handleAddApplication = () => {
     if (!newApplication.jobTitle) return;
@@ -119,180 +121,191 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
     toast({ title: "Job Removed", description: "Successfully removed from tracker." });
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-[100]">
-      <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-gray-100">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
-              <Target className="h-6 w-6" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">Application Watchtower</h2>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Milestone Monitoring & Study Hub</p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" className="rounded-full px-5 border-gray-200 h-10 text-xs font-bold" onClick={() => setShowAddForm(!showAddForm)}>
-              {showAddForm ? 'Cancel' : 'Track Custom Job'}
-            </Button>
-            <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" onClick={onClose}>
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="p-6 overflow-y-auto flex-1 bg-white">
-          {showAddForm && (
-            <Card className="mb-8 border-2 border-blue-50 shadow-sm rounded-2xl overflow-hidden bg-blue-50/10">
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Title</Label>
-                    <Input value={newApplication.jobTitle} onChange={e => setNewApplication({...newApplication, jobTitle: e.target.value})} className="rounded-xl border-gray-200 h-11" />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Organization / Dept</Label>
-                    <Input value={newApplication.department} onChange={e => setNewApplication({...newApplication, department: e.target.value})} className="rounded-xl border-gray-200 h-11" />
-                  </div>
-                </div>
-                <Button onClick={handleAddApplication} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-blue-100">
-                  <Target className="h-4 w-4 mr-2" /> Start Tracking This Job
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          <div className="space-y-6">
-            {applications.length === 0 && !showAddForm ? (
-              <div className="text-center py-20">
-                <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Target className="h-12 w-12 text-gray-200" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No active tracks</h3>
-                <p className="text-gray-400 mb-8 max-w-xs mx-auto text-sm">Save jobs to track milestones like admit cards, exam dates, and results in real-time.</p>
-                <Button onClick={() => setShowAddForm(true)} className="bg-blue-600 rounded-full px-8 h-11 font-bold">Start Tracking Now</Button>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogPortal>
+        <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
+        <DialogContent className="max-w-5xl h-[90vh] p-0 overflow-hidden border-none rounded-3xl shadow-2xl flex flex-col bg-white dark:bg-gray-900 z-[110]">
+          {/* Header */}
+          <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-blue-50/50 dark:bg-blue-950/50 shrink-0">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100 dark:shadow-none shrink-0">
+                <Target className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-            ) : (
-              applications.map((app) => {
-                const config = statusConfig[app.status];
-                return (
-                  <Card key={app.id} className="rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start gap-6">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-gray-900">{app.jobTitle}</h3>
-                            {config.actionRequired && (
-                              <Badge className="bg-orange-500 text-white animate-bounce border-none text-[10px] font-black px-2 py-0.5">ALERT</Badge>
+              <div className="min-w-0">
+                <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">Job Watchtower</DialogTitle>
+                <p className="text-[9px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest leading-none truncate">Monitoring Hub</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 ml-2">
+              <Button 
+                variant="outline" 
+                className="hidden sm:inline-flex rounded-full px-5 border-gray-200 dark:border-gray-700 h-10 text-xs font-bold bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700" 
+                onClick={() => setShowAddForm(!showAddForm)}
+              >
+                {showAddForm ? 'Cancel' : 'Track Custom Job'}
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full h-11 w-11 sm:h-10 sm:w-10 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" 
+                onClick={onClose}
+              >
+                <X className="h-6 w-6 sm:h-5 sm:w-5" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="p-6 overflow-y-auto flex-1 bg-white dark:bg-gray-900">
+            {showAddForm && (
+              <Card className="mb-8 border-2 border-blue-50 dark:border-blue-900/30 shadow-sm rounded-2xl overflow-hidden bg-blue-50/10 dark:bg-blue-900/10">
+                <CardContent className="p-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Title</Label>
+                      <Input value={newApplication.jobTitle} onChange={e => setNewApplication({...newApplication, jobTitle: e.target.value})} className="rounded-xl border-gray-200 dark:border-gray-700 h-11 bg-white dark:bg-gray-800" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Organization / Dept</Label>
+                      <Input value={newApplication.department} onChange={e => setNewApplication({...newApplication, department: e.target.value})} className="rounded-xl border-gray-200 dark:border-gray-700 h-11 bg-white dark:bg-gray-800" />
+                    </div>
+                  </div>
+                  <Button onClick={handleAddApplication} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-blue-100">
+                    <Target className="h-4 w-4 mr-2" /> Start Tracking This Job
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            <div className="space-y-6">
+              {applications.length === 0 && !showAddForm ? (
+                <div className="text-center py-20">
+                  <div className="bg-gray-50 dark:bg-gray-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Target className="h-12 w-12 text-gray-200 dark:text-gray-700" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No active tracks</h3>
+                  <p className="text-gray-400 mb-8 max-w-xs mx-auto text-sm">Save jobs to track milestones like admit cards, exam dates, and results in real-time.</p>
+                  <Button onClick={() => setShowAddForm(true)} className="bg-blue-600 rounded-full px-8 h-11 font-bold">Start Tracking Now</Button>
+                </div>
+              ) : (
+                applications.map((app) => {
+                  const config = statusConfig[app.status];
+                  return (
+                    <Card key={app.id} className="rounded-[2rem] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all group overflow-hidden bg-white dark:bg-gray-800">
+                      <CardContent className="p-0">
+                        <div className="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start gap-6">
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <h3 className="text-xl font-bold text-gray-900 dark:text-white">{app.jobTitle}</h3>
+                              {config.actionRequired && (
+                                <Badge className="bg-orange-500 text-white animate-bounce border-none text-[10px] font-black px-2 py-0.5">ALERT</Badge>
+                              )}
+                            </div>
+                            <p className="text-xs text-blue-600 font-black uppercase tracking-widest">{app.department}</p>
+                          </div>
+                          <div className="flex items-center gap-3 w-full md:w-auto">
+                            <Select value={app.status} onValueChange={(val: any) => updateStatus(app.id, val)}>
+                              <SelectTrigger className="w-full sm:w-48 rounded-2xl border-none bg-gray-50 dark:bg-gray-700 h-11 font-bold text-sm text-gray-900 dark:text-gray-100">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-2xl border-none shadow-2xl">
+                                {Object.entries(statusConfig).map(([k, v]) => (
+                                  <SelectItem key={k} value={k} className="rounded-xl my-1 focus:bg-blue-50">
+                                    <div className="flex items-center gap-2">
+                                      <v.icon className={`h-4 w-4 ${v.color.replace('bg-', 'text-')}`} />
+                                      <span className="font-medium">{v.label}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button variant="ghost" size="icon" className="text-gray-200 hover:text-red-500 h-11 w-11 rounded-2xl" onClick={() => deleteApp(app.id)}>
+                              <X className="h-5 w-5" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Timeline Overlay */}
+                        <div className="bg-gray-50/50 dark:bg-gray-900/50 px-8 py-10 relative">
+                          <div className="absolute top-1/2 left-8 right-8 h-1 bg-white dark:bg-gray-800 -translate-y-1/2 rounded-full overflow-hidden shadow-inner">
+                             <div className="h-full bg-blue-600 transition-all duration-1000" style={{ width: `${(config.step / 5) * 100}%` }} />
+                          </div>
+                          <div className="relative flex justify-between items-center">
+                            {[1, 2, 3, 4, 5].map((s) => {
+                              const isPast = config.step >= s;
+                              const isCurrent = config.step === s;
+                              const labels = ['Applied', 'Admit Card', 'Exam', 'Result', 'Selected'];
+                              const icons = [FileText, Bell, Calendar, Sparkles, CheckCircle];
+                              const StepIcon = icons[s-1];
+                              return (
+                                <div key={s} className="relative z-10 flex flex-col items-center">
+                                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                                    isPast ? 'bg-blue-600 text-white shadow-xl shadow-blue-100 scale-110' : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-200'
+                                  }`}>
+                                    <StepIcon className={`h-5 w-5 ${isCurrent ? 'animate-pulse' : ''}`} />
+                                  </div>
+                                  <span className={`absolute -bottom-8 text-[9px] font-black uppercase tracking-tighter text-center w-20 leading-tight transition-colors ${isCurrent ? 'text-blue-600' : 'text-gray-300'}`}>
+                                    {labels[s-1]}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 ring-1 ring-gray-50 dark:ring-gray-800">
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-2 text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                              <AlertCircle className="h-4 w-4" /> Milestone Status
+                            </h4>
+                            {app.status === 'applied' && (
+                              <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800 text-blue-900 dark:text-blue-100 text-sm leading-relaxed">
+                                Successfully applied on <span className="font-black underline">{app.appliedDate}</span>. We'll alert you when the <span className="font-black italic underline">Admit Card</span> link appears on official site.
+                              </div>
+                            )}
+                            {app.status === 'admit_card_out' && (
+                              <div className="p-5 bg-orange-50 dark:bg-orange-900/20 rounded-3xl border border-orange-100 dark:border-orange-800 flex flex-col sm:flex-row items-center gap-4">
+                                <div className="flex-1">
+                                  <p className="text-orange-900 dark:text-orange-100 font-black text-base italic">Admit Card is LIVE!</p>
+                                  <p className="text-orange-800 dark:text-orange-300 text-xs">Download immediately to confirm your exam center.</p>
+                                </div>
+                                <Button className="bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl h-11 px-6 shadow-xl shadow-orange-100 dark:shadow-none">
+                                  <Download className="h-4 w-4 mr-2" /> DOWNLOAD
+                                </Button>
+                              </div>
+                            )}
+                            {app.status === 'exam_scheduled' && (
+                              <div className="p-5 bg-purple-50 dark:bg-purple-900/20 rounded-3xl border border-purple-100 dark:border-purple-800 text-purple-900 dark:text-purple-100 text-sm">
+                                Focused Study Mode! Exam date approaching. Access study guides in the <b>Instant Content Hub</b>.
+                              </div>
                             )}
                           </div>
-                          <p className="text-xs text-blue-600 font-black uppercase tracking-widest">{app.department}</p>
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-2 text-[10px] font-black tracking-widest text-gray-400 uppercase">
+                              <Edit2 className="h-4 w-4" /> Application Vault
+                            </h4>
+                            <Textarea 
+                              placeholder="Roll No, Registration ID, Password, Exam Center..." 
+                              className="rounded-[1.5rem] border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/50 text-sm h-32 p-4 focus:ring-blue-100" 
+                              value={app.notes} 
+                              onChange={e => {
+                                  const newApps = [...applications];
+                                  const index = newApps.findIndex(a => a.id === app.id);
+                                  newApps[index].notes = e.target.value;
+                                  setApplications(newApps);
+                              }} 
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                          <Select value={app.status} onValueChange={(val: any) => updateStatus(app.id, val)}>
-                            <SelectTrigger className="w-full sm:w-48 rounded-2xl border-none bg-gray-50 h-11 font-bold text-sm">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-2xl border-none shadow-2xl">
-                              {Object.entries(statusConfig).map(([k, v]) => (
-                                <SelectItem key={k} value={k} className="rounded-xl my-1 focus:bg-blue-50">
-                                  <div className="flex items-center gap-2">
-                                    <v.icon className={`h-4 w-4 ${v.color.replace('bg-', 'text-')}`} />
-                                    <span className="font-medium">{v.label}</span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <Button variant="ghost" size="icon" className="text-gray-200 hover:text-red-500 h-11 w-11 rounded-2xl" onClick={() => deleteApp(app.id)}>
-                            <X className="h-5 w-5" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Timeline Overlay */}
-                      <div className="bg-gray-50/50 px-8 py-10 relative">
-                        <div className="absolute top-1/2 left-8 right-8 h-1 bg-white -translate-y-1/2 rounded-full overflow-hidden shadow-inner">
-                           <div className="h-full bg-blue-600 transition-all duration-1000" style={{ width: `${(config.step / 5) * 100}%` }} />
-                        </div>
-                        <div className="relative flex justify-between items-center">
-                          {[1, 2, 3, 4, 5].map((s) => {
-                            const isPast = config.step >= s;
-                            const isCurrent = config.step === s;
-                            const labels = ['Applied', 'Admit Card', 'Exam', 'Result', 'Selected'];
-                            const icons = [FileText, Bell, Calendar, Sparkles, CheckCircle];
-                            const StepIcon = icons[s-1];
-                            return (
-                              <div key={s} className="relative z-10 flex flex-col items-center">
-                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                                  isPast ? 'bg-blue-600 text-white shadow-xl shadow-blue-100 scale-110' : 'bg-white border border-gray-100 text-gray-200'
-                                }`}>
-                                  <StepIcon className={`h-5 w-5 ${isCurrent ? 'animate-pulse' : ''}`} />
-                                </div>
-                                <span className={`absolute -bottom-8 text-[9px] font-black uppercase tracking-tighter text-center w-20 leading-tight transition-colors ${isCurrent ? 'text-blue-600' : 'text-gray-300'}`}>
-                                  {labels[s-1]}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-8 ring-1 ring-gray-50">
-                        <div className="space-y-4">
-                          <h4 className="flex items-center gap-2 text-[10px] font-black tracking-widest text-gray-400 uppercase">
-                            <AlertCircle className="h-4 w-4" /> Milestone Status
-                          </h4>
-                          {app.status === 'applied' && (
-                            <div className="p-5 bg-blue-50 rounded-3xl border border-blue-100 text-blue-900 text-sm leading-relaxed">
-                              Successfully applied on <span className="font-black underline">{app.appliedDate}</span>. We'll alert you when the <span className="font-black italic underline">Admit Card</span> link appears on official site.
-                            </div>
-                          )}
-                          {app.status === 'admit_card_out' && (
-                            <div className="p-5 bg-orange-50 rounded-3xl border border-orange-100 flex flex-col sm:flex-row items-center gap-4">
-                              <div className="flex-1">
-                                <p className="text-orange-900 font-black text-base italic">Admit Card is LIVE!</p>
-                                <p className="text-orange-800 text-xs">Download immediately to confirm your exam center.</p>
-                              </div>
-                              <Button className="bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl h-11 px-6 shadow-xl shadow-orange-100">
-                                <Download className="h-4 w-4 mr-2" /> DOWNLOAD
-                              </Button>
-                            </div>
-                          )}
-                          {app.status === 'exam_scheduled' && (
-                            <div className="p-5 bg-purple-50 rounded-3xl border border-purple-100 text-purple-900 text-sm">
-                              Focused Study Mode! Exam date approaching. Access study guides in the <b>Instant Content Hub</b>.
-                            </div>
-                          )}
-                        </div>
-                        <div className="space-y-4">
-                          <h4 className="flex items-center gap-2 text-[10px] font-black tracking-widest text-gray-400 uppercase">
-                            <Edit2 className="h-4 w-4" /> Application Vault
-                          </h4>
-                          <Textarea 
-                            placeholder="Roll No, Registration ID, Password, Exam Center..." 
-                            className="rounded-[1.5rem] border-gray-100 bg-gray-50/30 text-sm h-32 p-4 focus:ring-blue-100" 
-                            value={app.notes} 
-                            onChange={e => {
-                                const newApps = [...applications];
-                                const index = newApps.findIndex(a => a.id === app.id);
-                                newApps[index].notes = e.target.value;
-                                setApplications(newApps);
-                            }} 
-                          />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })
-            )}
+                      </CardContent>
+                    </Card>
+                  );
+                })
+              )}
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 }

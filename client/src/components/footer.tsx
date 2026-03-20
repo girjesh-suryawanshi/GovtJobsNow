@@ -2,8 +2,13 @@ import { Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin, Star, Shie
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import type { SearchJobsParams } from "@/types/job";
 
-export default function Footer() {
+interface FooterProps {
+  onFilterChange?: (filters: Partial<SearchJobsParams>) => void;
+}
+
+export default function Footer({ onFilterChange }: FooterProps) {
   const { data: stats } = useQuery<{ totalVisitors: number; uniqueVisitors: number }>({
     queryKey: ["/api/visitor-stats"],
     refetchInterval: 30000, // Refresh every 30 seconds
@@ -106,40 +111,64 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2">
+                <Link 
+                  href="/?search=Banking" 
+                  onClick={() => onFilterChange?.({ search: "Banking" })}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+                >
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                   Banking Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2">
+                <Link 
+                  href="/?search=Railway" 
+                  onClick={() => onFilterChange?.({ search: "Railway" })}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+                >
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                   Railway Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2">
+                <Link 
+                  href="/?search=Defense" 
+                  onClick={() => onFilterChange?.({ search: "Defense" })}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+                >
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                   Defense Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2">
+                <Link 
+                  href="/?search=SSC" 
+                  onClick={() => onFilterChange?.({ search: "SSC" })}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+                >
                   <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
                   SSC Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2">
+                <Link 
+                  href="/?search=UPSC" 
+                  onClick={() => onFilterChange?.({ search: "UPSC" })}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+                >
                   <div className="w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
                   UPSC Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2">
+                <Link 
+                  href="/?jobCategory=State Government" 
+                  onClick={() => onFilterChange?.({ jobCategory: "State Government" })}
+                  className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
+                >
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
                   State Government
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
