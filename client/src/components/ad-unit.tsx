@@ -21,7 +21,7 @@ export const AdUnit: React.FC<AdUnitProps> = ({
   label = "Sponsored" 
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
-  const { data: settings } = useQuery<SiteSettings>({
+  const { data: settings, isLoading } = useQuery<SiteSettings>({
     queryKey: ["/api/site-settings"],
   });
 
@@ -37,39 +37,9 @@ export const AdUnit: React.FC<AdUnitProps> = ({
     }
   }, [settings?.adsEnabled, settings?.adsContentCode]);
 
-  // If ads are disabled or we don't have code yet, show a premium placeholder
-  if (!settings?.adsEnabled || !settings?.adsContentCode) {
-    return (
-      <div className={`my-8 w-full ${className}`}>
-        <div className="flex flex-col items-center justify-center">
-          <span className="mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-            {label}
-          </span>
-          <Card className="relative flex min-h-[120px] w-full items-center justify-center overflow-hidden border-dashed bg-muted/20 transition-all hover:bg-muted/30">
-            {/* Subtle geometric pattern background */}
-            <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
-              <svg width="100%" height="100%">
-                <pattern id="ad-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <rect width="1" height="1" fill="currentColor" />
-                </pattern>
-                <rect width="100%" height="100%" fill="url(#ad-pattern)" />
-              </svg>
-            </div>
-            
-            <div className="z-10 text-center opacity-40 grayscale group-hover:grayscale-0 transition-all">
-              <div className="text-sm font-extrabold text-muted-foreground/40 tracking-tighter">
-                AD SPACE
-              </div>
-              {slot && (
-                <div className="mt-1 text-[10px] text-muted-foreground/30">
-                  ID: {slot}
-                </div>
-              )}
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
+  // If loading or ads are disabled, show nothing (hide the container)
+  if (isLoading || !settings?.adsEnabled || !settings?.adsContentCode) {
+    return null;
   }
 
   // Render real AdSense unit if enabled
