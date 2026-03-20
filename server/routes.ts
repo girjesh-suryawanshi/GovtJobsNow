@@ -695,7 +695,7 @@ Allow: /`);
         "syllabus": "Syllabus Details"
       }
       
-      Text: \${rawText}`;
+      Text: ${rawText}`;
 
       const response = await generateText(prompt);
       // Robust JSON cleaning to strip markdown and conversational text
@@ -757,7 +757,7 @@ Allow: /`);
       let text = $("body").text() || $.text();
 
       // Strip out excessive newlines and tabs to compress payload size
-      text = text.replace(/\\s+/g, ' ').trim();
+      text = text.replace(/\s+/g, ' ').trim();
 
       if (text.length < 50) {
         throw new Error("Scraped page appears to be almost empty. It may be blocked by a Captcha, or the jobs are loaded via Javascript instead of static HTML.");
