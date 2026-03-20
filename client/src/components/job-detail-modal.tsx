@@ -34,23 +34,8 @@ interface JobDetailModalProps {
 
 export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDetailModalProps) {
   const [isSaved, setIsSaved] = useState(false);
-  const [positions, setPositions] = useState<JobPosition[]>([]);
-  const [loadingPositions, setLoadingPositions] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-
-  useEffect(() => {
-    if (isOpen && job.id) {
-      setLoadingPositions(true);
-      fetch(`/api/jobs/${job.id}/positions`)
-        .then(res => res.json())
-        .then(data => {
-          setPositions(data);
-          setLoadingPositions(false);
-        })
-        .catch(() => setLoadingPositions(false));
-    }
-  }, [isOpen, job.id]);
 
   const handleSaveJob = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -143,22 +128,16 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                         </p>
                       </div>
                       <div className="space-y-1 border-l border-blue-100 pl-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Positions</p>
-                        <p className="text-sm font-black text-blue-900 flex items-center gap-1">
-                          <Users className="h-3.5 w-3.5" /> {job.positions}
-                        </p>
-                      </div>
-                      <div className="space-y-1 border-l border-blue-100 pl-4">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Type</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Job Type</p>
                         <p className="text-sm font-black text-blue-900">{job.employmentType || "Full-time"}</p>
                       </div>
                       <div className="space-y-1 border-l border-blue-100 pl-4">
                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Experience</p>
-                        <p className="text-sm font-black text-blue-900">{job.experienceRequired || "Not Specified"}</p>
+                        <p className="text-sm font-black text-blue-900">{job.experienceRequired || "N/A"}</p>
                       </div>
                       <div className="space-y-1 border-l border-blue-100 pl-4">
                         <p className="text-[10px] font-black uppercase tracking-widest text-blue-400">Deadline</p>
-                        <p className="text-sm font-black text-orange-600 flex items-center gap-1 shrink-0 whitespace-nowrap">
+                        <p className="text-sm font-black text-red-600 flex items-center gap-1 shrink-0 whitespace-nowrap">
                           <Calendar className="h-3.5 w-3.5" /> {job.deadline}
                         </p>
                       </div>
@@ -198,106 +177,31 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                       </div>
                     </div>
 
-                    {/* Positions Section */}
-                    {positions.length > 0 && (
-                      <section className="space-y-4">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 flex items-center gap-2">
-                           <Users className="h-4 w-4" /> Available Positions ({positions.length})
-                        </h4>
-                        <div className="border rounded-2xl overflow-hidden bg-white shadow-sm overflow-x-auto">
-                          <table className="w-full text-left text-xs sm:text-sm">
-                            <thead className="bg-gray-50/50 border-b border-gray-100">
-                              <tr>
-                                <th className="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-gray-400">Position & Salary</th>
-                                <th className="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-gray-400">Eligibility</th>
-                                <th className="px-4 py-3 font-black text-[10px] uppercase tracking-widest text-gray-400 text-center">Total</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50 font-medium">
-                              {positions.map((pos: any) => (
-                                <tr key={pos.id} className="hover:bg-blue-50/30 transition-colors align-top">
-                                  <td className="px-4 py-4 min-w-[200px]">
-                                    <p className="font-black text-gray-900 mb-1">{pos.positionName}</p>
-                                    <p className="text-[10px] text-blue-600 font-bold uppercase tracking-tight"> {pos.salaryRange || "As per rules"}</p>
-                                  </td>
-                                  <td className="px-4 py-4 min-w-[200px] space-y-1">
-                                    <p className="text-gray-900 font-bold">{pos.qualification}</p>
-                                    <p className="text-[10px] text-gray-400">Exp: {pos.experienceRequired || "N/A"}</p>
-                                    {pos.specificRequirements && (
-                                      <p className="text-[10px] text-gray-500 italic mt-2 border-l border-gray-100 pl-2">
-                                        Note: {pos.specificRequirements}
-                                      </p>
-                                    )}
-                                  </td>
-                                  <td className="px-4 py-4 text-center">
-                                    <Badge variant="outline" className="bg-blue-50 text-blue-600 border-none font-black text-[10px]">
-                                      {pos.numberOfVacancies || 1}
-                                    </Badge>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </section>
-                    )}
+                    {/* Highlights for Applicants */}
+                    <section className="bg-blue-600/5 p-6 rounded-3xl border border-blue-100 relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:rotate-12 transition-transform duration-700">
+                        <Sparkles className="h-16 w-16" />
+                      </div>
+                      <h4 className="text-sm font-black text-blue-900 mb-3 flex items-center gap-2">
+                         <Sparkles className="h-4 w-4 text-blue-600" /> Unlock Full Preparation Guide
+                      </h4>
+                      <p className="text-xs text-blue-800/70 font-medium leading-relaxed mb-4">
+                        Get access to our AI-powered preparation strategy, detailed exam syllabus, and position-wise vacancy breakdown on the full job detail page.
+                      </p>
+                      <Button onClick={handleViewFullDetails} variant="link" className="p-0 h-auto text-blue-600 font-black text-xs uppercase tracking-widest flex items-center gap-2 group-hover:gap-3 transition-all">
+                        Explore Everything <ArrowUpRight className="h-4 w-4" />
+                      </Button>
+                    </section>
 
-                    {/* Vacancy Breakdown */}
-                    {job.vacancyBreakdown && (
-                      <section className="p-6 bg-gray-50/50 rounded-3xl border border-gray-100">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
-                           <Users className="h-4 w-4 text-blue-400" /> Vacancy Breakdown
-                        </h4>
-                        <p className="text-sm text-gray-600 font-medium whitespace-pre-line leading-relaxed italic">
-                          {job.vacancyBreakdown}
-                        </p>
-                      </section>
-                    )}
-
-                    {/* Selection Process */}
-                    {job.selectionProcess && (
-                      <section className="p-6 bg-blue-50/20 rounded-3xl border border-blue-100/30">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-blue-600 mb-4 flex items-center gap-2">
-                           <Target className="h-4 w-4" /> Selection Process
-                        </h4>
-                        <p className="text-sm text-blue-900/80 font-medium leading-relaxed">
-                          {job.selectionProcess}
-                        </p>
-                      </section>
-                    )}
-
-                    {/* Description */}
+                    {/* Short Description */}
                     <section>
                       <h4 className="text-xs font-black uppercase tracking-[0.2em] text-gray-400 mb-4 flex items-center gap-2">
-                         <FileText className="h-4 w-4" /> About Recruitment
+                         <FileText className="h-4 w-4" /> Brief Overview
                       </h4>
-                      <div className="prose prose-sm max-w-none text-gray-600 leading-relaxed font-medium">
+                      <div className="text-sm text-gray-600 leading-relaxed font-medium line-clamp-4">
                         {job.description}
                       </div>
                     </section>
-
-                    {/* Winning Sections */}
-                    {job.prepGuide && (
-                      <section className="p-6 bg-yellow-50/30 rounded-3xl border border-yellow-100/50">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-yellow-600 mb-4 flex items-center gap-2">
-                           <Sparkles className="h-4 w-4" /> Preparation Strategy
-                        </h4>
-                        <div className="text-sm text-yellow-900/80 font-medium whitespace-pre-line leading-relaxed">
-                          {job.prepGuide}
-                        </div>
-                      </section>
-                    )}
-
-                    {job.syllabus && (
-                      <section id="syllabus-section" className="p-6 bg-purple-50/30 rounded-3xl border border-purple-100/50">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 mb-4 flex items-center gap-2">
-                           <BookOpen className="h-4 w-4" /> Comprehensive Syllabus
-                        </h4>
-                        <div className="text-sm text-purple-900/80 font-medium whitespace-pre-line leading-relaxed">
-                          {job.syllabus}
-                        </div>
-                      </section>
-                    )}
                   </div>
 
                   {/* Sidebar */}
@@ -306,12 +210,12 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Actions & Quick Links</h4>
                       
                       <div className="space-y-3">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl h-12 shadow-xl shadow-blue-100 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={() => window.open(job.sourceUrl, '_blank')}>
-                          Apply Online <ExternalLink className="ml-2 h-4 w-4" />
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl h-14 shadow-2xl shadow-blue-100 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={handleViewFullDetails}>
+                          View Full Details & Syllabus <ArrowUpRight className="ml-2 h-5 w-5" />
                         </Button>
 
-                        <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 font-extrabold rounded-2xl h-12 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={handleViewFullDetails}>
-                          View Full Details <ArrowUpRight className="ml-2 h-4 w-4" />
+                        <Button variant="outline" className="w-full border-blue-100 text-blue-600 hover:bg-blue-50 font-extrabold rounded-2xl h-12" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                          Quick Apply Online <ExternalLink className="ml-2 h-4 w-4" />
                         </Button>
 
                         {job.notificationFileUrl && (
@@ -326,11 +230,6 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                           </Button>
                         )}
 
-                        {job.syllabus && (
-                          <Button variant="outline" className="w-full border-purple-100 text-purple-600 hover:bg-white font-black rounded-2xl h-12" onClick={handleQuickSyllabus}>
-                            <BookOpen className="mr-2 h-4 w-4" /> View Syllabus
-                          </Button>
-                        )}
                       </div>
 
                       <Separator className="bg-gray-200/50" />

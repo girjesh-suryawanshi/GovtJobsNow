@@ -116,29 +116,30 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
           )}
         </div>
 
-        <div className="bg-gray-50 rounded-2xl p-3 flex items-center justify-between mb-4 border border-gray-100/50">
-          <div className="flex items-center gap-1 text-green-700 font-bold text-sm">
-            <IndianRupee className="h-3 w-3" />
-            {job.salary || "Best in Industry"}
+        <div className="bg-gray-50 rounded-2xl p-4 flex items-center justify-between mb-4 border border-gray-100/50">
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Estimated Salary</p>
+            <div className="flex items-center gap-1 text-green-700 font-black text-base">
+              <IndianRupee className="h-4 w-4" />
+              {job.salary || "Best in Industry"}
+            </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={handleSaveJob} className="h-8 w-8 rounded-full text-gray-400 hover:text-orange-500">
+            <Button variant="ghost" size="icon" onClick={handleSaveJob} className="h-9 w-9 rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-colors">
               <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-orange-500 text-orange-500' : ''}`} />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleShareJob} className="h-8 w-8 rounded-full text-gray-400 hover:text-blue-500">
+            <Button variant="ghost" size="icon" onClick={handleShareJob} className="h-9 w-9 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
               <Share2 className="h-4 w-4" />
             </Button>
-            {onTrack && (
-              <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); onTrack(); }} className="h-8 rounded-full text-[10px] font-black uppercase tracking-tighter border-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white transition-all">
-                <Target className="h-3.5 w-3.5 mr-1" /> Track
-              </Button>
-            )}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{job.postedOn}</span>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-5 h-8 font-bold text-xs shadow-lg shadow-blue-100" onClick={onClick} disabled={isExpired}>
+          <div className="flex flex-col">
+            <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Posted</span>
+            <span className="text-[10px] font-bold text-gray-400">{job.postedOn}</span>
+          </div>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-10 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 transition-all hover:scale-105 active:scale-95" onClick={onClick} disabled={isExpired}>
             {isExpired ? 'Closed' : 'View Details'}
           </Button>
         </div>
