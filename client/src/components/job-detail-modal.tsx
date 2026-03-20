@@ -125,7 +125,7 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                         Full Details <ArrowUpRight className="ml-1 h-4 w-4" />
                       </Button>
                       {onTrack && (
-                        <Button variant="outline" className="border-blue-400 text-white hover:bg-blue-700 font-black rounded-2xl h-12 text-xs uppercase" onClick={onTrack}>
+                        <Button variant="outline" className="border-blue-400 bg-transparent text-white hover:bg-blue-700 font-black rounded-2xl h-12 text-xs uppercase" onClick={onTrack}>
                           <Target className="mr-1 h-3.5 w-3.5" /> Track App
                         </Button>
                       )}
