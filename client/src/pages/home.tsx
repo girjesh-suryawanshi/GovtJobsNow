@@ -15,6 +15,7 @@ import JobTracker from "@/components/job-tracker";
 import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
 import UserProfileModal from "@/components/user-profile-modal";
+import { AdUnit } from "@/components/ad-unit";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -141,6 +142,7 @@ export default function Home() {
       <HeroSection onSearch={handleSearch} onLocationChange={(location) => handleFilterChange({ location })} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <StatsDashboard />
+        <AdUnit slot="home-top-fluid" className="mt-8" />
       </div>
 
       {/* AI Eligibility Setup Banner */}
@@ -339,6 +341,8 @@ export default function Home() {
                       />
                     ))}
                   </div>
+
+                  <AdUnit slot="home-list-middle" />
 
                   {/* Pagination */}
                   <div className="mt-8 flex justify-center">

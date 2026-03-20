@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { useQuery } from "@tanstack/react-query";
+import { SiteSettings } from "@shared/schema";
 
 interface SEOHeadProps {
   title?: string;
@@ -29,6 +31,9 @@ export default function SEOHead({
   locale = "en_IN",
   alternateLocale = "hi_IN"
 }: SEOHeadProps) {
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
+  });
   
   useEffect(() => {
     // Update document title
@@ -128,7 +133,29 @@ export default function SEOHead({
     hreflangEn.setAttribute('href', url);
     document.head.appendChild(hreflangEn);
 
-  }, [title, description, keywords, image, url, type, publishedTime, modifiedTime, author, siteName, locale, alternateLocale]);
+    // Dynamic AdSense Header Script Injection
+    if (settings?.adsEnabled && settings.adsHeaderCode) {
+      const scriptId = "adsense-header-script";
+      if (!document.getElementById(scriptId)) {
+        // Create a temporary container to parse the HTML string
+        const temp = document.createElement('div');
+        temp.innerHTML = settings.adsHeaderCode;
+        const scriptElement = temp.querySelector('script');
+        
+        if (scriptElement) {
+          const newScript = document.createElement('script');
+          newScript.id = scriptId;
+          // Copy all attributes from the provided script tag
+          Array.from(scriptElement.attributes).forEach(attr => {
+            newScript.setAttribute(attr.name, attr.value);
+          });
+          newScript.innerHTML = scriptElement.innerHTML;
+          document.head.appendChild(newScript);
+        }
+      }
+    }
+
+  }, [title, description, keywords, image, url, type, publishedTime, modifiedTime, author, siteName, locale, alternateLocale, settings?.adsEnabled, settings?.adsHeaderCode]);
 
   return null;
-}
+}

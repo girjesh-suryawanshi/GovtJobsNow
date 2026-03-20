@@ -249,6 +249,23 @@ export const visitorLogs = pgTable("visitor_logs", {
   visitedAt: timestamp("visited_at").defaultNow().notNull(),
 });
 
+// Site Settings Table (AdSense, etc.)
+export const siteSettings = pgTable("site_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adsEnabled: boolean("ads_enabled").default(false).notNull(),
+  adsHeaderCode: text("ads_header_code"), // Global AdSense script (<script async ...>)
+  adsContentCode: text("ads_content_code"), // Default Ad unit HTML code
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertSiteSettingsSchema = createInsertSchema(siteSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = z.infer<typeof insertSiteSettingsSchema>;
+
 export const insertExamSchema = createInsertSchema(exams).omit({
   id: true,
   createdAt: true,

@@ -16,7 +16,8 @@ import {
   Briefcase,
   Calendar,
   Users,
-  LayoutDashboard
+  LayoutDashboard,
+  Megaphone
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -30,6 +31,7 @@ import ManualJobEntry from "@/components/admin/manual-job-entry";
 import ManualExamEntry from "@/components/admin/manual-exam-entry";
 import AdminManagement from "@/components/admin/admin-management";
 import SignUpUserManagement from "@/components/admin/signup-user-management";
+import AdminAdsSettings from "@/components/admin/AdminAdsSettings";
 
 interface DashboardStats {
   totalProcessed: number;
@@ -45,7 +47,7 @@ export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"jobs" | "exams" | "signup-users" | "admins">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "exams" | "signup-users" | "admins" | "ads">("jobs");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -238,6 +240,15 @@ export default function AdminDashboard() {
                     <Settings className="h-4 w-4" />
                     Admin Settings
                   </button>
+                  <button
+                    onClick={() => setActiveTab("ads")}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      activeTab === "ads" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Megaphone className="h-4 w-4" />
+                    Ads Management
+                  </button>
                 </nav>
               </div>
             </div>
@@ -249,6 +260,7 @@ export default function AdminDashboard() {
               {activeTab === "exams" && <ManualExamEntry />}
               {activeTab === "signup-users" && <SignUpUserManagement />}
               {activeTab === "admins" && <AdminManagement />}
+              {activeTab === "ads" && <AdminAdsSettings />}
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema, insertExamSchema } from "@shared/schema";
+import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema, insertExamSchema, insertSiteSettingsSchema } from "@shared/schema";
 import { scrapeJobs } from "./scraper";
 import { adminStorage } from "./admin-storage";
 import { urlProcessor } from "./url-processor";
@@ -524,6 +524,31 @@ Allow: /`);
       res.json({ message: "Admin deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete admin", error });
+    }
+  });
+
+  // Site Settings Management (AdSense Control)
+  app.get("/api/site-settings", async (req, res) => {
+    try {
+      const settings = await storage.getSiteSettings();
+      res.json(settings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch site settings", error });
+    }
+  });
+
+  app.patch("/api/admin/site-settings", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const data = insertSiteSettingsSchema.partial().parse(req.body);
+      const updated = await storage.updateSiteSettings(data);
+      res.json(updated);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid settings data", error });
     }
   });
 

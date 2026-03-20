@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, type SiteSettings, type InsertSiteSettings, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs, siteSettings } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -44,6 +44,10 @@ export interface IStorage {
   // Site Analytics methods
   getVisitorStats(): Promise<{ totalVisitors: number; uniqueVisitors: number }>;
   recordVisitor(ipHash: string, isUnique: boolean): Promise<void>;
+
+  // Site Settings methods
+  getSiteSettings(): Promise<SiteSettings>;
+  updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings>;
 }
 
 export class MemStorage implements IStorage {
@@ -150,6 +154,25 @@ export class MemStorage implements IStorage {
     return { totalVisitors: 0, uniqueVisitors: 0 };
   }
   async recordVisitor(ipHash: string, isUnique: boolean): Promise<void> {}
+
+  private siteSettings?: SiteSettings;
+  async getSiteSettings(): Promise<SiteSettings> {
+    if (!this.siteSettings) {
+      this.siteSettings = {
+        id: "default",
+        adsEnabled: false,
+        adsHeaderCode: null,
+        adsContentCode: null,
+        updatedAt: new Date()
+      };
+    }
+    return this.siteSettings;
+  }
+  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    const current = await this.getSiteSettings();
+    this.siteSettings = { ...current, ...settings, updatedAt: new Date() };
+    return this.siteSettings;
+  }
 }
 
 export class DatabaseStorage implements IStorage {
@@ -319,6 +342,45 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error('Error recording visitor:', error);
     }
+  }
+
+  // Site Settings Implementation
+  async getSiteSettings(): Promise<SiteSettings> {
+    const SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
+    try {
+      const [settings] = await db.select().from(siteSettings).where(eq(siteSettings.id, SETTINGS_ID));
+      if (!settings) {
+        // Initialize if doesn't exist
+        const [newSettings] = await db.insert(siteSettings).values({ 
+          id: SETTINGS_ID, 
+          adsEnabled: false, 
+          adsHeaderCode: "", 
+          adsContentCode: "" 
+        }).returning();
+        return newSettings;
+      }
+      return settings;
+    } catch (error) {
+      console.error('Error fetching site settings:', error);
+      return { 
+        id: SETTINGS_ID, 
+        adsEnabled: false, 
+        adsHeaderCode: "", 
+        adsContentCode: "", 
+        updatedAt: new Date() 
+      };
+    }
+  }
+
+  async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
+    const SETTINGS_ID = "00000000-0000-0000-0000-000000000001";
+    // Ensure settings exist first
+    await this.getSiteSettings();
+    const [updated] = await db.update(siteSettings)
+      .set({ ...settings, updatedAt: new Date() })
+      .where(eq(siteSettings.id, SETTINGS_ID))
+      .returning();
+    return updated;
   }
 }
 
