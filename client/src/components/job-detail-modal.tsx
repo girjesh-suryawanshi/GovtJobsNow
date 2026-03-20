@@ -119,6 +119,18 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                   {/* Main Content */}
                   <div className="lg:col-span-2 space-y-10">
+                    {/* Mobile Quick Actions - Visible only on mobile */}
+                    <div className="lg:hidden grid grid-cols-2 gap-3 p-4 bg-blue-600 rounded-3xl shadow-lg shadow-blue-200">
+                      <Button className="bg-white text-blue-600 hover:bg-blue-50 font-black rounded-2xl h-12 text-xs uppercase" onClick={handleViewFullDetails}>
+                        Full Details <ArrowUpRight className="ml-1 h-4 w-4" />
+                      </Button>
+                      {onTrack && (
+                        <Button variant="outline" className="border-blue-400 text-white hover:bg-blue-700 font-black rounded-2xl h-12 text-xs uppercase" onClick={onTrack}>
+                          <Target className="mr-1 h-3.5 w-3.5" /> Track App
+                        </Button>
+                      )}
+                    </div>
+
                     {/* Key Highlights */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-blue-50/50 rounded-3xl border border-blue-100/50 shadow-sm shadow-blue-50/50">
                       <div className="space-y-1">
@@ -206,26 +218,27 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
 
                   {/* Sidebar */}
                   <div className="space-y-8">
-                    <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 space-y-6">
+                    <div className="p-6 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 space-y-6">
                       <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Actions & Quick Links</h4>
                       
                       <div className="space-y-3">
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl h-14 shadow-2xl shadow-blue-100 transition-all hover:scale-[1.02] active:scale-[0.98]" onClick={handleViewFullDetails}>
-                          View Full Details & Syllabus <ArrowUpRight className="ml-2 h-5 w-5" />
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold rounded-2xl min-h-[3.5rem] h-auto py-3 shadow-2xl shadow-blue-100 dark:shadow-none transition-all hover:scale-[1.02] active:scale-[0.98] text-[12px] px-4 flex flex-col items-center justify-center leading-tight" onClick={handleViewFullDetails}>
+                          <span>View Full Details</span>
+                          <span className="flex items-center gap-1 opacity-90">& Syllabus <ArrowUpRight className="h-4 w-4 shrink-0" /></span>
                         </Button>
 
-                        <Button variant="outline" className="w-full border-blue-100 text-blue-600 hover:bg-blue-50 font-extrabold rounded-2xl h-12" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                        <Button variant="outline" className="w-full border-blue-100 dark:border-blue-900/50 text-blue-600 dark:text-blue-300 bg-blue-50/50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 font-extrabold rounded-2xl h-12" onClick={() => window.open(job.sourceUrl, '_blank')}>
                           Quick Apply Online <ExternalLink className="ml-2 h-4 w-4" />
                         </Button>
 
                         {job.notificationFileUrl && (
-                          <Button variant="outline" className="w-full border-gray-200 text-gray-600 hover:bg-white font-black rounded-2xl h-12" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
+                          <Button variant="outline" className="w-full border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 font-black rounded-2xl h-12" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
                              Download Notification <Download className="ml-2 h-4 w-4 text-blue-500" />
                           </Button>
                         )}
                         
                         {onTrack && (
-                          <Button variant="outline" className="w-full border-blue-100 text-blue-600 hover:bg-white font-black rounded-2xl h-12" onClick={onTrack}>
+                          <Button variant="outline" className="w-full border-blue-100 dark:border-blue-900/50 text-blue-600 dark:text-blue-300 bg-transparent dark:bg-blue-900/10 hover:bg-white dark:hover:bg-gray-700 font-black rounded-2xl h-12" onClick={onTrack}>
                             <Target className="mr-2 h-4 w-4" /> Track Application
                           </Button>
                         )}

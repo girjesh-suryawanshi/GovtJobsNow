@@ -134,12 +134,19 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Posted</span>
-            <span className="text-[10px] font-bold text-gray-400">{job.postedOn}</span>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div className="flex items-center justify-between sm:justify-start sm:gap-6 shrink-0 order-2 sm:order-1">
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Posted</span>
+              <span className="text-[10px] font-bold text-gray-400">{job.postedOn}</span>
+            </div>
+            {onTrack && (
+              <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onTrack(); }} className="h-10 rounded-xl text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all border border-blue-50 dark:border-blue-900/30 sm:border-none">
+                <Target className="h-4 w-4 mr-2 text-blue-500 animate-pulse" /> Track App
+              </Button>
+            )}
           </div>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-6 h-10 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 transition-all hover:scale-105 active:scale-95" onClick={onClick} disabled={isExpired}>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8 h-12 sm:h-10 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 transition-all hover:scale-105 active:scale-95 order-1 sm:order-2" onClick={onClick} disabled={isExpired}>
             {isExpired ? 'Closed' : 'View Details'}
           </Button>
         </div>

@@ -124,21 +124,21 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 z-[100]">
       <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-gray-100">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+        <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-blue-50/50 dark:bg-blue-950/50 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
+            <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100 dark:shadow-none">
               <Target className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Application Watchtower</h2>
-              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Milestone Monitoring & Study Hub</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Application Watchtower</h2>
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 font-black uppercase tracking-widest leading-none">Milestone Monitoring & Study Hub</p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="rounded-full px-5 border-gray-200 h-10 text-xs font-bold" onClick={() => setShowAddForm(!showAddForm)}>
+            <Button variant="outline" className="rounded-full px-5 border-gray-200 dark:border-gray-700 h-10 text-xs font-bold bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700" onClick={() => setShowAddForm(!showAddForm)}>
               {showAddForm ? 'Cancel' : 'Track Custom Job'}
             </Button>
-            <Button variant="ghost" size="icon" className="rounded-full h-10 w-10" onClick={onClose}>
+            <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 text-gray-400 dark:text-gray-500 hover:text-gray-900 dark:hover:text-white" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -151,11 +151,11 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Job Title</Label>
-                    <Input value={newApplication.jobTitle} onChange={e => setNewApplication({...newApplication, jobTitle: e.target.value})} className="rounded-xl border-gray-200 h-11" />
+                    <Input value={newApplication.jobTitle} onChange={e => setNewApplication({...newApplication, jobTitle: e.target.value})} className="rounded-xl border-gray-200 dark:border-gray-700 h-11 bg-white dark:bg-gray-900" />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Organization / Dept</Label>
-                    <Input value={newApplication.department} onChange={e => setNewApplication({...newApplication, department: e.target.value})} className="rounded-xl border-gray-200 h-11" />
+                    <Input value={newApplication.department} onChange={e => setNewApplication({...newApplication, department: e.target.value})} className="rounded-xl border-gray-200 dark:border-gray-700 h-11 bg-white dark:bg-gray-900" />
                   </div>
                 </div>
                 <Button onClick={handleAddApplication} className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-blue-100">
@@ -184,7 +184,7 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
                       <div className="p-6 md:p-8 flex flex-col md:flex-row justify-between items-start gap-6">
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2 mb-2">
-                            <h3 className="text-xl font-bold text-gray-900">{app.jobTitle}</h3>
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white">{app.jobTitle}</h3>
                             {config.actionRequired && (
                               <Badge className="bg-orange-500 text-white animate-bounce border-none text-[10px] font-black px-2 py-0.5">ALERT</Badge>
                             )}
@@ -193,7 +193,7 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
                         </div>
                         <div className="flex items-center gap-3 w-full md:w-auto">
                           <Select value={app.status} onValueChange={(val: any) => updateStatus(app.id, val)}>
-                            <SelectTrigger className="w-full sm:w-48 rounded-2xl border-none bg-gray-50 h-11 font-bold text-sm">
+                            <SelectTrigger className="w-full sm:w-48 rounded-2xl border-none bg-gray-50 dark:bg-gray-800 h-11 font-bold text-sm text-gray-900 dark:text-gray-100">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent className="rounded-2xl border-none shadow-2xl">
@@ -247,23 +247,23 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
                             <AlertCircle className="h-4 w-4" /> Milestone Status
                           </h4>
                           {app.status === 'applied' && (
-                            <div className="p-5 bg-blue-50 rounded-3xl border border-blue-100 text-blue-900 text-sm leading-relaxed">
+                            <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800 text-blue-900 dark:text-blue-100 text-sm leading-relaxed">
                               Successfully applied on <span className="font-black underline">{app.appliedDate}</span>. We'll alert you when the <span className="font-black italic underline">Admit Card</span> link appears on official site.
                             </div>
                           )}
                           {app.status === 'admit_card_out' && (
-                            <div className="p-5 bg-orange-50 rounded-3xl border border-orange-100 flex flex-col sm:flex-row items-center gap-4">
+                            <div className="p-5 bg-orange-50 dark:bg-orange-900/20 rounded-3xl border border-orange-100 dark:border-orange-800 flex flex-col sm:flex-row items-center gap-4">
                               <div className="flex-1">
-                                <p className="text-orange-900 font-black text-base italic">Admit Card is LIVE!</p>
-                                <p className="text-orange-800 text-xs">Download immediately to confirm your exam center.</p>
+                                <p className="text-orange-900 dark:text-orange-100 font-black text-base italic">Admit Card is LIVE!</p>
+                                <p className="text-orange-800 dark:text-orange-300 text-xs">Download immediately to confirm your exam center.</p>
                               </div>
-                              <Button className="bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl h-11 px-6 shadow-xl shadow-orange-100">
+                              <Button className="bg-orange-600 hover:bg-orange-700 text-white font-black rounded-2xl h-11 px-6 shadow-xl shadow-orange-100 dark:shadow-none">
                                 <Download className="h-4 w-4 mr-2" /> DOWNLOAD
                               </Button>
                             </div>
                           )}
                           {app.status === 'exam_scheduled' && (
-                            <div className="p-5 bg-purple-50 rounded-3xl border border-purple-100 text-purple-900 text-sm">
+                            <div className="p-5 bg-purple-50 dark:bg-purple-900/20 rounded-3xl border border-purple-100 dark:border-purple-800 text-purple-900 dark:text-purple-100 text-sm">
                               Focused Study Mode! Exam date approaching. Access study guides in the <b>Instant Content Hub</b>.
                             </div>
                           )}
@@ -274,7 +274,7 @@ export default function JobTracker({ isOpen, onClose, jobToAdd }: JobTrackerProp
                           </h4>
                           <Textarea 
                             placeholder="Roll No, Registration ID, Password, Exam Center..." 
-                            className="rounded-[1.5rem] border-gray-100 bg-gray-50/30 text-sm h-32 p-4 focus:ring-blue-100" 
+                            className="rounded-[1.5rem] border-gray-100 dark:border-gray-700 bg-gray-50/30 dark:bg-gray-800/50 text-sm h-32 p-4 focus:ring-blue-100" 
                             value={app.notes} 
                             onChange={e => {
                                 const newApps = [...applications];

@@ -184,7 +184,11 @@ export class DatabaseStorage implements IStorage {
     let query: any = db.select().from(jobs);
     const conditions = [];
     if (params.search) {
-      conditions.push(sql`(${jobs.title} ILIKE ${`%${params.search}%`} OR ${jobs.department} ILIKE ${`%${params.search}%`})`);
+      const terms = params.search.split(/\s+OR\s+/i);
+      const searchConditions = terms.map(term => 
+        sql`(${jobs.title} ILIKE ${`%${term.trim()}%`} OR ${jobs.department} ILIKE ${`%${term.trim()}%`} OR ${jobs.description} ILIKE ${`%${term.trim()}%`})`
+      );
+      conditions.push(sql`(${sql.join(searchConditions, sql` OR `)})`);
     }
     if (conditions.length > 0) query = query.where(and(...conditions));
     const allJobs = await query as Job[];

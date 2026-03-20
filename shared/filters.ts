@@ -163,7 +163,7 @@ export function jobMatchesQualification(job: Job, category: QualificationCategor
   }
   
   // Fallback to regex patterns
-  const patterns = QUALIFICATION_PATTERNS[category];
+  const patterns = (QUALIFICATION_PATTERNS as any)[category];
   return patterns ? patterns.some((pattern: RegExp) => pattern.test(jobQualification)) : false;
 }
 
@@ -217,18 +217,66 @@ export function normalizeFilters(params: any): NormalizedFilters {
   return normalized;
 }
 
+// Helper to extract numbers from salary strings (e.g., "₹56,100 - 1,77,500" -> [56100, 177500])
+function extractSalaryNumbers(salary: string): number[] {
+  const matches = salary.match(/[\d,]+/g);
+  if (!matches) return [];
+  return matches.map(m => parseInt(m.replace(/,/g, ''))).filter(n => !isNaN(n));
+}
+
+// Check if job matches salary range filter
+export function jobMatchesSalary(job: Job, range: string): boolean {
+  if (!job.salary) return true; // Show jobs with no salary info to be safe
+  
+  const numbers = extractSalaryNumbers(job.salary);
+  if (numbers.length === 0) return true; // Can't parse, so show it
+  
+  const maxSalary = Math.max(...numbers);
+  
+  switch (range) {
+    case 'below-20k': return maxSalary < 20000;
+    case '20k-30k': return maxSalary >= 20000 && maxSalary < 30000;
+    case '30k-50k': return maxSalary >= 30000 && maxSalary < 50000;
+    case '50k-75k': return maxSalary >= 50000 && maxSalary < 75000;
+    case '75k-100k': return maxSalary >= 75000 && maxSalary < 100000;
+    case 'above-100k': return maxSalary >= 100000;
+    default: return true;
+  }
+}
+
+// Check if job matches posted date filter
+export function jobMatchesPostedDate(job: Job, range: 'today' | 'week' | 'month'): boolean {
+  if (!job.createdAt) return true;
+  
+  const now = new Date();
+  const postedDate = new Date(job.createdAt);
+  const diffTime = Math.abs(now.getTime() - postedDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  switch (range) {
+    case 'today': return diffDays <= 1;
+    case 'week': return diffDays <= 7;
+    case 'month': return diffDays <= 30;
+    default: return true;
+  }
+}
+
 export function jobMatchesFilters(job: Job, filters: NormalizedFilters): boolean {
   // DEBUG: Temporary logging to understand what's happening
-  if (filters.location || filters.qualification || filters.department) {
+  if (filters.location || filters.qualification || filters.department || filters.salaryRange || filters.postedDate) {
     console.log('🔍 Filtering job:', {
       id: job.id.substring(0, 8),
       location: job.location,
       qualification: job.qualification,
       department: job.department,
+      salary: job.salary,
+      postedDate: job.createdAt,
       filters: {
         location: filters.location ? `${filters.location.type}:${filters.location.state}` : undefined,
         qualification: filters.qualification,
-        department: filters.department
+        department: filters.department,
+        salary: filters.salaryRange,
+        postedDate: filters.postedDate
       }
     });
   }
@@ -251,10 +299,14 @@ export function jobMatchesFilters(job: Job, filters: NormalizedFilters): boolean
     return false;
   }
   
-  // Salary range filter (keep existing logic for now)
-  if (filters.salaryRange) {
-    // TODO: Implement salary range matching logic
-    // For now, skip this filter
+  // Salary range filter
+  if (filters.salaryRange && !jobMatchesSalary(job, filters.salaryRange)) {
+    return false;
+  }
+  
+  // Posted date filter
+  if (filters.postedDate && !jobMatchesPostedDate(job, filters.postedDate)) {
+    return false;
   }
   
   // Job passed all filters (removed logging to prevent spam)
