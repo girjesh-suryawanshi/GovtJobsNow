@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,9 +19,18 @@ import {
   Clock,
   Globe,
   Sparkles,
-  Loader2
+  Loader2,
+  Trash2,
+  Edit,
+  Search,
+  Building2,
+  PlusCircle,
+  X,
+  ExternalLink
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import type { Exam } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
 // Exam templates for quick entry
@@ -116,7 +125,74 @@ export default function ManualExamEntry() {
   const [isScraping, setIsScraping] = useState(false);
   const [rawText, setRawText] = useState("");
   const [scrapeUrl, setScrapeUrl] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
+
+  // Fetch all exams
+  const { data: exams = [], isLoading: isLoadingExams } = useQuery<Exam[]>({
+    queryKey: ["/api/exams"],
+  });
+
+  // Filter exams based on search query
+  const filteredExams = useMemo(() => {
+    return exams.filter(exam => 
+      exam.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (exam.conductingOrganization?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+    );
+  }, [exams, searchQuery]);
+
+  const handleEdit = (exam: Exam) => {
+    setFormData({
+      title: exam.title,
+      conductingOrganization: exam.conductingOrganization || "",
+      examDate: exam.examDate,
+      registrationStartDate: exam.registrationStartDate,
+      registrationEndDate: exam.registrationEndDate,
+      applicationFee: exam.applicationFee || "",
+      eligibility: exam.eligibility || "",
+      ageLimit: exam.ageLimit || "",
+      vacancies: exam.vacancies || "",
+      officialWebsite: exam.officialWebsite || "",
+      resultsDate: exam.resultsDate || "",
+      admitCardDate: exam.admitCardDate || "",
+      syllabus: exam.syllabus || "",
+      examMode: exam.examMode || "",
+      examBrief: exam.examBrief || ""
+    });
+    setEditingId(exam.id);
+    
+    // Scroll to form
+    const formElement = document.getElementById("exam-entry-form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Are you sure you want to delete "${title}"?`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch(`/api/admin/exams/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        toast({ title: "Exam Deleted", description: `"${title}" has been removed.` });
+        queryClient.invalidateQueries({ queryKey: ["/api/exams"] });
+      } else {
+        throw new Error("Failed to delete exam");
+      }
+    } catch (error) {
+      toast({ title: "Delete Failed", description: "Could not delete exam. Please try again.", variant: "destructive" });
+    }
+  };
 
   const handleScrapeAndExtract = async () => {
     if (!scrapeUrl.trim() || !scrapeUrl.startsWith("http")) {
@@ -252,6 +328,7 @@ export default function ManualExamEntry() {
       examBrief: ""
     });
     setSelectedTemplate("");
+    setEditingId(null);
   };
 
   const handleSubmit = async () => {
@@ -275,8 +352,11 @@ export default function ManualExamEntry() {
       };
 
       const token = localStorage.getItem("admin_token");
-      const response = await fetch("/api/admin/exams", {
-        method: "POST",
+      const url = editingId ? `/api/admin/exams/${editingId}` : "/api/admin/exams";
+      const method = editingId ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
@@ -297,8 +377,8 @@ export default function ManualExamEntry() {
       }
 
       toast({
-        title: "Success!",
-        description: `Exam "${formData.title}" has been successfully created.`,
+        title: editingId ? "Exam Updated!" : "Success!",
+        description: `Exam "${formData.title}" has been successfully ${editingId ? "updated" : "created"}.`,
       });
 
       // Clear form after successful submission
@@ -451,7 +531,7 @@ export default function ManualExamEntry() {
       </Card>
 
       {/* Main Form */}
-      <Card>
+      <Card id="exam-entry-form" className={editingId ? "ring-2 ring-blue-500 shadow-xl" : ""}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
@@ -658,7 +738,7 @@ export default function ManualExamEntry() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex flex-wrap gap-3 pt-4">
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting}
@@ -668,17 +748,34 @@ export default function ManualExamEntry() {
               {isSubmitting ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />
               ) : (
-                <Save className="h-4 w-4" />
+                editingId ? <Save className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />
               )}
-              {isSubmitting ? "Creating..." : "Create Exam"}
+              {isSubmitting 
+                ? (editingId ? "Updating..." : "Creating...") 
+                : (editingId ? "Update Exam" : "Create Exam")
+              }
             </Button>
-            <Button
-              variant="outline"
-              onClick={clearForm}
-              data-testid="button-clear"
-            >
-              Clear Form
-            </Button>
+            
+            {editingId && (
+              <Button
+                variant="outline"
+                onClick={clearForm}
+                className="flex items-center gap-2 border-red-200 text-red-600 hover:bg-red-50"
+              >
+                <X className="h-4 w-4" />
+                Cancel Edit
+              </Button>
+            )}
+
+            {!editingId && (
+              <Button
+                variant="outline"
+                onClick={clearForm}
+                data-testid="button-clear"
+              >
+                Clear Form
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -690,6 +787,113 @@ export default function ManualExamEntry() {
           Fields marked with * are required. Make sure to verify all dates and information before submitting.
         </AlertDescription>
       </Alert>
+
+      {/* Existing Exams List */}
+      <div className="pt-8 border-t">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              Manage Existing Exams
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Search, edit, or delete previously posted exams
+            </p>
+          </div>
+          <div className="relative w-full md:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search exams..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </div>
+
+        {isLoadingExams ? (
+          <div className="flex items-center justify-center p-12">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : filteredExams.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4">
+            {filteredExams.map((exam) => (
+              <Card key={exam.id} className={`overflow-hidden transition-all ${editingId === exam.id ? "ring-2 ring-blue-500 bg-blue-50/10" : "hover:shadow-md"}`}>
+                <CardContent className="p-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-lg">{exam.title}</h3>
+                        {editingId === exam.id && <Badge className="bg-blue-600">Editing Now</Badge>}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {exam.conductingOrganization}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Exam: {formatDate(exam.examDate)}
+                        </div>
+                        <div className="flex items-center gap-1 text-orange-600 font-medium">
+                          <Copy className="h-3 w-3" />
+                          Ends: {formatDate(exam.registrationEndDate)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(exam)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(exam.id, exam.title)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </Button>
+                      <a 
+                        href={`/exams`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Page
+                      </a>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border-dashed">
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+              <div className="bg-gray-100 p-3 rounded-full mb-4">
+                <Search className="h-6 w-6 text-gray-400" />
+              </div>
+              <h3 className="font-bold text-lg">No exams found</h3>
+              <p className="text-muted-foreground max-w-xs mx-auto">
+                {searchQuery ? `No exams match "${searchQuery}". Try a different term.` : "There are no exams in the calendar yet. Start by creating one above."}
+              </p>
+              {searchQuery && (
+                <Button variant="link" onClick={() => setSearchQuery("")} className="mt-2 text-blue-600">
+                  Clear Search
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 }
