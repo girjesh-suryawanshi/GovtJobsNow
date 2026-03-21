@@ -105,49 +105,43 @@ function ExamCard({ exam }: ExamCardProps) {
           </div>
         </div>
 
-        {/* Exam Details */}
-        <div className="space-y-2">
-          {exam.examPattern && (
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs">
-                {exam.examPattern}
-              </Badge>
-            </div>
+        {/* Fast Info Badges */}
+        <div className="flex flex-wrap gap-2">
+          {exam.ageLimit && (
+            <Badge variant="secondary" className="bg-purple-50 text-purple-700 border-purple-100">
+              Age: {exam.ageLimit}
+            </Badge>
           )}
-
-          <div className="flex flex-wrap gap-2">
-            {exam.examMode && (
-              <Badge variant="secondary" className="text-xs">
-                {exam.examMode}
-              </Badge>
-            )}
-            {exam.duration && (
-              <Badge variant="secondary" className="text-xs">
-                Duration: {exam.duration}
-              </Badge>
-            )}
-            {exam.totalMarks && (
-              <Badge variant="secondary" className="text-xs">
-                {exam.totalMarks} Marks
-              </Badge>
-            )}
-          </div>
-
-          {exam.location && (
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-gray-500" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">{exam.location}</span>
-            </div>
+          {exam.vacancies && (
+            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">
+              {exam.vacancies}
+            </Badge>
           )}
-
-          {exam.applicationFee && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Application Fee: <span className="font-medium text-green-600">{exam.applicationFee}</span>
-              </span>
-            </div>
+          {exam.examMode && (
+            <Badge variant="secondary" className="bg-gray-50 text-gray-700">
+              {exam.examMode}
+            </Badge>
           )}
         </div>
+
+        {/* Exam Brief / Pattern Summary */}
+        {exam.examBrief && (
+          <div className="bg-blue-50/50 p-3 rounded-md border border-blue-100/50">
+            <p className="text-xs font-semibold text-blue-800 uppercase mb-1">Exam Brief & Pattern</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
+              {exam.examBrief}
+            </p>
+          </div>
+        )}
+
+        {/* Application Details */}
+        {exam.applicationFee && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Application Fee: <span className="font-medium text-green-700">{exam.applicationFee}</span>
+            </span>
+          </div>
+        )}
 
         {/* Eligibility */}
         {exam.eligibility && (

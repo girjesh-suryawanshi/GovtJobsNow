@@ -216,22 +216,20 @@ export const updateJobSchema = insertJobSchema.partial();
 export const exams = pgTable("exams", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
-  conductingOrganization: text("conducting_organization").notNull(),
+  conductingOrganization: text("conducting_organization"),
   examDate: text("exam_date").notNull(),
   registrationStartDate: text("registration_start_date").notNull(),
   registrationEndDate: text("registration_end_date").notNull(),
   applicationFee: text("application_fee"),
-  examPattern: text("exam_pattern"),
-  eligibility: text("eligibility").notNull(),
-  officialWebsite: text("official_website").notNull(),
+  eligibility: text("eligibility"),
+  ageLimit: text("age_limit"),
+  vacancies: text("vacancies"),
+  officialWebsite: text("official_website"),
   resultsDate: text("results_date"),
   admitCardDate: text("admit_card_date"),
   syllabus: text("syllabus"),
-  location: text("location"),
-  duration: text("duration"),
-  totalMarks: integer("total_marks"),
   examMode: text("exam_mode"), // Online/Offline/Both
-  languagesAvailable: text("languages_available"),
+  examBrief: text("exam_brief"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

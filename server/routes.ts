@@ -301,11 +301,23 @@ Allow: /`);
     }
 
     try {
-      const examData = insertExamSchema.parse(req.body);
+      const { fromError } = await import("zod-validation-error");
+      const result = insertExamSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        const validationError = fromError(result.error);
+        return res.status(400).json({ 
+          message: "Invalid exam data", 
+          details: validationError.toString(),
+          error: result.error 
+        });
+      }
+
+      const examData = result.data;
       const exam = await storage.createExam(examData);
       res.status(201).json(exam);
     } catch (error) {
-      res.status(400).json({ message: "Invalid exam data", error });
+      res.status(400).json({ message: "Invalid exam data", details: (error as any).message || String(error), error: error });
     }
   });
 
@@ -324,7 +336,7 @@ Allow: /`);
       }
       res.json(exam);
     } catch (error) {
-      res.status(400).json({ message: "Invalid exam data", error });
+      res.status(400).json({ message: "Invalid exam data", details: (error as any).message || String(error), error: error });
     }
   });
 
@@ -683,18 +695,20 @@ Allow: /`);
         "examDate": "YYYY-MM-DD",
         "admitCardDate": "YYYY-MM-DD",
         "resultsDate": "YYYY-MM-DD",
-        "examPattern": "Pattern Details",
         "examMode": "Mode (Must be from allowed options)",
-        "duration": "Duration (e.g., 60 minutes)",
-        "totalMarks": "Total Marks (e.g., 100)",
-        "location": "Location",
         "applicationFee": "Fee Details",
-        "languagesAvailable": "Languages",
         "eligibility": "Eligibility Criteria",
+        "ageLimit": "Age Limit Details (e.g., 18-30 years)",
+        "vacancies": "Number of Vacancies (e.g., 1500 posts)",
         "officialWebsite": "https://example.com/apply",
-        "syllabus": "Syllabus Details"
+        "syllabus": "Comprehensive syllabus summary",
+        "examBrief": "Merge technical details like duration, total marks, and exam pattern here into a cohesive, attractive summary."
       }
       
+      DATE HANDLING: 
+      - If a specific date (like admitCardDate or resultsDate) is not explicitly found but a general timeframe is mentioned (e.g., 'May 2025' or 'Tentative'), provide the best estimation in YYYY-MM-DD format (e.g., '2025-05-01').
+      - If no estimation is possible, return an empty string "".
+
       Text: ${rawText}`;
 
       const response = await generateText(prompt);
@@ -751,7 +765,8 @@ Allow: /`);
       const $ = cheerio.load(html);
 
       // Remove noisy elements that confuse AI text extraction
-      $("script, style, noscript, iframe, img, svg, header, footer, nav, .menu, .sidebar").remove();
+      // Remove only technical noise, keep headers/sidebars as they often contain important dates/links on gov sites
+      $("script, style, noscript, iframe, img, svg").remove();
 
       // Extract the raw text from the remaining body
       let text = $("body").text() || $.text();
@@ -763,8 +778,8 @@ Allow: /`);
         throw new Error("Scraped page appears to be almost empty. It may be blocked by a Captcha, or the jobs are loaded via Javascript instead of static HTML.");
       }
 
-      // Truncate to save Gemini tokens if the site is massive (e.g., huge TOCs)
-      const MAX_CHARS = 15000;
+      // Truncate to save Gemini tokens but keep enough context for large notifications
+      const MAX_CHARS = 30000;
       if (text.length > MAX_CHARS) {
         text = text.slice(0, MAX_CHARS);
       }

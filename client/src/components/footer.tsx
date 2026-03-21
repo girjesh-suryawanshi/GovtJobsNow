@@ -88,7 +88,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
 
             {/* Social Links */}
             <div className="flex space-x-4">
-              <a href="#" className="bg-blue-600/20 p-3 rounded-lg text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 transition-all duration-200">
+              <a href="https://www.facebook.com/Dailygovtjobsalert" className="bg-blue-600/20 p-3 rounded-lg text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 transition-all duration-200">
                 <Facebook className="h-5 w-5" />
               </a>
               <a href="#" className="bg-sky-600/20 p-3 rounded-lg text-sky-400 hover:bg-sky-600/30 hover:text-sky-300 transition-all duration-200">
@@ -97,7 +97,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
               <a href="#" className="bg-blue-700/20 p-3 rounded-lg text-blue-400 hover:bg-blue-700/30 hover:text-blue-300 transition-all duration-200">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="#" className="bg-pink-600/20 p-3 rounded-lg text-pink-400 hover:bg-pink-600/30 hover:text-pink-300 transition-all duration-200">
+              <a href="https://www.instagram.com/dailygovtjobsalert/" className="bg-pink-600/20 p-3 rounded-lg text-pink-400 hover:bg-pink-600/30 hover:text-pink-300 transition-all duration-200">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
@@ -111,8 +111,8 @@ export default function Footer({ onFilterChange }: FooterProps) {
             </h4>
             <ul className="space-y-3">
               <li>
-                <Link 
-                  href="/?search=Banking" 
+                <Link
+                  href="/?search=Banking"
                   onClick={() => onFilterChange?.({ search: "Banking" })}
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
@@ -121,8 +121,8 @@ export default function Footer({ onFilterChange }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/?search=Railway" 
+                <Link
+                  href="/?search=Railway"
                   onClick={() => onFilterChange?.({ search: "Railway" })}
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
@@ -131,8 +131,8 @@ export default function Footer({ onFilterChange }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/?search=Defense" 
+                <Link
+                  href="/?search=Defense"
                   onClick={() => onFilterChange?.({ search: "Defense" })}
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
@@ -141,8 +141,8 @@ export default function Footer({ onFilterChange }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/?search=SSC" 
+                <Link
+                  href="/?search=SSC"
                   onClick={() => onFilterChange?.({ search: "SSC" })}
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
@@ -151,8 +151,8 @@ export default function Footer({ onFilterChange }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/?search=UPSC" 
+                <Link
+                  href="/?search=UPSC"
                   onClick={() => onFilterChange?.({ search: "UPSC" })}
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
@@ -161,8 +161,8 @@ export default function Footer({ onFilterChange }: FooterProps) {
                 </Link>
               </li>
               <li>
-                <Link 
-                  href="/?jobCategory=State Government" 
+                <Link
+                  href="/?jobCategory=State Government"
                   onClick={() => onFilterChange?.({ jobCategory: "State Government" })}
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >

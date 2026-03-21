@@ -29,62 +29,47 @@ const examTemplates = {
   ssc: {
     title: "SSC [Exam Name] 2025",
     conductingOrganization: "Staff Selection Commission",
-    examPattern: "Computer Based Examination (CBE)",
     eligibility: "Graduate Degree from recognized university",
     applicationFee: "₹100 (General/OBC), No fee for SC/ST/EWS",
     officialWebsite: "https://ssc.nic.in",
     examMode: "Online",
-    duration: "60 minutes",
-    totalMarks: 100,
-    languagesAvailable: "Hindi, English"
+    examBrief: "Tier-I: 100 Qs, 200 Marks, 60 min. Tier-II: 150 Qs, 450 Marks, 150 min. Negative marking applies."
   },
   upsc: {
     title: "UPSC [Exam Name] 2025",
     conductingOrganization: "Union Public Service Commission",
-    examPattern: "Preliminary + Main + Interview",
     eligibility: "Graduate Degree from recognized university",
     applicationFee: "₹25 (General/OBC), No fee for SC/ST/PH/EWS/ESM",
     officialWebsite: "https://upsc.gov.in",
     examMode: "Offline",
-    duration: "2 hours per paper",
-    totalMarks: 200,
-    languagesAvailable: "Hindi, English, Regional Languages"
+    examBrief: "Preliminary (Obj), Main (Written), Interview. Total 2025 Marks."
   },
   ibps: {
     title: "IBPS [Exam Name] 2025",
     conductingOrganization: "Institute of Banking Personnel Selection",
-    examPattern: "Preliminary + Main Examination",
     eligibility: "Graduate Degree in any discipline",
-    applicationFee: "₹175 (General/OBC), ₹175 (SC/ST/PH)",
+    applicationFee: "₹175 (SC/ST/PH), ₹850 (Others)",
     officialWebsite: "https://ibps.in",
     examMode: "Online",
-    duration: "1 hour (Prelims), 3 hours (Mains)",
-    totalMarks: 100,
-    languagesAvailable: "Hindi, English"
+    examBrief: "Prelims (Obj), Mains (Obj/Desc), Interview. Time: 60/180 min."
   },
   sbi: {
     title: "SBI [Exam Name] 2025",
     conductingOrganization: "State Bank of India",
-    examPattern: "Preliminary + Main + Group Discussion/Interview",
     eligibility: "Graduate in any discipline with minimum 60% marks",
-    applicationFee: "₹750 (General/EWS/OBC), ₹125 (SC/ST/PH)",
+    applicationFee: "₹750 (General/EWS/OBC), No fee for SC/ST/PH",
     officialWebsite: "https://sbi.co.in/careers",
     examMode: "Online",
-    duration: "1 hour (Prelims), 3 hours (Mains)",
-    totalMarks: 100,
-    languagesAvailable: "Hindi, English"
+    examBrief: "Prelims, Mains, GD/Interview. Sectional timing applies."
   },
   railway: {
     title: "Railway [Exam Name] 2025",
     conductingOrganization: "Railway Recruitment Board",
-    examPattern: "Computer Based Test (CBT)",
     eligibility: "10th/12th/ITI/Graduate as per post requirement",
     applicationFee: "₹500 (General/OBC), ₹250 (SC/ST)",
     officialWebsite: "https://rrbcdg.gov.in",
     examMode: "Online",
-    duration: "90 minutes",
-    totalMarks: 100,
-    languagesAvailable: "Hindi, English, Regional Languages"
+    examBrief: "Single or Dual Stage CBT followed by PET/PST. Duration: 90/120 min."
   }
 };
 
@@ -95,17 +80,15 @@ interface ExamFormData {
   registrationStartDate: string;
   registrationEndDate: string;
   applicationFee: string;
-  examPattern: string;
   eligibility: string;
+  ageLimit: string;
+  vacancies: string;
   officialWebsite: string;
   resultsDate: string;
   admitCardDate: string;
   syllabus: string;
-  location: string;
-  duration: string;
-  totalMarks: string;
   examMode: string;
-  languagesAvailable: string;
+  examBrief: string;
 }
 
 export default function ManualExamEntry() {
@@ -116,17 +99,15 @@ export default function ManualExamEntry() {
     registrationStartDate: "",
     registrationEndDate: "",
     applicationFee: "",
-    examPattern: "",
     eligibility: "",
+    ageLimit: "",
+    vacancies: "",
     officialWebsite: "",
     resultsDate: "",
     admitCardDate: "",
     syllabus: "",
-    location: "",
-    duration: "",
-    totalMarks: "",
     examMode: "",
-    languagesAvailable: ""
+    examBrief: ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -242,8 +223,7 @@ export default function ManualExamEntry() {
     if (template) {
       setFormData(prev => ({
         ...prev,
-        ...template,
-        totalMarks: template.totalMarks.toString()
+        ...template
       }));
       setSelectedTemplate(templateKey);
       toast({
@@ -261,17 +241,15 @@ export default function ManualExamEntry() {
       registrationStartDate: "",
       registrationEndDate: "",
       applicationFee: "",
-      examPattern: "",
       eligibility: "",
+      ageLimit: "",
+      vacancies: "",
       officialWebsite: "",
       resultsDate: "",
       admitCardDate: "",
       syllabus: "",
-      location: "",
-      duration: "",
-      totalMarks: "",
       examMode: "",
-      languagesAvailable: ""
+      examBrief: ""
     });
     setSelectedTemplate("");
   };
@@ -292,10 +270,8 @@ export default function ManualExamEntry() {
     setIsSubmitting(true);
 
     try {
-      // Convert totalMarks to number if provided
       const examData = {
-        ...formData,
-        totalMarks: formData.totalMarks ? parseInt(formData.totalMarks) : null
+        ...formData
       };
 
       const token = localStorage.getItem("admin_token");
@@ -309,8 +285,15 @@ export default function ManualExamEntry() {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`${response.status}: ${errorText}`);
+        let errorMessage = `Server error ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.details || errorData.message || errorMessage;
+        } catch (e) {
+          const text = await response.text();
+          errorMessage = text || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       toast({
@@ -324,12 +307,12 @@ export default function ManualExamEntry() {
       // Invalidate any exam queries
       queryClient.invalidateQueries({ queryKey: ["/api/exams"] });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to create exam:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create exam. Please check your input and try again."
+        description: error.message || "Failed to create exam. Please check your input and try again."
       });
     } finally {
       setIsSubmitting(false);
@@ -564,18 +547,33 @@ export default function ManualExamEntry() {
 
           {/* Exam Details */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Exam Information</h3>
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-purple-600" />
+              Exam & Eligibility Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="examPattern">Exam Pattern</Label>
+                <Label htmlFor="ageLimit">Age Limit *</Label>
                 <Input
-                  id="examPattern"
-                  value={formData.examPattern}
-                  onChange={(e) => handleInputChange("examPattern", e.target.value)}
-                  placeholder="e.g., Computer Based Examination"
-                  data-testid="input-pattern"
+                  id="ageLimit"
+                  value={formData.ageLimit}
+                  onChange={(e) => handleInputChange("ageLimit", e.target.value)}
+                  placeholder="e.g., 18-30 years as on 01-01-2025"
+                  data-testid="input-age-limit"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="vacancies">Number of Vacancies</Label>
+                <Input
+                  id="vacancies"
+                  value={formData.vacancies}
+                  onChange={(e) => handleInputChange("vacancies", e.target.value)}
+                  placeholder="e.g., 1500 Posts"
+                  data-testid="input-vacancies"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="examMode">Exam Mode</Label>
                 <Select
@@ -592,46 +590,6 @@ export default function ManualExamEntry() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="duration">Duration</Label>
-                <Input
-                  id="duration"
-                  value={formData.duration}
-                  onChange={(e) => handleInputChange("duration", e.target.value)}
-                  placeholder="e.g., 60 minutes"
-                  data-testid="input-duration"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="totalMarks">Total Marks</Label>
-                <Input
-                  id="totalMarks"
-                  type="number"
-                  value={formData.totalMarks}
-                  onChange={(e) => handleInputChange("totalMarks", e.target.value)}
-                  placeholder="e.g., 100"
-                  data-testid="input-marks"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange("location", e.target.value)}
-                  placeholder="e.g., All India"
-                  data-testid="input-location"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Application & Eligibility */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Application Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="applicationFee">Application Fee</Label>
                 <Input
@@ -642,16 +600,6 @@ export default function ManualExamEntry() {
                   data-testid="input-fee"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="languagesAvailable">Languages Available</Label>
-                <Input
-                  id="languagesAvailable"
-                  value={formData.languagesAvailable}
-                  onChange={(e) => handleInputChange("languagesAvailable", e.target.value)}
-                  placeholder="e.g., Hindi, English"
-                  data-testid="input-languages"
-                />
-              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="eligibility">Eligibility Criteria *</Label>
@@ -659,13 +607,32 @@ export default function ManualExamEntry() {
                 id="eligibility"
                 value={formData.eligibility}
                 onChange={(e) => handleInputChange("eligibility", e.target.value)}
-                placeholder="Describe the eligibility criteria for this exam..."
+                placeholder="Describe the education and other eligibility criteria..."
                 rows={3}
                 data-testid="textarea-eligibility"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="officialWebsite">Official Website *</Label>
+              <Label htmlFor="examBrief">Exam Brief / Pattern Summary</Label>
+              <Textarea
+                id="examBrief"
+                value={formData.examBrief}
+                onChange={(e) => handleInputChange("examBrief", e.target.value)}
+                placeholder="Brief summary of exam pattern, duration, marks, etc."
+                rows={3}
+                data-testid="textarea-exam-brief"
+              />
+            </div>
+          </div>
+
+          {/* Website Links */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <Globe className="h-4 w-4" />
+              Official Links
+            </h3>
+            <div className="space-y-2">
+              <Label htmlFor="officialWebsite">Official Website / Notification Link *</Label>
               <Input
                 id="officialWebsite"
                 type="url"
