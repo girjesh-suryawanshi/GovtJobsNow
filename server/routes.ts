@@ -59,8 +59,8 @@ User-agent: Mediapartners-Google
 Allow: /`);
   });
 
-  // Setup Multer for PDF/Image Notification Uploads
-  const uploadDir = path.join(process.cwd(), "uploads");
+  // Setup Multer for PDF/Image Notification Uploads - Allow configuration via environment variable
+  const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
   }
