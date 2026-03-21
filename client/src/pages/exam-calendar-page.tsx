@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { Building2, PlusCircle, FileText, ExternalLink } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import type { Exam } from "@shared/schema";
@@ -41,11 +42,11 @@ function ExamCard({ exam }: ExamCardProps) {
     const end = new Date(endDate);
 
     if (now < start) {
-      return { status: 'upcoming', text: 'Registration Not Started', color: 'bg-gray-100 text-gray-700' };
+      return { status: 'upcoming', text: 'Opening Soon', color: 'bg-amber-50 text-amber-700 border-amber-100' };
     } else if (now >= start && now <= end) {
-      return { status: 'open', text: 'Registration Open', color: 'bg-green-100 text-green-700' };
+      return { status: 'open', text: 'Register Now', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
     } else {
-      return { status: 'closed', text: 'Registration Closed', color: 'bg-red-100 text-red-700' };
+      return { status: 'closed', text: 'Closed', color: 'bg-slate-50 text-slate-500 border-slate-100' };
     }
   };
 
@@ -54,131 +55,146 @@ function ExamCard({ exam }: ExamCardProps) {
   const regEndDays = getDaysUntil(exam.registrationEndDate);
 
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-200 border-l-4 border-l-blue-500" data-testid={`exam-card-${exam.id}`}>
-      <CardHeader className="pb-4">
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+    <Card className="group hover:shadow-2xl transition-all duration-300 border border-slate-200 overflow-hidden hover:border-blue-300 transform hover:-translate-y-1" data-testid={`exam-card-${exam.id}`}>
+      {/* Top Banner Status */}
+      <div className={`h-1 w-full ${regStatus.status === 'open' ? 'bg-emerald-500' : regStatus.status === 'upcoming' ? 'bg-amber-500' : 'bg-slate-300'}`} />
+      
+      <CardHeader className="pb-3 pt-5 px-6">
+        <div className="flex justify-between items-start gap-4">
+          <div className="space-y-1.5 flex-1">
+            <div className="flex items-center gap-2 mb-1">
+               <Badge variant="outline" className="font-semibold text-[10px] uppercase tracking-wider py-0 px-2 h-5 bg-blue-50 text-blue-700 border-blue-100">
+                {exam.examMode || "Government Exam"}
+              </Badge>
+              <Badge className={`${regStatus.color} font-bold text-[10px] uppercase tracking-wider h-5 py-0 px-2`} data-testid="registration-status">
+                {regStatus.text}
+              </Badge>
+            </div>
+            <CardTitle className="text-xl font-extrabold text-slate-900 dark:text-slate-100 leading-tight group-hover:text-blue-700 transition-colors">
               {exam.title}
             </CardTitle>
-            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+            <div className="flex items-center gap-2 text-slate-500 font-medium text-sm">
+              <Building2 className="h-4 w-4 text-slate-400" />
               {exam.conductingOrganization}
-            </p>
+            </div>
           </div>
-          <Badge className={regStatus.color} data-testid="registration-status">
-            {regStatus.text}
-          </Badge>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* Important Dates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-orange-600" />
-            <div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Exam Date</p>
-              <p className="text-sm font-medium" data-testid="exam-date">
+      <CardContent className="px-6 pb-6 space-y-5">
+        {/* Date Timeline Style */}
+        <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Calendar className="h-3 w-3" />
+              Exam Date
+            </p>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-800" data-testid="exam-date">
                 {formatDate(exam.examDate)}
-                {examDaysLeft > 0 && (
-                  <span className="ml-2 text-xs text-orange-600">
-                    ({examDaysLeft} days left)
-                  </span>
-                )}
-              </p>
+              </span>
+              {examDaysLeft > 0 && (
+                <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-fit mt-1">
+                  {examDaysLeft} Days Remaining
+                </span>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-red-600" />
-            <div>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Registration Ends</p>
-              <p className="text-sm font-medium" data-testid="registration-end">
+          <div className="space-y-1 border-l pl-4 border-slate-200">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Clock className="h-3 w-3" />
+              Deadline
+            </p>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-slate-800" data-testid="registration-end">
                 {formatDate(exam.registrationEndDate)}
-                {regEndDays > 0 && regStatus.status === 'open' && (
-                  <span className="ml-2 text-xs text-red-600 font-semibold">
-                    ({regEndDays} days left)
-                  </span>
-                )}
-              </p>
+              </span>
+              {regEndDays > 0 && regStatus.status === 'open' && (
+                <span className="text-[10px] font-semibold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded w-fit mt-1">
+                  Last {regEndDays} Days
+                </span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Fast Info Badges */}
-        <div className="flex flex-wrap gap-2">
+        {/* Highlight Stats */}
+        <div className="flex flex-wrap gap-2 pt-1">
           {exam.ageLimit && (
-            <Badge variant="secondary" className="bg-purple-50 text-purple-700 border-purple-100">
+            <div className="flex items-center gap-1.5 bg-indigo-50/50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-bold border border-indigo-100">
+              <Users className="h-3 w-3" />
               Age: {exam.ageLimit}
-            </Badge>
+            </div>
           )}
           {exam.vacancies && (
-            <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100">
+            <div className="flex items-center gap-1.5 bg-sky-50/50 text-sky-700 px-3 py-1.5 rounded-full text-xs font-bold border border-sky-100">
+              <PlusCircle className="h-3 w-3" />
               {exam.vacancies}
-            </Badge>
+            </div>
           )}
-          {exam.examMode && (
-            <Badge variant="secondary" className="bg-gray-50 text-gray-700">
-              {exam.examMode}
-            </Badge>
+          {exam.applicationFee && (
+            <div className="flex items-center gap-1.5 bg-emerald-50/50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold border border-emerald-100">
+              <FileText className="h-3 w-3" />
+              Fee: {exam.applicationFee.includes("₹") ? exam.applicationFee : `₹${exam.applicationFee}`}
+            </div>
           )}
         </div>
 
-        {/* Exam Brief / Pattern Summary */}
+        {/* Summary Snippet */}
         {exam.examBrief && (
-          <div className="bg-blue-50/50 p-3 rounded-md border border-blue-100/50">
-            <p className="text-xs font-semibold text-blue-800 uppercase mb-1">Exam Brief & Pattern</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3">
-              {exam.examBrief}
+          <div className="relative group/brief">
+            <div className="absolute -left-3 top-0 bottom-0 w-1 bg-blue-100 rounded-full group-hover/brief:bg-blue-400 transition-colors" />
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Exam Pattern & Summary</p>
+            <p className="text-sm text-slate-600 leading-relaxed line-clamp-2 italic">
+              "{exam.examBrief}"
             </p>
           </div>
         )}
 
-        {/* Application Details */}
-        {exam.applicationFee && (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Application Fee: <span className="font-medium text-green-700">{exam.applicationFee}</span>
-            </span>
-          </div>
-        )}
-
-        {/* Eligibility */}
-        {exam.eligibility && (
-          <div>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Eligibility</p>
-            <p className="text-sm text-gray-800 dark:text-gray-200">{exam.eligibility}</p>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
+        {/* Actions */}
+        <div className="flex gap-2 pt-2 border-t border-slate-100 pt-5">
           <Button
             size="sm"
-            className="flex-1"
-            onClick={() => window.open(exam.officialWebsite, '_blank')}
+            className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-bold h-10 shadow-lg shadow-slate-200 transition-all"
+            onClick={() => exam.officialWebsite && window.open(exam.officialWebsite, '_blank')}
             data-testid="visit-website"
+            disabled={!exam.officialWebsite}
           >
-            <Globe className="h-4 w-4 mr-2" />
-            Visit Official Website
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Details & Apply
           </Button>
           {exam.syllabus && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" data-testid="view-syllabus">
+                <Button variant="outline" size="sm" className="h-10 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 px-4" data-testid="view-syllabus">
                   <BookOpen className="h-4 w-4 mr-2" />
-                  View Syllabus
+                  Syllabus
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{exam.title} - Syllabus</DialogTitle>
-                  <DialogDescription>
-                    {exam.conductingOrganization}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap font-medium">
-                  {exam.syllabus}
+              <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border-none">
+                <div className="bg-slate-900 p-8 text-white relative">
+                  <BookOpen className="h-16 w-16 text-white/10 absolute right-8 top-8" />
+                  <DialogHeader className="relative z-10">
+                    <DialogTitle className="text-3xl font-black mb-2">{exam.title}</DialogTitle>
+                    <DialogDescription className="text-blue-300 font-bold uppercase tracking-widest text-xs">
+                      {exam.conductingOrganization} • Official Syllabus Content
+                    </DialogDescription>
+                  </DialogHeader>
+                </div>
+                <div className="p-8 max-h-[60vh] overflow-y-auto bg-white">
+                  <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap font-medium text-base">
+                    {exam.syllabus}
+                  </div>
+                </div>
+                <div className="p-6 bg-slate-50 border-t flex justify-end">
+                   <Button 
+                    onClick={() => exam.officialWebsite && window.open(exam.officialWebsite, '_blank')} 
+                    className="bg-blue-600 font-bold"
+                    disabled={!exam.officialWebsite}
+                   >
+                    Visit Official Site
+                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
@@ -236,10 +252,10 @@ export default function ExamCalendarPage() {
       let filtered = data.filter((exam) => {
         const matchesSearch = !searchTerm ||
           exam.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          exam.conductingOrganization.toLowerCase().includes(searchTerm.toLowerCase());
+          (exam.conductingOrganization?.toLowerCase() || "").includes(searchTerm.toLowerCase());
 
         const matchesOrg = selectedOrganization === "all" ||
-          exam.conductingOrganization.toLowerCase().includes(selectedOrganization.toLowerCase());
+          (exam.conductingOrganization?.toLowerCase() || "").includes(selectedOrganization.toLowerCase());
 
         return matchesSearch && matchesOrg;
       });
@@ -262,21 +278,25 @@ export default function ExamCalendarPage() {
     }
   });
 
-  const organizations = exams ? Array.from(new Set(exams.map(exam => exam.conductingOrganization))) : [];
+  const organizations = exams ? Array.from(new Set(exams.map(exam => exam.conductingOrganization).filter((org): org is string => !!org))) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-12">
         {/* Page Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Government Exam Calendar
+        <div className="text-center mb-16 space-y-4">
+          <Badge className="bg-blue-600 text-white font-black px-4 py-1 uppercase tracking-widest text-[10px] rounded-full">
+            Live Updates
+          </Badge>
+          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+            Government <span className="text-blue-600">Exam Calendar</span>
           </h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Stay updated with upcoming government exams, registration dates, and important schedules
+          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
+            The most reliable source for Indian government exam dates, registration deadlines, and syllabus information.
           </p>
+          <div className="h-1.5 w-24 bg-blue-600 mx-auto rounded-full" />
         </div>
 
         {/* Filters */}
