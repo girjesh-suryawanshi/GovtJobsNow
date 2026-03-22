@@ -78,7 +78,7 @@ Allow: /`);
 
   const upload = multer({
     storage: storageConfig,
-    limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
+    limits: { fileSize: 100 * 1024 * 1024 } // Increased to 100MB to support large PDFs
   });
 
   // Serve the uploads directory statically
