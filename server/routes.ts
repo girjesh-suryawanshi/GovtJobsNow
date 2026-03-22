@@ -176,6 +176,25 @@ Allow: /`);
     }
   });
 
+  // Get single job by slug
+  app.get("/api/jobs/slug/:slug", async (req, res) => {
+    try {
+      const job = await storage.getJobBySlug(req.params.slug);
+      if (!job) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+
+      // Increment view count asynchronously
+      storage.incrementJobViewCount(job.id).catch(err => {
+        console.error("Error incrementing job view count:", err);
+      });
+
+      res.json(job);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch job", error });
+    }
+  });
+
   // Get related jobs
   app.get("/api/jobs/:id/related", async (req, res) => {
     try {
@@ -284,6 +303,19 @@ Allow: /`);
   app.get("/api/exams/:id", async (req, res) => {
     try {
       const exam = await storage.getExam(req.params.id);
+      if (!exam) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+      res.json(exam);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch exam", error });
+    }
+  });
+
+  // Get single exam by slug
+  app.get("/api/exams/slug/:slug", async (req, res) => {
+    try {
+      const exam = await storage.getExamBySlug(req.params.slug);
       if (!exam) {
         return res.status(404).json({ message: "Exam not found" });
       }

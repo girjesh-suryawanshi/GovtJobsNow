@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { type Job } from "@shared/schema";
+import { type Job } from "@/types/job";
 import {
   Accordion,
   AccordionContent,

@@ -4,7 +4,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const jobs = pgTable("jobs", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   department: text("department").notNull(),
   location: text("location").notNull(),
@@ -19,25 +19,23 @@ export const jobs = pgTable("jobs", {
   applicationFee: text("application_fee"),
   description: text("description"),
   selectionProcess: text("selection_process"),
-  // Experience requirements
   experienceRequired: text("experience_required"),
-  // New priority fields for enhanced admin entry
   jobCategory: text("job_category"),
   employmentType: text("employment_type"),
   recruitingOrganization: text("recruiting_organization"),
   applicationStartDate: text("application_start_date"),
   vacancyBreakdown: text("vacancy_breakdown"),
   notificationFileUrl: text("notification_file_url"),
-  // SEO-specific enrichment fields
   prepGuide: text("prep_guide"),
   syllabus: text("syllabus"),
   viewCount: integer("view_count").default(0),
+  slug: varchar("slug").unique(),
+  notifications: json("notifications").default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Job Positions table for multiple positions with different requirements
 export const jobPositions = pgTable("job_positions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   jobId: varchar("job_id").references(() => jobs.id, { onDelete: "cascade" }).notNull(),
   positionName: text("position_name").notNull(),
   qualification: text("qualification").notNull(),
@@ -58,11 +56,8 @@ export const insertJobPositionSchema = createInsertSchema(jobPositions).omit({
   createdAt: true,
 });
 
-// Enhanced job creation schema with positions
 export const createJobWithPositionsSchema = z.object({
-  // Main job data
   job: insertJobSchema,
-  // Optional positions array for multi-position jobs
   positions: z.array(z.object({
     positionName: z.string().min(1, "Position name is required"),
     qualification: z.string().min(1, "Qualification is required"),
@@ -94,7 +89,7 @@ export type CreateJobWithPositions = z.infer<typeof createJobWithPositionsSchema
 export type SearchJobsParams = z.infer<typeof searchJobsSchema>;
 
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   fullName: text("full_name").notNull(),
   email: text("email").notNull().unique(),
   phone: text("phone"),
@@ -127,9 +122,8 @@ export type User = typeof users.$inferSelect;
 export type UserLogin = z.infer<typeof userLoginSchema>;
 export type UserRegister = z.infer<typeof userRegisterSchema>;
 
-// Admin Users Table
 export const adminUsers = pgTable("admin_users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
@@ -150,14 +144,13 @@ export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 export type AdminUser = typeof adminUsers.$inferSelect;
 
-// URL Processing Log Table
 export const urlProcessingLogs = pgTable("url_processing_logs", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   adminId: varchar("admin_id").references(() => adminUsers.id).notNull(),
   url: text("url").notNull(),
-  status: text("status").notNull(), // 'processing', 'completed', 'failed', 'review_required'
-  extractedData: json("extracted_data"), // JSON object with extracted job fields
-  validatedData: json("validated_data"), // JSON object with admin-validated data
+  status: text("status").notNull(),
+  extractedData: json("extracted_data"),
+  validatedData: json("validated_data"),
   errorMessage: text("error_message"),
   processingTimeMs: integer("processing_time_ms"),
   jobId: varchar("job_id").references(() => jobs.id),
@@ -167,28 +160,25 @@ export const urlProcessingLogs = pgTable("url_processing_logs", {
 
 export type UrlProcessingLog = typeof urlProcessingLogs.$inferSelect;
 
-// Extraction Templates Table
 export const extractionTemplates = pgTable("extraction_templates", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
-  domain: text("domain").notNull(), // e.g., 'sarkariresult.com', 'freejobalert.com'
-  selectors: json("selectors").notNull(), // JSON object with CSS selectors for different fields
-  patterns: json("patterns"), // RegExp patterns for text extraction
+  domain: text("domain").notNull(),
+  selectors: json("selectors").notNull(),
+  patterns: json("patterns"),
   isActive: boolean("is_active").default(true),
-  successRate: integer("success_rate").default(0), // Percentage
+  successRate: integer("success_rate").default(0),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export type ExtractionTemplate = typeof extractionTemplates.$inferSelect;
 
-// Admin Login Schema
 export const adminLoginSchema = z.object({
   username: z.string().min(3),
   password: z.string().min(6),
 });
 
-// URL Processing Schema
 export const processUrlSchema = z.object({
   url: z.string().url(),
   templateId: z.string().optional(),
@@ -197,7 +187,6 @@ export const processUrlSchema = z.object({
 
 export type ProcessUrlRequest = z.infer<typeof processUrlSchema>;
 
-// Admin management schemas
 export const adminPasswordChangeSchema = z.object({
   currentPassword: z.string().min(6),
   newPassword: z.string().min(6),
@@ -212,9 +201,8 @@ export const createAdminUserSchema = z.object({
 
 export const updateJobSchema = insertJobSchema.partial();
 
-// Exam Calendar & Schedule Schema
 export const exams = pgTable("exams", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   conductingOrganization: text("conducting_organization"),
   examDate: text("exam_date").notNull(),
@@ -228,32 +216,31 @@ export const exams = pgTable("exams", {
   resultsDate: text("results_date"),
   admitCardDate: text("admit_card_date"),
   syllabus: text("syllabus"),
-  examMode: text("exam_mode"), // Online/Offline/Both
+  examMode: text("exam_mode"),
   examBrief: text("exam_brief"),
+  slug: varchar("slug").unique(),
+  notifications: json("notifications").default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Site Analytics Table
 export const siteAnalytics = pgTable("site_analytics", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   totalVisitors: integer("total_visitors").default(0).notNull(),
   uniqueVisitors: integer("unique_visitors").default(0).notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Visitor Logs for Unique Tracking (IP/Session based)
 export const visitorLogs = pgTable("visitor_logs", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   ipHash: text("ip_hash").unique().notNull(),
   visitedAt: timestamp("visited_at").defaultNow().notNull(),
 });
 
-// Site Settings Table (AdSense, etc.)
 export const siteSettings = pgTable("site_settings", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
   adsEnabled: boolean("ads_enabled").default(false).notNull(),
-  adsHeaderCode: text("ads_header_code"), // Global AdSense script (<script async ...>)
-  adsContentCode: text("ads_content_code"), // Default Ad unit HTML code
+  adsHeaderCode: text("ads_header_code"),
+  adsContentCode: text("ads_content_code"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

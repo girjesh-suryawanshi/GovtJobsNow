@@ -23,6 +23,8 @@ export interface Job {
   notificationFileUrl: string | null;
   applicationStartDate: string | null;
   vacancyBreakdown: string | null;
+  slug: string | null;
+  notifications: Array<{ label: string; url: string; type: 'file' | 'link' }> | null | any;
   viewCount: number | null;
   createdAt: Date | string | null;
 }

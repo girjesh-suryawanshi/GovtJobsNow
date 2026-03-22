@@ -7,6 +7,7 @@ import { UserProvider } from "@/contexts/user-context";
 import { PWAProvider } from "@/contexts/pwa-context";
 import Home from "@/pages/home";
 import JobDetail from "@/pages/job-detail";
+import ExamDetail from "@/pages/exam-detail";
 import ExamCalendarPage from "@/pages/exam-calendar-page";
 import AdminLogin from "@/pages/admin-login";
 import AdminDashboard from "@/pages/admin-dashboard";
@@ -27,7 +28,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/job/:id" component={JobDetail} />
+      <Route path="/job/:slug" component={JobDetail} />
+      <Route path="/exam/:slug" component={ExamDetail} />
       <Route path="/exams" component={ExamCalendarPage} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />

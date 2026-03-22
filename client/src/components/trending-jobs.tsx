@@ -38,7 +38,7 @@ export const TrendingJobs: React.FC = () => {
 
       <div className="space-y-3">
         {jobs.map((job, index) => (
-          <Link key={job.id} href={`/job/${job.id}`}>
+          <Link key={job.id} href={`/job/${job.slug || job.id}`}>
             <div className="group flex items-start space-x-3 p-2 rounded-lg hover:bg-primary/5 transition-all cursor-pointer border border-transparent hover:border-primary/10">
               <span className="text-xl font-black text-primary/10 group-hover:text-primary/20 transition-colors pt-0.5">
                 {index + 1}

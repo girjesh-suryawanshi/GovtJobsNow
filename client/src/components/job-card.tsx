@@ -36,7 +36,7 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
 
   const handleShareJob = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const shareUrl = `${window.location.origin}/job/${job.id}`;
+    const shareUrl = `${window.location.origin}/job/${job.slug || job.id}`;
     if (navigator.share) {
       try {
         await navigator.share({ title: job.title, url: shareUrl });

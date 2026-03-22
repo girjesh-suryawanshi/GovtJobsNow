@@ -44,23 +44,23 @@ interface JobPosition {
 }
 
 export default function JobDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const [isSaved, setIsSaved] = useState(false);
   const { toast } = useToast();
 
   const { data: job, isLoading } = useQuery({
-    queryKey: ["/api/jobs", id],
+    queryKey: ["/api/jobs/slug", slug],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/jobs/${id}`);
+      const response = await apiRequest("GET", `/api/jobs/slug/${slug}`);
       return response.json() as Promise<Job>;
     },
   });
 
   const { data: positions = [] } = useQuery({
-    queryKey: ["/api/jobs", id, "positions"],
+    queryKey: ["/api/jobs", job?.id, "positions"],
     enabled: !!job,
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/jobs/${id}/positions`);
+      const response = await apiRequest("GET", `/api/jobs/${job?.id}/positions`);
       return response.json() as Promise<JobPosition[]>;
     },
   });
@@ -77,8 +77,14 @@ export default function JobDetail() {
       case "whatsapp": shareUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`; break;
       case "telegram": shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`; break;
       case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`; break;
+      case "twitter": shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; break;
     }
-    if (shareUrl) window.open(shareUrl, "_blank");
+    if (shareUrl) {
+      window.open(shareUrl, "_blank");
+    } else if (platform === 'copy') {
+      navigator.clipboard.writeText(url);
+      toast({ title: "Link Copied!", description: "Share it anywhere!" });
+    }
   };
 
   const handleTrackJob = () => {
@@ -110,7 +116,7 @@ export default function JobDetail() {
       <SEOHead
         title={`${job.title} - ${job.department} | GovtJobsNow Official`}
         description={`Official notification for ${job.title} in ${job.department}. Apply before ${job.deadline}.`}
-        url={`https://govtjobsnow.com/jobs/${job.id}`}
+        url={`https://govtjobsnow.com/job/${job.slug || job.id}`}
       />
       <Header onScrollToDepartments={() => window.location.href = '/#departments'} />
 
@@ -147,7 +153,7 @@ export default function JobDetail() {
                       </Badge>
                     )}
                   </div>
-                  <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight">{job.title}</h1>
+                  <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight">{job.title}</h1>
                   
                   {/* Top Ad Placement */}
                   <AdUnit slot="job-top-fluid" className="my-2" />
@@ -165,12 +171,24 @@ export default function JobDetail() {
                   </div>
                 </div>
               </div>
-              <div className="flex gap-3 shrink-0 self-end lg:self-start">
+              <div className="flex flex-wrap gap-3 shrink-0 self-start md:self-center lg:self-start">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
+                   <p className="text-[10px] font-black text-gray-400 px-2 uppercase tracking-tighter">Share</p>
+                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-green-50 text-green-600" onClick={() => handleShare('whatsapp')}>
+                     <MessageCircle className="h-5 w-5" />
+                   </Button>
+                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600" onClick={() => handleShare('facebook')}>
+                     <Facebook className="h-5 w-5" />
+                   </Button>
+                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-400" onClick={() => handleShare('twitter')}>
+                     <Share2 className="h-5 w-5" />
+                   </Button>
+                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-gray-100 text-gray-600" onClick={() => handleShare('copy')}>
+                     <Download className="h-4 w-4" />
+                   </Button>
+                </div>
                 <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12 border-gray-100 shadow-sm" onClick={() => setIsSaved(!isSaved)}>
                   <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-orange-500 text-orange-500' : 'text-gray-300'}`} />
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12 border-gray-100 shadow-sm" onClick={() => handleShare('whatsapp')}>
-                  <MessageCircle className="h-5 w-5 text-green-500" />
                 </Button>
               </div>
             </div>
@@ -353,6 +371,37 @@ export default function JobDetail() {
                 </section>
               )}
 
+              {/* Official Notifications (Multiple) */}
+              {((job.notifications as any[]) || []).length > 0 && (
+                <section className="space-y-6">
+                  <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                    <Download className="h-7 w-7 text-blue-600" /> Downloads & Useful Links
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {((job.notifications as any[]) || []).map((notif, idx) => (
+                      <a 
+                        key={idx} 
+                        href={notif.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-blue-600 hover:shadow-lg transition-all group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-xl ${notif.type === 'file' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                            {notif.type === 'file' ? <FileText className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
+                          </div>
+                          <div>
+                            <p className="font-black text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-widest text-[10px]">{notif.label}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{notif.type === 'file' ? 'Official PDF' : 'Direct Link'}</p>
+                          </div>
+                        </div>
+                        <Download className="h-5 w-5 text-gray-300 group-hover:text-blue-600" />
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              )}
+
               {/* FAQ Section (Rich Snippets) */}
               <JobFAQ job={job} />
 
@@ -376,17 +425,29 @@ export default function JobDetail() {
                 <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 space-y-8">
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Application Status</h4>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-14 shadow-2xl shadow-blue-100 flex items-center justify-center gap-2" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-12 sm:h-14 shadow-2xl shadow-blue-100 flex items-center justify-center gap-2" onClick={() => window.open(job.sourceUrl, '_blank')}>
                       Apply Online <ExternalLink className="h-5 w-5" />
                     </Button>
 
-                    {job.notificationFileUrl && (
+                    {/* Modern Multi-Notification Priority */}
+                    {((job.notifications as any[]) || []).length > 0 ? (
+                      ((job.notifications as any[]) || []).map((notif, idx) => (
+                        <Button 
+                          key={idx}
+                          variant="outline" 
+                          className="w-full border-gray-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-black rounded-2xl h-14 flex items-center justify-center gap-2 transition-all" 
+                          onClick={() => window.open(notif.url, '_blank')}
+                        >
+                          {notif.label} {notif.type === 'file' ? <Download className="h-5 w-5 text-blue-500" /> : <ExternalLink className="h-5 w-5 text-blue-500" />}
+                        </Button>
+                      ))
+                    ) : job.notificationFileUrl && (
                       <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-white font-black rounded-2xl h-14 flex items-center justify-center gap-2" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
                         Official Notification <Download className="h-5 w-5 text-blue-500" />
                       </Button>
                     )}
                     
-                    <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-black rounded-2xl h-14" onClick={() => handleShare('whatsapp')}>
+                    <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-black rounded-2xl h-12 sm:h-14" onClick={() => handleShare('whatsapp')}>
                       <Share2 className="mr-2 h-5 w-5" /> Share Openings
                     </Button>
                   </div>

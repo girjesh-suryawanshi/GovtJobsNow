@@ -12,6 +12,7 @@ export interface IStorage {
   
   // Job-related methods
   getJob(id: string): Promise<Job | undefined>;
+  getJobBySlug(slug: string): Promise<Job | undefined>;
   getAllJobs(): Promise<Job[]>;
   searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }>;
   createJob(job: InsertJob): Promise<Job>;
@@ -31,6 +32,7 @@ export interface IStorage {
 
   // Exam-related methods
   getExam(id: string): Promise<Exam | undefined>;
+  getExamBySlug(slug: string): Promise<Exam | undefined>;
   getAllExams(): Promise<Exam[]>;
   createExam(exam: InsertExam): Promise<Exam>;
   updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined>;
@@ -81,6 +83,9 @@ export class MemStorage implements IStorage {
   }
 
   async getJob(id: string): Promise<Job | undefined> { return this.jobs.get(id); }
+  async getJobBySlug(slug: string): Promise<Job | undefined> {
+    return Array.from(this.jobs.values()).find(j => j.slug === slug);
+  }
   async getAllJobs(): Promise<Job[]> { return Array.from(this.jobs.values()).sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()); }
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: [], total: 0 }; }
   async createJob(insertJob: InsertJob): Promise<Job> {
@@ -130,6 +135,9 @@ export class MemStorage implements IStorage {
   }
 
   async getExam(id: string): Promise<Exam | undefined> { return this.exams.get(id); }
+  async getExamBySlug(slug: string): Promise<Exam | undefined> {
+    return Array.from(this.exams.values()).find(e => e.slug === slug);
+  }
   async getAllExams(): Promise<Exam[]> { return Array.from(this.exams.values()); }
   async createExam(exam: InsertExam): Promise<Exam> {
     const id = randomUUID();
@@ -199,6 +207,10 @@ export class DatabaseStorage implements IStorage {
     const [job] = await db.select().from(jobs).where(eq(jobs.id, id));
     return job || undefined;
   }
+  async getJobBySlug(slug: string): Promise<Job | undefined> {
+    const [job] = await db.select().from(jobs).where(eq(jobs.slug, slug));
+    return job || undefined;
+  }
   async getAllJobs(): Promise<Job[]> {
     return await db.select().from(jobs).orderBy(desc(jobs.createdAt));
   }
@@ -266,6 +278,10 @@ export class DatabaseStorage implements IStorage {
   }
   async getExam(id: string): Promise<Exam | undefined> {
     const [exam] = await db.select().from(exams).where(eq(exams.id, id));
+    return exam || undefined;
+  }
+  async getExamBySlug(slug: string): Promise<Exam | undefined> {
+    const [exam] = await db.select().from(exams).where(eq(exams.slug, slug));
     return exam || undefined;
   }
   async getAllExams(): Promise<Exam[]> {

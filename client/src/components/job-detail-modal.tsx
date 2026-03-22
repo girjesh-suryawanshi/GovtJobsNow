@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import OrganizationLogo from "@/components/organization-logo";
 import { useToast } from "@/hooks/use-toast";
-import type { Job } from "@/types/job";
+import { type Job } from "@/types/job";
 import { apiRequest } from "@/lib/api";
 
 interface JobPosition {
@@ -70,7 +70,7 @@ export default function JobDetailModal({ job, isOpen, onClose, onTrack }: JobDet
 
   const handleViewFullDetails = () => {
     onClose();
-    setLocation(`/job/${job.id}`);
+    setLocation(`/job/${job.slug || job.id}`);
   };
 
   const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');

@@ -328,7 +328,9 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     vacancyBreakdown: "",
     prepGuide: "",
     syllabus: "",
-    notificationFileUrl: ""
+    notificationFileUrl: "",
+    slug: "",
+    notifications: [] as Array<{ label: string; url: string; type: 'file' | 'link' }>
   });
 
   // State for multiple positions
@@ -477,8 +479,24 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     }
   };
 
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      // Auto-generate slug if title changes and slug is empty or matches previous title's slug
+      if (field === 'title' && (!prev.slug || prev.slug === generateSlug(prev.title))) {
+        newData.slug = generateSlug(value);
+      }
+      return newData;
+    });
     // Clear validation errors when user starts typing
     if (validationErrors.length > 0) {
       setValidationErrors([]);
@@ -642,6 +660,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         positions: parseInt(formData.positions.toString()) || 1, // Ensure it's a number
         // Auto-set application start date to today if empty
         applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0],
+        slug: formData.slug || generateSlug(formData.title),
+        notifications: formData.notifications || [],
         // Include multiple positions data if enabled
         ...(useMultiplePositions && {
           jobPositions: jobPositions
@@ -692,7 +712,9 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           selectionProcess: "",
           prepGuide: "",
           syllabus: "",
-          notificationFileUrl: ""
+          notificationFileUrl: "",
+          slug: "",
+          notifications: []
         });
 
         onJobAdded();
@@ -738,7 +760,9 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       selectionProcess: "",
       prepGuide: "",
       syllabus: "",
-      notificationFileUrl: ""
+      notificationFileUrl: "",
+      slug: "",
+      notifications: []
     });
     setJobPositions([{
       id: crypto.randomUUID(),
@@ -1103,7 +1127,6 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   type="date"
                   value={formData.applicationStartDate}
                   onChange={(e) => handleInputChange('applicationStartDate', e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
                   data-testid="input-application-start-date"
                 />
               </div>
@@ -1157,6 +1180,31 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   Direct link where users can apply for this job
+                </p>
+              </div>
+
+              {/* Slug / Permalink */}
+              <div className="md:col-span-2">
+                <Label htmlFor="slug">Search Friendly Permalink (Slug) *</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => handleInputChange('slug', e.target.value)}
+                    placeholder="e.g., ssc-cgl-recruitment-2025"
+                    data-testid="input-slug"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => handleInputChange('slug', generateSlug(formData.title))}
+                    className="shrink-0"
+                  >
+                    Regenerate
+                  </Button>
+                </div>
+                <p className="text-[10px] text-blue-600 font-bold mt-1 uppercase">
+                  URL will be: govtjobsnow.com/job/{formData.slug || "..."}
                 </p>
               </div>
 
@@ -1237,63 +1285,125 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   Original notification or source website URL. Leave empty if manually created.
                 </p>
               </div>
-            </div>
 
-            {/* Official Notification Document */}
-            <div className="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Official Notification</h3>
-              </div>
-              <div>
-                <Label htmlFor="notificationFileUrl">Notification PDF/Image (Optional)</Label>
-                <div className="flex gap-4 items-center mt-2">
-                  <div className="flex-1">
-                    <Input
-                      id="notificationFileUrl"
-                      placeholder="Upload a file or paste URL manually..."
-                      value={formData.notificationFileUrl || ''}
-                      onChange={(e) => handleInputChange('notificationFileUrl', e.target.value)}
-                    />
+              {/* Official Notifications (Multiple) */}
+              <div className="md:col-span-2 space-y-4 pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold">Official Notifications (Multiple PDFs/Links)</h3>
+                    <p className="text-sm text-gray-500">Add all official documents, short notices, or external links here.</p>
                   </div>
-                  <div className="shrink-0 relative">
-                    <Input
-                      type="file"
-                      accept=".pdf,image/*"
-                      className="hidden"
-                      id="file-upload"
-                      onChange={handleFileUpload}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => document.getElementById('file-upload')?.click()}
-                      disabled={isUploading}
-                    >
-                      {isUploading ? (
-                        <>
-                          <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Upload File
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <Button 
+                    type="button" 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => setFormData(p => ({ 
+                      ...p, 
+                      notifications: [...(p.notifications || []), { label: "Official Notification", url: "", type: 'link' }] 
+                    }))}
+                  >
+                    <Plus className="w-4 h-4 mr-2" /> Add Notification
+                  </Button>
                 </div>
-                {formData.notificationFileUrl && (
-                  <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
-                    <CheckCircle className="w-3 h-3" /> File linked successfully:
-                    <a href={formData.notificationFileUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-green-800">
-                      {formData.notificationFileUrl.split('/').pop()}
-                    </a>
-                  </p>
-                )}
-                <p className="text-sm text-gray-500 mt-1">
-                  Upload the official notification PDF. It will be explicitly available to download on the job details page.
-                </p>
+
+                <div className="space-y-3">
+                  {(formData.notifications || []).map((notif, index) => (
+                    <div key={index} className="flex flex-col md:flex-row gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 relative group">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => setFormData(p => ({
+                          ...p,
+                          notifications: p.notifications.filter((_, i) => i !== index)
+                        }))}
+                      >
+                        <X className="h-3 w-3 text-red-500" />
+                      </Button>
+                      
+                      <div className="flex-1">
+                        <Label className="text-[10px] uppercase font-bold text-gray-400">Label</Label>
+                        <Input 
+                          placeholder="e.g., Short Notice, Full Guidelines" 
+                          value={notif.label}
+                          onChange={(e) => {
+                            const newNotifs = [...formData.notifications];
+                            newNotifs[index].label = e.target.value;
+                            setFormData(p => ({ ...p, notifications: newNotifs }));
+                          }}
+                        />
+                      </div>
+
+                      <div className="flex-[2] space-y-2">
+                        <Label className="text-[10px] uppercase font-bold text-gray-400">URL / File Path</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="https://..." 
+                            value={notif.url}
+                            onChange={(e) => {
+                              const newNotifs = [...formData.notifications];
+                              newNotifs[index].url = e.target.value;
+                              newNotifs[index].type = e.target.value.includes('http') ? 'link' : 'file';
+                              setFormData(p => ({ ...p, notifications: newNotifs }));
+                            }}
+                          />
+                          <div className="shrink-0 relative">
+                            <Input
+                              type="file"
+                              accept=".pdf,image/*"
+                              className="hidden"
+                              id={`file-upload-${index}`}
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setIsUploading(true);
+                                const uploadData = new FormData();
+                                uploadData.append("file", file);
+                                try {
+                                  const token = localStorage.getItem('admin_token');
+                                  const response = await fetch('/api/upload', {
+                                    method: 'POST',
+                                    headers: { 'Authorization': `Bearer ${token}` },
+                                    body: uploadData
+                                  });
+                                  if (response.ok) {
+                                    const data = await response.json();
+                                    const newNotifs = [...formData.notifications];
+                                    newNotifs[index].url = data.url;
+                                    newNotifs[index].type = 'file';
+                                    setFormData(p => ({ ...p, notifications: newNotifs }));
+                                    toast({ title: "File Uploaded" });
+                                  }
+                                } catch (e) { toast({ title: "Upload Failed", variant: "destructive" }); }
+                                finally { setIsUploading(false); }
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="icon"
+                              onClick={() => document.getElementById(`file-upload-${index}`)?.click()}
+                              disabled={isUploading}
+                              title="Upload File"
+                            >
+                              <Upload className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Legacy field for backward compatibility - keep sync'ed or hidden */}
+                <div className="hidden">
+                  <Input
+                    id="notificationFileUrl"
+                    value={formData.notificationFileUrl || ''}
+                    readOnly
+                  />
+                </div>
               </div>
 
               {/* SEO Enrichment Section */}

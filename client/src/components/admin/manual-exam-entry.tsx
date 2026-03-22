@@ -98,6 +98,8 @@ interface ExamFormData {
   syllabus: string;
   examMode: string;
   examBrief: string;
+  slug: string;
+  notifications: Array<{ label: string; url: string; type: 'file' | 'link' }>;
 }
 
 export default function ManualExamEntry() {
@@ -116,13 +118,17 @@ export default function ManualExamEntry() {
     admitCardDate: "",
     syllabus: "",
     examMode: "",
-    examBrief: ""
+    examBrief: "",
+    slug: "",
+    notifications: []
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
   const [isScraping, setIsScraping] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isAdmitting, setIsAdmitting] = useState(false);
   const [rawText, setRawText] = useState("");
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -158,7 +164,9 @@ export default function ManualExamEntry() {
       admitCardDate: exam.admitCardDate || "",
       syllabus: exam.syllabus || "",
       examMode: exam.examMode || "",
-      examBrief: exam.examBrief || ""
+      examBrief: exam.examBrief || "",
+      slug: exam.slug || "",
+      notifications: (exam.notifications as any) || []
     });
     setEditingId(exam.id);
     
@@ -287,11 +295,24 @@ export default function ManualExamEntry() {
     }
   };
 
-  const handleInputChange = (field: keyof ExamFormData, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
+  const handleInputChange = (field: keyof ExamFormData, value: any) => {
+    setFormData(prev => {
+      const newData = { ...prev, [field]: value };
+      // Auto-generate slug if title changes and slug is empty or matches previous title's slug
+      if (field === 'title' && (!prev.slug || prev.slug === generateSlug(prev.title))) {
+        newData.slug = generateSlug(value);
+      }
+      return newData;
+    });
   };
 
   const applyTemplate = (templateKey: string) => {
@@ -325,7 +346,9 @@ export default function ManualExamEntry() {
       admitCardDate: "",
       syllabus: "",
       examMode: "",
-      examBrief: ""
+      examBrief: "",
+      slug: "",
+      notifications: []
     });
     setSelectedTemplate("");
     setEditingId(null);
@@ -348,7 +371,9 @@ export default function ManualExamEntry() {
 
     try {
       const examData = {
-        ...formData
+        ...formData,
+        slug: formData.slug || generateSlug(formData.title),
+        notifications: formData.notifications || []
       };
 
       const token = localStorage.getItem("admin_token");
@@ -705,21 +730,125 @@ export default function ManualExamEntry() {
             </div>
           </div>
 
-          {/* Website Links */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              Official Links
-            </h3>
-            <div className="space-y-2">
-              <Label htmlFor="officialWebsite">Official Website / Notification Link *</Label>
+          {/* Official Notifications (Multiple) */}
+          <div className="space-y-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold">Official Notifications (Multiple PDFs/Links) *</h3>
+                <p className="text-sm text-gray-500">Add all official documents, short notices, or external links here.</p>
+              </div>
+              <Button 
+                type="button" 
+                size="sm" 
+                variant="outline"
+                onClick={() => handleInputChange("notifications", [...(formData.notifications || []), { label: "Official Notification", url: "", type: 'link' }])}
+              >
+                <PlusCircle className="w-4 h-4 mr-2" /> Add Notification
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {(formData.notifications || []).map((notif, index) => (
+                <div key={index} className="flex flex-col md:flex-row gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 relative group">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-white shadow-sm border border-gray-100 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      const newNotifs = [...formData.notifications];
+                      newNotifs.splice(index, 1);
+                      handleInputChange("notifications", newNotifs);
+                    }}
+                  >
+                    <X className="h-3 w-3 text-red-500" />
+                  </Button>
+                  
+                  <div className="flex-1">
+                    <Label className="text-[10px] uppercase font-bold text-gray-400">Label</Label>
+                    <Input 
+                      placeholder="e.g., Short Notice, Full Guidelines" 
+                      value={notif.label}
+                      onChange={(e) => {
+                        const newNotifs = [...formData.notifications];
+                        newNotifs[index].label = e.target.value;
+                        handleInputChange("notifications", newNotifs);
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex-[2] space-y-2">
+                    <Label className="text-[10px] uppercase font-bold text-gray-400">URL / File Path</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="https://..." 
+                        value={notif.url}
+                        onChange={(e) => {
+                          const newNotifs = [...formData.notifications];
+                          newNotifs[index].url = e.target.value;
+                          newNotifs[index].type = e.target.value.includes('http') ? 'link' : 'file';
+                          handleInputChange("notifications", newNotifs);
+                        }}
+                      />
+                      <div className="shrink-0 relative">
+                        <Input
+                          type="file"
+                          accept=".pdf,image/*"
+                          className="hidden"
+                          id={`exam-file-upload-${index}`}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setIsUploading(true);
+                            const uploadData = new FormData();
+                            uploadData.append("file", file);
+                            try {
+                              const token = localStorage.getItem('admin_token');
+                              const response = await fetch('/api/upload', {
+                                method: 'POST',
+                                headers: { 'Authorization': `Bearer ${token}` },
+                                body: uploadData
+                              });
+                              if (response.ok) {
+                                const data = await response.json();
+                                const newNotifs = [...formData.notifications];
+                                newNotifs[index].url = data.url;
+                                newNotifs[index].type = 'file';
+                                handleInputChange("notifications", newNotifs);
+                                toast({ title: "File Uploaded" });
+                              }
+                            } catch (e) { toast({ title: "Upload Failed", variant: "destructive" }); }
+                            finally { setIsUploading(false); }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => document.getElementById(`exam-file-upload-${index}`)?.click()}
+                          disabled={isUploading}
+                          title="Upload File"
+                        >
+                          <Loader2 className={`h-4 w-4 ${isUploading ? 'animate-spin' : ''}`} />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {formData.notifications.length === 0 && (
+                <div className="text-center p-4 border-2 border-dashed border-gray-200 rounded-lg text-gray-400 text-sm">
+                  No notifications added yet. Click "Add Notification" to include PDF links or documents.
+                </div>
+              )}
+            </div>
+
+            {/* Hidden legacy field for validation/backward compat */}
+            <div className="hidden">
               <Input
                 id="officialWebsite"
-                type="url"
-                value={formData.officialWebsite}
-                onChange={(e) => handleInputChange("officialWebsite", e.target.value)}
-                placeholder="https://example.gov.in"
-                data-testid="input-website"
+                value={formData.officialWebsite || (formData.notifications[0]?.url || "")}
+                readOnly
               />
             </div>
           </div>

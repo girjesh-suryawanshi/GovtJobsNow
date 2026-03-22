@@ -157,12 +157,11 @@ function ExamCard({ exam }: ExamCardProps) {
           <Button
             size="sm"
             className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-bold h-10 shadow-lg shadow-slate-200 transition-all"
-            onClick={() => exam.officialWebsite && window.open(exam.officialWebsite, '_blank')}
+            onClick={() => window.location.href = `/exam/${exam.slug || exam.id}`}
             data-testid="visit-website"
-            disabled={!exam.officialWebsite}
           >
             <ExternalLink className="h-4 w-4 mr-2" />
-            Details & Apply
+            View Full Details
           </Button>
           {exam.syllabus && (
             <Dialog>
