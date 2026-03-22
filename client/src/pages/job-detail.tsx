@@ -537,6 +537,14 @@ export default function JobDetail() {
 
 
                   {/* Global Social Links */}
+                  {settings?.joinFacebookUrl && (
+                    <a href={settings.joinFacebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
+                      <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <Facebook className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Facebook Page</span>
+                    </a>
+                  )}
                   {settings?.joinWhatsAppUrl && (
                     <a href={settings.joinWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100/50 rounded-2xl hover:bg-green-50 transition-all group">
                       <div className="p-2 bg-green-100 text-green-600 rounded-lg group-hover:scale-110 transition-transform">
