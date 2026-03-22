@@ -53,8 +53,10 @@ export default function Footer({ onFilterChange }: FooterProps) {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-6">
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 p-3 rounded-xl shadow-lg">
-                <Star className="h-6 w-6 text-white" />
+              <div className="relative h-14 w-14 overflow-hidden rounded-2xl shadow-2xl border border-white/10">
+                <div className="h-full w-full bg-blue-500 flex items-center justify-center">
+                  <Star className="h-8 w-8 text-white fill-white animate-pulse" />
+                </div>
               </div>
               <div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">

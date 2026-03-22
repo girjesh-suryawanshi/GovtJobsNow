@@ -5,34 +5,54 @@ import { Link } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Eye } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface TrendingJobsProps {
+  title?: string;
+  variant?: 'card' | 'list';
+}
 
 /**
  * Trending Jobs component for the sidebar.
  * Increases engagement and surface high-traffic content.
  */
-export const TrendingJobs: React.FC = () => {
+export const TrendingJobs: React.FC<TrendingJobsProps> = ({ 
+  title = "Trending Now", 
+  variant = 'list' 
+}) => {
   const { data: jobs, isLoading } = useQuery<Job[]>({
     queryKey: ["/api/jobs/trending"],
   });
 
   if (isLoading) {
-    return (
+    const LoadingState = (
       <div className="space-y-4">
         {[...Array(5)].map((_, i) => (
           <Skeleton key={i} className="h-16 w-full rounded-lg" />
         ))}
       </div>
     );
+    
+    if (variant === 'card') {
+      return (
+        <Card className="rounded-[2rem] border border-primary/10 shadow-lg shadow-primary/5 overflow-hidden bg-white">
+          <CardContent className="p-6">
+            {LoadingState}
+          </CardContent>
+        </Card>
+      );
+    }
+    return LoadingState;
   }
 
   if (!jobs || jobs.length === 0) return null;
 
-  return (
+  const Content = (
     <div className="space-y-4">
       <div className="flex items-center space-x-2 pb-2 border-b border-primary/20">
         <TrendingUp className="h-4 w-4 text-primary animate-pulse" />
         <h3 className="font-extrabold text-sm tracking-tight text-foreground uppercase">
-          Trending Now
+          {title}
         </h3>
       </div>
 
@@ -63,4 +83,16 @@ export const TrendingJobs: React.FC = () => {
       </div>
     </div>
   );
+
+  if (variant === 'card') {
+    return (
+      <Card className="rounded-[2rem] border border-primary/10 shadow-lg shadow-primary/5 overflow-hidden bg-white">
+        <CardContent className="p-6">
+          {Content}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return Content;
 };

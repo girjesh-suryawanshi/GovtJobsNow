@@ -413,12 +413,7 @@ export default function ExamDetail() {
                 </Card>
 
                 {/* Trending Jobs Widget */}
-                <div className="space-y-4">
-                   <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-4 flex items-center gap-2">
-                     <Target className="h-4 w-4" /> Top Upcoming Jobs
-                   </h4>
-                   <TrendingJobs />
-                </div>
+                <TrendingJobs variant="card" title="Top Upcoming Jobs" />
 
                 {/* Ad Unit Sidebar */}
                 <AdUnit slot="exam-sidebar-square" className="my-8" />

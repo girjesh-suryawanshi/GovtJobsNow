@@ -35,8 +35,10 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
             <Link href="/">
               <div className="flex-shrink-0 cursor-pointer group">
                 <div className="flex items-center gap-3">
-                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-lg shadow-md group-hover:shadow-lg transition-shadow">
-                    <Briefcase className="h-6 w-6 text-white" />
+                  <div className="relative h-12 w-12 overflow-hidden rounded-xl shadow-xl group-hover:shadow-2xl transition-all duration-300 border border-white/10">
+                    <div className="h-full w-full bg-blue-600 flex items-center justify-center">
+                      <Briefcase className="h-7 w-7 text-white" />
+                    </div>
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
