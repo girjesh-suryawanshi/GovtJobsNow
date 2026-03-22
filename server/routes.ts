@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertJobSchema, searchJobsSchema, adminLoginSchema, processUrlSchema, userLoginSchema, userRegisterSchema, adminPasswordChangeSchema, createAdminUserSchema, updateJobSchema, insertExamSchema, insertSiteSettingsSchema } from "@shared/schema";
+import { z } from "zod";
 import { scrapeJobs } from "./scraper";
 import { adminStorage } from "./admin-storage";
 import { urlProcessor } from "./url-processor";
@@ -875,9 +876,21 @@ Allow: /`);
     } catch (error: any) {
       console.error("Failed to create manual job. Payload:", JSON.stringify(req.body, null, 2));
       console.error("Zod Error Details:", error.errors ? JSON.stringify(error.errors, null, 2) : error);
+      
+      let message = "Invalid job data";
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        message = `Validation Failed: ${firstError.path.join('.')} - ${firstError.message}`;
+      } else if (error.code === '23505') { // Postgres unique_violation
+        message = "A job with this title already exists (duplicate slug)";
+      } else if (error.message) {
+        message = error.message;
+      }
+
       res.status(400).json({
-        message: "Invalid job data",
-        error: error.errors ? error.errors : (error.message || String(error))
+        message,
+        details: error.errors || error,
+        error: true
       });
     }
   });

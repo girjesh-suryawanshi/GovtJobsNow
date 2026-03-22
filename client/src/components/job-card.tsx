@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@/types/job";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { checkEligibility } from "@/lib/eligibility-utils";
+import SocialShare from "@/components/social-share";
 
 interface JobCardProps {
   job: Job;
@@ -34,22 +35,7 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
     });
   };
 
-  const handleShareJob = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    const shareUrl = `${window.location.origin}/job/${job.slug || job.id}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: job.title, url: shareUrl });
-      } catch (e) { copyToClipboard(shareUrl); }
-    } else {
-      copyToClipboard(shareUrl);
-    }
-  };
 
-  const copyToClipboard = async (url: string) => {
-    await navigator.clipboard.writeText(url);
-    toast({ title: "Link copied", description: "URL copied to clipboard" });
-  };
 
   const getDaysLeft = (deadline: string) => {
     const deadlineDate = new Date(deadline);
@@ -128,9 +114,15 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
             <Button variant="ghost" size="icon" onClick={handleSaveJob} className="h-9 w-9 rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-colors">
               <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-orange-500 text-orange-500' : ''}`} />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleShareJob} className="h-9 w-9 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
-              <Share2 className="h-4 w-4" />
-            </Button>
+            <SocialShare 
+              url={`${window.location.origin}/job/${job.slug || job.id}`}
+              title={job.title}
+              trigger={
+                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} className="h-9 w-9 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              }
+            />
           </div>
         </div>
 

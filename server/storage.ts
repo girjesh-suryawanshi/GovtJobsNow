@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, type SiteSettings, type InsertSiteSettings, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs, siteSettings } from "@shared/schema";
+import { type User, type InsertUser, type Job, type InsertJob, type SearchJobsParams, type JobPosition, type InsertJobPosition, type CreateJobWithPositions, type Exam, type InsertExam, type SiteSettings, type InsertSiteSettings, jobs, users, jobPositions, exams, urlProcessingLogs, extractionTemplates, siteAnalytics, visitorLogs, siteSettings, insertJobSchema, insertJobPositionSchema } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, like, gte, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -171,10 +171,13 @@ export class MemStorage implements IStorage {
         adsEnabled: false,
         adsHeaderCode: null,
         adsContentCode: null,
+        joinWhatsAppUrl: "https://chat.whatsapp.com/Example",
+        joinTelegramUrl: "https://t.me/Example",
+        joinArattaiUrl: "https://www.arattai.in/Example",
         updatedAt: new Date()
       };
     }
-    return this.siteSettings;
+    return this.siteSettings!;
   }
   async updateSiteSettings(settings: Partial<InsertSiteSettings>): Promise<SiteSettings> {
     const current = await this.getSiteSettings();
@@ -238,10 +241,18 @@ export class DatabaseStorage implements IStorage {
     return job;
   }
   async createJobWithPositions(jobData: any): Promise<Job> {
-    const { jobPositions: positions, ...mainJobData } = jobData;
+    const { jobPositions: positions, ...rawData } = jobData;
+    
+    // Sanitize main job data to remove any frontend-only fields like 'useMultiplePositions'
+    const mainJobData = insertJobSchema.parse(rawData);
     const job = await this.createJob(mainJobData);
+    
     if (positions && positions.length > 0) {
-      await db.insert(jobPositions).values(positions.map((p: any) => ({ ...p, jobId: job.id })));
+      await db.insert(jobPositions).values(positions.map((p: any) => {
+        // Sanitize position data as well
+        const { id: _id, ...posData } = p;
+        return { ...posData, jobId: job.id };
+      }));
     }
     return job;
   }
@@ -371,7 +382,10 @@ export class DatabaseStorage implements IStorage {
           id: SETTINGS_ID, 
           adsEnabled: false, 
           adsHeaderCode: "", 
-          adsContentCode: "" 
+          adsContentCode: "",
+          joinWhatsAppUrl: "https://chat.whatsapp.com/Example",
+          joinTelegramUrl: "https://t.me/Example",
+          joinArattaiUrl: "https://www.arattai.in/Example"
         }).returning();
         return newSettings;
       }
@@ -383,6 +397,9 @@ export class DatabaseStorage implements IStorage {
         adsEnabled: false, 
         adsHeaderCode: "", 
         adsContentCode: "", 
+        joinWhatsAppUrl: "https://chat.whatsapp.com/Example",
+        joinTelegramUrl: "https://t.me/Example",
+        joinArattaiUrl: "https://www.arattai.in/Example",
         updatedAt: new Date() 
       };
     }

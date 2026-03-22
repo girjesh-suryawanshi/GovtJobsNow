@@ -32,6 +32,8 @@ import { JobFAQ } from "@/components/job-faq";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
+import { type SiteSettings } from "@shared/schema";
+import SocialShare from "@/components/social-share";
 
 interface JobPosition {
   id: string;
@@ -65,27 +67,14 @@ export default function JobDetail() {
     },
   });
 
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
+  });
+
   if (isLoading) return <div className="min-h-screen bg-gray-50"><Header /><div className="p-20 text-center text-gray-400 font-bold animate-pulse">Scanning official database...</div></div>;
   if (!job) return <div className="min-h-screen bg-gray-50"><Header /><div className="p-20 text-center">Job Not Found</div></div>;
 
-  const handleShare = (platform: string) => {
-    const url = window.location.href;
-    const text = `Check out this job: ${job.title}`;
-    let shareUrl = "";
 
-    switch (platform) {
-      case "whatsapp": shareUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`; break;
-      case "telegram": shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`; break;
-      case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`; break;
-      case "twitter": shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; break;
-    }
-    if (shareUrl) {
-      window.open(shareUrl, "_blank");
-    } else if (platform === 'copy') {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Link Copied!", description: "Share it anywhere!" });
-    }
-  };
 
   const handleTrackJob = () => {
     const saved = localStorage.getItem('gj_tracker_apps');
@@ -153,7 +142,7 @@ export default function JobDetail() {
                       </Badge>
                     )}
                   </div>
-                  <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight">{job.title}</h1>
+                  <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight text-center md:text-left">{job.title}</h1>
                   
                   {/* Top Ad Placement */}
                   <AdUnit slot="job-top-fluid" className="my-2" />
@@ -174,18 +163,15 @@ export default function JobDetail() {
               <div className="flex flex-wrap gap-3 shrink-0 self-start md:self-center lg:self-start">
                 <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
                    <p className="text-[10px] font-black text-gray-400 px-2 uppercase tracking-tighter">Share</p>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-green-50 text-green-600" onClick={() => handleShare('whatsapp')}>
-                     <MessageCircle className="h-5 w-5" />
-                   </Button>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600" onClick={() => handleShare('facebook')}>
-                     <Facebook className="h-5 w-5" />
-                   </Button>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-400" onClick={() => handleShare('twitter')}>
-                     <Share2 className="h-5 w-5" />
-                   </Button>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-gray-100 text-gray-600" onClick={() => handleShare('copy')}>
-                     <Download className="h-4 w-4" />
-                   </Button>
+                   <SocialShare 
+                     url={window.location.href}
+                     title={job.title}
+                     trigger={
+                       <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600">
+                         <Share2 className="h-5 w-5" />
+                       </Button>
+                     }
+                   />
                 </div>
                 <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12 border-gray-100 shadow-sm" onClick={() => setIsSaved(!isSaved)}>
                   <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-orange-500 text-orange-500' : 'text-gray-300'}`} />
@@ -375,7 +361,7 @@ export default function JobDetail() {
               {((job.notifications as any[]) || []).length > 0 && (
                 <section className="space-y-6">
                   <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
-                    <Download className="h-7 w-7 text-blue-600" /> Downloads & Useful Links
+                    <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {((job.notifications as any[]) || []).map((notif, idx) => (
@@ -401,6 +387,56 @@ export default function JobDetail() {
                   </div>
                 </section>
               )}
+
+              {/* Important Links (New Section) */}
+              <section className="space-y-6">
+                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                  <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Dynamic Notification Links mirrored here if short */}
+                  {((job.notifications as any[]) || []).map((notif, idx) => (
+                    <a 
+                      key={`imp-${idx}`}
+                      href={notif.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl hover:bg-indigo-50 transition-all group"
+                    >
+                      <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ArrowLeft className="h-4 w-4 rotate-[135deg]" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{notif.label}</span>
+                    </a>
+                  ))}
+
+                  {/* Global Social Links */}
+                  {settings?.joinWhatsAppUrl && (
+                    <a href={settings.joinWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100/50 rounded-2xl hover:bg-green-50 transition-all group">
+                      <div className="p-2 bg-green-100 text-green-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <MessageCircle className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join WhatsApp Channel</span>
+                    </a>
+                  )}
+                  {settings?.joinTelegramUrl && (
+                    <a href={settings.joinTelegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
+                      <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <Send className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Telegram Channel</span>
+                    </a>
+                  )}
+                  {settings?.joinArattaiUrl && (
+                    <a href={settings.joinArattaiUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-purple-50/50 border border-purple-100/50 rounded-2xl hover:bg-purple-50 transition-all group">
+                      <div className="p-2 bg-purple-100 text-purple-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Arattai Channel</span>
+                    </a>
+                  )}
+                </div>
+              </section>
 
               {/* FAQ Section (Rich Snippets) */}
               <JobFAQ job={job} />
@@ -447,9 +483,15 @@ export default function JobDetail() {
                       </Button>
                     )}
                     
-                    <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-black rounded-2xl h-12 sm:h-14" onClick={() => handleShare('whatsapp')}>
-                      <Share2 className="mr-2 h-5 w-5" /> Share Openings
-                    </Button>
+                    <SocialShare 
+                      url={window.location.href}
+                      title={job.title}
+                      trigger={
+                        <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-black rounded-2xl h-12 sm:h-14">
+                          <Share2 className="mr-2 h-5 w-5" /> Share Openings
+                        </Button>
+                      }
+                    />
                   </div>
 
                   <Separator className="bg-gray-100" />

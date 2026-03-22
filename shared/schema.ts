@@ -241,6 +241,9 @@ export const siteSettings = pgTable("site_settings", {
   adsEnabled: boolean("ads_enabled").default(false).notNull(),
   adsHeaderCode: text("ads_header_code"),
   adsContentCode: text("ads_content_code"),
+  joinWhatsAppUrl: text("join_whatsapp_url").default("https://chat.whatsapp.com/Example"),
+  joinTelegramUrl: text("join_telegram_url").default("https://t.me/Example"),
+  joinArattaiUrl: text("join_arattai_url").default("https://www.arattai.in/Example"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

@@ -21,6 +21,8 @@ import { TrendingJobs } from "@/components/trending-jobs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/api";
 import type { Exam } from "@/types/exam";
+import { type SiteSettings } from "@shared/schema";
+import SocialShare from "@/components/social-share";
 
 export default function ExamDetail() {
   const { slug } = useParams();
@@ -32,6 +34,10 @@ export default function ExamDetail() {
       const response = await apiRequest("GET", `/api/exams/slug/${slug}`);
       return response.json() as Promise<Exam>;
     },
+  });
+
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
   });
 
   if (isLoading) return (
@@ -59,24 +65,7 @@ export default function ExamDetail() {
     </div>
   );
 
-  const handleShare = (platform: string) => {
-    const url = window.location.href;
-    const text = `Official Exam Update: ${exam.title} (${exam.conductingOrganization})`;
-    let shareUrl = "";
 
-    switch (platform) {
-      case "whatsapp": shareUrl = `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`; break;
-      case "telegram": shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`; break;
-      case "facebook": shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`; break;
-      case "twitter": shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`; break;
-    }
-    if (shareUrl) {
-      window.open(shareUrl, "_blank");
-    } else if (platform === 'copy') {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Link Copied!", description: "Share it anywhere!" });
-    }
-  };
 
   const formatDate = (date: string) => {
     if (!date) return "To be announced";
@@ -137,7 +126,7 @@ export default function ExamDetail() {
                   )}
                 </div>
                 
-                <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight text-center md:text-left">
                   {exam.title}
                 </h1>
 
@@ -151,19 +140,18 @@ export default function ExamDetail() {
                 </div>
               </div>
 
-              {/* Share Actions */}
               <div className="flex flex-wrap gap-3 shrink-0 self-start md:self-center lg:self-start">
                 <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
                    <p className="text-[10px] font-black text-gray-400 px-2 uppercase tracking-tighter">Share</p>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-green-50 text-green-600" onClick={() => handleShare('whatsapp')}>
-                     <MessageCircle className="h-5 w-5" />
-                   </Button>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600" onClick={() => handleShare('facebook')}>
-                     <Facebook className="h-5 w-5" />
-                   </Button>
-                   <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-400" onClick={() => handleShare('twitter')}>
-                     <Share2 className="h-5 w-5" />
-                   </Button>
+                   <SocialShare 
+                     url={window.location.href}
+                     title={exam.title}
+                     trigger={
+                       <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600">
+                         <Share2 className="h-5 w-5" />
+                       </Button>
+                     }
+                   />
                 </div>
               </div>
             </div>
@@ -262,7 +250,7 @@ export default function ExamDetail() {
               {notifications.length > 0 && (
                 <section className="space-y-6">
                   <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
-                    <Download className="h-7 w-7 text-blue-600" /> Downloads & Useful Links
+                    <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {notifications.map((notif, idx) => (
@@ -288,6 +276,56 @@ export default function ExamDetail() {
                   </div>
                 </section>
               )}
+
+              {/* Important Links Section */}
+              <section className="space-y-6">
+                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                  <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Dynamic Notification Links mirrored here */}
+                  {notifications.map((notif, idx) => (
+                    <a 
+                      key={`imp-${idx}`}
+                      href={notif.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl hover:bg-indigo-50 transition-all group"
+                    >
+                      <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ArrowLeft className="h-4 w-4 rotate-[135deg]" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{notif.label}</span>
+                    </a>
+                  ))}
+
+                  {/* Global Social Links */}
+                  {settings?.joinWhatsAppUrl && (
+                    <a href={settings.joinWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100/50 rounded-2xl hover:bg-green-50 transition-all group">
+                      <div className="p-2 bg-green-100 text-green-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <MessageCircle className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join WhatsApp Channel</span>
+                    </a>
+                  )}
+                  {settings?.joinTelegramUrl && (
+                    <a href={settings.joinTelegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
+                      <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <Send className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Telegram Channel</span>
+                    </a>
+                  )}
+                  {settings?.joinArattaiUrl && (
+                    <a href={settings.joinArattaiUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-purple-50/50 border border-purple-100/50 rounded-2xl hover:bg-purple-50 transition-all group">
+                      <div className="p-2 bg-purple-100 text-purple-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Arattai Channel</span>
+                    </a>
+                  )}
+                </div>
+              </section>
 
               {/* Ad Unit Middle */}
               <AdUnit slot="exam-detail-middle" />

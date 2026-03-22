@@ -720,9 +720,18 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         onJobAdded();
       } else {
         const error = await response.json();
+        const errorMessage = error.message || "Please check your input and try again.";
+        
+        // If it's a validation error with details, we could show them in setValidationErrors
+        if (error.details && Array.isArray(error.details)) {
+          setValidationErrors(error.details.map((d: any) => `${d.path.join('.')} - ${d.message}`));
+        } else {
+          setValidationErrors([errorMessage]);
+        }
+
         toast({
           title: "Failed to Add Job",
-          description: error.message || "Please check your input and try again.",
+          description: errorMessage,
           variant: "destructive"
         });
       }

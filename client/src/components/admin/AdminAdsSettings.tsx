@@ -16,6 +16,9 @@ export default function AdminAdsSettings() {
   const [adsEnabled, setAdsEnabled] = useState(false);
   const [adsHeaderCode, setAdsHeaderCode] = useState("");
   const [adsContentCode, setAdsContentCode] = useState("");
+  const [joinWhatsAppUrl, setJoinWhatsAppUrl] = useState("");
+  const [joinTelegramUrl, setJoinTelegramUrl] = useState("");
+  const [joinArattaiUrl, setJoinArattaiUrl] = useState("");
 
   const { data: settings, isLoading } = useQuery<SiteSettings>({
     queryKey: ["/api/site-settings"],
@@ -26,6 +29,9 @@ export default function AdminAdsSettings() {
       setAdsEnabled(settings.adsEnabled);
       setAdsHeaderCode(settings.adsHeaderCode || "");
       setAdsContentCode(settings.adsContentCode || "");
+      setJoinWhatsAppUrl(settings.joinWhatsAppUrl || "");
+      setJoinTelegramUrl(settings.joinTelegramUrl || "");
+      setJoinArattaiUrl(settings.joinArattaiUrl || "");
     }
   }, [settings]);
 
@@ -54,6 +60,9 @@ export default function AdminAdsSettings() {
       adsEnabled,
       adsHeaderCode,
       adsContentCode,
+      joinWhatsAppUrl,
+      joinTelegramUrl,
+      joinArattaiUrl,
     });
   };
 
@@ -140,6 +149,49 @@ export default function AdminAdsSettings() {
               <p className="text-[11px] text-muted-foreground">
                 This code will be injected into every active <code>AdUnit</code> placement on the site.
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Global Social Channel Links</CardTitle>
+            <CardDescription>
+              These links will appear in the "Important Links" section of all job and exam postings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp-url">WhatsApp Join Link</Label>
+                <input
+                  id="whatsapp-url"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="https://chat.whatsapp.com/..."
+                  value={joinWhatsAppUrl}
+                  onChange={(e) => setJoinWhatsAppUrl(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="telegram-url">Telegram Join Link</Label>
+                <input
+                  id="telegram-url"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="https://t.me/..."
+                  value={joinTelegramUrl}
+                  onChange={(e) => setJoinTelegramUrl(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="arattai-url">Arattai Join Link</Label>
+                <input
+                  id="arattai-url"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="https://www.arattai.in/..."
+                  value={joinArattaiUrl}
+                  onChange={(e) => setJoinArattaiUrl(e.target.value)}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

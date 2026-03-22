@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, MapPin, Globe, Users, Filter, Search, ChevronDown, BookOpen } from "lucide-react";
+import { 
+  Calendar, Clock, MapPin, Globe, Users, Filter, Search, 
+  ChevronDown, BookOpen, Building2, PlusCircle, FileText, 
+  ExternalLink, Share2, Info, Timer
+} from "lucide-react";
+import SocialShare from "@/components/social-share";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
-import { Building2, PlusCircle, FileText, ExternalLink } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import type { Exam } from "@shared/schema";
@@ -163,6 +167,15 @@ function ExamCard({ exam }: ExamCardProps) {
             <ExternalLink className="h-4 w-4 mr-2" />
             View Full Details
           </Button>
+          <SocialShare 
+            url={`${window.location.origin}/exam/${exam.slug || exam.id}`}
+            title={`Official Exam Update: ${exam.title} (${exam.conductingOrganization})`}
+            trigger={
+              <Button variant="outline" size="icon" className="h-10 w-10 border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                <Share2 className="h-4 w-4" />
+              </Button>
+            }
+          />
           {exam.syllabus && (
             <Dialog>
               <DialogTrigger asChild>
