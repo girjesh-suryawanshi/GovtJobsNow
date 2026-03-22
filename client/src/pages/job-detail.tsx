@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import {
   ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark,
   Share2, ExternalLink, FileText, MessageCircle, Send, Facebook,
-  Building2, Sparkles, BookOpen, ShieldCheck, Target, Download
+  Building2, Sparkles, BookOpen, ShieldCheck, Target, Download, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -48,7 +48,16 @@ interface JobPosition {
 export default function JobDetail() {
   const { slug } = useParams();
   const [isSaved, setIsSaved] = useState(false);
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowStickyHeader(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const { data: job, isLoading } = useQuery({
     queryKey: ["/api/jobs/slug", slug],
@@ -108,6 +117,40 @@ export default function JobDetail() {
         url={`https://govtjobsnow.com/job/${job.slug || job.id}`}
       />
       <Header onScrollToDepartments={() => window.location.href = '/#departments'} />
+
+      {/* Sticky Professional Sub-Header */}
+      <div className={`fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300 transform ${showStickyHeader ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4 overflow-hidden text-sm">
+             <div className="hidden sm:block">
+               <OrganizationLogo department={job?.recruitingOrganization || job?.department || ""} className="h-8 w-8" />
+             </div>
+             <p className="font-black text-gray-900 truncate max-w-[200px] md:max-w-md">{job?.title}</p>
+          </div>
+          
+          <div className="hidden md:flex items-center gap-6">
+            <a href="#overview" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Overview</a>
+            <a href="#vacancies" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Vacancies</a>
+            <a href="#timeline" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Timeline</a>
+            <a href="#documents" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Documents</a>
+          </div>
+
+          <div className="flex items-center gap-3">
+             <Button size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-4 py-2" onClick={() => window.open(job?.notificationFileUrl || job?.sourceUrl || '#', '_blank')}>
+               Apply Now
+             </Button>
+             <SocialShare 
+               url={window.location.href}
+               title={job?.title || ""}
+               trigger={
+                 <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100">
+                   <Share2 className="h-4 w-4 text-gray-400" />
+                 </Button>
+               }
+             />
+          </div>
+        </div>
+      </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -183,24 +226,55 @@ export default function JobDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2 p-8 md:p-12 space-y-12 border-r border-gray-50">
-              {/* Quick Info Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 p-8 bg-gray-50/50 rounded-[2rem] border border-gray-100 shadow-inner">
-                <div className="space-y-1">
-                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-blue-200 decoration-2 underline-offset-4">Salary Range</p>
-                  <p className="text-sm font-extrabold text-gray-900">₹{job.salary || "Best in Field"}</p>
-                </div>
-                <div className="space-y-1 border-l border-gray-200 pl-6">
-                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-purple-200 decoration-2 underline-offset-4">Education</p>
-                  <p className="text-sm font-extrabold text-gray-900">{job.qualification}</p>
-                </div>
-                <div className="space-y-1 border-l border-gray-200 pl-6">
-                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-blue-200 decoration-2 underline-offset-4">Experience</p>
-                  <p className="text-sm font-extrabold text-gray-900">{job.experienceRequired || "N/A"}</p>
-                </div>
-                <div className="space-y-1 border-l border-gray-200 pl-6">
-                  <p className="text-[10px] font-extrabold uppercase tracking-widest text-gray-400 underline decoration-green-200 decoration-2 underline-offset-4">Valid Until</p>
-                  <p className="text-sm font-extrabold text-red-600">{job.deadline}</p>
-                </div>
+              {/* Modern Bento Info Grid */}
+              <div id="overview" className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-2 bg-gray-50/30 rounded-[2.5rem] border border-gray-100 shadow-inner">
+                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
+                      <IndianRupee className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Estimated Salary</p>
+                      <p className="text-sm font-black text-gray-900 leading-tight">₹{job.salary || "Best in Field"}</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-110 transition-transform">
+                      <BookOpen className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Education Req.</p>
+                      <p className="text-sm font-black text-gray-900 leading-tight">{job.qualification}</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-orange-50 text-orange-600 group-hover:scale-110 transition-transform">
+                      <ShieldCheck className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Experience Req.</p>
+                      <p className="text-sm font-black text-gray-900 leading-tight">{job.experienceRequired || "Not Specified"}</p>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-red-50 text-red-600 group-hover:scale-110 transition-transform">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Application Deadline</p>
+                      <p className="text-sm font-black text-red-600 leading-tight">{job.deadline}</p>
+                    </div>
+                  </div>
+                </Card>
               </div>
 
               {/* Winning Innovation: Prep Guide */}
@@ -247,7 +321,7 @@ export default function JobDetail() {
 
               {/* Specific Positions Table */}
               {positions.length > 0 && (
-                <section className="space-y-6">
+                <section id="vacancies" className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
                       <Users className="h-7 w-7 text-blue-600" /> Positions Available
@@ -385,7 +459,7 @@ export default function JobDetail() {
 
               {/* Official Notifications (Multiple) */}
               {((job.notifications as any[]) || []).length > 0 && (
-                <section className="space-y-6">
+                <section id="documents" className="space-y-6">
                   <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                     <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
                   </h3>
@@ -545,7 +619,7 @@ export default function JobDetail() {
                     <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-gray-400 italic">
                       <span>Registration Deadline</span>
                     </div>
-                    <div className="p-5 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-100 animate-pulse">
+                    <div id="timeline" className="p-5 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-100 animate-pulse">
                       <p className="text-center font-black text-xl">{job.deadline}</p>
                     </div>
                   </div>
@@ -563,6 +637,22 @@ export default function JobDetail() {
         </div>
       </div>
       <Footer />
+
+      {/* Mobile Floating Action Bar */}
+      <div className="md:hidden fixed bottom-6 left-4 right-4 z-40">
+        <div className="bg-white/95 backdrop-blur-xl border border-gray-100 shadow-2xl rounded-3xl p-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 pl-2">
+            <OrganizationLogo department={job?.recruitingOrganization || job?.department || ""} className="h-6 w-6" />
+            <div className="flex flex-col">
+              <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Status</p>
+              <p className="text-[10px] font-black text-green-600 uppercase leading-none">Hiring Now</p>
+            </div>
+          </div>
+          <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-12 shadow-lg shadow-blue-200" onClick={() => window.open(job?.sourceUrl || '#', '_blank')}>
+            Apply Online <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
