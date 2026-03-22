@@ -5,7 +5,7 @@ import { Link } from "wouter";
 import { 
   ArrowLeft, Calendar, Bell, ExternalLink, FileText, 
   MessageCircle, Send, Facebook, Building2, Sparkles, 
-  BookOpen, Target, Download, Share2, Info, Timer
+  BookOpen, Target, Download, Share2, Info, Timer, ShieldCheck
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import OrganizationLogo from "@/components/organization-logo";
@@ -186,12 +186,41 @@ export default function ExamDetail() {
 
               {/* Exam Brief */}
               {exam.examBrief && (
-                <section className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-[2rem] border border-gray-100 shadow-inner">
-                  <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center justify-center md:justify-start gap-3">
-                    <Info className="h-7 w-7 text-blue-600" /> Exam Overview
-                  </h3>
-                  <div className="prose prose-blue max-w-none text-gray-600 font-medium leading-relaxed">
-                    {exam.examBrief}
+                <section className="relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 -z-10 rounded-[2.5rem]" />
+                  <div className="bg-white/40 backdrop-blur-sm p-8 md:p-10 rounded-[2.5rem] border border-blue-100/50 shadow-sm relative group transition-all hover:shadow-md hover:bg-white/60">
+                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                      <Sparkles className="h-24 w-24 text-blue-600" />
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                      <div className="space-y-1">
+                        <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
+                          <Info className="h-8 w-8 text-blue-600" /> Exam Overview & Guide
+                        </h3>
+                        <p className="text-sm font-bold text-blue-400 uppercase tracking-widest pl-11">Key Information & Highlights</p>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-2xl text-xs font-black uppercase tracking-widest border border-blue-100 shadow-sm">
+                        <ShieldCheck className="h-4 w-4" /> Verified Brief
+                      </div>
+                    </div>
+
+                    <div className="bg-white/80 p-6 rounded-3xl border border-blue-50 shadow-inner relative z-10">
+                      <div className="prose prose-blue max-w-none">
+                        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap font-medium text-base first-letter:text-3xl first-letter:font-black first-letter:text-blue-600 first-letter:mr-1">
+                          {exam.examBrief}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <Badge className="bg-blue-100/50 text-blue-700 hover:bg-blue-100 border-blue-200/50 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
+                        Official Overview
+                      </Badge>
+                      <Badge className="bg-indigo-100/50 text-indigo-700 hover:bg-indigo-100 border-indigo-200/50 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
+                        Exam Highlights
+                      </Badge>
+                    </div>
                   </div>
                 </section>
               )}

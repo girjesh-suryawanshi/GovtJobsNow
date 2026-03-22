@@ -344,15 +344,41 @@ export default function JobDetail() {
 
               {/* Vacancy Breakdown */}
               {job.vacancyBreakdown && (
-                <section className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                    <Users className="h-20 w-20" />
-                  </div>
-                  <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3 relative z-10">
-                    <Users className="h-7 w-7 text-gray-400" /> Detailed Vacancy Breakdown
-                  </h3>
-                  <div className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium text-sm italic relative z-10">
-                    {job.vacancyBreakdown}
+                <section className="relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/30 -z-10 rounded-[2.5rem]" />
+                  <div className="bg-white/40 backdrop-blur-sm p-8 md:p-10 rounded-[2.5rem] border border-indigo-100/50 shadow-sm relative group transition-all hover:shadow-md hover:bg-white/60">
+                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
+                      <Sparkles className="h-24 w-24 text-indigo-600" />
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                      <div className="space-y-1">
+                        <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
+                          <Users className="h-8 w-8 text-indigo-600" /> Detailed Vacancy Breakdown
+                        </h3>
+                        <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest pl-11">Official Statistics & Categories</p>
+                      </div>
+                      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-2xl text-xs font-black uppercase tracking-widest border border-indigo-100 shadow-sm">
+                        <ShieldCheck className="h-4 w-4" /> Verified Data
+                      </div>
+                    </div>
+
+                    <div className="bg-white/80 p-6 rounded-3xl border border-indigo-50 shadow-inner relative z-10">
+                      <div className="prose prose-indigo max-w-none">
+                        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap font-medium text-base first-letter:text-3xl first-letter:font-black first-letter:text-indigo-600 first-letter:mr-1">
+                          {job.vacancyBreakdown}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6 flex flex-wrap gap-3">
+                      <Badge className="bg-indigo-100/50 text-indigo-700 hover:bg-indigo-100 border-indigo-200/50 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
+                        Categorized Data
+                      </Badge>
+                      <Badge className="bg-blue-100/50 text-blue-700 hover:bg-blue-100 border-blue-200/50 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
+                        Official Notification Source
+                      </Badge>
+                    </div>
                   </div>
                 </section>
               )}
