@@ -725,6 +725,13 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           customLinks: []
         });
 
+        // Reset additional state
+        setJobPositions([]);
+        setUseMultiplePositions(false);
+        setRawText("");
+        setScrapeUrl("");
+        setValidationErrors([]);
+
         onJobAdded();
       } else {
         const error = await response.json();

@@ -358,6 +358,8 @@ export default function ManualExamEntry() {
     });
     setSelectedTemplate("");
     setEditingId(null);
+    setRawText("");
+    setScrapeUrl("");
   };
 
   const handleSubmit = async () => {

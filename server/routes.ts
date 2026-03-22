@@ -78,7 +78,7 @@ Allow: /`);
 
   const upload = multer({
     storage: storageConfig,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+    limits: { fileSize: 20 * 1024 * 1024 } // 20MB limit
   });
 
   // Serve the uploads directory statically
@@ -792,23 +792,38 @@ Allow: /`);
         throw new Error(`Server responded with ${scrapeRes.status}: ${scrapeRes.statusText}`);
       }
 
-      const html = await scrapeRes.text();
+      const contentType = scrapeRes.headers.get("content-type") || "";
+      const isPdf = contentType.includes("application/pdf") || url.toLowerCase().endsWith(".pdf");
 
-      // Load into Cheerio to parse the DOM
-      const $ = cheerio.load(html);
+      let text = "";
 
-      // Remove noisy elements that confuse AI text extraction
-      // Remove only technical noise, keep headers/sidebars as they often contain important dates/links on gov sites
-      $("script, style, noscript, iframe, img, svg").remove();
+      if (isPdf) {
+        // PDF extraction logic
+        const buffer = Buffer.from(await scrapeRes.arrayBuffer());
+        const pdfParseModule = await import("pdf-parse");
+        // Handle both ES and CommonJS default exports
+        const pdfParse = (pdfParseModule as any).default || pdfParseModule;
+        const pdfData = await pdfParse(buffer);
+        text = pdfData.text;
+      } else {
+        // Standard HTML extraction logic
+        const html = await scrapeRes.text();
 
-      // Extract the raw text from the remaining body
-      let text = $("body").text() || $.text();
+        // Load into Cheerio to parse the DOM
+        const $ = cheerio.load(html);
+
+        // Remove noisy elements that confuse AI text extraction
+        $("script, style, noscript, iframe, img, svg").remove();
+
+        // Extract the raw text from the remaining body
+        text = $("body").text() || $.text();
+      }
 
       // Strip out excessive newlines and tabs to compress payload size
       text = text.replace(/\s+/g, ' ').trim();
 
       if (text.length < 50) {
-        throw new Error("Scraped page appears to be almost empty. It may be blocked by a Captcha, or the jobs are loaded via Javascript instead of static HTML.");
+        throw new Error(isPdf ? "Extracted PDF content appears to be almost empty." : "Scraped page appears to be almost empty. It may be blocked by a Captcha, or the jobs are loaded via Javascript instead of static HTML.");
       }
 
       // Truncate to save Gemini tokens but keep enough context for large notifications

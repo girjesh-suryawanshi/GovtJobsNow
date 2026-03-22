@@ -326,13 +326,13 @@ export default function ExamDetail() {
                   )}
 
                   {/* Per-exam Custom Links */}
-                  {(exam.customLinks as any[] || []).map((link, idx) => (
+                  {(Array.isArray(exam.customLinks) ? exam.customLinks : []).map((link, idx) => (
                     <a 
                       key={`custom-${idx}`}
                       href={link.url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl hover:bg-amber-100 transition-all group"
+                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-all group shadow-sm"
                     >
                       <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
                         <ExternalLink className="h-4 w-4" />

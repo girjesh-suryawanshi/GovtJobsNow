@@ -2,22 +2,22 @@ import { useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { 
-  ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark, 
-  Share2, ExternalLink, FileText, MessageCircle, Send, Facebook, 
+import {
+  ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark,
+  Share2, ExternalLink, FileText, MessageCircle, Send, Facebook,
   Building2, Sparkles, BookOpen, ShieldCheck, Target, Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
 } from "@/components/ui/table";
 import OrganizationLogo from "@/components/organization-logo";
 import Header from "@/components/header";
@@ -116,12 +116,12 @@ export default function JobDetail() {
               <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
             </Button>
           </Link>
-          
-          <Breadcrumbs 
+
+          <Breadcrumbs
             items={[
               { label: job.jobCategory || "Jobs", href: "/#departments" },
               { label: job.title }
-            ]} 
+            ]}
           />
         </div>
 
@@ -143,7 +143,7 @@ export default function JobDetail() {
                     )}
                   </div>
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight text-center md:text-left drop-shadow-sm">{job.title}</h1>
-                  
+
                   {/* Top Ad Placement */}
                   <AdUnit slot="job-top-fluid" className="my-2" />
 
@@ -155,23 +155,23 @@ export default function JobDetail() {
                       <Building2 className="h-3.5 w-3.5 text-gray-400" /> {job.recruitingOrganization || job.department}
                     </span>
                     <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                       <MapPin className="h-3.5 w-3.5 text-gray-400" /> {job.location}
+                      <MapPin className="h-3.5 w-3.5 text-gray-400" /> {job.location}
                     </span>
                   </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-3 shrink-0 self-start md:self-center lg:self-start">
                 <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
-                   <p className="text-[10px] font-black text-gray-400 px-2 uppercase tracking-tighter">Share</p>
-                   <SocialShare 
-                     url={window.location.href}
-                     title={job.title}
-                     trigger={
-                       <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600">
-                         <Share2 className="h-5 w-5" />
-                       </Button>
-                     }
-                   />
+                  <p className="text-[10px] font-black text-gray-400 px-2 uppercase tracking-tighter">Share</p>
+                  <SocialShare
+                    url={window.location.href}
+                    title={job.title}
+                    trigger={
+                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600">
+                        <Share2 className="h-5 w-5" />
+                      </Button>
+                    }
+                  />
                 </div>
                 <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12 border-gray-100 shadow-sm" onClick={() => setIsSaved(!isSaved)}>
                   <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-orange-500 text-orange-500' : 'text-gray-300'}`} />
@@ -256,7 +256,7 @@ export default function JobDetail() {
                       {positions.length} Total Posts
                     </Badge>
                   </div>
-                  
+
                   <div className="border rounded-[2rem] overflow-hidden bg-white shadow-sm">
                     <Table>
                       <TableHeader className="bg-gray-50/50">
@@ -275,13 +275,13 @@ export default function JobDetail() {
                               </div>
                             </TableCell>
                             <TableCell className="py-6">
-                               <div className="font-bold text-gray-700 text-sm mb-1">{pos.qualification}</div>
-                               <div className="text-[10px] text-gray-400 font-bold uppercase">Exp: {pos.experienceRequired || "None"}</div>
-                               {pos.specificRequirements && (
-                                 <div className="text-[11px] text-gray-500 italic mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                   <span className="text-blue-500 font-black mr-2">Note:</span> {pos.specificRequirements}
-                                 </div>
-                               )}
+                              <div className="font-bold text-gray-700 text-sm mb-1">{pos.qualification}</div>
+                              <div className="text-[10px] text-gray-400 font-bold uppercase">Exp: {pos.experienceRequired || "None"}</div>
+                              {pos.specificRequirements && (
+                                <div className="text-[11px] text-gray-500 italic mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                  <span className="text-blue-500 font-black mr-2">Note:</span> {pos.specificRequirements}
+                                </div>
+                              )}
                             </TableCell>
                             <TableCell className="py-6 text-center">
                               <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none font-black px-3 py-1">
@@ -345,15 +345,15 @@ export default function JobDetail() {
               {/* Vacancy Breakdown */}
               {job.vacancyBreakdown && (
                 <section className="bg-gray-50 p-8 rounded-[2rem] border border-gray-100 relative overflow-hidden group">
-                   <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-                     <Users className="h-20 w-20" />
-                   </div>
-                   <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3 relative z-10">
-                     <Users className="h-7 w-7 text-gray-400" /> Detailed Vacancy Breakdown
-                   </h3>
-                   <div className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium text-sm italic relative z-10">
-                     {job.vacancyBreakdown}
-                   </div>
+                  <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
+                    <Users className="h-20 w-20" />
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 mb-4 flex items-center gap-3 relative z-10">
+                    <Users className="h-7 w-7 text-gray-400" /> Detailed Vacancy Breakdown
+                  </h3>
+                  <div className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium text-sm italic relative z-10">
+                    {job.vacancyBreakdown}
+                  </div>
                 </section>
               )}
 
@@ -365,10 +365,10 @@ export default function JobDetail() {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {((job.notifications as any[]) || []).map((notif, idx) => (
-                      <a 
-                        key={idx} 
-                        href={notif.url} 
-                        target="_blank" 
+                      <a
+                        key={idx}
+                        href={notif.url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-blue-600 hover:shadow-lg transition-all group"
                       >
@@ -396,10 +396,10 @@ export default function JobDetail() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Dynamic Notification Links mirrored here if short */}
                   {((job.notifications as any[]) || []).map((notif, idx) => (
-                    <a 
+                    <a
                       key={`imp-${idx}`}
-                      href={notif.url} 
-                      target="_blank" 
+                      href={notif.url}
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 p-4 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl hover:bg-indigo-50 transition-all group"
                     >
@@ -409,6 +409,23 @@ export default function JobDetail() {
                       <span className="text-sm font-bold text-gray-900">{notif.label}</span>
                     </a>
                   ))}
+
+                  {/* Per-job Custom Links */}
+                  {(Array.isArray(job.customLinks) ? job.customLinks : []).map((link, idx) => (
+                    <a
+                      key={`custom-${idx}`}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-all group shadow-sm"
+                    >
+                      <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{link.label}</span>
+                    </a>
+                  ))}
+
 
                   {/* Global Social Links */}
                   {settings?.joinWhatsAppUrl && (
@@ -436,21 +453,7 @@ export default function JobDetail() {
                     </a>
                   )}
 
-                  {/* Per-job Custom Links */}
-                  {(job.customLinks as any[] || []).map((link, idx) => (
-                    <a 
-                      key={`custom-${idx}`}
-                      href={link.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl hover:bg-amber-100 transition-all group"
-                    >
-                      <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
-                        <ExternalLink className="h-4 w-4" />
-                      </div>
-                      <span className="text-sm font-bold text-gray-900">{link.label}</span>
-                    </a>
-                  ))}
+
                 </div>
               </section>
 
@@ -484,10 +487,10 @@ export default function JobDetail() {
                     {/* Modern Multi-Notification Priority */}
                     {((job.notifications as any[]) || []).length > 0 ? (
                       ((job.notifications as any[]) || []).map((notif, idx) => (
-                        <Button 
+                        <Button
                           key={idx}
-                          variant="outline" 
-                          className="w-full border-gray-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-black rounded-2xl h-14 flex items-center justify-center gap-2 transition-all" 
+                          variant="outline"
+                          className="w-full border-gray-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-black rounded-2xl h-14 flex items-center justify-center gap-2 transition-all"
                           onClick={() => window.open(notif.url, '_blank')}
                         >
                           {notif.label} {notif.type === 'file' ? <Download className="h-5 w-5 text-blue-500" /> : <ExternalLink className="h-5 w-5 text-blue-500" />}
@@ -498,8 +501,8 @@ export default function JobDetail() {
                         Official Notification <Download className="h-5 w-5 text-blue-500" />
                       </Button>
                     )}
-                    
-                    <SocialShare 
+
+                    <SocialShare
                       url={window.location.href}
                       title={job.title}
                       trigger={
@@ -517,7 +520,7 @@ export default function JobDetail() {
                       <span>Registration Deadline</span>
                     </div>
                     <div className="p-5 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-100 animate-pulse">
-                        <p className="text-center font-black text-xl">{job.deadline}</p>
+                      <p className="text-center font-black text-xl">{job.deadline}</p>
                     </div>
                   </div>
                 </div>
