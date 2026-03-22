@@ -22,7 +22,11 @@ import {
   Loader2,
   Globe,
   Building2,
-  Upload
+  Upload,
+  Download,
+  DownloadCloud,
+  FileText,
+  ExternalLink
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -330,7 +334,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     syllabus: "",
     notificationFileUrl: "",
     slug: "",
-    notifications: [] as Array<{ label: string; url: string; type: 'file' | 'link' }>
+    notifications: [] as Array<{ label: string; url: string; type: 'file' | 'link' }>,
+    customLinks: [] as Array<{ label: string; url: string }>
   });
 
   // State for multiple positions
@@ -507,7 +512,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     const template = jobTemplates[templateKey as keyof typeof jobTemplates];
     setFormData(prev => ({
       ...prev,
-      ...template
+      ...template,
+      customLinks: []
     }));
     setShowTemplates(false);
     toast({
@@ -662,6 +668,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0],
         slug: formData.slug || generateSlug(formData.title),
         notifications: formData.notifications || [],
+        customLinks: formData.customLinks || [],
         // Include multiple positions data if enabled
         ...(useMultiplePositions && {
           jobPositions: jobPositions
@@ -714,7 +721,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           syllabus: "",
           notificationFileUrl: "",
           slug: "",
-          notifications: []
+          notifications: [],
+          customLinks: []
         });
 
         onJobAdded();
@@ -771,7 +779,8 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       syllabus: "",
       notificationFileUrl: "",
       slug: "",
-      notifications: []
+      notifications: [],
+      customLinks: []
     });
     setJobPositions([{
       id: crypto.randomUUID(),
@@ -1449,6 +1458,83 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Custom Links Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5 text-indigo-600" />
+                  <Label className="text-lg font-black text-gray-900">Custom Important Links</Label>
+                </div>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700 font-bold"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      customLinks: [...prev.customLinks, { label: "", url: "" }]
+                    }));
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Custom Link
+                </Button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4">
+                Add additional helpful links like "Apply Here", "Syllabus PDF", "Previous Year Papers", etc.
+              </p>
+
+              {formData.customLinks.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formData.customLinks.map((link, idx) => (
+                    <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3 relative group">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-white border shadow-sm text-red-500 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => {
+                          setFormData(prev => ({
+                            ...prev,
+                            customLinks: prev.customLinks.filter((_, i) => i !== idx)
+                          }));
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Link Label</Label>
+                        <input
+                          className="flex h-9 w-full rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500"
+                          placeholder="e.g. Official Syllabus"
+                          value={link.label}
+                          onChange={(e) => {
+                            const newLinks = [...formData.customLinks];
+                            newLinks[idx].label = e.target.value;
+                            setFormData(prev => ({ ...prev, customLinks: newLinks }));
+                          }}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Link URL</Label>
+                        <input
+                          className="flex h-9 w-full rounded-lg border border-gray-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-indigo-500"
+                          placeholder="https://..."
+                          value={link.url}
+                          onChange={(e) => {
+                            const newLinks = [...formData.customLinks];
+                            newLinks[idx].url = e.target.value;
+                            setFormData(prev => ({ ...prev, customLinks: newLinks }));
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Multiple Positions Section */}

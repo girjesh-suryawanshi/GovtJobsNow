@@ -142,7 +142,7 @@ export default function JobDetail() {
                       </Badge>
                     )}
                   </div>
-                  <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight text-center md:text-left">{job.title}</h1>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight text-center md:text-left drop-shadow-sm">{job.title}</h1>
                   
                   {/* Top Ad Placement */}
                   <AdUnit slot="job-top-fluid" className="my-2" />
@@ -299,7 +299,7 @@ export default function JobDetail() {
               {/* Eligibility & Fees */}
               <section className="grid grid-cols-1 md:grid-cols-2 gap-8 border rounded-[2rem] p-8 bg-gray-50/30">
                 <div className="space-y-6">
-                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center gap-2">
+                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center justify-center md:justify-start gap-2">
                     <Target className="h-5 w-5 text-blue-600" /> Eligibility Details
                   </h3>
                   <div className="space-y-4">
@@ -314,7 +314,7 @@ export default function JobDetail() {
                   </div>
                 </div>
                 <div className="space-y-6 md:border-l md:pl-8">
-                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center gap-2">
+                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center justify-center md:justify-start gap-2">
                     <IndianRupee className="h-5 w-5 text-green-600" /> Fees & Dates
                   </h3>
                   <div className="space-y-4">
@@ -333,7 +333,7 @@ export default function JobDetail() {
               {/* Selection Process */}
               {job.selectionProcess && (
                 <section className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100/50">
-                  <h3 className="text-xl font-black text-blue-900 mb-4 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-blue-900 mb-4 flex items-center justify-center md:justify-start gap-3">
                     <Target className="h-7 w-7 text-blue-600" /> Selection Process
                   </h3>
                   <div className="text-blue-900/80 leading-relaxed font-bold text-sm">
@@ -360,7 +360,7 @@ export default function JobDetail() {
               {/* Official Notifications (Multiple) */}
               {((job.notifications as any[]) || []).length > 0 && (
                 <section className="space-y-6">
-                  <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                     <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -390,7 +390,7 @@ export default function JobDetail() {
 
               {/* Important Links (New Section) */}
               <section className="space-y-6">
-                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                   <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -435,6 +435,22 @@ export default function JobDetail() {
                       <span className="text-sm font-bold text-gray-900">Join Arattai Channel</span>
                     </a>
                   )}
+
+                  {/* Per-job Custom Links */}
+                  {(job.customLinks as any[] || []).map((link, idx) => (
+                    <a 
+                      key={`custom-${idx}`}
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl hover:bg-amber-100 transition-all group"
+                    >
+                      <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{link.label}</span>
+                    </a>
+                  ))}
                 </div>
               </section>
 

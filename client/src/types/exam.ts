@@ -17,5 +17,6 @@ export interface Exam {
   examBrief: string | null;
   slug: string | null;
   notifications: Array<{ label: string; url: string; type: 'file' | 'link' }> | null | any;
+  customLinks: Array<{ label: string; url: string }> | null | any;
   createdAt: Date | string | null;
 }

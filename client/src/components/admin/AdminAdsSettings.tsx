@@ -19,6 +19,7 @@ export default function AdminAdsSettings() {
   const [joinWhatsAppUrl, setJoinWhatsAppUrl] = useState("");
   const [joinTelegramUrl, setJoinTelegramUrl] = useState("");
   const [joinArattaiUrl, setJoinArattaiUrl] = useState("");
+  const [enabledSocialPlatforms, setEnabledSocialPlatforms] = useState<string[]>([]);
 
   const { data: settings, isLoading } = useQuery<SiteSettings>({
     queryKey: ["/api/site-settings"],
@@ -32,6 +33,7 @@ export default function AdminAdsSettings() {
       setJoinWhatsAppUrl(settings.joinWhatsAppUrl || "");
       setJoinTelegramUrl(settings.joinTelegramUrl || "");
       setJoinArattaiUrl(settings.joinArattaiUrl || "");
+      setEnabledSocialPlatforms((settings.enabledSocialPlatforms as string[]) || ["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"]);
     }
   }, [settings]);
 
@@ -43,7 +45,7 @@ export default function AdminAdsSettings() {
       queryClient.invalidateQueries({ queryKey: ["/api/site-settings"] });
       toast({
         title: "Settings Updated",
-        description: "AdSense configuration has been saved successfully.",
+        description: "AdSense and social configuration has been saved successfully.",
       });
     },
     onError: (error: any) => {
@@ -63,6 +65,7 @@ export default function AdminAdsSettings() {
       joinWhatsAppUrl,
       joinTelegramUrl,
       joinArattaiUrl,
+      enabledSocialPlatforms,
     });
   };
 
@@ -160,7 +163,33 @@ export default function AdminAdsSettings() {
               These links will appear in the "Important Links" section of all job and exam postings.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            <div className="space-y-4 pb-4 border-b">
+              <Label className="text-base">Enabled Social Share Platforms</Label>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                {["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"].map((platform) => (
+                  <div key={platform} className="flex items-center space-x-2 bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                    <Switch
+                      id={`platform-${platform}`}
+                      checked={(enabledSocialPlatforms || []).includes(platform)}
+                      onCheckedChange={(checked) => {
+                        const current = enabledSocialPlatforms || [];
+                        if (checked) {
+                          setEnabledSocialPlatforms([...current, platform]);
+                        } else {
+                          setEnabledSocialPlatforms(current.filter(p => p !== platform));
+                        }
+                      }}
+                    />
+                    <Label htmlFor={`platform-${platform}`} className="font-semibold cursor-pointer">{platform}</Label>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground italic">
+                Select which social media platforms will appear in the share dialog across the site.
+              </p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="whatsapp-url">WhatsApp Join Link</Label>
@@ -200,12 +229,12 @@ export default function AdminAdsSettings() {
           <Button 
             onClick={handleSave} 
             disabled={updateSettingsMutation.isPending}
-            className="px-8 bg-blue-600 hover:bg-blue-700"
+            className="px-8 bg-blue-600 hover:bg-blue-700 h-12 rounded-xl shadow-lg shadow-blue-200"
           >
             {updateSettingsMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             ) : (
-              <Save className="mr-2 h-4 w-4" />
+              <Save className="mr-2 h-5 w-5" />
             )}
             Save Configuration
           </Button>

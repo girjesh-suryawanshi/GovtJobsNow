@@ -31,6 +31,7 @@ export const jobs = pgTable("jobs", {
   viewCount: integer("view_count").default(0),
   slug: varchar("slug").unique(),
   notifications: json("notifications").default([]),
+  customLinks: json("custom_links").default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -220,6 +221,7 @@ export const exams = pgTable("exams", {
   examBrief: text("exam_brief"),
   slug: varchar("slug").unique(),
   notifications: json("notifications").default([]),
+  customLinks: json("custom_links").default([]),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -244,6 +246,7 @@ export const siteSettings = pgTable("site_settings", {
   joinWhatsAppUrl: text("join_whatsapp_url").default("https://chat.whatsapp.com/Example"),
   joinTelegramUrl: text("join_telegram_url").default("https://t.me/Example"),
   joinArattaiUrl: text("join_arattai_url").default("https://www.arattai.in/Example"),
+  enabledSocialPlatforms: json("enabled_social_platforms").default(["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"]),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

@@ -100,6 +100,7 @@ interface ExamFormData {
   examBrief: string;
   slug: string;
   notifications: Array<{ label: string; url: string; type: 'file' | 'link' }>;
+  customLinks: Array<{ label: string; url: string }>;
 }
 
 export default function ManualExamEntry() {
@@ -120,7 +121,8 @@ export default function ManualExamEntry() {
     examMode: "",
     examBrief: "",
     slug: "",
-    notifications: []
+    notifications: [],
+    customLinks: []
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -166,7 +168,8 @@ export default function ManualExamEntry() {
       examMode: exam.examMode || "",
       examBrief: exam.examBrief || "",
       slug: exam.slug || "",
-      notifications: (exam.notifications as any) || []
+      notifications: (exam.notifications as any) || [],
+      customLinks: (exam.customLinks as any) || []
     });
     setEditingId(exam.id);
     
@@ -248,7 +251,8 @@ export default function ManualExamEntry() {
         setFormData(prev => ({
           ...prev,
           ...data,
-          officialWebsite: scrapeUrl // Automatically pre-fill the officialWebsite field
+          officialWebsite: scrapeUrl,
+          customLinks: data.customLinks || []
         }));
         toast({ title: "Pipeline Successful", description: "URL Scraped and Exam details organized automatically. Please review carefully." });
       } else {
@@ -283,7 +287,7 @@ export default function ManualExamEntry() {
 
       if (response.ok) {
         const data = await response.json();
-        setFormData(prev => ({ ...prev, ...data }));
+        setFormData(prev => ({ ...prev, ...data, customLinks: data.customLinks || [] }));
         toast({ title: "Extraction Successful", description: "Exam details have been organized. Please review before publishing." });
       } else {
         throw new Error("Failed to extract");
@@ -320,7 +324,8 @@ export default function ManualExamEntry() {
     if (template) {
       setFormData(prev => ({
         ...prev,
-        ...template
+        ...template,
+        customLinks: []
       }));
       setSelectedTemplate(templateKey);
       toast({
@@ -348,7 +353,8 @@ export default function ManualExamEntry() {
       examMode: "",
       examBrief: "",
       slug: "",
-      notifications: []
+      notifications: [],
+      customLinks: []
     });
     setSelectedTemplate("");
     setEditingId(null);
@@ -373,7 +379,8 @@ export default function ManualExamEntry() {
       const examData = {
         ...formData,
         slug: formData.slug || generateSlug(formData.title),
-        notifications: formData.notifications || []
+        notifications: formData.notifications || [],
+        customLinks: formData.customLinks || []
       };
 
       const token = localStorage.getItem("admin_token");
@@ -842,15 +849,81 @@ export default function ManualExamEntry() {
                 </div>
               )}
             </div>
+          </div>
 
-            {/* Hidden legacy field for validation/backward compat */}
-            <div className="hidden">
-              <Input
-                id="officialWebsite"
-                value={formData.officialWebsite || (formData.notifications[0]?.url || "")}
-                readOnly
-              />
+          {/* Custom Links Section */}
+          <div className="space-y-4 pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold">Custom Important Links</h3>
+                <p className="text-sm text-gray-500">Add any additional links like Apply Here, Syllabus, Previous Papers, etc.</p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="bg-indigo-50 hover:bg-indigo-100 border-indigo-200 text-indigo-700 font-bold"
+                onClick={() => {
+                  handleInputChange("customLinks", [...(formData.customLinks || []), { label: "", url: "" }]);
+                }}
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Add Custom Link
+              </Button>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(formData.customLinks || []).map((link, idx) => (
+                <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-100 space-y-3 relative group">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute -top-2 -right-2 h-7 w-7 rounded-full bg-white border shadow-sm text-red-500 hover:text-red-700 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => {
+                      const newLinks = [...formData.customLinks];
+                      newLinks.splice(idx, 1);
+                      handleInputChange("customLinks", newLinks);
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Link Label</Label>
+                    <Input
+                      placeholder="e.g. Official Syllabus"
+                      value={link.label}
+                      onChange={(e) => {
+                        const newLinks = [...formData.customLinks];
+                        newLinks[idx].label = e.target.value;
+                        handleInputChange("customLinks", newLinks);
+                      }}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Link URL</Label>
+                    <Input
+                      placeholder="https://..."
+                      value={link.url}
+                      onChange={(e) => {
+                        const newLinks = [...formData.customLinks];
+                        newLinks[idx].url = e.target.value;
+                        handleInputChange("customLinks", newLinks);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Hidden legacy field for validation/backward compat */}
+          <div className="hidden">
+            <Input
+              id="officialWebsite"
+              value={formData.officialWebsite || (formData.notifications[0]?.url || "")}
+              readOnly
+            />
           </div>
 
           {/* Syllabus */}

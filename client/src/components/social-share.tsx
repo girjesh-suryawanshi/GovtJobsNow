@@ -9,6 +9,8 @@ import {
   DialogTitle, DialogTrigger 
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { type SiteSettings } from "@shared/schema";
 
 interface SocialShareProps {
   url: string;
@@ -21,12 +23,9 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Fallback trigger if none provided
-  const defaultTrigger = (
-    <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all">
-      <Share2 className="h-5 w-5" />
-    </Button>
-  );
+  const { data: settings } = useQuery<SiteSettings>({
+    queryKey: ["/api/site-settings"],
+  });
 
   const handleCopy = async () => {
     try {
@@ -39,8 +38,18 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
     }
   };
 
+  const enabledPlatforms = (settings?.enabledSocialPlatforms as string[]) || ["whatsapp", "telegram", "facebook", "twitter", "linkedin"];
+
+  // Fallback trigger if none provided
+  const defaultTrigger = (
+    <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-all">
+      <Share2 className="h-5 w-5" />
+    </Button>
+  );
+
   const sharePlatforms = [
     {
+      id: "whatsapp",
       name: "WhatsApp",
       icon: MessageCircle,
       color: "bg-[#25D366]",
@@ -50,6 +59,7 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
       }
     },
     {
+      id: "telegram",
       name: "Telegram",
       icon: Send,
       color: "bg-[#0088cc]",
@@ -59,6 +69,7 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
       }
     },
     {
+      id: "facebook",
       name: "Facebook",
       icon: Facebook,
       color: "bg-[#1877F2]",
@@ -68,6 +79,7 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
       }
     },
     {
+      id: "twitter",
       name: "X (Twitter)",
       icon: Twitter,
       color: "bg-[#000000]",
@@ -77,6 +89,7 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
       }
     },
     {
+      id: "linkedin",
       name: "LinkedIn",
       icon: Linkedin,
       color: "bg-[#0A66C2]",
@@ -85,21 +98,21 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
         window.open(shareUrl, "_blank");
       }
     }
-  ];
+  ].filter(p => enabledPlatforms.includes(p.id));
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || defaultTrigger}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md rounded-3xl p-6 border-none shadow-2xl">
+      <DialogContent className="w-[95vw] sm:max-w-md rounded-3xl p-6 border-none shadow-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black text-gray-900 flex items-center gap-2">
             <Share2 className="h-6 w-6 text-blue-600" /> Share This Opportunity
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 py-6">
+        <div className="grid grid-cols-3 gap-4 py-6">
           {sharePlatforms.map((platform) => (
             <button
               key={platform.name}

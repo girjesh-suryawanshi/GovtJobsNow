@@ -174,6 +174,7 @@ export class MemStorage implements IStorage {
         joinWhatsAppUrl: "https://chat.whatsapp.com/Example",
         joinTelegramUrl: "https://t.me/Example",
         joinArattaiUrl: "https://www.arattai.in/Example",
+        enabledSocialPlatforms: ["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"],
         updatedAt: new Date()
       };
     }
@@ -385,7 +386,8 @@ export class DatabaseStorage implements IStorage {
           adsContentCode: "",
           joinWhatsAppUrl: "https://chat.whatsapp.com/Example",
           joinTelegramUrl: "https://t.me/Example",
-          joinArattaiUrl: "https://www.arattai.in/Example"
+          joinArattaiUrl: "https://www.arattai.in/Example",
+          enabledSocialPlatforms: ["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"]
         }).returning();
         return newSettings;
       }
@@ -400,6 +402,7 @@ export class DatabaseStorage implements IStorage {
         joinWhatsAppUrl: "https://chat.whatsapp.com/Example",
         joinTelegramUrl: "https://t.me/Example",
         joinArattaiUrl: "https://www.arattai.in/Example",
+        enabledSocialPlatforms: ["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"],
         updatedAt: new Date() 
       };
     }

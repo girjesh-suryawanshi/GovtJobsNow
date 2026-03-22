@@ -25,6 +25,7 @@ export interface Job {
   vacancyBreakdown: string | null;
   slug: string | null;
   notifications: Array<{ label: string; url: string; type: 'file' | 'link' }> | null | any;
+  customLinks: Array<{ label: string; url: string }> | null | any;
   viewCount: number | null;
   createdAt: Date | string | null;
 }

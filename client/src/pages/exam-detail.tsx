@@ -126,7 +126,7 @@ export default function ExamDetail() {
                   )}
                 </div>
                 
-                <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight text-center md:text-left">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight text-center md:text-left drop-shadow-sm">
                   {exam.title}
                 </h1>
 
@@ -163,7 +163,7 @@ export default function ExamDetail() {
               
               {/* Important Timeline */}
               <section className="space-y-6">
-                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                   <Calendar className="h-7 w-7 text-blue-600" /> Exam Timeline
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -187,7 +187,7 @@ export default function ExamDetail() {
               {/* Exam Brief */}
               {exam.examBrief && (
                 <section className="bg-gradient-to-br from-gray-50 to-white p-8 rounded-[2rem] border border-gray-100 shadow-inner">
-                  <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-gray-900 mb-6 flex items-center justify-center md:justify-start gap-3">
                     <Info className="h-7 w-7 text-blue-600" /> Exam Overview
                   </h3>
                   <div className="prose prose-blue max-w-none text-gray-600 font-medium leading-relaxed">
@@ -199,7 +199,7 @@ export default function ExamDetail() {
               {/* Eligibility & Quick Facts */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <section className="space-y-6 p-8 bg-blue-50/30 rounded-[2rem] border border-blue-100/50">
-                  <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
+                  <h3 className="text-lg font-black text-gray-900 flex items-center justify-center md:justify-start gap-2">
                     <Target className="h-5 w-5 text-blue-600" /> Eligibility
                   </h3>
                   <div className="space-y-4">
@@ -215,7 +215,7 @@ export default function ExamDetail() {
                 </section>
 
                 <section className="space-y-6 p-8 bg-orange-50/30 rounded-[2rem] border border-orange-100/50">
-                  <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
+                  <h3 className="text-lg font-black text-gray-900 flex items-center justify-center md:justify-start gap-2">
                     <Sparkles className="h-5 w-5 text-orange-600" /> Key Features
                   </h3>
                   <div className="space-y-4">
@@ -237,7 +237,7 @@ export default function ExamDetail() {
                   <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
                     <BookOpen className="h-32 w-32" />
                   </div>
-                  <h3 className="text-2xl font-black mb-8 flex items-center gap-3">
+                  <h3 className="text-2xl font-black mb-8 flex items-center justify-center md:justify-start gap-3">
                     <Sparkles className="h-8 w-8 text-yellow-300" /> Official Syllabus & Pattern
                   </h3>
                   <div className="prose prose-invert max-w-none text-purple-50 leading-relaxed font-bold italic whitespace-pre-wrap">
@@ -249,7 +249,7 @@ export default function ExamDetail() {
               {/* Notifications Table-style links */}
               {notifications.length > 0 && (
                 <section className="space-y-6">
-                  <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                  <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                     <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -279,7 +279,7 @@ export default function ExamDetail() {
 
               {/* Important Links Section */}
               <section className="space-y-6">
-                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
+                <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                   <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -324,6 +324,22 @@ export default function ExamDetail() {
                       <span className="text-sm font-bold text-gray-900">Join Arattai Channel</span>
                     </a>
                   )}
+
+                  {/* Per-exam Custom Links */}
+                  {(exam.customLinks as any[] || []).map((link, idx) => (
+                    <a 
+                      key={`custom-${idx}`}
+                      href={link.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-100/50 rounded-2xl hover:bg-amber-100 transition-all group"
+                    >
+                      <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{link.label}</span>
+                    </a>
+                  ))}
                 </div>
               </section>
 
