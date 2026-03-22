@@ -38,7 +38,7 @@ export default function SocialShare({ url, title, trigger }: SocialShareProps) {
     }
   };
 
-  const enabledPlatforms = (settings?.enabledSocialPlatforms as string[]) || ["whatsapp", "telegram", "facebook", "twitter", "linkedin"];
+  const enabledPlatforms = ((settings?.enabledSocialPlatforms as string[]) || ["whatsapp", "telegram", "facebook", "twitter", "linkedin"]).map(p => p.toLowerCase());
 
   // Fallback trigger if none provided
   const defaultTrigger = (

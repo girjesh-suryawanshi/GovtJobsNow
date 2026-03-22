@@ -247,7 +247,7 @@ export const siteSettings = pgTable("site_settings", {
   joinTelegramUrl: text("join_telegram_url").default("https://t.me/Example"),
   joinArattaiUrl: text("join_arattai_url").default("https://www.arattai.in/Example"),
   joinFacebookUrl: text("join_facebook_url").default("https://www.facebook.com/Example"),
-  enabledSocialPlatforms: json("enabled_social_platforms").default(["WhatsApp", "Telegram", "Facebook", "Twitter", "LinkedIn"]),
+  enabledSocialPlatforms: json("enabled_social_platforms").default(["whatsapp", "telegram", "facebook", "twitter", "linkedin"]),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
