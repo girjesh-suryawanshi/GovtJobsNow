@@ -2,10 +2,10 @@ import { storage } from "../server/storage";
 
 async function migrate() {
   console.log("Starting social links migration...");
-  
+
   const NEW_URLS = {
     joinFacebookUrl: "https://www.facebook.com/Dailygovtjobsalert/",
-    joinWhatsAppUrl: "https://whatsapp.com/channel/0029vbccacz6heno1biy083y",
+    joinWhatsAppUrl: "https://tinyurl.com/govtjobnow",
     joinTelegramUrl: "https://t.me/governmentjobnow",
     joinArattaiUrl: "https://aratt.ai/@govtjobnow"
   };
