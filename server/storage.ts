@@ -271,7 +271,26 @@ export class DatabaseStorage implements IStorage {
   }
   async getJobStats() {
     const [total] = await db.select({ count: sql<number>`count(*)` }).from(jobs);
-    return { totalJobs: Number(total.count), newToday: 0, departments: 0, applications: 0 };
+    
+    // Calculate new today (server time)
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const [newToday] = await db.select({ count: sql<number>`count(*)` })
+      .from(jobs)
+      .where(sql`${jobs.createdAt} >= ${startOfToday}`);
+    
+    // Count unique departments
+    const [depts] = await db.select({ count: sql<number>`count(distinct ${jobs.department})` }).from(jobs);
+    
+    // Sum vacancies (application estimates)
+    const [vacancies] = await db.select({ sum: sql<number>`sum(coalesce(${jobs.positions}, 1))` }).from(jobs);
+    
+    return { 
+      totalJobs: Number(total.count), 
+      newToday: Number(newToday.count), 
+      departments: Number(depts.count), 
+      applications: Number(vacancies.sum || 0) 
+    };
   }
   async getRelatedJobs(jobId: string, category?: string, department?: string, limit: number = 4): Promise<Job[]> {
     const conditions = [sql`${jobs.id} != ${jobId}`];

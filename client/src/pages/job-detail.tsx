@@ -227,51 +227,51 @@ export default function JobDetail() {
             {/* Main Content */}
             <div className="lg:col-span-2 p-8 md:p-12 space-y-12 border-r border-gray-50">
               {/* Modern Bento Info Grid */}
-              <div id="overview" className="grid grid-cols-2 lg:grid-cols-4 gap-4 p-2 bg-gray-50/30 rounded-[2.5rem] border border-gray-100 shadow-inner">
-                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform">
+              <div id="overview" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50/30 rounded-[2.5rem] border border-gray-100 shadow-inner">
+                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
+                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+                    <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform flex-shrink-0">
                       <IndianRupee className="h-5 w-5" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Estimated Salary</p>
-                      <p className="text-sm font-black text-gray-900 leading-tight">₹{job.salary || "Best in Field"}</p>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Estimated Salary</p>
+                      <p className="text-sm font-black text-gray-900 leading-tight break-words">₹{job.salary || "Best in Field"}</p>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-110 transition-transform">
+                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
+                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+                    <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-110 transition-transform flex-shrink-0">
                       <BookOpen className="h-5 w-5" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Education Req.</p>
-                      <p className="text-sm font-black text-gray-900 leading-tight">{job.qualification}</p>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Education Req.</p>
+                      <p className="text-sm font-black text-gray-900 leading-tight break-words">{job.qualification}</p>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-orange-50 text-orange-600 group-hover:scale-110 transition-transform">
+                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
+                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+                    <div className="p-3 rounded-2xl bg-orange-50 text-orange-600 group-hover:scale-110 transition-transform flex-shrink-0">
                       <ShieldCheck className="h-5 w-5" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Experience Req.</p>
-                      <p className="text-sm font-black text-gray-900 leading-tight">{job.experienceRequired || "Not Specified"}</p>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Experience Req.</p>
+                      <p className="text-sm font-black text-gray-900 leading-tight break-words">{job.experienceRequired || "Not Specified"}</p>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="rounded-[2rem] border-none bg-white p-6 shadow-sm hover:shadow-md transition-shadow group">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-red-50 text-red-600 group-hover:scale-110 transition-transform">
+                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
+                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
+                    <div className="p-3 rounded-2xl bg-red-50 text-red-600 group-hover:scale-110 transition-transform flex-shrink-0">
                       <Calendar className="h-5 w-5" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Application Deadline</p>
-                      <p className="text-sm font-black text-red-600 leading-tight">{job.deadline}</p>
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Application Deadline</p>
+                      <p className="text-sm font-black text-red-600 leading-tight break-words">{job.deadline}</p>
                     </div>
                   </div>
                 </Card>
