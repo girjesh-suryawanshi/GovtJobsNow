@@ -122,12 +122,12 @@ export default function JobDetail() {
       <div className={`fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300 transform ${showStickyHeader ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4 overflow-hidden text-sm">
-             <div className="hidden sm:block">
-               <OrganizationLogo department={job?.recruitingOrganization || job?.department || ""} className="h-8 w-8" />
-             </div>
-             <p className="font-black text-gray-900 truncate max-w-[200px] md:max-w-md">{job?.title}</p>
+            <div className="hidden sm:block">
+              <OrganizationLogo department={job?.recruitingOrganization || job?.department || ""} className="h-8 w-8" />
+            </div>
+            <p className="font-black text-gray-900 truncate max-w-[200px] md:max-w-md">{job?.title}</p>
           </div>
-          
+
           <div className="hidden md:flex items-center gap-6">
             <a href="#overview" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Overview</a>
             <a href="#vacancies" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Vacancies</a>
@@ -136,18 +136,18 @@ export default function JobDetail() {
           </div>
 
           <div className="flex items-center gap-3">
-             <Button size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-4 py-2" onClick={() => window.open(job?.notificationFileUrl || job?.sourceUrl || '#', '_blank')}>
-               Apply Now
-             </Button>
-             <SocialShare 
-               url={window.location.href}
-               title={job?.title || ""}
-               trigger={
-                 <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100">
-                   <Share2 className="h-4 w-4 text-gray-400" />
-                 </Button>
-               }
-             />
+            <Button size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-4 py-2" onClick={() => window.open(job?.notificationFileUrl || job?.sourceUrl || '#', '_blank')}>
+              Apply Now
+            </Button>
+            <SocialShare
+              url={window.location.href}
+              title={job?.title || ""}
+              trigger={
+                <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100">
+                  <Share2 className="h-4 w-4 text-gray-400" />
+                </Button>
+              }
+            />
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@ export default function JobDetail() {
                 </p>
               </div>
             </div>
-            
+
             <div className="flex gap-3 shrink-0">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl h-12 px-8 flex items-center gap-2" onClick={() => window.open(job.sourceUrl, '_blank')}>
                 Apply Now <ExternalLink className="h-4 w-4" />
@@ -224,7 +224,28 @@ export default function JobDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            
+
+
+            {positions.length > 0 && (
+              <Section title="Vacancies">
+                <div className="grid grid-cols-1 gap-4">
+                  {positions.map((p) => (
+                    <div key={p.id} className="border-2 border-gray-50 p-4 rounded-xl hover:border-blue-100 transition-colors">
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="font-black text-gray-900 uppercase tracking-tight">{p.positionName}</p>
+                        <Badge className="bg-blue-50 text-blue-700 border-none font-black">
+                          {p.numberOfVacancies} Posts
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">{p.qualification}</p>
+                      {p.salaryRange && <p className="text-xs font-black text-blue-600">₹ {p.salaryRange}</p>}
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+
             {/* Winning Innovation: Prep Guide (Premium Style) */}
             {job.prepGuide && (
               <section className="bg-blue-600 p-8 rounded-[2rem] text-white relative overflow-hidden group shadow-2xl shadow-blue-200">
@@ -260,24 +281,7 @@ export default function JobDetail() {
               </div>
             </Section>
 
-            {positions.length > 0 && (
-              <Section title="Vacancies">
-                <div className="grid grid-cols-1 gap-4">
-                  {positions.map((p) => (
-                    <div key={p.id} className="border-2 border-gray-50 p-4 rounded-xl hover:border-blue-100 transition-colors">
-                      <div className="flex justify-between items-start mb-2">
-                        <p className="font-black text-gray-900 uppercase tracking-tight">{p.positionName}</p>
-                        <Badge className="bg-blue-50 text-blue-700 border-none font-black">
-                          {p.numberOfVacancies} Posts
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-1">{p.qualification}</p>
-                      {p.salaryRange && <p className="text-xs font-black text-blue-600">₹ {p.salaryRange}</p>}
-                    </div>
-                  ))}
-                </div>
-              </Section>
-            )}
+
 
             {/* Selection Process */}
             {job.selectionProcess && (
@@ -317,7 +321,7 @@ export default function JobDetail() {
                   Apply Now <ExternalLink className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" className="w-full border-gray-100 text-gray-700 hover:bg-gray-50 font-black rounded-xl h-12 flex items-center justify-center gap-2" onClick={handleTrackJob}>
-                   Track Application <Target className="h-4 w-4 text-blue-500" />
+                  Track Application <Target className="h-4 w-4 text-blue-500" />
                 </Button>
                 <div className="p-4 bg-red-50 rounded-xl border border-red-100 text-center">
                   <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">Deadline</p>
@@ -326,7 +330,7 @@ export default function JobDetail() {
               </div>
 
               <Separator className="my-6 bg-gray-50" />
-              
+
               <TrendingJobs variant="card" />
             </div>
           </div>
