@@ -281,6 +281,34 @@ export default function JobDetail() {
               </div>
             </Section>
 
+            {/* Eligibility & Fees Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Section title="Eligibility Details">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Age Limit</p>
+                    <p className="text-sm font-black text-gray-900">{job.ageLimit || "As per official rules"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Educational Qualification</p>
+                    <p className="text-sm font-black text-gray-900">{job.qualification}</p>
+                  </div>
+                </div>
+              </Section>
+              <Section title="Fees & Dates">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Application Fee</p>
+                    <p className="text-sm font-black text-gray-900">{job.applicationFee || "Refer to Notification"}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Start Date</p>
+                    <p className="text-sm font-black text-gray-900">{job.applicationStartDate || "Refer to notification"}</p>
+                  </div>
+                </div>
+              </Section>
+            </div>
+
 
 
             {/* Selection Process */}
@@ -292,21 +320,82 @@ export default function JobDetail() {
               </Section>
             )}
 
-            {/* Important Documents */}
-            {((job.notifications as any[]) || []).length > 0 && (
-              <Section title="Documents">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {((job.notifications as any[]) || []).map((n, i) => (
-                    <a key={i} href={n.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-100 rounded-xl hover:bg-white hover:border-blue-600 transition-all group">
-                      <div className="p-2 bg-white rounded-lg group-hover:bg-blue-50 transition-colors">
-                        <FileText className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <span className="text-xs font-black text-gray-900 uppercase tracking-tight truncate">{n.label}</span>
-                    </a>
-                  ))}
+            {/* Official Vacancy Matrix */}
+            {job.vacancyBreakdown && (
+              <Section title="Official Vacancy Matrix">
+                <div className="bg-gray-50/50 p-6 rounded-2xl border border-blue-50/50 shadow-inner">
+                  <div className="text-gray-800 leading-[1.8] whitespace-pre-wrap font-bold text-sm md:text-base tracking-tight">
+                    {job.vacancyBreakdown}
+                  </div>
                 </div>
               </Section>
             )}
+
+            {/* Official Notifications (Multiple) */}
+            {((job.notifications as any[]) || []).length > 0 && (
+              <section id="documents" className="space-y-6">
+                <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
+                  <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {((job.notifications as any[]) || []).map((notif, idx) => (
+                    <a
+                      key={idx}
+                      href={notif.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-blue-600 hover:shadow-lg transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={`p-3 rounded-xl ${notif.type === 'file' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                          {notif.type === 'file' ? <FileText className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
+                        </div>
+                        <div>
+                          <p className="font-black text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-widest text-[10px]">{notif.label}</p>
+                          <p className="text-[10px] text-gray-400 mt-0.5">{notif.type === 'file' ? 'Official PDF' : 'Direct Link'}</p>
+                        </div>
+                      </div>
+                      <Download className="h-5 w-5 text-gray-300 group-hover:text-blue-600" />
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Important Links */}
+            <Section title="Important Links">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Notification Links mirrored */}
+                {((job.notifications as any[]) || []).map((n, i) => (
+                  <a key={`link-${i}`} href={n.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-indigo-50/30 border border-indigo-100/50 rounded-xl hover:bg-white hover:border-indigo-600 transition-all group">
+                    <div className="p-2 bg-white rounded-lg group-hover:bg-indigo-50 transition-colors">
+                      <ArrowLeft className="h-4 w-4 text-indigo-600 rotate-[135deg]" />
+                    </div>
+                    <span className="text-xs font-black text-gray-900 uppercase tracking-tight truncate">{n.label}</span>
+                  </a>
+                ))}
+
+                {/* Social Channels */}
+                {settings?.joinFacebookUrl && (
+                  <a href={settings.joinFacebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-blue-50/30 border border-blue-100/50 rounded-xl hover:bg-white hover:border-blue-600 transition-all group">
+                    <Facebook className="h-4 w-4 text-blue-600 ml-2" />
+                    <span className="text-xs font-black text-gray-900 uppercase tracking-tight">Join Facebook</span>
+                  </a>
+                )}
+                {settings?.joinWhatsAppUrl && (
+                  <a href={settings.joinWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-green-50/30 border border-green-100/50 rounded-xl hover:bg-white hover:border-green-600 transition-all group">
+                    <MessageCircle className="h-4 w-4 text-green-600 ml-2" />
+                    <span className="text-xs font-black text-gray-900 uppercase tracking-tight">Join WhatsApp</span>
+                  </a>
+                )}
+                {settings?.joinTelegramUrl && (
+                  <a href={settings.joinTelegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 bg-blue-50/30 border border-blue-100/50 rounded-xl hover:bg-white hover:border-blue-600 transition-all group">
+                    <Send className="h-4 w-4 text-blue-600 ml-2" />
+                    <span className="text-xs font-black text-gray-900 uppercase tracking-tight">Join Telegram</span>
+                  </a>
+                )}
+              </div>
+            </Section>
 
             <JobFAQ job={job} />
             <RelatedJobs jobId={job.id} />
