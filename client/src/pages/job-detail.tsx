@@ -305,35 +305,35 @@ export default function JobDetail() {
                 </Section>
               )}
 
-              {/* Eligibility & Fees */}
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-8 border rounded-[2rem] p-8 bg-gray-50/30">
+              {/* Eligibility & Fees (Premium Solid Style) */}
+              <section className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-amber-50 p-8 rounded-[2rem] border border-amber-100 mt-6">
                 <div className="space-y-6">
-                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center justify-center md:justify-start gap-2">
-                    <Target className="h-5 w-5 text-blue-600" /> Eligibility Details
+                  <h3 className="text-xl font-black text-amber-900 mb-6 flex items-center gap-3 border-b border-amber-200/50 pb-4">
+                    <Target className="h-7 w-7 text-amber-600" /> Eligibility Details
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Age Limit</p>
-                      <p className="text-sm font-black text-gray-900">{job.ageLimit || "As per official rules"}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Age Limit</p>
+                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.ageLimit || "As per official rules"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Educational Qualification</p>
-                      <p className="text-sm font-black text-gray-900">{job.qualification}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Educational Qualification</p>
+                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.qualification}</p>
                     </div>
                   </div>
                 </div>
-                <div className="space-y-6 md:border-l md:pl-8">
-                  <h3 className="text-lg font-black text-gray-900 border-b pb-2 flex items-center justify-center md:justify-start gap-2">
-                    <IndianRupee className="h-5 w-5 text-green-600" /> Fees & Dates
+                <div className="space-y-6 md:border-l md:border-amber-200/50 md:pl-8">
+                  <h3 className="text-xl font-black text-amber-900 mb-6 flex items-center gap-3 border-b border-amber-200/50 pb-4">
+                    <IndianRupee className="h-7 w-7 text-amber-600" /> Fees & Dates
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-5">
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Application Fee</p>
-                      <p className="text-sm font-black text-gray-900">{job.applicationFee || "Refer to Official Notification"}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Application Fee</p>
+                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.applicationFee || "Refer to Official Notification"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Application Start Date</p>
-                      <p className="text-sm font-black text-gray-900">{job.applicationStartDate || "Refer to link"}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Application Start Date</p>
+                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.applicationStartDate || "Refer to link"}</p>
                     </div>
                   </div>
                 </div>
@@ -351,52 +351,15 @@ export default function JobDetail() {
                 </section>
               )}
 
-              {/* Official Vacancy Matrix */}
+              {/* Official Vacancy Matrix (Premium Solid Style) */}
               {job.vacancyBreakdown && (
-                <section id="vacancies" className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 -z-10 rounded-[2.5rem]" />
-                  <div className="bg-white/40 backdrop-blur-xl p-8 md:p-12 rounded-[2.5rem] border border-blue-100/50 shadow-sm relative overflow-hidden group">
-                    {/* Decorative Background Elements */}
-                    <div className="absolute -top-12 -right-12 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
-                      <Users className="h-64 w-64 text-blue-600" />
-                    </div>
-                    
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 relative z-10">
-                      <div className="flex items-center gap-5">
-                        <div className="p-4 bg-blue-600 rounded-3xl shadow-xl shadow-blue-100">
-                          <Users className="h-8 w-8 text-white" />
-                        </div>
-                        <div className="space-y-1">
-                          <h3 className="text-3xl font-black text-gray-900 tracking-tight transition-colors group-hover:text-blue-600">Official Vacancy Matrix</h3>
-                          <p className="text-xs font-black text-blue-600 uppercase tracking-[0.2em]">Verified Distribution Details</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-green-100 shadow-sm">
-                          <ShieldCheck className="h-4 w-4" /> Official Data
-                        </div>
-                        <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-blue-100 shadow-sm">
-                          <Sparkles className="h-4 w-4" /> AI-Enhanced
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white/80 backdrop-blur-md p-8 rounded-[2rem] border border-blue-50/50 shadow-inner relative z-10 transition-all hover:bg-white/90">
-                      <div className="prose prose-blue max-w-none">
-                        <div className="text-gray-800 leading-[1.8] whitespace-pre-wrap font-bold text-sm md:text-base tracking-tight selection:bg-blue-100 selection:text-blue-900">
-                           {job.vacancyBreakdown}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-8 flex flex-wrap gap-4 items-center">
-                      <div className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest bg-gray-50/50 px-4 py-2 rounded-xl border border-gray-100">
-                        <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" /> Final Count as per Notification
-                      </div>
-                      <Badge className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-100 px-5 py-2 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em]">
-                        Categorized Statistics
-                      </Badge>
-                    </div>
+                <section id="vacancies" className="bg-rose-50 p-8 rounded-[2rem] border border-rose-100">
+                  <h3 className="text-xl font-black text-rose-900 mb-6 flex items-center gap-3">
+                    <Users className="h-7 w-7 text-rose-600" />
+                    Official Vacancy Matrix
+                  </h3>
+                  <div className="text-rose-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic prose prose-rose max-w-none">
+                    {job.vacancyBreakdown}
                   </div>
                 </section>
               )}
