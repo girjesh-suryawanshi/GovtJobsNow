@@ -264,12 +264,12 @@ export default function JobDetail() {
               {/* Middle Ad Placement */}
               <AdUnit slot="job-middle-content" />
 
-              {/* Experience & Requirements */}
-              <section className="space-y-6">
-                <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
-                  <FileText className="h-7 w-7 text-blue-600" /> Notification Summary
+              {/* Notification Summary (Premium Style) */}
+              <section className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100">
+                <h3 className="text-xl font-black text-emerald-900 mb-6 flex items-center gap-3">
+                  <FileText className="h-7 w-7 text-emerald-600" /> Notification Summary
                 </h3>
-                <div className="prose prose-blue max-w-none text-gray-600 font-medium leading-relaxed">
+                <div className="text-emerald-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic prose prose-emerald max-w-none">
                   {job.description}
                 </div>
               </section>
