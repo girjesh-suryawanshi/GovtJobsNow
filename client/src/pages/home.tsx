@@ -81,6 +81,8 @@ export default function Home() {
     if (params.has('location')) updates.location = params.get('location')!;
     if (params.has('qualification')) updates.qualification = params.get('qualification')!;
     if (params.has('salaryRange')) updates.salaryRange = params.get('salaryRange')!;
+    if (params.has('postedDate')) updates.postedDate = params.get('postedDate') as any;
+    if (params.has('sortBy')) updates.sortBy = params.get('sortBy') as any;
     
     if (Object.keys(updates).length > 0) {
       setSearchParams(prev => ({ ...prev, ...updates }));

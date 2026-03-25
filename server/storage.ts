@@ -234,9 +234,31 @@ export class DatabaseStorage implements IStorage {
     const allJobs = await query as Job[];
     const normalizedFilters = normalizeFilters(params);
     const filteredJobs = allJobs.filter((job: Job) => jobMatchesFilters(job, normalizedFilters));
+    
+    // Apply exact sorting based on enum
+    let sortedJobs = [...filteredJobs];
+    if (params.sortBy === 'deadline') {
+      sortedJobs.sort((a, b) => {
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+      });
+    } else if (params.sortBy === 'title') {
+      sortedJobs.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (params.sortBy === 'department') {
+      sortedJobs.sort((a, b) => a.department.localeCompare(b.department));
+    } else {
+      // latest first (default)
+      sortedJobs.sort((a, b) => {
+        const dA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dB - dA;
+      });
+    }
+
     const page = params.page || 1;
     const limit = params.limit || 10;
-    return { jobs: filteredJobs.slice((page - 1) * limit, page * limit), total: filteredJobs.length };
+    return { jobs: sortedJobs.slice((page - 1) * limit, page * limit), total: sortedJobs.length };
   }
   async createJob(insertJob: InsertJob): Promise<Job> {
     const [job] = await db.insert(jobs).values(insertJob).returning();
