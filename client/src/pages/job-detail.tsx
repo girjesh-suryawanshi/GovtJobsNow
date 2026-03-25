@@ -230,35 +230,66 @@ export default function JobDetail() {
                 <InfoItem label="Age Limit" value={job.ageLimit || "N/A"} />
               </div>
 
-              {/* VACANCIES */}
+              {/* VACANCIES (Ultra-Premium Responsive Layout) */}
               {positions.length > 0 && (
-                <Section title="Vacancies">
-                  <div className="space-y-4">
-                    {positions.map((pos) => (
-                      <div
-                        key={pos.id}
-                        className="border rounded-xl p-4 hover:shadow-sm transition-all duration-200 hover:-translate-y-[2px]"
-                      >
-                        <p className="font-semibold text-gray-900 text-[15px]">
-                          {pos.positionName}
-                        </p>
-
-                        <p className="text-sm text-gray-500 mt-1">
-                          {pos.qualification}
-                        </p>
-
-                        <div className="flex justify-between mt-3 text-sm font-medium">
-                          <span className="text-gray-600">
-                            Posts: {pos.numberOfVacancies}
-                          </span>
-                          <span className="text-blue-600">
-                            {pos.salaryRange || "As per rules"}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+                <section className="bg-white p-5 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 relative overflow-hidden group">
+                  {/* Decorative background accent */}
+                  <div className="absolute top-0 right-0 p-8 md:p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-1000">
+                    <Users className="w-40 h-40 md:w-64 md:h-64 text-blue-600" />
                   </div>
-                </Section>
+
+                  <div className="relative z-10">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
+                      <div>
+                        <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+                          <div className="p-2 bg-blue-50/80 rounded-xl">
+                            <Users className="h-5 w-5 md:h-6 w-6 text-blue-600" />
+                          </div>
+                          Positions Available
+                        </h3>
+                        <p className="text-xs md:text-sm font-bold text-gray-500 mt-2 px-1">
+                          Detailed breakdown of specific posts
+                        </p>
+                      </div>
+                      <Badge className="self-start sm:self-auto bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 shadow-sm font-black px-3 py-2 md:px-4 md:py-2 text-[10px] uppercase tracking-[0.15em] rounded-xl flex items-center gap-2">
+                        {positions.reduce((acc, pos) => acc + pos.numberOfVacancies, 0)} Total Openings
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 md:gap-5">
+                      {positions.map((pos) => (
+                        <div
+                          key={pos.id}
+                          className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 p-5 md:p-6 rounded-[1.5rem] md:rounded-3xl bg-gray-50/50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300"
+                        >
+                          <div className="flex-1 space-y-2">
+                            <h4 className="text-base md:text-lg font-black text-gray-900 tracking-tight leading-tight">
+                              {pos.positionName}
+                            </h4>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs md:text-sm font-bold text-gray-500">
+                              <span className="flex items-start sm:items-center gap-1.5 leading-tight"><BookOpen className="h-3.5 w-3.5 text-gray-400 shrink-0 mt-0.5 sm:mt-0" /> <span className="line-clamp-2 md:line-clamp-none">{pos.qualification}</span></span>
+                            </div>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-1 gap-4 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-6 min-w-full md:min-w-[140px]">
+                            <div className="text-left md:text-right">
+                              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 flex items-center md:justify-end gap-1">Total Posts</p>
+                              <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-none font-black text-xs md:text-sm px-2.5 py-1 rounded-lg">
+                                {pos.numberOfVacancies}
+                              </Badge>
+                            </div>
+                            <div className="text-right flex flex-col items-end">
+                              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 text-right w-full">Salary</p>
+                              <p className="text-xs md:text-sm font-black text-green-600 truncate max-w-full text-right">
+                                {pos.salaryRange || "As per rules"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
               )}
 
 
