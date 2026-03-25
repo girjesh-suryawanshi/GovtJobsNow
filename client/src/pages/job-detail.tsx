@@ -210,9 +210,8 @@ export default function JobDetail() {
                   className="rounded-lg"
                 >
                   <Bookmark
-                    className={`h-4 w-4 ${
-                      isSaved ? "fill-black" : ""
-                    }`}
+                    className={`h-4 w-4 ${isSaved ? "fill-black" : ""
+                      }`}
                   />
                 </Button>
               </div>
@@ -230,49 +229,6 @@ export default function JobDetail() {
                 <InfoItem label="Experience" value={job.experienceRequired || "N/A"} />
                 <InfoItem label="Age Limit" value={job.ageLimit || "N/A"} />
               </div>
-
-
-            {/* Winning Innovation: Prep Guide (Premium Style) */}
-            {job.prepGuide && (
-              <section className="bg-blue-600 p-8 rounded-[2rem] text-white relative overflow-hidden group shadow-2xl shadow-blue-200">
-                <div className="absolute -top-10 -right-10 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
-                  <Sparkles className="h-48 w-48" />
-                </div>
-                <h3 className="text-xl font-black mb-6 flex items-center gap-3">
-                  <Sparkles className="h-7 w-7 text-yellow-300" />
-                  AI-Powered Preparation Guide
-                </h3>
-                <div className="text-blue-50 leading-relaxed whitespace-pre-wrap font-bold text-sm">
-                  {job.prepGuide}
-                </div>
-              </section>
-            )}
-
-            {/* Syllabus Section (Premium Style) */}
-            {job.syllabus && (
-              <section className="bg-purple-50 p-8 rounded-[2rem] border border-purple-100">
-                <h3 className="text-xl font-black text-purple-900 mb-6 flex items-center gap-3">
-                  <BookOpen className="h-7 w-7 text-purple-600" />
-                  Detailed Syllabus Breakdown
-                </h3>
-                <div className="text-purple-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic">
-                  {job.syllabus}
-                </div>
-              </section>
-            )}
-
-              {/* Middle Ad Placement */}
-              <AdUnit slot="job-middle-content" />
-
-              {/* Notification Summary (Premium Style) */}
-              <section className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100">
-                <h3 className="text-xl font-black text-emerald-900 mb-6 flex items-center gap-3">
-                  <FileText className="h-7 w-7 text-emerald-600" /> Notification Summary
-                </h3>
-                <div className="text-emerald-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic prose prose-emerald max-w-none">
-                  {job.description}
-                </div>
-              </section>
 
               {/* VACANCIES */}
               {positions.length > 0 && (
@@ -304,6 +260,53 @@ export default function JobDetail() {
                   </div>
                 </Section>
               )}
+
+
+
+
+              {/* Winning Innovation: Prep Guide (Premium Style) */}
+              {job.prepGuide && (
+                <section className="bg-blue-600 p-8 rounded-[2rem] text-white relative overflow-hidden group shadow-2xl shadow-blue-200">
+                  <div className="absolute -top-10 -right-10 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
+                    <Sparkles className="h-48 w-48" />
+                  </div>
+                  <h3 className="text-xl font-black mb-6 flex items-center gap-3">
+                    <Sparkles className="h-7 w-7 text-yellow-300" />
+                    AI-Powered Preparation Guide
+                  </h3>
+                  <div className="text-blue-50 leading-relaxed whitespace-pre-wrap font-bold text-sm">
+                    {job.prepGuide}
+                  </div>
+                </section>
+              )}
+
+              {/* Syllabus Section (Premium Style) */}
+              {job.syllabus && (
+                <section className="bg-purple-50 p-8 rounded-[2rem] border border-purple-100">
+                  <h3 className="text-xl font-black text-purple-900 mb-6 flex items-center gap-3">
+                    <BookOpen className="h-7 w-7 text-purple-600" />
+                    Detailed Syllabus Breakdown
+                  </h3>
+                  <div className="text-purple-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic">
+                    {job.syllabus}
+                  </div>
+                </section>
+              )}
+
+              {/* Middle Ad Placement */}
+              <AdUnit slot="job-middle-content" />
+
+              {/* Notification Summary (Premium Style) */}
+              <section className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100">
+                <h3 className="text-xl font-black text-emerald-900 mb-6 flex items-center gap-3">
+                  <FileText className="h-7 w-7 text-emerald-600" /> Notification Summary
+                </h3>
+                <div className="text-emerald-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic prose prose-emerald max-w-none">
+                  {job.description}
+                </div>
+              </section>
+
+
 
               {/* Eligibility & Fees (Premium Solid Style) */}
               <section className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-amber-50 p-8 rounded-[2rem] border border-amber-100 mt-6">
@@ -364,110 +367,110 @@ export default function JobDetail() {
                 </section>
               )}
 
-            {/* Official Notifications (Multiple) */}
-            {((job.notifications as any[]) || []).length > 0 && (
-              <section id="documents" className="space-y-6">
+              {/* Official Notifications (Multiple) */}
+              {((job.notifications as any[]) || []).length > 0 && (
+                <section id="documents" className="space-y-6">
+                  <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
+                    <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {((job.notifications as any[]) || []).map((notif, idx) => (
+                      <a
+                        key={idx}
+                        href={notif.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-blue-600 hover:shadow-lg transition-all group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-xl ${notif.type === 'file' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
+                            {notif.type === 'file' ? <FileText className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
+                          </div>
+                          <div>
+                            <p className="font-black text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-widest text-[10px]">{notif.label}</p>
+                            <p className="text-[10px] text-gray-400 mt-0.5">{notif.type === 'file' ? 'Official PDF' : 'Direct Link'}</p>
+                          </div>
+                        </div>
+                        <Download className="h-5 w-5 text-gray-300 group-hover:text-blue-600" />
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Important Links (New Section) */}
+              <section className="space-y-6">
                 <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
-                  <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
+                  <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Dynamic Notification Links mirrored here if short */}
                   {((job.notifications as any[]) || []).map((notif, idx) => (
                     <a
-                      key={idx}
+                      key={`imp-${idx}`}
                       href={notif.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-5 bg-white border-2 border-gray-100 rounded-2xl hover:border-blue-600 hover:shadow-lg transition-all group"
+                      className="flex items-center gap-3 p-4 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl hover:bg-indigo-50 transition-all group"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl ${notif.type === 'file' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'}`}>
-                          {notif.type === 'file' ? <FileText className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
-                        </div>
-                        <div>
-                          <p className="font-black text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-widest text-[10px]">{notif.label}</p>
-                          <p className="text-[10px] text-gray-400 mt-0.5">{notif.type === 'file' ? 'Official PDF' : 'Direct Link'}</p>
-                        </div>
+                      <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ArrowLeft className="h-4 w-4 rotate-[135deg]" />
                       </div>
-                      <Download className="h-5 w-5 text-gray-300 group-hover:text-blue-600" />
+                      <span className="text-sm font-bold text-gray-900">{notif.label}</span>
                     </a>
                   ))}
+
+                  {/* Per-job Custom Links */}
+                  {(Array.isArray(job.customLinks) ? job.customLinks : []).map((link, idx) => (
+                    <a
+                      key={`custom-${idx}`}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-all group shadow-sm"
+                    >
+                      <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{link.label}</span>
+                    </a>
+                  ))}
+
+                  {/* Global Social Links */}
+                  {settings?.joinFacebookUrl && (
+                    <a href={settings.joinFacebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
+                      <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <Facebook className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Facebook Page</span>
+                    </a>
+                  )}
+                  {settings?.joinWhatsAppUrl && (
+                    <a href={settings.joinWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100/50 rounded-2xl hover:bg-green-50 transition-all group">
+                      <div className="p-2 bg-green-100 text-green-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <MessageCircle className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join WhatsApp Channel</span>
+                    </a>
+                  )}
+                  {settings?.joinTelegramUrl && (
+                    <a href={settings.joinTelegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
+                      <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <Send className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Telegram Channel</span>
+                    </a>
+                  )}
+                  {settings?.joinArattaiUrl && (
+                    <a href={settings.joinArattaiUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-purple-50/50 border border-purple-100/50 rounded-2xl hover:bg-purple-50 transition-all group">
+                      <div className="p-2 bg-purple-100 text-purple-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <ExternalLink className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">Join Arattai Channel</span>
+                    </a>
+                  )}
                 </div>
               </section>
-            )}
-
-            {/* Important Links (New Section) */}
-            <section className="space-y-6">
-              <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
-                <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Dynamic Notification Links mirrored here if short */}
-                {((job.notifications as any[]) || []).map((notif, idx) => (
-                  <a
-                    key={`imp-${idx}`}
-                    href={notif.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 bg-indigo-50/30 border border-indigo-100/50 rounded-2xl hover:bg-indigo-50 transition-all group"
-                  >
-                    <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <ArrowLeft className="h-4 w-4 rotate-[135deg]" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">{notif.label}</span>
-                  </a>
-                ))}
-
-                {/* Per-job Custom Links */}
-                {(Array.isArray(job.customLinks) ? job.customLinks : []).map((link, idx) => (
-                  <a
-                    key={`custom-${idx}`}
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-4 bg-amber-50/50 border border-amber-200 rounded-2xl hover:bg-amber-100 transition-all group shadow-sm"
-                  >
-                    <div className="p-2 bg-amber-100 text-amber-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <ExternalLink className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">{link.label}</span>
-                  </a>
-                ))}
-
-                {/* Global Social Links */}
-                {settings?.joinFacebookUrl && (
-                  <a href={settings.joinFacebookUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
-                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <Facebook className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">Join Facebook Page</span>
-                  </a>
-                )}
-                {settings?.joinWhatsAppUrl && (
-                  <a href={settings.joinWhatsAppUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-green-50/50 border border-green-100/50 rounded-2xl hover:bg-green-50 transition-all group">
-                    <div className="p-2 bg-green-100 text-green-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <MessageCircle className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">Join WhatsApp Channel</span>
-                  </a>
-                )}
-                {settings?.joinTelegramUrl && (
-                  <a href={settings.joinTelegramUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-blue-50/50 border border-blue-100/50 rounded-2xl hover:bg-blue-50 transition-all group">
-                    <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <Send className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">Join Telegram Channel</span>
-                  </a>
-                )}
-                {settings?.joinArattaiUrl && (
-                  <a href={settings.joinArattaiUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-4 bg-purple-50/50 border border-purple-100/50 rounded-2xl hover:bg-purple-50 transition-all group">
-                    <div className="p-2 bg-purple-100 text-purple-600 rounded-lg group-hover:scale-110 transition-transform">
-                      <ExternalLink className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-bold text-gray-900">Join Arattai Channel</span>
-                  </a>
-                )}
-              </div>
-            </section>
 
               {/* FAQ Section (Rich Snippets) */}
               <JobFAQ job={job} />
