@@ -263,13 +263,17 @@ export default function FiltersSidebar({ filters, onFilterChange, isOpen = false
         </CardHeader>
         <CardContent className="pt-0">
           <RadioGroup 
-            value={filters.postedDate} 
-            onValueChange={(value) => onFilterChange({ postedDate: value as any })}
+            value={filters.postedDate || "any"} 
+            onValueChange={(value) => onFilterChange({ postedDate: value === "any" ? undefined : value as any })}
             className="space-y-3"
           >
             <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
+              <RadioGroupItem value="any" id="any" className="text-red-600 focus:ring-red-500" />
+              <Label htmlFor="any" className="text-sm text-gray-700 cursor-pointer flex-1">Any Time</Label>
+            </div>
+            <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
               <RadioGroupItem value="today" id="today" className="text-red-600 focus:ring-red-500" />
-              <Label htmlFor="today" className="text-sm text-gray-700 cursor-pointer flex-1">Today</Label>
+              <Label htmlFor="today" className="text-sm text-gray-700 cursor-pointer flex-1">Today (Last 24 Hours)</Label>
             </div>
             <div className="flex items-center space-x-3 p-2 rounded-md hover:bg-gray-50 transition-colors">
               <RadioGroupItem value="week" id="week" className="text-red-600 focus:ring-red-500" />
