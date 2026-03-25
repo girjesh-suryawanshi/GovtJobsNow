@@ -171,112 +171,64 @@ export default function JobDetail() {
         </div>
 
         <div id="overview" className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-gray-100 overflow-hidden">
-          {/* Hero Section */}
-          <div className="p-8 md:p-12 border-b border-gray-50 bg-gradient-to-br from-gray-50/50 to-white">
-            <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
-              <div className="flex gap-6 items-start flex-1">
-                <OrganizationLogo department={job.department} recruitingOrganization={job.recruitingOrganization} className="h-24 w-24 sm:h-32 sm:w-32 rounded-3xl shadow-2xl bg-white p-1.5" />
-                <div className="flex-1">
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    <Badge className="bg-blue-600 text-white font-black text-[10px] uppercase px-3 py-1 rounded-lg">
-                      {job.jobCategory || "Central Govt"}
-                    </Badge>
-                    {isVerified && (
-                      <Badge className="bg-green-50 text-green-700 border-green-100 font-black text-[10px] uppercase flex items-center gap-1.5 px-3 py-1 rounded-lg">
-                        <ShieldCheck className="h-4 w-4" /> Verified Official
-                      </Badge>
-                    )}
-                  </div>
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 leading-tight tracking-tight text-center md:text-left drop-shadow-sm">{job.title}</h1>
+          {/* 🔹 HEADER */}
+          <div className="bg-white border rounded-xl p-5 mb-6 shadow-sm hover:shadow-md transition">
+            <div className="flex flex-col md:flex-row justify-between gap-4">
 
-                  {/* Top Ad Placement */}
-                  <AdUnit slot="job-top-fluid" className="my-2" />
+              <div className="flex gap-4">
+                <OrganizationLogo
+                  department={job.department || ""}
+                  className="h-12 w-12"
+                />
 
-                  <div className="flex flex-wrap gap-x-6 gap-y-3 text-gray-500 font-bold uppercase tracking-[0.15em] text-[10px]">
-                    <span className="flex items-center gap-2 text-blue-600 bg-blue-50 px-3 py-1 rounded-lg">
-                      <Building2 className="h-3.5 w-3.5" /> {job.department}
-                    </span>
-                    <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                      <Building2 className="h-3.5 w-3.5 text-gray-400" /> {job.recruitingOrganization || job.department}
-                    </span>
-                    <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-lg">
-                      <MapPin className="h-3.5 w-3.5 text-gray-400" /> {job.location}
-                    </span>
-                  </div>
+                <div>
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight tracking-tight">
+                    {job.title}
+                  </h1>
+
+                  <p className="text-sm text-gray-500 mt-1 font-medium">
+                    {job.department || "Department"} • {job.location || "India"}
+                  </p>
+
+                  <p className="text-sm text-red-500 font-semibold mt-2">
+                    ⏰ Last Date: {job.deadline || "Check notification"}
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3 shrink-0 self-start md:self-center lg:self-start">
-                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-2xl border border-gray-100 shadow-sm">
-                  <p className="text-[10px] font-black text-gray-400 px-2 uppercase tracking-tighter">Share</p>
-                  <SocialShare
-                    url={window.location.href}
-                    title={job.title}
-                    trigger={
-                      <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-blue-50 text-blue-600">
-                        <Share2 className="h-5 w-5" />
-                      </Button>
-                    }
+
+              <div className="flex gap-2">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow-sm"
+                  onClick={() => window.open(job.sourceUrl || '#', '_blank')}
+                >
+                  Apply Now
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setIsSaved(!isSaved)}
+                  className="rounded-lg"
+                >
+                  <Bookmark
+                    className={`h-4 w-4 ${
+                      isSaved ? "fill-black" : ""
+                    }`}
                   />
-                </div>
-                <Button variant="outline" size="icon" className="rounded-2xl h-12 w-12 border-gray-100 shadow-sm" onClick={() => setIsSaved(!isSaved)}>
-                  <Bookmark className={`h-5 w-5 ${isSaved ? 'fill-orange-500 text-orange-500' : 'text-gray-300'}`} />
                 </Button>
               </div>
+
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2 p-8 md:p-12 space-y-12 border-r border-gray-50">
-              {/* Modern Bento Info Grid */}
-              <div id="overview" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-gray-50/30 rounded-[2.5rem] border border-gray-100 shadow-inner">
-                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
-                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
-                    <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 group-hover:scale-110 transition-transform flex-shrink-0">
-                      <IndianRupee className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Estimated Salary</p>
-                      <p className="text-sm font-black text-gray-900 leading-tight break-words">₹{job.salary || "Best in Field"}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
-                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
-                    <div className="p-3 rounded-2xl bg-purple-50 text-purple-600 group-hover:scale-110 transition-transform flex-shrink-0">
-                      <BookOpen className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Education Req.</p>
-                      <p className="text-sm font-black text-gray-900 leading-tight break-words">{job.qualification}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
-                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
-                    <div className="p-3 rounded-2xl bg-orange-50 text-orange-600 group-hover:scale-110 transition-transform flex-shrink-0">
-                      <ShieldCheck className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Experience Req.</p>
-                      <p className="text-sm font-black text-gray-900 leading-tight break-words">{job.experienceRequired || "Not Specified"}</p>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="rounded-[2rem] border-none bg-white p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden min-w-0">
-                  <div className="flex items-center gap-3 sm:gap-4 overflow-hidden">
-                    <div className="p-3 rounded-2xl bg-red-50 text-red-600 group-hover:scale-110 transition-transform flex-shrink-0">
-                      <Calendar className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1 truncate">Application Deadline</p>
-                      <p className="text-sm font-black text-red-600 leading-tight break-words">{job.deadline}</p>
-                    </div>
-                  </div>
-                </Card>
+              {/* 🔹 INFO GRID */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <InfoItem label="Salary" value={job.salary ? `₹${job.salary}` : "N/A"} />
+                <InfoItem label="Qualification" value={job.qualification || "N/A"} />
+                <InfoItem label="Experience" value={job.experienceRequired || "N/A"} />
+                <InfoItem label="Age Limit" value={job.ageLimit || "N/A"} />
               </div>
 
 
@@ -322,56 +274,35 @@ export default function JobDetail() {
                 </div>
               </section>
 
-              {/* Specific Positions Table */}
+              {/* VACANCIES */}
               {positions.length > 0 && (
-                <section id="vacancies" className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-black text-gray-900 flex items-center gap-3">
-                      <Users className="h-7 w-7 text-blue-600" /> Positions Available
-                    </h3>
-                    <Badge variant="outline" className="font-bold text-blue-600 border-blue-100">
-                      {positions.length} Total Posts
-                    </Badge>
-                  </div>
+                <Section title="Vacancies">
+                  <div className="space-y-4">
+                    {positions.map((pos) => (
+                      <div
+                        key={pos.id}
+                        className="border rounded-xl p-4 hover:shadow-sm transition-all duration-200 hover:-translate-y-[2px]"
+                      >
+                        <p className="font-semibold text-gray-900 text-[15px]">
+                          {pos.positionName}
+                        </p>
 
-                  <div className="border rounded-[2rem] overflow-hidden bg-white shadow-sm">
-                    <Table>
-                      <TableHeader className="bg-gray-50/50">
-                        <TableRow className="hover:bg-transparent border-b-gray-100">
-                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 pl-8">Position & Salary</TableHead>
-                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6">Eligibility & Exp</TableHead>
-                          <TableHead className="font-black text-[10px] uppercase tracking-widest text-gray-400 py-6 text-center">Posts</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {positions.map((pos) => (
-                          <TableRow key={pos.id} className="group hover:bg-blue-50/30 transition-colors border-b-gray-50 last:border-0 align-top">
-                            <TableCell className="py-6 pl-8">
-                              <div className="font-black text-gray-900 group-hover:text-blue-600 transition-colors">{pos.positionName}</div>
-                              <div className="text-[10px] font-bold text-blue-600 mt-1 uppercase tracking-tighter">
-                                {pos.salaryRange || "As per notification"}
-                              </div>
-                            </TableCell>
-                            <TableCell className="py-6">
-                              <div className="font-bold text-gray-700 text-sm mb-1">{pos.qualification}</div>
-                              <div className="text-[10px] text-gray-400 font-bold uppercase">Exp: {pos.experienceRequired || "None"}</div>
-                              {pos.specificRequirements && (
-                                <div className="text-[11px] text-gray-500 italic mt-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                  <span className="text-blue-500 font-black mr-2">Note:</span> {pos.specificRequirements}
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell className="py-6 text-center">
-                              <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-none font-black px-3 py-1">
-                                {pos.numberOfVacancies}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {pos.qualification}
+                        </p>
+
+                        <div className="flex justify-between mt-3 text-sm font-medium">
+                          <span className="text-gray-600">
+                            Posts: {pos.numberOfVacancies}
+                          </span>
+                          <span className="text-blue-600">
+                            {pos.salaryRange || "As per rules"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </section>
+                </Section>
               )}
 
               {/* Eligibility & Fees */}
@@ -666,6 +597,32 @@ export default function JobDetail() {
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------------- SMALL COMPONENTS ---------------- */
+
+function InfoItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-white border rounded-xl p-4 hover:shadow-md transition">
+      <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
+        {label}
+      </p>
+      <p className="text-sm font-semibold text-gray-900 mt-1">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function Section({ title, children }: any) {
+  return (
+    <div className="bg-white border rounded-xl p-5">
+      <h2 className="text-lg font-bold text-gray-900 mb-4 border-l-4 border-blue-600 pl-3">
+        {title}
+      </h2>
+      {children}
     </div>
   );
 }
