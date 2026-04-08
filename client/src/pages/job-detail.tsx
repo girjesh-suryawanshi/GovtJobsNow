@@ -171,8 +171,19 @@ export default function JobDetail() {
         </div>
 
         <div id="overview" className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-gray-100 overflow-hidden">
+          {/* FEATURED IMAGE BANNER */}
+          {(job as any).featuredImageUrl && (
+            <div className="w-full bg-gray-50 border-b border-gray-100 flex justify-center">
+              <img 
+                src={(job as any).featuredImageUrl} 
+                alt={`${job.title} Notification Banner`} 
+                className="w-full h-auto max-h-[450px] object-cover"
+              />
+            </div>
+          )}
+          
           {/* 🔹 HEADER */}
-          <div className="bg-white border rounded-xl p-5 mb-6 shadow-sm hover:shadow-md transition">
+          <div className={`bg-white border rounded-xl p-5 mb-6 shadow-sm hover:shadow-md transition ${(job as any).featuredImageUrl ? 'mx-5 mt-5' : 'm-5'}`}>
             <div className="flex flex-col md:flex-row justify-between gap-4">
 
               <div className="flex gap-4">

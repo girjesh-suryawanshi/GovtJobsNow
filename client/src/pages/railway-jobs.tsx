@@ -245,6 +245,7 @@ export default function RailwayJobs() {
                   <JobCard 
                     key={job.id} 
                     job={job}
+                    onClick={() => {}}
                     onCompare={() => {}}
                     isComparing={false}
                   />

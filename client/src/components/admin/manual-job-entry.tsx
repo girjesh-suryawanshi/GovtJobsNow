@@ -26,7 +26,8 @@ import {
   Download,
   DownloadCloud,
   FileText,
-  ExternalLink
+  ExternalLink,
+  ImagePlus
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -319,7 +320,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     description: "",
     applyLink: "",
     sourceUrl: "",
-    positions: 1,
+    positions: "1",
     ageLimit: "",
     applicationFee: "",
     selectionProcess: "",
@@ -334,6 +335,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     syllabus: "",
     notificationFileUrl: "",
     slug: "",
+    featuredImageUrl: "",
     notifications: [] as Array<{ label: string; url: string; type: 'file' | 'link' }>,
     customLinks: [] as Array<{ label: string; url: string }>
   });
@@ -346,7 +348,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       qualification: "",
       experienceRequired: "",
       salaryRange: "",
-      numberOfVacancies: 1,
+      numberOfVacancies: "1",
       specificRequirements: ""
     }
   ]);
@@ -359,8 +361,52 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
   const [rawText, setRawText] = useState("");
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [aiProvider, setAiProvider] = useState<"gemini" | "groq">("groq");
+  const [theme, setTheme] = useState("saffron-glass");
+  const [customBgUrl, setCustomBgUrl] = useState("");
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { toast } = useToast();
+
+  const handleGenerateFeaturedImage = async () => {
+    if (!formData.title || !formData.department || !formData.qualification) {
+      toast({ title: "Incomplete Details", description: "Please enter Title, Department, and Qualification first.", variant: "destructive" });
+      return;
+    }
+    
+    setIsGeneratingImage(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const response = await fetch("/api/admin/generate-featured-image", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          title: formData.title, 
+          department: formData.department, 
+          qualification: formData.qualification,
+          positions: formData.positions,
+          deadline: formData.deadline,
+          theme,
+          customBgUrl
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to generate image");
+      
+      const { imageUrl } = await response.json();
+      if (imageUrl) {
+        setFormData(prev => ({ ...prev, featuredImageUrl: imageUrl }));
+        toast({ title: "Success", description: "Featured Image generated automatically!" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Image generation failed.", variant: "destructive" });
+    } finally {
+      setIsGeneratingImage(false);
+    }
+  };
 
   const handleScrapeAndExtract = async () => {
     if (!scrapeUrl.trim() || !scrapeUrl.startsWith("http")) {
@@ -400,7 +446,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rawText: text }),
+        body: JSON.stringify({ rawText: text, provider: aiProvider }),
       });
 
         if (extractResponse.ok) {
@@ -451,7 +497,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rawText }),
+        body: JSON.stringify({ rawText, provider: aiProvider }),
       });
 
       if (response.ok) {
@@ -537,27 +583,26 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       errors.push("Qualification is required");
     }
 
-    if (!formData.applicationStartDate.trim()) errors.push("Application start date is required");
     if (!formData.deadline.trim()) errors.push("Application deadline is required");
     if (!formData.applyLink.trim()) errors.push("Application link is required");
 
     // Validate multiple positions if enabled
     if (useMultiplePositions) {
-      const validPositions = jobPositions.filter(pos => pos.positionName.trim() !== '');
+      const validPositions = jobPositions.filter(pos => pos.positionName && String(pos.positionName).trim() !== '');
 
       if (validPositions.length === 0) {
         errors.push("At least one position with a name is required");
       }
 
       validPositions.forEach((position, index) => {
-        if (!position.positionName.trim()) {
+        if (!position.positionName || String(position.positionName).trim() === '') {
           errors.push(`Position ${index + 1}: Position name is required`);
         }
-        if (!position.qualification.trim()) {
+        if (!position.qualification || String(position.qualification).trim() === '') {
           errors.push(`Position ${index + 1}: Qualification is required`);
         }
-        if (position.numberOfVacancies < 1) {
-          errors.push(`Position ${index + 1}: Number of vacancies must be at least 1`);
+        if (!position.numberOfVacancies || String(position.numberOfVacancies).trim() === "") {
+          errors.push(`Position ${index + 1}: Number of vacancies is required`);
         }
       });
     }
@@ -571,7 +616,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     if (formData.applyLink && !isValidUrl(formData.applyLink)) {
       errors.push("Application link must be a valid URL");
     }
-    if (formData.sourceUrl && !isValidUrl(formData.sourceUrl)) {
+    if (formData.sourceUrl && formData.sourceUrl !== "Manual Entry" && !isValidUrl(formData.sourceUrl)) {
       errors.push("Source URL must be a valid URL");
     }
 
@@ -650,6 +695,12 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
     e.preventDefault();
 
     if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please check the red alert box at the top of the form for missing or invalid fields.",
+        variant: "destructive"
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
@@ -663,9 +714,9 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         ...formData,
         postedOn: new Date().toISOString().split('T')[0], // Today's date
         sourceUrl: formData.sourceUrl || "Manual Entry",
-        positions: parseInt(formData.positions.toString()) || 1, // Ensure it's a number
-        // Auto-set application start date to today if empty
-        applicationStartDate: formData.applicationStartDate || new Date().toISOString().split('T')[0],
+        positions: formData.positions.toString() || "1", // Use text
+        // Set application start date if provided
+        applicationStartDate: formData.applicationStartDate || null,
         slug: formData.slug || generateSlug(formData.title),
         notifications: formData.notifications || [],
         customLinks: formData.customLinks || [],
@@ -675,7 +726,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
             .filter(pos => pos.positionName.trim() !== '')
             .map(pos => ({
               ...pos,
-              numberOfVacancies: parseInt(pos.numberOfVacancies.toString()) || 1 // Ensure number type
+              numberOfVacancies: pos.numberOfVacancies.toString() || "1" // Use text
             })),
           useMultiplePositions: true
         })
@@ -707,7 +758,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           description: "",
           applyLink: "",
           sourceUrl: "",
-          positions: 1,
+          positions: "1",
           ageLimit: "",
           applicationFee: "",
           experienceRequired: "",
@@ -720,6 +771,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
           prepGuide: "",
           syllabus: "",
           notificationFileUrl: "",
+          featuredImageUrl: "",
           slug: "",
           notifications: [],
           customLinks: []
@@ -772,7 +824,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       description: "",
       applyLink: "",
       sourceUrl: "",
-      positions: 1,
+      positions: "1",
       ageLimit: "",
       applicationFee: "",
       experienceRequired: "",
@@ -785,6 +837,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       prepGuide: "",
       syllabus: "",
       notificationFileUrl: "",
+      featuredImageUrl: "",
       slug: "",
       notifications: [],
       customLinks: []
@@ -795,7 +848,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       qualification: "",
       experienceRequired: "",
       salaryRange: "",
-      numberOfVacancies: 1,
+      numberOfVacancies: "1",
       specificRequirements: ""
     }]);
     setUseMultiplePositions(false);
@@ -810,7 +863,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
       qualification: "",
       experienceRequired: "",
       salaryRange: "",
-      numberOfVacancies: 1,
+      numberOfVacancies: "1",
       specificRequirements: ""
     }]);
   };
@@ -837,7 +890,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         qualification: "",
         experienceRequired: "",
         salaryRange: "",
-        numberOfVacancies: 1,
+        numberOfVacancies: "1",
         specificRequirements: ""
       }]);
     }
@@ -858,7 +911,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-white/80 p-4 rounded-lg border border-purple-100 flex flex-col md:flex-row gap-3">
-            <div className="flex-1 space-y-2">
+            <div className="flex-[2] space-y-2">
               <Label htmlFor="scrapeUrl" className="text-purple-900 font-semibold flex items-center gap-2 relative">
                 <Globe className="w-4 h-4" />
                 Scrape from URL (Automated Pipeline)
@@ -870,6 +923,21 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 value={scrapeUrl}
                 onChange={(e) => setScrapeUrl(e.target.value)}
               />
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label className="text-purple-900 font-semibold flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-500" />
+                AI Engine
+              </Label>
+              <Select value={aiProvider} onValueChange={(val: any) => setAiProvider(val)}>
+                <SelectTrigger className="border-purple-200 bg-white">
+                  <SelectValue placeholder="Engine" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="groq" className="font-medium text-green-700">Groq (Llama 3) - Fast</SelectItem>
+                  <SelectItem value="gemini" className="font-medium text-blue-700">Gemini (AI Studio)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex items-end">
               <Button
@@ -1081,37 +1149,37 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
               {/* Department */}
               <div>
                 <Label htmlFor="department">Department *</Label>
-                <Select
+                <Input
+                  id="department"
                   value={formData.department}
-                  onValueChange={(value) => handleInputChange('department', value)}
-                >
-                  <SelectTrigger data-testid="select-department">
-                    <SelectValue placeholder="Select department" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departmentOptions.map(dept => (
-                      <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => handleInputChange('department', e.target.value)}
+                  placeholder="e.g., Staff Selection Commission"
+                  list="department-suggestions"
+                  data-testid="input-department"
+                />
+                <datalist id="department-suggestions">
+                  {departmentOptions.map(dept => (
+                    <option key={dept} value={dept} />
+                  ))}
+                </datalist>
               </div>
 
               {/* Location */}
               <div>
                 <Label htmlFor="location">Location *</Label>
-                <Select
+                <Input
+                  id="location"
                   value={formData.location}
-                  onValueChange={(value) => handleInputChange('location', value)}
-                >
-                  <SelectTrigger data-testid="select-location">
-                    <SelectValue placeholder="Select location" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {locationOptions.map(loc => (
-                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  placeholder="e.g., All India, Delhi"
+                  list="location-suggestions"
+                  data-testid="input-location"
+                />
+                <datalist id="location-suggestions">
+                  {locationOptions.map(loc => (
+                    <option key={loc} value={loc} />
+                  ))}
+                </datalist>
               </div>
 
               {/* Qualification */}
@@ -1233,16 +1301,98 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                 </p>
               </div>
 
+              {/* Featured Image Generation */}
+              <div className="md:col-span-2 space-y-4 bg-gray-50/50 p-4 border rounded-xl border-gray-100">
+                <Label className="text-lg font-black flex items-center gap-2 text-indigo-800">
+                  <ImagePlus className="h-5 w-5" />
+                  Satori Banner Engine
+                </Label>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-bold text-gray-700">Select Graphic Theme</Label>
+                    <Select value={theme} onValueChange={(val) => setTheme(val)}>
+                      <SelectTrigger className="border-gray-200">
+                        <SelectValue placeholder="Select Theme" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="saffron-glass">Saffron Glass (Indian Gov)</SelectItem>
+                        <SelectItem value="blue-slate">Blue Slate (Corporate)</SelectItem>
+                        <SelectItem value="minimal-light">Minimal White (Clean)</SelectItem>
+                        <SelectItem value="dark-hacker">Dark Mode (Tech)</SelectItem>
+                        <SelectItem value="custom">Upload Custom Template...</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {theme === "custom" && (
+                     <div className="space-y-2">
+                       <Label className="text-sm font-bold text-gray-700">Custom Background URL</Label>
+                       <Input 
+                         placeholder="https://... or upload custom image"
+                         value={customBgUrl}
+                         onChange={(e) => setCustomBgUrl(e.target.value)}
+                         className="border-gray-200"
+                       />
+                     </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <Input 
+                    placeholder="Resulting Image URL: /uploads/featured-....png"
+                    value={formData.featuredImageUrl || ""} 
+                    onChange={(e) => handleInputChange("featuredImageUrl", e.target.value)}
+                    className="flex-1 bg-white"
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleGenerateFeaturedImage}
+                    disabled={isGeneratingImage || !formData.title || !formData.department || !formData.qualification}
+                    className="bg-indigo-600 text-white hover:bg-indigo-700 border-transparent shadow-md font-bold shrink-0"
+                  >
+                    {isGeneratingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                    Burn Text to Image
+                  </Button>
+                </div>
+                {formData.featuredImageUrl && (
+                  <div className="mt-4 rounded-xl border border-gray-200 overflow-hidden shadow-sm relative bg-gray-50 flex flex-col items-center justify-center p-2 group">
+                    <img 
+                      src={formData.featuredImageUrl} 
+                      alt="Featured Preview" 
+                      className="max-w-full h-auto object-contain rounded-lg transition-opacity group-hover:opacity-80" 
+                      style={{ maxHeight: '200px' }} 
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                      <Button 
+                        type="button"
+                        onClick={() => {
+                          const a = document.createElement('a');
+                          a.href = formData.featuredImageUrl;
+                          a.download = formData.featuredImageUrl.split('/').pop() || 'featured-image.png';
+                          a.click();
+                        }}
+                        className="bg-white text-gray-900 hover:bg-gray-100 shadow-xl"
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Image
+                      </Button>
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500">Auto-generated image runs via Satori and Resvg and saves directly to the uploads folder.</p>
+              </div>
+
               {/* Additional Fields Row 1 */}
               <div>
                 <Label htmlFor="positions">Number of Positions</Label>
                 <Input
                   id="positions"
-                  type="number"
+                  type="text"
                   value={formData.positions}
-                  onChange={(e) => handleInputChange('positions', (parseInt(e.target.value) || 1).toString())}
-                  placeholder="1"
-                  min="1"
+                  onChange={(e) => handleInputChange('positions', e.target.value)}
+                  placeholder="e.g. 1500+, Various, To be announced"
                   data-testid="input-positions"
                 />
               </div>
@@ -1610,10 +1760,10 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                           <Label htmlFor={`vacancies-${position.id}`}>Number of Vacancies</Label>
                           <Input
                             id={`vacancies-${position.id}`}
-                            type="number"
-                            min="1"
+                            type="text"
                             value={position.numberOfVacancies}
-                            onChange={(e) => updatePosition(position.id, 'numberOfVacancies', parseInt(e.target.value) || 1)}
+                            onChange={(e) => updatePosition(position.id, 'numberOfVacancies', e.target.value)}
+                            placeholder="e.g. 1500+, Various"
                             data-testid={`input-vacancies-${index}`}
                           />
                         </div>

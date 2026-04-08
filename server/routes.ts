@@ -14,6 +14,7 @@ import path from "path";
 import fs from "fs";
 import express from "express";
 import crypto from "crypto";
+import { generateFeaturedImage } from "./generate-image";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Visitor Tracking Middleware
@@ -603,7 +604,7 @@ Allow: /`);
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-    const { rawText } = req.body;
+    const { rawText, provider } = req.body;
     if (!rawText) return res.status(400).json({ message: "Raw text is required" });
 
     try {
@@ -661,7 +662,7 @@ Allow: /`);
       
       Text: ${rawText}`;
 
-      const response = await generateText(prompt);
+      const response = await generateText(prompt, provider || "groq");
       // Robust JSON cleaning to strip markdown and conversational text
       const match = response.match(/\{[\s\S]*\}/);
       if (!match) {
@@ -684,6 +685,7 @@ Allow: /`);
           const cleanedPos = { ...pos };
           for (const k in cleanedPos) {
             if (cleanedPos[k] === null) cleanedPos[k] = "";
+            if (typeof cleanedPos[k] === "number") cleanedPos[k] = cleanedPos[k].toString();
           }
           return cleanedPos;
         });
@@ -1097,6 +1099,33 @@ Allow: /`);
     }
   });
 
+  // Generate Featured Image
+  app.post("/api/admin/generate-featured-image", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    const adminId = requireAdminAuth(token);
+
+    if (!adminId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    try {
+      const { title, department, qualification, positions, deadline, theme, customBgUrl } = req.body;
+      const imageUrl = await generateFeaturedImage(
+        title || "Government Job", 
+        department || "", 
+        qualification || "",
+        positions || "1",
+        deadline || "",
+        theme || "saffron-glass",
+        customBgUrl || ""
+      );
+      res.json({ success: true, imageUrl });
+    } catch (error) {
+      console.error("Image generation failed:", error);
+      res.status(500).json({ success: false, message: "Image generation failed" });
+    }
+  });
+
   // Publish reviewed job
   app.post("/api/admin/publish-job", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
@@ -1125,7 +1154,7 @@ Allow: /`);
         applyLink: String(jobData.applyLink || jobData.applicationUrl || "https://example.gov.in/apply"),
         postedOn: String(jobData.postedOn || new Date().toISOString().split('T')[0]),
         sourceUrl: String(jobData.sourceUrl || jobData.url || "https://example.gov.in/notification"),
-        positions: parseInt(jobData.positions) || 1,
+        positions: jobData.positions?.toString() || "1",
         salary: jobData.salary || null,
         description: jobData.description || null,
         ageLimit: jobData.ageLimit || null,

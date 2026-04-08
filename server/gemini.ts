@@ -1,4 +1,50 @@
-export async function generateText(prompt: string): Promise<string> {
+export async function generateText(prompt: string, provider: "gemini" | "groq" = "groq"): Promise<string> {
+  if (provider === "groq") {
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) {
+      console.warn("Missing Groq API Key! Falling back to Gemini...");
+      return generateText(prompt, "gemini");
+    }
+    
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${groqKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [{ role: "user", content: prompt }],
+          temperature: 0.1
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Groq API Error Response:", JSON.stringify(data, null, 2));
+        throw new Error(data.error?.message || "Groq API rejected request");
+      }
+
+      if (!data.choices || data.choices.length === 0) {
+        throw new Error("No choices returned from Groq");
+      }
+
+      const text = data.choices[0]?.message?.content;
+
+      if (!text) {
+        throw new Error("Empty text response from Groq");
+      }
+
+      return text;
+    } catch (error) {
+      console.error("Groq API error:", error);
+      throw error;
+    }
+  }
+
+  // Original Gemini Fallback
   const apiKey = process.env.GEMINI_API_KEY || process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
 
   if (!apiKey || apiKey === "no-key") {

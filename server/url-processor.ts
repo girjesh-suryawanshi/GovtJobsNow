@@ -9,7 +9,7 @@ interface ExtractedJobData {
   deadline?: string;
   applyLink?: string;
   postedOn?: string;
-  positions?: number;
+  positions?: string;
   salary?: string;
   ageLimit?: string;
   applicationFee?: string;
@@ -147,7 +147,7 @@ export class UrlProcessor {
       applyLink: sourceUrl,
       postedOn: now,
       sourceUrl: sourceUrl,
-      positions: data.positions || 1,
+      positions: data.positions || "1",
       salary: data.salary || "As per government norms",
       ageLimit: data.ageLimit,
       applicationFee: data.applicationFee,
@@ -329,7 +329,7 @@ export class UrlProcessor {
       const posRegex = /(?:vacancy|vacancies|posts?|positions?)[\s:]*(\d+)/gi;
       const matches = Array.from(fullText.matchAll(posRegex));
       if (matches.length > 0) {
-        data.positions = parseInt(matches[0][1]);
+        data.positions = matches[0][1];
       }
     }
   }

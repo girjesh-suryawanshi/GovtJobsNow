@@ -222,6 +222,7 @@ export default function SSCJobs() {
                   <JobCard 
                     key={job.id} 
                     job={job}
+                    onClick={() => {}}
                     onCompare={() => {}}
                     isComparing={false}
                   />

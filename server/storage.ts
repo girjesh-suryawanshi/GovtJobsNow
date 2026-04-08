@@ -90,7 +90,7 @@ export class MemStorage implements IStorage {
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: [], total: 0 }; }
   async createJob(insertJob: InsertJob): Promise<Job> {
     const id = randomUUID();
-    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || 1, viewCount: 0 } as Job;
+    const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || "1", viewCount: 0 } as Job;
     this.jobs.set(id, job);
     return job;
   }

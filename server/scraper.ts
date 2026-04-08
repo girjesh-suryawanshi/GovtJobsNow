@@ -66,7 +66,7 @@ function normalizeJobData(data: Partial<InsertJob>, source: any, jobUrl: string)
     postedOn: data.postedOn || today.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
     deadline: data.deadline || 'Check official notification',
     sourceUrl: jobUrl,
-    positions: data.positions || 0,
+    positions: data.positions?.toString() || "0",
   };
 }
 
@@ -120,7 +120,7 @@ function generateJobsForSource(source: any): InsertJob[] {
       postedOn: postedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       deadline: deadlineDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
       sourceUrl: `${source.url}/${uniqueId}`, // Make source URL unique too
-      positions: Math.floor(Math.random() * 1000) + 50,
+      positions: (Math.floor(Math.random() * 1000) + 50).toString(),
     });
   }
   
