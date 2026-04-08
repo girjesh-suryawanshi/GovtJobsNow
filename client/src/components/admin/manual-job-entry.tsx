@@ -1319,7 +1319,18 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                         <SelectItem value="saffron-glass">Saffron Glass (Indian Gov)</SelectItem>
                         <SelectItem value="blue-slate">Blue Slate (Corporate)</SelectItem>
                         <SelectItem value="minimal-light">Minimal White (Clean)</SelectItem>
-                        <SelectItem value="dark-hacker">Dark Mode (Tech)</SelectItem>
+                        <SelectItem value="admin-pro">Admin Pro (Navy Split)</SelectItem>
+                        <SelectItem value="ocean-wave">Ocean Wave (Cyan Vibes)</SelectItem>
+                        <SelectItem value="sunrise-glow">Sunrise Glow (Warm)</SelectItem>
+                        <SelectItem value="cherry-blossom">Cherry Blossom (Soft Pink)</SelectItem>
+                        <SelectItem value="emerald-city">Emerald City (Vibrant Green)</SelectItem>
+                        <SelectItem value="forest-dark">Deep Forest (Dark Green)</SelectItem>
+                        <SelectItem value="dark-hacker">Dark Hacker (Intense Black)</SelectItem>
+                        <SelectItem value="ruby-red">Ruby Red (Dark Crimson)</SelectItem>
+                        <SelectItem value="purple-nebula">Purple Nebula (Cyberpunk)</SelectItem>
+                        <SelectItem value="midnight-gold">Midnight Gold (Premium)</SelectItem>
+                        <SelectItem value="metro-dark">Metro Dark (Slate Blue)</SelectItem>
+                        <SelectItem value="monochrome-steel">Monochrome Steel (Professional)</SelectItem>
                         <SelectItem value="custom">Upload Custom Template...</SelectItem>
                       </SelectContent>
                     </Select>
@@ -1327,13 +1338,58 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   
                   {theme === "custom" && (
                      <div className="space-y-2">
-                       <Label className="text-sm font-bold text-gray-700">Custom Background URL</Label>
-                       <Input 
-                         placeholder="https://... or upload custom image"
-                         value={customBgUrl}
-                         onChange={(e) => setCustomBgUrl(e.target.value)}
-                         className="border-gray-200"
-                       />
+                       <Label className="text-sm font-bold text-gray-700 flex justify-between">
+                          <span>Custom Background Settings</span>
+                       </Label>
+                       <div className="flex gap-2">
+                         <Input 
+                           placeholder="Paste URL or upload local image..."
+                           value={customBgUrl}
+                           onChange={(e) => setCustomBgUrl(e.target.value)}
+                           className="border-gray-200"
+                         />
+                         
+                         <div className="shrink-0 relative">
+                           <Input 
+                             type="file"
+                             accept="image/*"
+                             id="custom-bg-upload"
+                             className="hidden"
+                             onChange={async (e) => {
+                               const file = e.target.files?.[0];
+                               if (!file) return;
+                               const uploadData = new FormData();
+                               uploadData.append("file", file);
+                               try {
+                                 const token = localStorage.getItem('admin_token');
+                                 const response = await fetch('/api/upload', {
+                                   method: 'POST',
+                                   headers: { 'Authorization': `Bearer ${token}` },
+                                   body: uploadData
+                                 });
+                                 if (response.ok) {
+                                   const data = await response.json();
+                                   setCustomBgUrl(data.url);
+                                   toast({ title: "Template Uploaded", description: "Image synced securely to server!" });
+                                 } else {
+                                   toast({ title: "Upload Failed", variant: "destructive" });
+                                 }
+                               } catch (error) {
+                                 toast({ title: "Upload Failed", variant: "destructive" });
+                               }
+                             }}
+                           />
+                           <Button 
+                             type="button" 
+                             variant="outline" 
+                             onClick={() => document.getElementById("custom-bg-upload")?.click()}
+                             className="bg-gray-100 hover:bg-gray-200 text-gray-700"
+                           >
+                             <Upload className="w-4 h-4 md:mr-2" />
+                             <span className="hidden md:inline">From PC</span>
+                           </Button>
+                         </div>
+                       </div>
                      </div>
                   )}
                 </div>

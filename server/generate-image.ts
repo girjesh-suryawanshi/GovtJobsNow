@@ -6,16 +6,22 @@ import { html } from "satori-html";
 
 function getBackgroundGradient(theme: string): string {
   switch (theme) {
-    case "saffron-glass":
-      return "linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%)";
-    case "blue-slate":
-      return "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)";
-    case "minimal-light":
-      return "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)";
-    case "dark-hacker":
-      return "linear-gradient(135deg, #09090b 0%, #18181b 100%)";
-    default:
-      return "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)";
+    case "saffron-glass": return "linear-gradient(135deg, #FF9933 0%, #FFFFFF 50%, #138808 100%)";
+    case "blue-slate": return "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)";
+    case "minimal-light": return "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)";
+    case "dark-hacker": return "linear-gradient(135deg, #09090b 0%, #18181b 100%)";
+    case "ruby-red": return "linear-gradient(135deg, #450a0a 0%, #dc2626 100%)";
+    case "emerald-city": return "linear-gradient(135deg, #064e3b 0%, #10b981 100%)";
+    case "purple-nebula": return "linear-gradient(135deg, #2e1065 0%, #8b5cf6 100%)";
+    case "midnight-gold": return "linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #b45309 100%)";
+    case "ocean-wave": return "linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)";
+    case "sunrise-glow": return "linear-gradient(135deg, #ea580c 0%, #fcd34d 100%)";
+    case "metro-dark": return "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)";
+    case "admin-pro": return "linear-gradient(180deg, #1e3a8a 0%, #ffffff 100%)";
+    case "cherry-blossom": return "linear-gradient(135deg, #fbcfe8 0%, #fda4af 100%)";
+    case "forest-dark": return "linear-gradient(135deg, #14532d 0%, #052e16 100%)";
+    case "monochrome-steel": return "linear-gradient(135deg, #475569 0%, #94a3b8 100%)";
+    default: return "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)";
   }
 }
 
@@ -35,24 +41,34 @@ export async function generateFeaturedImage(
   const fontBuffer = await fs.readFile(fontPath);
 
   // 2. Build template HTML
-  const isDark = theme === "dark-hacker" || theme === "blue-slate";
+  const darkThemes = ["dark-hacker", "blue-slate", "ruby-red", "purple-nebula", "midnight-gold", "metro-dark", "forest-dark", "monochrome-steel", "emerald-city"];
+  const isDark = darkThemes.includes(theme);
   const textColor = isDark ? "#f8fafc" : "#0f172a";
   const boxBg = isDark ? "rgba(15, 23, 42, 0.85)" : "rgba(255, 255, 255, 0.9)";
-  const borderColor = isDark ? "#334155" : "#e2e8f0";
+  const borderColor = isDark ? "rgba(255, 255, 255, 0.1)" : "#e2e8f0";
 
   let bgMarkup = `<div style="display:flex;position:absolute;top:0;left:0;width:1280px;height:720px;background: ${getBackgroundGradient(theme)};"></div>`;
   if (theme === "custom" && customBgUrl) {
-    // Note: Satori requires absolute URLs for images, or base64. 
-    // If it's a local path like /uploads/..., we have to convert it or provide a full localhost URL.
-    // Assuming customBgUrl is an absolute path or we can prefix it.
-    let fullUrl = customBgUrl;
-    if (customBgUrl.startsWith("/uploads")) {
-       const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-       const host = process.env.HOST || "localhost";
-       const port = process.env.PORT || "3000";
-       fullUrl = `${protocol}://${host}:${port}${customBgUrl}`;
+    try {
+      let b64 = "";
+      if (customBgUrl.startsWith("http")) {
+        // Pass external URLs natively to Satori to prevent base64 AST bottlenecks
+        bgMarkup = `<img src="${customBgUrl}" style="display:flex;position:absolute;top:0;left:0;width:1280px;height:720px;object-fit:cover;" />`;
+      } else if (customBgUrl.startsWith("/uploads")) {
+        // Local files must be converted to base64 because satori cannot resolve relative paths
+        const localPath = path.join(process.cwd(), customBgUrl);
+        const fileBuf = await fs.readFile(localPath);
+        const ext = path.extname(localPath).toLowerCase().substring(1) || "jpeg";
+        const cleanExt = ext === "jpg" ? "jpeg" : ext;
+        b64 = `data:image/${cleanExt};base64,${fileBuf.toString('base64')}`;
+      }
+      
+      if (b64) {
+        bgMarkup = `<img src="${b64}" style="display:flex;position:absolute;top:0;left:0;width:1280px;height:720px;object-fit:cover;" />`;
+      }
+    } catch (e) {
+      console.warn("Satori Custom BG Error: Failed to buffer image, falling back.", e);
     }
-    bgMarkup = `<img src="${fullUrl}" style="position:absolute;top:0;left:0;width:1280px;height:720px;object-fit:cover;" />`;
   }
 
   const htmlString = `
