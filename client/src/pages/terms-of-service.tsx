@@ -12,7 +12,7 @@ export default function TermsOfService() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Terms of Service</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Please read these terms carefully before using GovtJobsNow. By accessing our platform, you agree to be bound by these terms.
+            Please read these terms carefully before using GovtJobNow. By accessing our platform, you agree to be bound by these terms.
           </p>
           <p className="text-sm text-gray-500 mt-4">Last updated: January 2025</p>
         </div>
@@ -32,7 +32,7 @@ export default function TermsOfService() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-700">
-                By accessing and using GovtJobsNow ("we," "our," or "us"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
+                By accessing and using GovtJobNow ("we," "our," or "us"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
               </p>
               <ul className="list-disc list-inside text-gray-700 space-y-2">
                 <li>These terms apply to all visitors, users, and others who access or use the service</li>
@@ -128,7 +128,7 @@ export default function TermsOfService() {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Our Content</h3>
                 <ul className="list-disc list-inside text-gray-700 space-y-1">
-                  <li>All original content, design, and functionality are owned by GovtJobsNow</li>
+                  <li>All original content, design, and functionality are owned by GovtJobNow</li>
                   <li>Job listings are aggregated from public government sources</li>
                   <li>You may not reproduce, distribute, or create derivative works without permission</li>
                   <li>Our trademarks and logos are protected intellectual property</li>
@@ -221,7 +221,7 @@ export default function TermsOfService() {
                 If you have any questions about these Terms of Service, please contact us:
               </p>
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-gray-700"><strong>Email:</strong> legal@govtjobsnow.com</p>
+                <p className="text-gray-700"><strong>Email:</strong> legal@govtjobnow.com</p>
                 <p className="text-gray-700"><strong>Phone:</strong> +91 8800-XXX-XXX</p>
                 <p className="text-gray-700">
                   <strong>Address:</strong> Plot No. 123, Sector 15, Gurgaon, Haryana - 122001, India

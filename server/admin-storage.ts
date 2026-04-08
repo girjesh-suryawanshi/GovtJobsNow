@@ -13,7 +13,7 @@ class AdminStorage {
     {
       id: "admin-1",
       username: "34420124",
-      email: "admin@govtjobsnow.in",
+      email: "admin@govtjobnow.in",
       password: "pass@123", // Temporarily use plain text for testing
       role: "admin",
       isActive: true,

@@ -64,8 +64,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email Us</h3>
-                    <p className="text-gray-600">support@govtjobsnow.com</p>
-                    <p className="text-gray-600">info@govtjobsnow.com</p>
+                    <p className="text-gray-600">support@govtjobnow.com</p>
+                    <p className="text-gray-600">info@govtjobnow.com</p>
                   </div>
                 </div>
 

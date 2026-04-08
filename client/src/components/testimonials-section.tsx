@@ -7,7 +7,7 @@ export default function TestimonialsSection() {
       name: "Priya Sharma",
       role: "Selected for SBI PO",
       location: "Delhi",
-      content: "GovtJobsNow's job alerts helped me stay ahead of the competition. I got notified about the SBI PO opening within minutes of posting and was able to apply early. The application tracker kept me organized throughout the process.",
+      content: "GovtJobNow's job alerts helped me stay ahead of the competition. I got notified about the SBI PO opening within minutes of posting and was able to apply early. The application tracker kept me organized throughout the process.",
       rating: 5,
       avatar: "PS"
     },
@@ -23,7 +23,7 @@ export default function TestimonialsSection() {
       name: "Anjali Singh",
       role: "Railway Recruitment",
       location: "Pune", 
-      content: "I was overwhelmed by the number of government job sites until I found GovtJobsNow. Everything I need is in one place - alerts, tracking, comparisons. Got selected for Railway recruitment in just 4 months!",
+      content: "I was overwhelmed by the number of government job sites until I found GovtJobNow. Everything I need is in one place - alerts, tracking, comparisons. Got selected for Railway recruitment in just 4 months!",
       rating: 5,
       avatar: "AS"
     },

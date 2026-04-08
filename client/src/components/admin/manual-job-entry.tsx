@@ -1297,7 +1297,7 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   </Button>
                 </div>
                 <p className="text-[10px] text-blue-600 font-bold mt-1 uppercase">
-                  URL will be: govtjobsnow.com/job/{formData.slug || "..."}
+                  URL will be: govtjobnow.com/job/{formData.slug || "..."}
                 </p>
               </div>
 

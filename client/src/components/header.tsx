@@ -42,7 +42,7 @@ export default function Header({ onScrollToDepartments }: HeaderProps) {
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                      GovtJobsNow
+                      GovtJobNow
                     </h1>
                     <p className="text-xs text-gray-500 font-medium">India's #1 Government Job Portal</p>
                   </div>

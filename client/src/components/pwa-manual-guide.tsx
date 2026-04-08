@@ -15,7 +15,7 @@ export default function PWAManualGuide() {
       <DialogContent className="max-w-md rounded-[2.5rem] p-8">
         <DialogHeader>
           <DialogTitle className="text-2xl font-black text-gray-900 leading-tight mb-2">
-            Install GovtJobsNow
+            Install GovtJobNow
           </DialogTitle>
           <DialogDescription className="text-sm font-bold text-gray-400 uppercase tracking-widest">
             Follow these steps to add the app to your device
@@ -77,7 +77,7 @@ export default function PWAManualGuide() {
                 </div>
                 <div>
                   <p className="text-sm font-black text-gray-900">Desktop Installation</p>
-                  <p className="text-xs text-gray-500 font-medium">Look for the install icon in your browser's address bar (right side) to install GovtJobsNow.</p>
+                  <p className="text-xs text-gray-500 font-medium">Look for the install icon in your browser's address bar (right side) to install GovtJobNow.</p>
                 </div>
               </div>
             </div>

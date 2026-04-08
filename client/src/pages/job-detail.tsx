@@ -112,9 +112,9 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen bg-gray-50/50">
       <SEOHead
-        title={`${job.title} - ${job.department} | GovtJobsNow Official`}
+        title={`${job.title} - ${job.department} | GovtJobNow Official`}
         description={`Official notification for ${job.title} in ${job.department}. Apply before ${job.deadline}.`}
-        url={`https://govtjobsnow.com/job/${job.slug || job.id}`}
+        url={`https://govtjobnow.com/job/${job.slug || job.id}`}
       />
       <JobPostingSchema job={job} />
       <Header onScrollToDepartments={() => window.location.href = '/#departments'} />

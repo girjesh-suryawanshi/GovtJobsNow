@@ -186,7 +186,7 @@ export default function PrivacyPolicy() {
                 If you have questions about this Privacy Policy, your data rights, or our privacy practices, please contact us:
               </p>
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-gray-700"><strong>Email:</strong> privacy@govtjobsnow.com</p>
+                <p className="text-gray-700"><strong>Email:</strong> privacy@govtjobnow.com</p>
                 <p className="text-gray-700"><strong>Phone:</strong> +91 8800-XXX-XXX</p>
                 <p className="text-gray-700">
                   <strong>Address:</strong> Plot No. 123, Sector 15, Gurgaon, Haryana - 122001, India

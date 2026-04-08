@@ -10,7 +10,7 @@ export default function AboutUs() {
             {/* Hero Section */}
             <section className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white py-20 px-4">
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-6">About GovtJobsNow</h1>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-6">About GovtJobNow</h1>
                     <p className="text-xl text-blue-100 leading-relaxed">
                         India's most trusted and reliable portal for government job notifications,
                         exam calendars, and career guidance. We bridge the gap between talented
@@ -97,7 +97,7 @@ export default function AboutUs() {
                 <div className="bg-gray-100 dark:bg-gray-800 rounded-3xl p-8 md:p-12 text-center">
                     <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Got Questions or Feedback?</h2>
                     <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto">
-                        We are constantly striving to improve GovtJobsNow. If you have suggestions, spot an error, or just want to get in touch with our team, we are always listening.
+                        We are constantly striving to improve GovtJobNow. If you have suggestions, spot an error, or just want to get in touch with our team, we are always listening.
                     </p>
                     <a href="/contact" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
                         Contact Us Today

@@ -18,16 +18,16 @@ interface SEOHeadProps {
 }
 
 export default function SEOHead({
-  title = "GovtJobsNow - Latest Government Jobs, Sarkari Naukri 2025",
+  title = "GovtJobNow - Latest Government Jobs, Sarkari Naukri 2025",
   description = "Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU. Apply for central & state govt jobs online.",
   keywords = "government jobs, sarkari naukri, govt jobs 2025, SSC jobs, railway jobs, banking jobs, UPSC jobs, latest govt jobs, central government jobs, state government jobs, sarkari result",
   image = "/og-image.jpg",
-  url = "https://govtjobsnow.com",
+  url = "https://govtjobnow.com",
   type = "website",
   publishedTime,
   modifiedTime,
-  author = "GovtJobsNow",
-  siteName = "GovtJobsNow",
+  author = "GovtJobNow",
+  siteName = "GovtJobNow",
   locale = "en_IN",
   alternateLocale = "hi_IN"
 }: SEOHeadProps) {
@@ -106,8 +106,8 @@ export default function SEOHead({
     updateMetaTag('twitter:title', title);
     updateMetaTag('twitter:description', description);
     updateMetaTag('twitter:image', image);
-    updateMetaTag('twitter:creator', '@GovtJobsNow');
-    updateMetaTag('twitter:site', '@GovtJobsNow');
+    updateMetaTag('twitter:creator', '@GovtJobNow');
+    updateMetaTag('twitter:site', '@GovtJobNow');
 
     // Additional SEO tags
     updateMetaTag('theme-color', '#2563eb');

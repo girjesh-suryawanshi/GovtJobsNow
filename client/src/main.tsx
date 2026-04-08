@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
-  <ThemeProvider defaultTheme="light" storageKey="govtjobsnow-ui-theme">
+  <ThemeProvider defaultTheme="light" storageKey="govtjobnow-ui-theme">
     <App />
   </ThemeProvider>
 );

@@ -54,7 +54,7 @@ export function PWAProvider({ children }: { children: React.ReactNode }) {
       setIsInstallable(false);
       setDeferredPrompt(null);
       localStorage.setItem("gj_pwa_installed", "true");
-      toast({ title: "App Installed", description: "GovtJobsNow is now available on your device." });
+      toast({ title: "App Installed", description: "GovtJobNow is now available on your device." });
     });
 
     return () => {

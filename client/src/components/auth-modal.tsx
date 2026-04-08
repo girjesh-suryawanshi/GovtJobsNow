@@ -154,7 +154,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
         
         toast({
           title: "Registration Successful!",
-          description: "Welcome to GovtJobsNow! You are now logged in.",
+          description: "Welcome to GovtJobNow! You are now logged in.",
         });
         
         onClose();

@@ -26,8 +26,8 @@ export default function JobPostingSchema({ job }: JobPostingSchemaProps) {
       "hiringOrganization": {
         "@type": "Organization",
         "name": job.recruitingOrganization || job.department,
-        "sameAs": "https://govtjobsnow.com",
-        "logo": "https://govtjobsnow.com/logo.png"
+        "sameAs": "https://govtjobnow.com",
+        "logo": "https://govtjobnow.com/logo.png"
       },
       "jobLocation": {
         "@type": "Place",
@@ -65,7 +65,7 @@ export default function JobPostingSchema({ job }: JobPostingSchemaProps) {
         "contactType": "HR",
         "url": job.applyLink || job.sourceUrl
       },
-      "url": `https://govtjobsnow.com/job/${job.id}`,
+      "url": `https://govtjobnow.com/job/${job.id}`,
       "salaryCurrency": "INR",
       "jobBenefits": "Government job benefits, pension, medical allowance, job security",
       "industry": job.jobCategory || "Government",

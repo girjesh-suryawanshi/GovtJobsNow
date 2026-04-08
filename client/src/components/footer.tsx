@@ -60,7 +60,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
               </div>
               <div>
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
-                  GovtJobsNow
+                  GovtJobNow
                 </h3>
                 <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 text-xs mt-1">
                   Trusted Platform
@@ -76,7 +76,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3 text-gray-400">
                 <Mail className="h-4 w-4 text-blue-400" />
-                <span className="text-sm">support@govtjobsnow.in</span>
+                <span className="text-sm">support@govtjobnow.in</span>
               </div>
               <div className="flex items-center gap-3 text-gray-400">
                 <Phone className="h-4 w-4 text-green-400" />
@@ -265,7 +265,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              &copy; 2025 GovtJobsNow. All rights reserved. India's most trusted government job portal.
+              &copy; 2025 GovtJobNow. All rights reserved. India's most trusted government job portal.
             </p>
             <div className="flex items-center gap-6 text-sm text-gray-400">
               <span className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">

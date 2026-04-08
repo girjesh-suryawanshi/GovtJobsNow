@@ -54,10 +54,10 @@ export default function SSCJobs() {
   return (
     <div className="min-h-screen bg-gray-50">
       <SEOHead
-        title="SSC Jobs 2025 - Latest Staff Selection Commission Vacancies | GovtJobsNow"
+        title="SSC Jobs 2025 - Latest Staff Selection Commission Vacancies | GovtJobNow"
         description="Apply for latest SSC jobs 2025. Find Staff Selection Commission vacancies including SSC CGL, CHSL, MTS, Stenographer, JE, GD Constable. Get SSC exam dates, eligibility, salary details."
         keywords="SSC jobs, staff selection commission, SSC CGL, SSC CHSL, SSC MTS, SSC JE, SSC GD, SSC stenographer, SSC exam 2025, SSC notification, SSC vacancy, government jobs SSC"
-        url="https://govtjobsnow.com/jobs/ssc"
+        url="https://govtjobnow.com/jobs/ssc"
       />
       
       <Header />

@@ -55,7 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.type("text/plain");
     res.send(`User-agent: *
 Allow: /
-Sitemap: https://govtjobsnow.com/sitemap.xml
+Sitemap: https://govtjobnow.com/sitemap.xml
 
 User-agent: Mediapartners-Google
 Allow: /`);
@@ -111,7 +111,7 @@ Allow: /`);
     try {
       const allJobs = await storage.getAllJobs();
 
-      const baseUrl = "https://govtjobsnow.com";
+      const baseUrl = "https://govtjobnow.com";
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -1361,7 +1361,7 @@ Allow: /`);
   // XML Sitemap routes for SEO
   app.get("/sitemap.xml", async (req, res) => {
     try {
-      const baseUrl = "https://govtjobsnow.com";
+      const baseUrl = "https://govtjobnow.com";
       const currentDate = new Date().toISOString();
 
       const sitemap = `<? xml version = "1.0" encoding = "UTF-8" ?>
@@ -1390,7 +1390,7 @@ Allow: /`);
   // Main pages sitemap
   app.get("/sitemap-main.xml", async (req, res) => {
     try {
-      const baseUrl = "https://govtjobsnow.com";
+      const baseUrl = "https://govtjobnow.com";
       const currentDate = new Date().toISOString();
 
       const mainPages = [
@@ -1422,7 +1422,7 @@ ${mainPages.map(page => `  <url>
   // Jobs sitemap (dynamic from database)
   app.get("/sitemap-jobs.xml", async (req, res) => {
     try {
-      const baseUrl = "https://govtjobsnow.com";
+      const baseUrl = "https://govtjobnow.com";
       const result = await storage.searchJobs({ page: 1, limit: 1000 });
 
       const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -1445,7 +1445,7 @@ ${result.jobs.map(job => `  <url>
   // Categories sitemap
   app.get("/sitemap-categories.xml", async (req, res) => {
     try {
-      const baseUrl = "https://govtjobsnow.com";
+      const baseUrl = "https://govtjobnow.com";
       const currentDate = new Date().toISOString();
 
       const categories = [

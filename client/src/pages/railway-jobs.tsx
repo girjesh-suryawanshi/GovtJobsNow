@@ -54,10 +54,10 @@ export default function RailwayJobs() {
   return (
     <div className="min-h-screen bg-gray-50">
       <SEOHead
-        title="Railway Jobs 2025 - Latest Railway Recruitment Board Vacancies | GovtJobsNow"
+        title="Railway Jobs 2025 - Latest Railway Recruitment Board Vacancies | GovtJobNow"
         description="Apply for latest Railway jobs 2025. Find Railway Recruitment Board (RRB) vacancies including RRB NTPC, Group D, JE, ALP, TC, Station Master. Get railway exam dates, eligibility, salary details."
         keywords="railway jobs, railway recruitment board, RRB jobs, RRB NTPC, RRB Group D, RRB JE, RRB ALP, railway vacancy 2025, indian railway jobs, railway exam, RRB notification, railway recruitment 2025"
-        url="https://govtjobsnow.com/jobs/railway"
+        url="https://govtjobnow.com/jobs/railway"
       />
       
       <Header />

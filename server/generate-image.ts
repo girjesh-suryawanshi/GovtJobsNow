@@ -98,7 +98,7 @@ export async function generateFeaturedImage(
 
          <div style="display:flex;justify-content:center;margin-top:20px;">
             <div style="display:flex;font-size:28px;font-weight:bold;color:#ffffff;background:rgba(0,0,0,0.8);padding:15px 40px;border-radius:100px;">
-              GovtJobsNow.com - Official Updates
+              GovtJobNow.com - Official Updates
             </div>
          </div>
       </div>

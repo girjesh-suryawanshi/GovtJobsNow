@@ -177,10 +177,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <SEOHead
-        title="GovtJobsNow - Latest Government Jobs, Sarkari Naukri 2025 | 3900+ Govt Jobs"
+        title="GovtJobNow - Latest Government Jobs, Sarkari Naukri 2025 | 3900+ Govt Jobs"
         description="Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ verified govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU. Apply for central & state government jobs online."
         keywords="government jobs, sarkari naukri, govt jobs 2025, SSC jobs, railway jobs, banking jobs, UPSC jobs, latest govt jobs, central government jobs, state government jobs, sarkari result, govt job portal, indian government jobs, sarkari naukri 2025"
-        url="https://govtjobsnow.com"
+        url="https://govtjobnow.com"
       />
       <Header 
         onScrollToDepartments={handleScrollToDepartments}

@@ -12,7 +12,7 @@ export default function Disclaimer() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Disclaimer</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Important information about the use of GovtJobsNow platform and limitations of our services.
+            Important information about the use of GovtJobNow platform and limitations of our services.
           </p>
           <p className="text-sm text-gray-500 mt-4">Last updated: January 2025</p>
         </div>
@@ -25,7 +25,7 @@ export default function Disclaimer() {
                 <div>
                   <h3 className="font-semibold text-yellow-900 mb-2">Important Notice</h3>
                   <p className="text-yellow-800">
-                    GovtJobsNow is an independent job aggregation platform. We are not affiliated with any government department, recruitment board, or public sector organization. All job information is sourced from publicly available official sources.
+                    GovtJobNow is an independent job aggregation platform. We are not affiliated with any government department, recruitment board, or public sector organization. All job information is sourced from publicly available official sources.
                   </p>
                 </div>
               </div>
@@ -109,7 +109,7 @@ export default function Disclaimer() {
             <CardContent className="space-y-4">
               <ul className="list-disc list-inside text-gray-700 space-y-2">
                 <li>
-                  <strong>No Job Guarantee:</strong> GovtJobsNow does not guarantee employment, interview calls, or selection in any government job or examination.
+                  <strong>No Job Guarantee:</strong> GovtJobNow does not guarantee employment, interview calls, or selection in any government job or examination.
                 </li>
                 <li>
                   <strong>Application Success:</strong> Success in applications depends entirely on individual qualifications, merit, and the selection process of respective government departments.
@@ -197,7 +197,7 @@ export default function Disclaimer() {
                 If you have questions about this disclaimer or need clarification about any aspect of our services:
               </p>
               <div className="bg-white p-4 rounded-lg">
-                <p className="text-gray-700"><strong>Email:</strong> support@govtjobsnow.com</p>
+                <p className="text-gray-700"><strong>Email:</strong> support@govtjobnow.com</p>
                 <p className="text-gray-700"><strong>Phone:</strong> +91 8800-XXX-XXX</p>
                 <p className="text-gray-700">
                   <strong>Address:</strong> Plot No. 123, Sector 15, Gurgaon, Haryana - 122001, India

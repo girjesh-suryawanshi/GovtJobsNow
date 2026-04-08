@@ -39,7 +39,7 @@ export default function InstallPWA() {
         </div>
         
         <div className="flex-1 min-w-0">
-          <h4 className="text-xs md:text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">Install GovtJobsNow</h4>
+          <h4 className="text-xs md:text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter truncate">Install GovtJobNow</h4>
           <p className="text-[9px] md:text-[10px] text-gray-400 font-bold line-clamp-1">Fast access to job alerts & admit cards.</p>
         </div>
         

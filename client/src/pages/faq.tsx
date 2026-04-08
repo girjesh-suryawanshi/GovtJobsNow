@@ -13,7 +13,7 @@ export default function FAQ() {
       color: "bg-blue-100 text-blue-600",
       questions: [
         {
-          question: "How do I search for government jobs on GovtJobsNow?",
+          question: "How do I search for government jobs on GovtJobNow?",
           answer: "You can search for government jobs using our advanced search filters. Use the location, department, qualification, and salary range filters on the homepage to find jobs that match your criteria. You can also browse by specific categories like Banking, Railway, Defense, etc."
         },
         {
@@ -21,12 +21,12 @@ export default function FAQ() {
           answer: "New government job postings are added daily to our platform. We automatically scrape jobs from 25+ official government sources and update our database every 6 hours to ensure you get the latest opportunities."
         },
         {
-          question: "Can I apply directly through GovtJobsNow?",
-          answer: "GovtJobsNow is a job aggregation platform. When you click 'Apply Now' on any job listing, you'll be redirected to the official government website or recruitment portal where you can submit your application directly."
+          question: "Can I apply directly through GovtJobNow?",
+          answer: "GovtJobNow is a job aggregation platform. When you click 'Apply Now' on any job listing, you'll be redirected to the official government website or recruitment portal where you can submit your application directly."
         },
         {
           question: "How do I know if a job posting is genuine?",
-          answer: "All job postings on GovtJobsNow are sourced directly from official government websites and verified recruitment portals. We display the source URL for each job posting so you can verify the authenticity."
+          answer: "All job postings on GovtJobNow are sourced directly from official government websites and verified recruitment portals. We display the source URL for each job posting so you can verify the authenticity."
         }
       ]
     },
@@ -87,15 +87,15 @@ export default function FAQ() {
         },
         {
           question: "I'm not receiving job alert emails. Why?",
-          answer: "Check your spam/junk folder first. Ensure that notifications@govtjobsnow.com is added to your safe sender list. You can also verify your email address in your account settings."
+          answer: "Check your spam/junk folder first. Ensure that notifications@govtjobnow.com is added to your safe sender list. You can also verify your email address in your account settings."
         },
         {
-          question: "Can I access GovtJobsNow on my mobile phone?",
-          answer: "Yes! GovtJobsNow is fully responsive and optimized for mobile devices. You can access all features through your mobile browser. We're also working on a dedicated mobile app."
+          question: "Can I access GovtJobNow on my mobile phone?",
+          answer: "Yes! GovtJobNow is fully responsive and optimized for mobile devices. You can access all features through your mobile browser. We're also working on a dedicated mobile app."
         },
         {
           question: "How do I report a technical issue or bug?",
-          answer: "You can report technical issues through our Contact Us page or email us directly at support@govtjobsnow.com. Please include details about the issue, your browser/device information, and steps to reproduce the problem."
+          answer: "You can report technical issues through our Contact Us page or email us directly at support@govtjobnow.com. Please include details about the issue, your browser/device information, and steps to reproduce the problem."
         }
       ]
     }
@@ -109,7 +109,7 @@ export default function FAQ() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Find answers to common questions about using GovtJobsNow, applying for government jobs, and our platform features.
+            Find answers to common questions about using GovtJobNow, applying for government jobs, and our platform features.
           </p>
         </div>
 
@@ -171,7 +171,7 @@ export default function FAQ() {
                   Contact Support
                 </a>
                 <a
-                  href="mailto:support@govtjobsnow.com"
+                  href="mailto:support@govtjobnow.com"
                   className="inline-flex items-center justify-center rounded-md border border-blue-600 px-6 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors"
                 >
                   Email Us

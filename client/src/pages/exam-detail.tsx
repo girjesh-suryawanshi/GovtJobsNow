@@ -87,9 +87,9 @@ export default function ExamDetail() {
   return (
     <div className="min-h-screen bg-gray-50/50">
       <SEOHead
-        title={`${exam.title} - ${exam.conductingOrganization} | GovtJobsNow Calendar`}
+        title={`${exam.title} - ${exam.conductingOrganization} | GovtJobNow Calendar`}
         description={`Important dates, syllabus, and official notifications for ${exam.title}. Registration ends on ${formatDate(exam.registrationEndDate)}.`}
-        url={`https://govtjobsnow.com/exam/${exam.slug}`}
+        url={`https://govtjobnow.com/exam/${exam.slug}`}
       />
       <Header />
 

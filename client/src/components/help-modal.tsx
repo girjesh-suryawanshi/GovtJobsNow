@@ -99,7 +99,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   ];
 
   const quickLinks = [
-    { label: "Contact Support", icon: Mail, href: "mailto:support@govtjobsnow.com" },
+    { label: "Contact Support", icon: Mail, href: "mailto:support@govtjobnow.com" },
     { label: "Report Issue", icon: MessageCircle, href: "#" },
     { label: "Feature Request", icon: ExternalLink, href: "#" },
     { label: "User Guide", icon: FileText, href: "#" }
@@ -114,7 +114,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
             Help Center
           </DialogTitle>
           <DialogDescription>
-            Find answers to frequently asked questions and get help with using GovtJobsNow
+            Find answers to frequently asked questions and get help with using GovtJobNow
           </DialogDescription>
         </DialogHeader>
         
@@ -228,7 +228,7 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
                 <div>
                   <h3 className="font-semibold text-blue-900">24/7 Support</h3>
                   <p className="text-blue-700 text-sm">
-                    Email: <a href="mailto:support@govtjobsnow.com" className="underline">support@govtjobsnow.com</a>
+                    Email: <a href="mailto:support@govtjobnow.com" className="underline">support@govtjobnow.com</a>
                   </p>
                   <p className="text-blue-700 text-sm">
                     We typically respond within 2-4 hours
