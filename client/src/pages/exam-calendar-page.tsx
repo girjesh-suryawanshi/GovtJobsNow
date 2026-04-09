@@ -81,7 +81,7 @@ function ExamCard({ exam }: ExamCardProps) {
       {/* Top Banner Status */}
       <div className={`h-1 w-full ${regStatus.status === 'open' ? 'bg-emerald-500' : regStatus.status === 'upcoming' ? 'bg-amber-500' : 'bg-slate-300'}`} />
       
-      <CardHeader className="pb-3 pt-5 px-6">
+      <CardHeader className="pb-4 pt-5 px-6">
         <div className="flex justify-between items-start gap-4">
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-2 mb-1">
@@ -100,109 +100,147 @@ function ExamCard({ exam }: ExamCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="px-6 pb-6 space-y-5">
-        {/* Date Timeline Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
-          {/* Exam Date */}
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Calendar className="h-3 w-3" />
-              Exam Date
-            </p>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-slate-800" data-testid="exam-date">
-                {formatDate(exam.examDate)}
-              </span>
-              {examDaysLeft > 0 && (
-                <span className="text-[10px] font-semibold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded w-fit mt-1">
-                  {examDaysLeft} Days Remaining
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Registration Deadline */}
-          <div className="space-y-1 md:border-l md:pl-4 border-slate-200">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Clock className="h-3 w-3" />
-              Registration Deadline
-            </p>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold text-slate-800" data-testid="registration-end">
-                {formatDate(exam.registrationEndDate)}
-              </span>
-              {regEndDays > 0 && regStatus.status === 'open' && (
-                <span className="text-[10px] font-semibold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded w-fit mt-1">
-                  Last {regEndDays} Days
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Secondary Info Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-2 pt-1 border-t border-slate-50 mt-2 py-4">
+      <CardContent className="px-6 pb-6 space-y-4">
+        {/* Main Info List in User Requested Order */}
+        <div className="space-y-3 bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
+          {/* 1. Registration Start Date */}
           {exam.registrationStartDate && (
-            <div className="space-y-0.5">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Starts On</p>
-              <p className="text-xs font-bold text-slate-700">{formatDate(exam.registrationStartDate)}</p>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100/50 last:border-0">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">1. Registration Start</span>
+              <span className="text-sm font-bold text-slate-800">{formatDate(exam.registrationStartDate)}</span>
             </div>
           )}
-          {exam.vacancies && (
-            <div className="space-y-0.5 text-center px-2">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Post Count</p>
-              <p className="text-xs font-bold text-blue-700 truncate">{exam.vacancies}</p>
+          
+          {/* 2. Registration End Date */}
+          {exam.registrationEndDate && (
+            <div className="flex items-center justify-between py-1 border-b border-slate-100/50 last:border-0">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">2. Registration End</span>
+                {regEndDays > 0 && regStatus.status === 'open' && (
+                  <span className="text-[9px] font-bold text-rose-500 uppercase">Closing in {regEndDays} Days</span>
+                )}
+              </div>
+              <span className="text-sm font-bold text-slate-800">{formatDate(exam.registrationEndDate)}</span>
             </div>
           )}
+
+          {/* 3. Exam Date */}
+          {exam.examDate && (
+            <div className="flex items-center justify-between py-1 border-b border-slate-100/50 last:border-0">
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">3. Exam Date</span>
+                {examDaysLeft > 0 && (
+                  <span className="text-[9px] font-bold text-amber-600 uppercase">{examDaysLeft} Days Left</span>
+                )}
+              </div>
+              <span className="text-sm font-black text-blue-700 underline decoration-blue-100 underline-offset-4">{formatDate(exam.examDate)}</span>
+            </div>
+          )}
+
+          {/* 4. Admit Card Release Date */}
           {exam.admitCardDate && (
-            <div className="space-y-0.5 text-right">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Admit Card</p>
-              <p className="text-xs font-bold text-slate-700">{formatDate(exam.admitCardDate)}</p>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100/50 last:border-0">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">4. Admit Card Release</span>
+              <span className="text-sm font-bold text-slate-700">{formatDate(exam.admitCardDate)}</span>
             </div>
           )}
+
+          {/* 5. Results Date (Expected) */}
           {exam.resultsDate && (
-            <div className="space-y-0.5">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Results</p>
-              <p className="text-xs font-bold text-slate-700">{formatDate(exam.resultsDate)}</p>
+            <div className="flex items-center justify-between py-1 border-b border-slate-100/50 last:border-0">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">5. Results (Exp.)</span>
+              <span className="text-sm font-bold text-slate-700">{formatDate(exam.resultsDate)}</span>
+            </div>
+          )}
+
+          {/* 6. Number of Vacancies */}
+          {exam.vacancies && (
+            <div className="flex items-center justify-between py-1 border-b border-slate-100/50 last:border-0">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">6. Vacancies</span>
+              <span className="text-sm font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg">{exam.vacancies}</span>
             </div>
           )}
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-100 pt-5">
-          <Button
-            size="sm"
-            className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-bold h-10 shadow-lg shadow-slate-200 transition-all"
-            onClick={() => window.location.href = `/exam/${exam.slug || exam.id}`}
-          >
-            <Info className="h-4 w-4 mr-2" />
-            Full Details
-          </Button>
-          
-          {exam.officialWebsite && (
+        {/* Official Notifications & Custom Links - Added as requested */}
+        {(((exam.notifications as any[])?.length || 0) > 0 || ((exam.customLinks as any[])?.length || 0) > 0) && (
+          <div className="space-y-4 pt-2 border-t border-slate-100">
+            {((exam.notifications as any[])?.length || 0) > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] flex items-center gap-2">
+                  <FileText className="w-3 h-3" />
+                  Official Documents
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {(exam.notifications as any[]).map((notif, idx) => (
+                    <Button 
+                      key={idx}
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.open(notif.url, '_blank')}
+                      className="h-8 text-[10px] font-bold border-blue-100 text-blue-600 bg-blue-50/30 hover:bg-blue-600 hover:text-white rounded-lg px-3 transition-all"
+                    >
+                      {notif.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {((exam.customLinks as any[])?.length || 0) > 0 && (
+              <div className="space-y-2">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] flex items-center gap-2">
+                  <ExternalLink className="w-3 h-3" />
+                  Helpful Links
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {(exam.customLinks as any[]).map((link, idx) => (
+                    <Button 
+                      key={idx}
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => window.open(link.url, '_blank')}
+                      className="h-8 text-[10px] font-bold border-amber-200 text-amber-700 bg-amber-50/30 hover:bg-amber-600 hover:text-white rounded-lg px-3 transition-all"
+                    >
+                      {link.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 7. Official Website & Actions */}
+        <div className="flex items-center gap-2 pt-2">
+          {exam.officialWebsite ? (
             <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 border-blue-200 text-blue-700 font-bold h-10 hover:bg-blue-50"
+              className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-black h-12 shadow-xl shadow-slate-200 transition-all rounded-xl gap-3"
               onClick={() => window.open(exam.officialWebsite, '_blank')}
             >
-              <Globe className="h-4 w-4 mr-2" />
-              Official Website
+              <Globe className="h-5 w-5" />
+              7. VISIT OFFICIAL WEBSITE
+              <ExternalLink className="h-4 w-4 opacity-50" />
             </Button>
+          ) : (
+            <div className="flex-1 h-12 flex items-center justify-center bg-slate-100 text-slate-400 font-bold rounded-xl text-xs uppercase tracking-widest whitespace-nowrap">
+              No Official URL Provided
+            </div>
           )}
 
           <SocialShare 
             url={`${window.location.origin}/exam/${exam.slug || exam.id}`}
             title={`Official Exam Update: ${exam.title} (${exam.conductingOrganization})`}
             trigger={
-              <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
-                <Share2 className="h-4 w-4" />
+              <Button variant="outline" size="icon" className="h-12 w-12 shrink-0 border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors rounded-xl">
+                <Share2 className="h-5 w-5" />
               </Button>
             }
           />
         </div>
       </CardContent>
     </Card>
+
 
   );
 }
