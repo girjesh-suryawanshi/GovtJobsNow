@@ -113,7 +113,7 @@ export default function ManualExamEntry() {
 
   // Filter exams based on search query
   const filteredExams = useMemo(() => {
-    return exams.filter(exam => 
+    return exams.filter(exam =>
       exam.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (exam.conductingOrganization?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     );
@@ -135,7 +135,7 @@ export default function ManualExamEntry() {
       customLinks: (exam.customLinks as any) || []
     });
     setEditingId(exam.id);
-    
+
     // Scroll to form
     const formElement = document.getElementById("exam-entry-form");
     if (formElement) {
@@ -674,9 +674,9 @@ export default function ManualExamEntry() {
                 <h3 className="text-lg font-bold">Official Notifications (Multiple PDFs/Links) *</h3>
                 <p className="text-sm text-gray-500">Add all official documents, short notices, or external links here.</p>
               </div>
-              <Button 
-                type="button" 
-                size="sm" 
+              <Button
+                type="button"
+                size="sm"
                 variant="outline"
                 onClick={() => handleInputChange("notifications", [...(formData.notifications || []), { label: "Official Notification", url: "", type: 'link' }])}
               >
@@ -700,11 +700,11 @@ export default function ManualExamEntry() {
                   >
                     <X className="h-3 w-3 text-red-500" />
                   </Button>
-                  
+
                   <div className="flex-1">
                     <Label className="text-[10px] uppercase font-bold text-gray-400">Label</Label>
-                    <Input 
-                      placeholder="e.g., Short Notice, Full Guidelines" 
+                    <Input
+                      placeholder="e.g., Short Notice, Full Guidelines"
                       value={notif.label}
                       onChange={(e) => {
                         const newNotifs = [...formData.notifications];
@@ -717,8 +717,8 @@ export default function ManualExamEntry() {
                   <div className="flex-[2] space-y-2">
                     <Label className="text-[10px] uppercase font-bold text-gray-400">URL / File Path</Label>
                     <div className="flex gap-2">
-                      <Input 
-                        placeholder="https://..." 
+                      <Input
+                        placeholder="https://..."
                         value={notif.url}
                         onChange={(e) => {
                           const newNotifs = [...formData.notifications];
@@ -882,12 +882,12 @@ export default function ManualExamEntry() {
               ) : (
                 editingId ? <Save className="h-4 w-4" /> : <PlusCircle className="h-4 w-4" />
               )}
-              {isSubmitting 
-                ? (editingId ? "Updating..." : "Creating...") 
+              {isSubmitting
+                ? (editingId ? "Updating..." : "Creating...")
                 : (editingId ? "Update Exam" : "Create Exam")
               }
             </Button>
-            
+
             {editingId && (
               <Button
                 variant="outline"
@@ -963,7 +963,7 @@ export default function ManualExamEntry() {
                           <Building2 className="h-3 w-3" />
                           {exam.conductingOrganization}
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1">u c
                           <Clock className="h-3 w-3" />
                           Exam: {formatDate(exam.examDate)}
                         </div>
@@ -992,9 +992,9 @@ export default function ManualExamEntry() {
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
                       </Button>
-                      <a 
-                        href={`/exams`} 
-                        target="_blank" 
+                      <a
+                        href={`/exams`}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
                       >

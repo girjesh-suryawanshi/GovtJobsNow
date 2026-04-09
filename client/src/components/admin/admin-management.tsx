@@ -36,8 +36,25 @@ interface Job {
   qualification: string;
   deadline: string;
   postedOn: string;
+  applyLink: string;
+  sourceUrl: string;
+  positions?: string;
   salary?: string;
+  ageLimit?: string;
+  applicationFee?: string;
   description?: string;
+  selectionProcess?: string;
+  experienceRequired?: string;
+  jobCategory?: string;
+  employmentType?: string;
+  recruitingOrganization?: string;
+  applicationStartDate?: string;
+  vacancyBreakdown?: string;
+  notificationFileUrl?: string;
+  featuredImageUrl?: string;
+  prepGuide?: string;
+  syllabus?: string;
+  slug?: string;
 }
 
 export default function AdminManagement() {
@@ -511,9 +528,9 @@ export default function AdminManagement() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {jobs.slice(0, 20).map((job) => (
-                  <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                  {jobs.map((job) => (
+                    <div key={job.id} className="flex items-center justify-between p-4 border rounded-lg bg-white hover:bg-gray-50 transition-colors">
                     <div className="flex-1 space-y-1">
                       <div className="font-medium" data-testid={`text-job-title-${job.id}`}>{job.title}</div>
                       <div className="text-sm text-muted-foreground">
@@ -553,33 +570,29 @@ export default function AdminManagement() {
       {/* Edit Job Modal */}
       {editingJob && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Edit Job Post</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingJob(null)}
-                  data-testid="button-close-edit-modal"
-                >
-                  ×
-                </Button>
-              </div>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-6 border-b flex items-center justify-between shrink-0">
+              <h3 className="text-lg font-semibold">Edit Job Post</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditingJob(null)}
+                data-testid="button-close-edit-modal"
+              >
+                ×
+              </Button>
+            </div>
 
+            <div className="p-6 overflow-y-auto">
               <form
+                id="edit-job-form"
                 onSubmit={(e) => {
                   e.preventDefault();
                   const formData = new FormData(e.target as HTMLFormElement);
-                  const jobData = {
-                    title: formData.get("title") as string,
-                    department: formData.get("department") as string,
-                    location: formData.get("location") as string,
-                    qualification: formData.get("qualification") as string,
-                    deadline: formData.get("deadline") as string,
-                    salary: formData.get("salary") as string || undefined,
-                    description: formData.get("description") as string || undefined,
-                  };
+                  const jobData: Partial<Job> = {};
+                  formData.forEach((value, key) => {
+                    jobData[key as keyof Job] = value as string;
+                  });
                   handleEditJob(jobData);
                 }}
                 className="space-y-4"
@@ -587,111 +600,173 @@ export default function AdminManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="edit-title">Job Title</Label>
-                    <Input
-                      id="edit-title"
-                      name="title"
-                      defaultValue={editingJob.title}
-                      required
-                      data-testid="input-edit-title"
-                    />
+                    <Input id="edit-title" name="title" defaultValue={editingJob.title} required />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="edit-department">Department</Label>
-                    <Input
-                      id="edit-department"
-                      name="department"
-                      defaultValue={editingJob.department}
-                      required
-                      data-testid="input-edit-department"
-                    />
+                    <Label htmlFor="edit-department">Department/Org</Label>
+                    <Input id="edit-department" name="department" defaultValue={editingJob.department} required />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="edit-location">Location</Label>
-                    <Input
-                      id="edit-location"
-                      name="location"
-                      defaultValue={editingJob.location}
-                      required
-                      data-testid="input-edit-location"
-                    />
+                    <Input id="edit-location" name="location" defaultValue={editingJob.location} required />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="edit-deadline">Deadline</Label>
-                    <Input
-                      id="edit-deadline"
-                      name="deadline"
-                      defaultValue={editingJob.deadline}
-                      required
-                      data-testid="input-edit-deadline"
-                    />
+                    <Input id="edit-deadline" name="deadline" defaultValue={editingJob.deadline} required />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="edit-qualification">Qualification</Label>
-                    <Input
-                      id="edit-qualification"
-                      name="qualification"
-                      defaultValue={editingJob.qualification}
-                      required
-                      data-testid="input-edit-qualification"
-                    />
+                    <Input id="edit-qualification" name="qualification" defaultValue={editingJob.qualification} required />
                   </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="edit-salary">Salary (Optional)</Label>
-                    <Input
-                      id="edit-salary"
-                      name="salary"
-                      defaultValue={editingJob.salary || ""}
-                      data-testid="input-edit-salary"
-                    />
+                    <Label htmlFor="edit-experienceRequired">Experience Required</Label>
+                    <Input id="edit-experienceRequired" name="experienceRequired" defaultValue={editingJob.experienceRequired || ""} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-salary">Salary Range</Label>
+                    <Input id="edit-salary" name="salary" defaultValue={editingJob.salary || ""} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-applyLink">Apply Link</Label>
+                    <Input id="edit-applyLink" name="applyLink" defaultValue={editingJob.applyLink} required />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-positions">Positions (Count)</Label>
+                    <Input id="edit-positions" name="positions" defaultValue={editingJob.positions || "1"} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-ageLimit">Age Limit</Label>
+                    <Input id="edit-ageLimit" name="ageLimit" defaultValue={editingJob.ageLimit || ""} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-applicationFee">Application Fee</Label>
+                    <Input id="edit-applicationFee" name="applicationFee" defaultValue={editingJob.applicationFee || ""} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-jobCategory">Job Category</Label>
+                    <Input id="edit-jobCategory" name="jobCategory" defaultValue={editingJob.jobCategory || ""} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-employmentType">Employment Type</Label>
+                    <Input id="edit-employmentType" name="employmentType" defaultValue={editingJob.employmentType || ""} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-applicationStartDate">Start Date</Label>
+                    <Input id="edit-applicationStartDate" name="applicationStartDate" defaultValue={editingJob.applicationStartDate || ""} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-recruitingOrganization">Recruiting Org</Label>
+                    <Input id="edit-recruitingOrganization" name="recruitingOrganization" defaultValue={editingJob.recruitingOrganization || ""} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-featuredImageUrl">Image URL</Label>
+                    <Input id="edit-featuredImageUrl" name="featuredImageUrl" defaultValue={editingJob.featuredImageUrl || ""} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-notificationFileUrl">Notification PDF URL</Label>
+                    <Input id="edit-notificationFileUrl" name="notificationFileUrl" defaultValue={editingJob.notificationFileUrl || ""} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-sourceUrl">Source URL</Label>
+                    <Input id="edit-sourceUrl" name="sourceUrl" defaultValue={editingJob.sourceUrl || ""} />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="edit-description">Description (Optional)</Label>
+                  <Label htmlFor="edit-slug">URL Slug (Optional)</Label>
+                  <Input id="edit-slug" name="slug" defaultValue={editingJob.slug || ""} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-description">Job Description</Label>
                   <textarea
                     id="edit-description"
                     name="description"
-                    className="w-full p-2 border rounded-md"
-                    rows={4}
+                    className="w-full p-2 border rounded-md min-h-[100px]"
                     defaultValue={editingJob.description || ""}
-                    data-testid="input-edit-description"
                   />
                 </div>
 
-                <div className="flex gap-4 justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setEditingJob(null)}
-                    data-testid="button-cancel-edit"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    data-testid="button-save-edit"
-                  >
-                    {isLoading ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Changes"
-                    )}
-                  </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-selectionProcess">Selection Process</Label>
+                  <textarea
+                    id="edit-selectionProcess"
+                    name="selectionProcess"
+                    className="w-full p-2 border rounded-md"
+                    defaultValue={editingJob.selectionProcess || ""}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-prepGuide">Preparation Guide</Label>
+                  <textarea
+                    id="edit-prepGuide"
+                    name="prepGuide"
+                    className="w-full p-2 border rounded-md"
+                    defaultValue={editingJob.prepGuide || ""}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-syllabus">Exam Syllabus</Label>
+                  <textarea
+                    id="edit-syllabus"
+                    name="syllabus"
+                    className="w-full p-2 border rounded-md"
+                    defaultValue={editingJob.syllabus || ""}
+                  />
                 </div>
               </form>
+            </div>
+            
+            <div className="p-6 border-t bg-gray-50 flex gap-4 justify-end shrink-0 rounded-b-lg">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingJob(null)}
+                data-testid="button-cancel-edit"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form="edit-job-form"
+                disabled={isLoading}
+                data-testid="button-save-edit"
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
             </div>
           </div>
         </div>
