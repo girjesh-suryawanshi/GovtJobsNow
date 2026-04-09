@@ -151,6 +151,13 @@ Allow: /`);
         processedQuery.limit = parseInt(processedQuery.limit);
       }
 
+      // Remove empty strings or "null"/"undefined" strings to prevent Zod validation errors on enums
+      Object.keys(processedQuery).forEach(key => {
+        if (processedQuery[key] === "" || processedQuery[key] === "null" || processedQuery[key] === "undefined") {
+          delete processedQuery[key];
+        }
+      });
+
       const params = searchJobsSchema.parse(processedQuery);
       const result = await storage.searchJobs(params);
       res.json(result);

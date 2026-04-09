@@ -305,7 +305,9 @@ export class DatabaseStorage implements IStorage {
     const [depts] = await db.select({ count: sql<number>`count(distinct ${jobs.department})` }).from(jobs);
     
     // Sum vacancies (application estimates)
-    const [vacancies] = await db.select({ sum: sql<number>`sum(coalesce(${jobs.positions}, 1))` }).from(jobs);
+    const [vacancies] = await db.select({ 
+      sum: sql<number>`sum(coalesce(nullif(${jobs.positions}, '')::integer, 1))` 
+    }).from(jobs);
     
     return { 
       totalJobs: Number(total.count), 

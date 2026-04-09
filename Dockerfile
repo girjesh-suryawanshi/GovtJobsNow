@@ -41,6 +41,7 @@ COPY --from=builder /app/dist ./dist
 # Copy drizzle config and schema files needed for database migrations
 COPY --from=builder /app/drizzle.config.ts ./
 COPY --from=builder /app/shared ./shared
+COPY --from=builder /app/uploads/fonts ./uploads/fonts
 
 # Change ownership to nodejs user
 RUN chown -R nodejs:nodejs /app
