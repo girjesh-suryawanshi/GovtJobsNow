@@ -16,7 +16,7 @@ function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
-// Vite-free static serving function
+// Vite-free static serving function with Dynamic OG Metadata Injection
 function serveStatic(app: express.Express) {
   const distPath = path.resolve(import.meta.dirname, "public");
 
@@ -26,10 +26,79 @@ function serveStatic(app: express.Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Helper to inject SEO metadata into index.html
+  const injectMetadata = async (req: Request, res: Response) => {
+    const indexPath = path.resolve(distPath, "index.html");
+    if (!fs.existsSync(indexPath)) return res.sendFile(indexPath);
 
-  // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+    try {
+      let html = fs.readFileSync(indexPath, "utf8");
+      const urlPath = req.path;
+      const baseUrl = process.env.BASE_URL || `https://${req.get('host')}`;
+      
+      let title = "GovtJobsNow - Official Job Portal";
+      let description = "Find the latest government jobs, exam calendars, syllabus, and admit cards.";
+      let image = `${baseUrl}/logo.png`;
+      let pageUrl = `${baseUrl}${urlPath}`;
+
+      // Handle Job Detail Pages
+      if (urlPath.startsWith("/job/")) {
+        const slug = urlPath.replace("/job/", "");
+        const { storage } = await import("./storage");
+        const job = await storage.getJob(slug) || await storage.getJobBySlug(slug);
+        
+        if (job) {
+          title = `${job.title} | ${job.department} - GovtJobNow`;
+          description = job.description?.substring(0, 160) || `Apply for ${job.title} at ${job.department}. Check eligibility, salary, and last date here.`;
+          if (job.featuredImageUrl) {
+            image = job.featuredImageUrl.startsWith("http") ? job.featuredImageUrl : `${baseUrl}${job.featuredImageUrl}`;
+          }
+        }
+      } 
+      // Handle Exam Detail Pages
+      else if (urlPath.startsWith("/exam/")) {
+        const slug = urlPath.replace("/exam/", "");
+        const { storage } = await import("./storage");
+        const exam = await storage.getExam(slug) || await storage.getExamBySlug(slug);
+        
+        if (exam) {
+          title = `${exam.title} - Exam Calendar | GovtJobNow`;
+          description = `Important dates and details for ${exam.title}. Registration ends on ${exam.registrationEndDate || 'TBA'}.`;
+        }
+      }
+
+      // Replace Meta Tags
+      html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`);
+      html = html.replace(/<meta name="description" content=".*?" \/>/, `<meta name="description" content="${description}" />`);
+      
+      // Inject OG Tags
+      const ogTags = `
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:image" content="${image}" />
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${image}" />`;
+      
+      html = html.replace("</head>", `${ogTags}\n  </head>`);
+      
+      res.send(html);
+    } catch (error) {
+      console.error("Metadata injection error:", error);
+      res.sendFile(indexPath);
+    }
+  };
+
+  app.use(express.static(distPath, { index: false }));
+
+  // Handle Dynamic Routes for Metadata
+  app.get(["/job/*", "/exam/*"], injectMetadata);
+
+  // Fallback for all other routes
+  app.use("*", (req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
