@@ -699,71 +699,63 @@ Allow: /`);
     }
   });
 
-  // Gemini AI Exam Extraction
+  // AI Exam Extraction (Supports Groq/Gemini)
   app.post("/api/admin/extract-exam", async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-    const { rawText } = req.body;
+  
+    const { rawText, provider } = req.body;
     if (!rawText) return res.status(400).json({ message: "Raw text is required" });
-
+  
     try {
       const { generateText } = await import("./gemini");
       const prompt = `Extract exam details from the following text and return ONLY a JSON object compatible with the following schema.
       For fields with specific options, you MUST choose the closest matching option from the allowed list. If no exact match or the data is missing, return an empty string "" (never return null).
       
       ALLOWED OPTIONS:
-      - examMode: "Online", "Offline", "Both"
-      - dates (registrationStartDate, registrationEndDate, examDate, admitCardDate, resultsDate): Must strictly be in YYYY-MM-DD format.
-
+      - dates (registrationStartDate, registrationEndDate, examDate, admitCardDate, resultsDate): MUST strictly be in YYYY-MM-DD format if available, otherwise return "".
+  
       CRITICAL SEO INSTRUCTION:
-      The "title" and "syllabus" fields must NOT be exact copy-pastes from the source text. You must REWRITE them to be highly attractive and 100% unique human-written content to avoid Google SEO duplicate content penalties.
+      The "title" field must NOT be an exact copy-paste from the source text. You must REWRITE it to be highly attractive, professional, and 100% unique human-written content to avoid Google SEO penalties.
       - "title": Create a catchy, clear, and professional exam title.
-      - "syllabus": Write a comprehensive, highly engaging, and original summary of the exam syllabus, topics, and structure in easy-to-read paragraphs.
       
       SCHEMA:
       {
         "title": "Rewritten SEO Exam Title",
-        "conductingOrganization": "Organization Name",
+        "conductingOrganization": "Organization Name (e.g., SSC, UPSC, IBPS)",
         "registrationStartDate": "YYYY-MM-DD",
         "registrationEndDate": "YYYY-MM-DD",
         "examDate": "YYYY-MM-DD",
         "admitCardDate": "YYYY-MM-DD",
         "resultsDate": "YYYY-MM-DD",
-        "examMode": "Mode (Must be from allowed options)",
-        "applicationFee": "Fee Details",
-        "eligibility": "Eligibility Criteria",
-        "ageLimit": "Age Limit Details (e.g., 18-30 years)",
         "vacancies": "Number of Vacancies (e.g., 1500 posts)",
-        "officialWebsite": "https://example.com/apply",
-        "syllabus": "Comprehensive syllabus summary",
-        "examBrief": "Merge technical details like duration, total marks, and exam pattern here into a cohesive, attractive summary."
+        "officialWebsite": "https://example.com/apply"
       }
       
       DATE HANDLING: 
-      - If a specific date (like admitCardDate or resultsDate) is not explicitly found but a general timeframe is mentioned (e.g., 'May 2025' or 'Tentative'), provide the best estimation in YYYY-MM-DD format (e.g., '2025-05-01').
+      - If a specific date is not explicitly found but a general timeframe is mentioned (e.g., 'May 2025' or 'Tentative'), provide the best estimation in YYYY-MM-DD format (e.g., '2025-05-01').
       - If no estimation is possible, return an empty string "".
-
+  
       Text: ${rawText}`;
-
-      const response = await generateText(prompt);
+  
+      const response = await generateText(prompt, provider || "groq");
       // Robust JSON cleaning to strip markdown and conversational text
       const match = response.match(/\{[\s\S]*\}/);
       if (!match) {
         throw new Error("No JSON object found in response");
       }
       const jsonStr = match[0];
-
+  
       const parsedData = JSON.parse(jsonStr);
       // Clean nulls to empty strings for UI components
       for (const key in parsedData) {
         if (parsedData[key] === null) parsedData[key] = "";
         if (typeof parsedData[key] === "number") parsedData[key] = parsedData[key].toString();
       }
-
+  
       res.json(parsedData);
     } catch (error) {
-      console.error("Gemini extraction error:", error);
+      console.error("Exam extraction error:", error);
       res.status(500).json({ message: "Failed to extract exam data" });
     }
   });

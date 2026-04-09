@@ -23,34 +23,52 @@ interface ExamCardProps {
 }
 
 function ExamCard({ exam }: ExamCardProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return "TBA";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return as is if not a valid date string
+      return date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (e) {
+      return dateString;
+    }
   };
 
-  const getDaysUntil = (dateString: string) => {
-    const targetDate = new Date(dateString);
-    const today = new Date();
-    const diffTime = targetDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
+  const getDaysUntil = (dateString: string | undefined | null) => {
+    if (!dateString) return 0;
+    try {
+      const targetDate = new Date(dateString);
+      if (isNaN(targetDate.getTime())) return 0;
+      const today = new Date();
+      const diffTime = targetDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays;
+    } catch (e) {
+      return 0;
+    }
   };
 
-  const getRegistrationStatus = (startDate: string, endDate: string) => {
-    const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+  const getRegistrationStatus = (startDate: string | undefined | null, endDate: string | undefined | null) => {
+    if (!startDate || !endDate) return { status: 'unknown', text: 'Check Dates', color: 'bg-slate-50 text-slate-500 border-slate-100' };
+    
+    try {
+      const now = new Date();
+      const start = new Date(startDate);
+      const end = new Date(endDate);
 
-    if (now < start) {
-      return { status: 'upcoming', text: 'Opening Soon', color: 'bg-amber-50 text-amber-700 border-amber-100' };
-    } else if (now >= start && now <= end) {
-      return { status: 'open', text: 'Register Now', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
-    } else {
-      return { status: 'closed', text: 'Closed', color: 'bg-slate-50 text-slate-500 border-slate-100' };
+      if (now < start) {
+        return { status: 'upcoming', text: 'Opening Soon', color: 'bg-amber-50 text-amber-700 border-amber-100' };
+      } else if (now >= start && now <= end) {
+        return { status: 'open', text: 'Register Now', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' };
+      } else {
+        return { status: 'closed', text: 'Closed', color: 'bg-slate-50 text-slate-500 border-slate-100' };
+      }
+    } catch (e) {
+      return { status: 'unknown', text: 'Check Dates', color: 'bg-slate-50 text-slate-500 border-slate-100' };
     }
   };
 
@@ -67,9 +85,6 @@ function ExamCard({ exam }: ExamCardProps) {
         <div className="flex justify-between items-start gap-4">
           <div className="space-y-1.5 flex-1">
             <div className="flex items-center gap-2 mb-1">
-               <Badge variant="outline" className="font-semibold text-[10px] uppercase tracking-wider py-0 px-2 h-5 bg-blue-50 text-blue-700 border-blue-100">
-                {exam.examMode || "Government Exam"}
-              </Badge>
               <Badge className={`${regStatus.color} font-bold text-[10px] uppercase tracking-wider h-5 py-0 px-2`} data-testid="registration-status">
                 {regStatus.text}
               </Badge>
@@ -87,7 +102,8 @@ function ExamCard({ exam }: ExamCardProps) {
 
       <CardContent className="px-6 pb-6 space-y-5">
         {/* Date Timeline Style */}
-        <div className="grid grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+          {/* Exam Date */}
           <div className="space-y-1">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
               <Calendar className="h-3 w-3" />
@@ -105,10 +121,11 @@ function ExamCard({ exam }: ExamCardProps) {
             </div>
           </div>
 
-          <div className="space-y-1 border-l pl-4 border-slate-200">
+          {/* Registration Deadline */}
+          <div className="space-y-1 md:border-l md:pl-4 border-slate-200">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
               <Clock className="h-3 w-3" />
-              Deadline
+              Registration Deadline
             </p>
             <div className="flex flex-col">
               <span className="text-sm font-bold text-slate-800" data-testid="registration-end">
@@ -123,97 +140,70 @@ function ExamCard({ exam }: ExamCardProps) {
           </div>
         </div>
 
-        {/* Highlight Stats */}
-        <div className="flex flex-wrap gap-2 pt-1">
-          {exam.ageLimit && (
-            <div className="flex items-center gap-1.5 bg-indigo-50/50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-bold border border-indigo-100">
-              <Users className="h-3 w-3" />
-              Age: {exam.ageLimit}
+        {/* Secondary Info Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-2 pt-1 border-t border-slate-50 mt-2 py-4">
+          {exam.registrationStartDate && (
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Starts On</p>
+              <p className="text-xs font-bold text-slate-700">{formatDate(exam.registrationStartDate)}</p>
             </div>
           )}
           {exam.vacancies && (
-            <div className="flex items-center gap-1.5 bg-sky-50/50 text-sky-700 px-3 py-1.5 rounded-full text-xs font-bold border border-sky-100">
-              <PlusCircle className="h-3 w-3" />
-              {exam.vacancies}
+            <div className="space-y-0.5 text-center px-2">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Post Count</p>
+              <p className="text-xs font-bold text-blue-700 truncate">{exam.vacancies}</p>
             </div>
           )}
-          {exam.applicationFee && (
-            <div className="flex items-center gap-1.5 bg-emerald-50/50 text-emerald-700 px-3 py-1.5 rounded-full text-xs font-bold border border-emerald-100">
-              <FileText className="h-3 w-3" />
-              Fee: {exam.applicationFee.includes("₹") ? exam.applicationFee : `₹${exam.applicationFee}`}
+          {exam.admitCardDate && (
+            <div className="space-y-0.5 text-right">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Admit Card</p>
+              <p className="text-xs font-bold text-slate-700">{formatDate(exam.admitCardDate)}</p>
+            </div>
+          )}
+          {exam.resultsDate && (
+            <div className="space-y-0.5">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Results</p>
+              <p className="text-xs font-bold text-slate-700">{formatDate(exam.resultsDate)}</p>
             </div>
           )}
         </div>
 
-        {/* Summary Snippet */}
-        {exam.examBrief && (
-          <div className="relative group/brief">
-            <div className="absolute -left-3 top-0 bottom-0 w-1 bg-blue-100 rounded-full group-hover/brief:bg-blue-400 transition-colors" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Exam Pattern & Summary</p>
-            <p className="text-sm text-slate-600 leading-relaxed line-clamp-2 italic">
-              "{exam.examBrief}"
-            </p>
-          </div>
-        )}
-
         {/* Actions */}
-        <div className="flex gap-2 pt-2 border-t border-slate-100 pt-5">
+        <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-slate-100 pt-5">
           <Button
             size="sm"
             className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-bold h-10 shadow-lg shadow-slate-200 transition-all"
             onClick={() => window.location.href = `/exam/${exam.slug || exam.id}`}
-            data-testid="visit-website"
           >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            View Full Details
+            <Info className="h-4 w-4 mr-2" />
+            Full Details
           </Button>
+          
+          {exam.officialWebsite && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1 border-blue-200 text-blue-700 font-bold h-10 hover:bg-blue-50"
+              onClick={() => window.open(exam.officialWebsite, '_blank')}
+            >
+              <Globe className="h-4 w-4 mr-2" />
+              Official Website
+            </Button>
+          )}
+
           <SocialShare 
             url={`${window.location.origin}/exam/${exam.slug || exam.id}`}
             title={`Official Exam Update: ${exam.title} (${exam.conductingOrganization})`}
             trigger={
-              <Button variant="outline" size="icon" className="h-10 w-10 border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+              <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 border-slate-200 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                 <Share2 className="h-4 w-4" />
               </Button>
             }
           />
-          {exam.syllabus && (
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="h-10 border-slate-200 text-slate-600 font-bold hover:bg-slate-50 px-4" data-testid="view-syllabus">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Syllabus
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl p-0 overflow-hidden rounded-2xl border-none">
-                <div className="bg-slate-900 p-8 text-white relative">
-                  <BookOpen className="h-16 w-16 text-white/10 absolute right-8 top-8" />
-                  <DialogHeader className="relative z-10">
-                    <DialogTitle className="text-3xl font-black mb-2">{exam.title}</DialogTitle>
-                    <DialogDescription className="text-blue-300 font-bold uppercase tracking-widest text-xs">
-                      {exam.conductingOrganization} • Official Syllabus Content
-                    </DialogDescription>
-                  </DialogHeader>
-                </div>
-                <div className="p-8 max-h-[60vh] overflow-y-auto bg-white">
-                  <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-wrap font-medium text-base">
-                    {exam.syllabus}
-                  </div>
-                </div>
-                <div className="p-6 bg-slate-50 border-t flex justify-end">
-                   <Button 
-                    onClick={() => exam.officialWebsite && window.open(exam.officialWebsite, '_blank')} 
-                    className="bg-blue-600 font-bold"
-                    disabled={!exam.officialWebsite}
-                   >
-                    Visit Official Site
-                   </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
         </div>
       </CardContent>
     </Card>
+
   );
 }
 
@@ -306,7 +296,7 @@ export default function ExamCalendarPage() {
             Government <span className="text-blue-600">Exam Calendar</span>
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
-            The most reliable source for Indian government exam dates, registration deadlines, and syllabus information.
+            The most reliable source for Indian government exam dates, registration deadlines, and official notifications.
           </p>
           <div className="h-1.5 w-24 bg-blue-600 mx-auto rounded-full" />
         </div>

@@ -116,9 +116,6 @@ export default function ExamDetail() {
             <div className="flex flex-col lg:flex-row justify-between items-start gap-8">
               <div className="flex-1 space-y-6">
                 <div className="flex flex-wrap gap-2">
-                  <Badge className="bg-blue-600 text-white font-black text-[10px] uppercase px-3 py-1 rounded-lg">
-                    {exam.examMode || "General Exam"}
-                  </Badge>
                   {isFutureDate(exam.examDate) && (
                     <Badge className="bg-green-50 text-green-700 border-green-100 font-black text-[10px] uppercase px-3 py-1 rounded-lg flex items-center gap-1.5">
                       <Timer className="h-3 w-3" /> Upcoming Exam
@@ -166,7 +163,7 @@ export default function ExamDetail() {
                 <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
                   <Calendar className="h-7 w-7 text-blue-600" /> Exam Timeline
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <Card className="rounded-2xl border-none bg-blue-50/50 shadow-none p-5">
                     <p className="text-[10px] font-black uppercase text-blue-400 tracking-widest mb-1">Registration</p>
                     <p className="font-bold text-gray-900 text-sm">
@@ -181,68 +178,15 @@ export default function ExamDetail() {
                     <p className="text-[10px] font-black uppercase text-red-400 tracking-widest mb-1">Exam Date</p>
                     <p className="font-bold text-red-700 text-sm">{formatDate(exam.examDate)}</p>
                   </Card>
+                  <Card className="rounded-2xl border-none bg-green-50/50 shadow-none p-5">
+                    <p className="text-[10px] font-black uppercase text-green-400 tracking-widest mb-1">Results (Exp.)</p>
+                    <p className="font-bold text-gray-900 text-sm">{formatDate(exam.resultsDate || "")}</p>
+                  </Card>
                 </div>
               </section>
 
-              {/* Exam Brief */}
-              {exam.examBrief && (
-                <section className="relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-indigo-50/30 -z-10 rounded-[2.5rem]" />
-                  <div className="bg-white/40 backdrop-blur-sm p-8 md:p-10 rounded-[2.5rem] border border-blue-100/50 shadow-sm relative group transition-all hover:shadow-md hover:bg-white/60">
-                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500">
-                      <Sparkles className="h-24 w-24 text-blue-600" />
-                    </div>
-                    
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-                      <div className="space-y-1">
-                        <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-                          <Info className="h-8 w-8 text-blue-600" /> Exam Overview & Guide
-                        </h3>
-                        <p className="text-sm font-bold text-blue-400 uppercase tracking-widest pl-11">Key Information & Highlights</p>
-                      </div>
-                      <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-2xl text-xs font-black uppercase tracking-widest border border-blue-100 shadow-sm">
-                        <ShieldCheck className="h-4 w-4" /> Verified Brief
-                      </div>
-                    </div>
-
-                    <div className="bg-white/80 p-6 rounded-3xl border border-blue-50 shadow-inner relative z-10">
-                      <div className="prose prose-blue max-w-none">
-                        <div className="text-gray-700 leading-relaxed whitespace-pre-wrap font-medium text-base first-letter:text-3xl first-letter:font-black first-letter:text-blue-600 first-letter:mr-1">
-                          {exam.examBrief}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <Badge className="bg-blue-100/50 text-blue-700 hover:bg-blue-100 border-blue-200/50 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
-                        Official Overview
-                      </Badge>
-                      <Badge className="bg-indigo-100/50 text-indigo-700 hover:bg-indigo-100 border-indigo-200/50 px-4 py-1.5 rounded-xl font-bold text-[10px] uppercase tracking-wider">
-                        Exam Highlights
-                      </Badge>
-                    </div>
-                  </div>
-                </section>
-              )}
-
-              {/* Eligibility & Quick Facts */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <section className="space-y-6 p-8 bg-blue-50/30 rounded-[2rem] border border-blue-100/50">
-                  <h3 className="text-lg font-black text-gray-900 flex items-center justify-center md:justify-start gap-2">
-                    <Target className="h-5 w-5 text-blue-600" /> Eligibility
-                  </h3>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Education</p>
-                      <p className="text-sm font-bold text-gray-900">{exam.eligibility || "Refer to notification"}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Age Limit</p>
-                      <p className="text-sm font-bold text-gray-900">{exam.ageLimit || "As per rules"}</p>
-                    </div>
-                  </div>
-                </section>
-
+              {/* Vacancies & Quick Facts */}
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
                 <section className="space-y-6 p-8 bg-orange-50/30 rounded-[2rem] border border-orange-100/50">
                   <h3 className="text-lg font-black text-gray-900 flex items-center justify-center md:justify-start gap-2">
                     <Sparkles className="h-5 w-5 text-orange-600" /> Key Features
@@ -252,28 +196,9 @@ export default function ExamDetail() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Total Vacancies</p>
                       <p className="text-sm font-bold text-gray-900">{exam.vacancies || "Consult notification"}</p>
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Exam Mode</p>
-                      <p className="text-sm font-bold text-gray-900">{exam.examMode}</p>
-                    </div>
                   </div>
                 </section>
               </div>
-
-              {/* Syllabus Breakdown */}
-              {exam.syllabus && (
-                <section className="bg-purple-600 p-8 md:p-12 rounded-[2.5rem] text-white relative shadow-2xl shadow-purple-200 overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-125 transition-transform duration-700">
-                    <BookOpen className="h-32 w-32" />
-                  </div>
-                  <h3 className="text-2xl font-black mb-8 flex items-center justify-center md:justify-start gap-3">
-                    <Sparkles className="h-8 w-8 text-yellow-300" /> Official Syllabus & Pattern
-                  </h3>
-                  <div className="prose prose-invert max-w-none text-purple-50 leading-relaxed font-bold italic whitespace-pre-wrap">
-                    {exam.syllabus}
-                  </div>
-                </section>
-              )}
 
               {/* Notifications Table-style links */}
               {notifications.length > 0 && (
@@ -386,14 +311,13 @@ export default function ExamDetail() {
                       <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">Official Portal</p>
                       <a href={exam.officialWebsite || "#"} target="_blank" rel="noopener noreferrer" className="block w-full">
                         <Button
-            size="sm"
-            className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-bold h-10 shadow-lg shadow-slate-200 transition-all"
-            onClick={() => window.location.href = `/exam/${exam.slug || exam.id}`}
-            data-testid="visit-website"
-          >
-            <ExternalLink className="h-4 w-4 mr-2" />
-            View Full Details
-          </Button>
+                          size="sm"
+                          className="w-full bg-slate-900 hover:bg-blue-700 text-white font-bold h-10 shadow-lg shadow-slate-200 transition-all"
+                          data-testid="visit-website"
+                        >
+                          <Globe className="h-4 w-4 mr-2" />
+                          Visit Official Website
+                        </Button>
                       </a>
                     </div>
 

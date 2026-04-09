@@ -38,47 +38,27 @@ const examTemplates = {
   ssc: {
     title: "SSC [Exam Name] 2025",
     conductingOrganization: "Staff Selection Commission",
-    eligibility: "Graduate Degree from recognized university",
-    applicationFee: "₹100 (General/OBC), No fee for SC/ST/EWS",
-    officialWebsite: "https://ssc.nic.in",
-    examMode: "Online",
-    examBrief: "Tier-I: 100 Qs, 200 Marks, 60 min. Tier-II: 150 Qs, 450 Marks, 150 min. Negative marking applies."
+    officialWebsite: "https://ssc.nic.in"
   },
   upsc: {
     title: "UPSC [Exam Name] 2025",
     conductingOrganization: "Union Public Service Commission",
-    eligibility: "Graduate Degree from recognized university",
-    applicationFee: "₹25 (General/OBC), No fee for SC/ST/PH/EWS/ESM",
-    officialWebsite: "https://upsc.gov.in",
-    examMode: "Offline",
-    examBrief: "Preliminary (Obj), Main (Written), Interview. Total 2025 Marks."
+    officialWebsite: "https://upsc.gov.in"
   },
   ibps: {
     title: "IBPS [Exam Name] 2025",
     conductingOrganization: "Institute of Banking Personnel Selection",
-    eligibility: "Graduate Degree in any discipline",
-    applicationFee: "₹175 (SC/ST/PH), ₹850 (Others)",
-    officialWebsite: "https://ibps.in",
-    examMode: "Online",
-    examBrief: "Prelims (Obj), Mains (Obj/Desc), Interview. Time: 60/180 min."
+    officialWebsite: "https://ibps.in"
   },
   sbi: {
     title: "SBI [Exam Name] 2025",
     conductingOrganization: "State Bank of India",
-    eligibility: "Graduate in any discipline with minimum 60% marks",
-    applicationFee: "₹750 (General/EWS/OBC), No fee for SC/ST/PH",
-    officialWebsite: "https://sbi.co.in/careers",
-    examMode: "Online",
-    examBrief: "Prelims, Mains, GD/Interview. Sectional timing applies."
+    officialWebsite: "https://sbi.co.in/careers"
   },
   railway: {
     title: "Railway [Exam Name] 2025",
     conductingOrganization: "Railway Recruitment Board",
-    eligibility: "10th/12th/ITI/Graduate as per post requirement",
-    applicationFee: "₹500 (General/OBC), ₹250 (SC/ST)",
-    officialWebsite: "https://rrbcdg.gov.in",
-    examMode: "Online",
-    examBrief: "Single or Dual Stage CBT followed by PET/PST. Duration: 90/120 min."
+    officialWebsite: "https://rrbcdg.gov.in"
   }
 };
 
@@ -88,16 +68,10 @@ interface ExamFormData {
   examDate: string;
   registrationStartDate: string;
   registrationEndDate: string;
-  applicationFee: string;
-  eligibility: string;
-  ageLimit: string;
   vacancies: string;
   officialWebsite: string;
   resultsDate: string;
   admitCardDate: string;
-  syllabus: string;
-  examMode: string;
-  examBrief: string;
   slug: string;
   notifications: Array<{ label: string; url: string; type: 'file' | 'link' }>;
   customLinks: Array<{ label: string; url: string }>;
@@ -110,21 +84,16 @@ export default function ManualExamEntry() {
     examDate: "",
     registrationStartDate: "",
     registrationEndDate: "",
-    applicationFee: "",
-    eligibility: "",
-    ageLimit: "",
     vacancies: "",
     officialWebsite: "",
     resultsDate: "",
     admitCardDate: "",
-    syllabus: "",
-    examMode: "",
-    examBrief: "",
     slug: "",
     notifications: [],
     customLinks: []
   });
 
+  const [aiProvider, setAiProvider] = useState<"groq" | "gemini">("groq");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [isExtracting, setIsExtracting] = useState(false);
@@ -154,19 +123,13 @@ export default function ManualExamEntry() {
     setFormData({
       title: exam.title,
       conductingOrganization: exam.conductingOrganization || "",
-      examDate: exam.examDate,
-      registrationStartDate: exam.registrationStartDate,
-      registrationEndDate: exam.registrationEndDate,
-      applicationFee: exam.applicationFee || "",
-      eligibility: exam.eligibility || "",
-      ageLimit: exam.ageLimit || "",
+      examDate: exam.examDate || "",
+      registrationStartDate: exam.registrationStartDate || "",
+      registrationEndDate: exam.registrationEndDate || "",
       vacancies: exam.vacancies || "",
       officialWebsite: exam.officialWebsite || "",
       resultsDate: exam.resultsDate || "",
       admitCardDate: exam.admitCardDate || "",
-      syllabus: exam.syllabus || "",
-      examMode: exam.examMode || "",
-      examBrief: exam.examBrief || "",
       slug: exam.slug || "",
       notifications: (exam.notifications as any) || [],
       customLinks: (exam.customLinks as any) || []
@@ -233,7 +196,7 @@ export default function ManualExamEntry() {
       const { text } = await scrapeResponse.json();
       setRawText(text); // Plug text into the textarea so the admin can verify what the bot saw
 
-      toast({ title: "Scraping Complete", description: "Running AI extraction now...", duration: 2000 });
+      toast({ title: "Scraping Complete", description: `Running ${aiProvider.toUpperCase()} extraction now...`, duration: 2000 });
 
       // 2. Feed scraped text directly into the AI Extraction endpoint
       setIsExtracting(true);
@@ -243,7 +206,7 @@ export default function ManualExamEntry() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rawText: text }),
+        body: JSON.stringify({ rawText: text, provider: aiProvider }),
       });
 
       if (extractResponse.ok) {
@@ -254,7 +217,7 @@ export default function ManualExamEntry() {
           officialWebsite: scrapeUrl,
           customLinks: data.customLinks || []
         }));
-        toast({ title: "Pipeline Successful", description: "URL Scraped and Exam details organized automatically. Please review carefully." });
+        toast({ title: "Pipeline Successful", description: `URL Scraped and Exam details organized by ${aiProvider.toUpperCase()}.` });
       } else {
         throw new Error("Failed to extract data from scraped text");
       }
@@ -282,13 +245,13 @@ export default function ManualExamEntry() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ rawText }),
+        body: JSON.stringify({ rawText, provider: aiProvider }),
       });
 
       if (response.ok) {
         const data = await response.json();
         setFormData(prev => ({ ...prev, ...data, customLinks: data.customLinks || [] }));
-        toast({ title: "Extraction Successful", description: "Exam details have been organized. Please review before publishing." });
+        toast({ title: "Extraction Successful", description: `Organized by ${aiProvider.toUpperCase()}. Please review.` });
       } else {
         throw new Error("Failed to extract");
       }
@@ -342,16 +305,10 @@ export default function ManualExamEntry() {
       examDate: "",
       registrationStartDate: "",
       registrationEndDate: "",
-      applicationFee: "",
-      eligibility: "",
-      ageLimit: "",
       vacancies: "",
       officialWebsite: "",
       resultsDate: "",
       admitCardDate: "",
-      syllabus: "",
-      examMode: "",
-      examBrief: "",
       slug: "",
       notifications: [],
       customLinks: []
@@ -363,14 +320,12 @@ export default function ManualExamEntry() {
   };
 
   const handleSubmit = async () => {
-    // Basic validation
-    if (!formData.title || !formData.conductingOrganization || !formData.examDate ||
-      !formData.registrationStartDate || !formData.registrationEndDate ||
-      !formData.eligibility || !formData.officialWebsite) {
+    // Basic validation - Dates are now optional based on user request
+    if (!formData.title || !formData.conductingOrganization || !formData.officialWebsite) {
       toast({
         variant: "destructive",
         title: "Missing Required Fields",
-        description: "Please fill in all required fields marked with *"
+        description: "Please fill in title, organization and official website URL."
       });
       return;
     }
@@ -446,14 +401,37 @@ export default function ManualExamEntry() {
     <div className="space-y-6">
       {/* AI Extraction Section */}
       <Card className="border-purple-200 bg-purple-50/30">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-purple-600" />
-            AI Smart Extraction
-          </CardTitle>
-          <CardDescription>
-            Paste raw exam details or notification text below. Gemini will extract and organize it into the form.
-          </CardDescription>
+        <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              AI Smart Extraction
+            </CardTitle>
+            <CardDescription>
+              Paste details or notification URL. AI will organize it automatically.
+            </CardDescription>
+          </div>
+          <div className="flex items-center gap-2 bg-white/50 p-1.5 rounded-lg border border-purple-100 shadow-sm">
+            <span className="text-[10px] uppercase font-bold text-purple-400 px-2">Provider:</span>
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                variant={aiProvider === "groq" ? "default" : "ghost"}
+                className={aiProvider === "groq" ? "bg-purple-600 h-7 text-[10px]" : "h-7 text-[10px]"}
+                onClick={() => setAiProvider("groq")}
+              >
+                GROQ (Fast)
+              </Button>
+              <Button
+                size="sm"
+                variant={aiProvider === "gemini" ? "default" : "ghost"}
+                className={aiProvider === "gemini" ? "bg-purple-600 h-7 text-[10px]" : "h-7 text-[10px]"}
+                onClick={() => setAiProvider("gemini")}
+              >
+                GEMINI
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="bg-white/80 p-4 rounded-lg border border-purple-100 flex flex-col md:flex-row gap-3">
@@ -605,7 +583,7 @@ export default function ManualExamEntry() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="registrationStartDate">Registration Start Date *</Label>
+                <Label htmlFor="registrationStartDate">Registration Start Date</Label>
                 <Input
                   id="registrationStartDate"
                   type="date"
@@ -615,7 +593,7 @@ export default function ManualExamEntry() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="registrationEndDate">Registration End Date *</Label>
+                <Label htmlFor="registrationEndDate">Registration End Date</Label>
                 <Input
                   id="registrationEndDate"
                   type="date"
@@ -625,7 +603,7 @@ export default function ManualExamEntry() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="examDate">Exam Date *</Label>
+                <Label htmlFor="examDate">Exam Date</Label>
                 <Input
                   id="examDate"
                   type="date"
@@ -663,19 +641,9 @@ export default function ManualExamEntry() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-purple-600" />
-              Exam & Eligibility Information
+              Additional Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="ageLimit">Age Limit *</Label>
-                <Input
-                  id="ageLimit"
-                  value={formData.ageLimit}
-                  onChange={(e) => handleInputChange("ageLimit", e.target.value)}
-                  placeholder="e.g., 18-30 years as on 01-01-2025"
-                  data-testid="input-age-limit"
-                />
-              </div>
               <div className="space-y-2">
                 <Label htmlFor="vacancies">Number of Vacancies</Label>
                 <Input
@@ -686,56 +654,16 @@ export default function ManualExamEntry() {
                   data-testid="input-vacancies"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="examMode">Exam Mode</Label>
-                <Select
-                  value={formData.examMode}
-                  onValueChange={(value) => handleInputChange("examMode", value)}
-                >
-                  <SelectTrigger data-testid="select-exam-mode">
-                    <SelectValue placeholder="Select exam mode" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Online">Online</SelectItem>
-                    <SelectItem value="Offline">Offline</SelectItem>
-                    <SelectItem value="Both">Both Online & Offline</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="applicationFee">Application Fee</Label>
+                <Label htmlFor="officialWebsite">Official Website URL *</Label>
                 <Input
-                  id="applicationFee"
-                  value={formData.applicationFee}
-                  onChange={(e) => handleInputChange("applicationFee", e.target.value)}
-                  placeholder="e.g., ₹100 (General/OBC), No fee for SC/ST"
-                  data-testid="input-fee"
+                  id="officialWebsite"
+                  value={formData.officialWebsite}
+                  onChange={(e) => handleInputChange("officialWebsite", e.target.value)}
+                  placeholder="https://example.com"
+                  data-testid="input-website"
                 />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="eligibility">Eligibility Criteria *</Label>
-              <Textarea
-                id="eligibility"
-                value={formData.eligibility}
-                onChange={(e) => handleInputChange("eligibility", e.target.value)}
-                placeholder="Describe the education and other eligibility criteria..."
-                rows={3}
-                data-testid="textarea-eligibility"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="examBrief">Exam Brief / Pattern Summary</Label>
-              <Textarea
-                id="examBrief"
-                value={formData.examBrief}
-                onChange={(e) => handleInputChange("examBrief", e.target.value)}
-                placeholder="Brief summary of exam pattern, duration, marks, etc."
-                rows={3}
-                data-testid="textarea-exam-brief"
-              />
             </div>
           </div>
 
