@@ -19,8 +19,8 @@ RUN npx vite build && npx esbuild server/index.ts --platform=node --bundle --for
 # Production stage
 FROM node:20-alpine AS production
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init curl
+# Install dumb-init and system fonts for image generation
+RUN apk add --no-cache dumb-init curl font-roboto
 
 # Create app user for security
 RUN addgroup -g 1001 -S nodejs
@@ -41,7 +41,6 @@ COPY --from=builder /app/dist ./dist
 # Copy drizzle config and schema files needed for database migrations
 COPY --from=builder /app/drizzle.config.ts ./
 COPY --from=builder /app/shared ./shared
-COPY --from=builder /app/uploads/fonts ./uploads/fonts
 
 # Change ownership to nodejs user
 RUN chown -R nodejs:nodejs /app

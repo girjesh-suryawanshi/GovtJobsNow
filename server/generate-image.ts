@@ -36,8 +36,18 @@ export async function generateFeaturedImage(
 ): Promise<string> {
   console.log(`Generating Satori image using theme [${theme}]...`);
   
-  // 1. Load Font Buffer
-  const fontPath = path.join(process.cwd(), "uploads", "fonts", "Roboto-Bold.ttf");
+  // 1. Load Font Buffer - Check system fonts first (for Docker/Linux) then fallback to local uploads
+  let fontPath = path.join(process.cwd(), "uploads", "fonts", "Roboto-Bold.ttf");
+  
+  // In Docker (Alpine), fonts are installed in /usr/share/fonts
+  const systemFontPath = "/usr/share/fonts/roboto/Roboto-Bold.ttf";
+  try {
+    await fs.access(systemFontPath);
+    fontPath = systemFontPath;
+  } catch (e) {
+    // Fallback to local path if system font doesn't exist
+  }
+  
   const fontBuffer = await fs.readFile(fontPath);
 
   // 2. Build template HTML
