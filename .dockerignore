@@ -115,8 +115,9 @@ pnpm-lock.yaml
 .vite/
 .next/
 
-# Uploads and logs directories (will be mounted as volumes)
-uploads/
+# Uploads and logs directories (ignore content, keep fonts)
+uploads/*
+!uploads/fonts/
 
 # PostgreSQL data (will be mounted as volume)
 postgres_data/
