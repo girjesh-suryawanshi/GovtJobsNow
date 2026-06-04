@@ -391,6 +391,67 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
   const queryClient = useQueryClient();
   const token = localStorage.getItem("admin_token") || "";
 
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select an image file (PNG, JPG, WEBP, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Image size must be less than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: uploadData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        update("coverImage", data.url);
+        if (!formData.coverImageAlt) {
+          update("coverImageAlt", formData.title || "Featured Image");
+        }
+        toast({ title: "✅ Image Uploaded", description: "Featured image set successfully." });
+      } else {
+        throw new Error("Failed to upload image");
+      }
+    } catch (err) {
+      toast({ title: "Upload Failed", description: "Failed to upload image. Please try again.", variant: "destructive" });
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    update("coverImage", "");
+    update("coverImageAlt", "");
+    update("coverImageCaption", "");
+    toast({ title: "🗑️ Image Removed", description: "Featured image cleared." });
+  };
+
   // Real-time scores
   const { score: seoScore, checks: seoChecks } = calcSeoScore(formData, focusKeyword);
   const { score: aeoScore, checks: aeoChecks } = calcAeoScore(formData);
@@ -583,19 +644,86 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
             <p className="text-[10px] text-slate-400 mt-1">{(formData.excerpt || "").length} chars — used for AEO callout and meta description fallback</p>
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Cover Image URL</label>
-            <Input value={formData.coverImage || ""} onChange={(e) => update("coverImage", e.target.value)} placeholder="https://..." />
-          </div>
+          {/* Featured Image Section */}
+          <div className="space-y-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider block">Featured Cover Image</label>
+            
+            {formData.coverImage ? (
+              <div className="space-y-3">
+                <div className="relative aspect-video rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 flex items-center justify-center">
+                  <img src={formData.coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                  <button 
+                    type="button" 
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition-colors"
+                    title="Remove Image"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    id="blog-image-replace" 
+                    className="hidden" 
+                    onChange={handleImageUpload} 
+                    disabled={isUploadingImage}
+                  />
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm" 
+                    className="w-full text-xs"
+                    onClick={() => document.getElementById("blog-image-replace")?.click()}
+                    disabled={isUploadingImage}
+                  >
+                    {isUploadingImage ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : null}
+                    Replace Image
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div 
+                  className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
+                  onClick={() => document.getElementById("blog-image-upload")?.click()}
+                >
+                  <Image className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Click to upload featured image</p>
+                  <p className="text-[10px] text-slate-400 mt-1">PNG, JPG, WEBP up to 5MB</p>
+                  <Input 
+                    type="file" 
+                    accept="image/*" 
+                    id="blog-image-upload" 
+                    className="hidden" 
+                    onChange={handleImageUpload} 
+                    disabled={isUploadingImage}
+                  />
+                </div>
+                <div className="relative flex items-center">
+                  <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                  <span className="flex-shrink-0 mx-3 text-[10px] text-slate-400 uppercase font-bold">Or paste direct image URL</span>
+                  <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
+                </div>
+                <Input 
+                  value={formData.coverImage || ""} 
+                  onChange={(e) => update("coverImage", e.target.value)} 
+                  placeholder="https://example.com/image.jpg" 
+                  className="text-xs font-mono"
+                />
+              </div>
+            )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Cover Image Alt Text</label>
-              <Input value={formData.coverImageAlt || ""} onChange={(e) => update("coverImageAlt", e.target.value)} placeholder="Descriptive alt text" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Cover Image Caption</label>
-              <Input value={formData.coverImageCaption || ""} onChange={(e) => update("coverImageCaption", e.target.value)} placeholder="Optional caption" />
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Image Alt Text</label>
+                <Input value={formData.coverImageAlt || ""} onChange={(e) => update("coverImageAlt", e.target.value)} placeholder="e.g. SSC Exam Syllabus guide" className="text-xs" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1 block">Image Caption</label>
+                <Input value={formData.coverImageCaption || ""} onChange={(e) => update("coverImageCaption", e.target.value)} placeholder="Source or description" className="text-xs" />
+              </div>
             </div>
           </div>
 
