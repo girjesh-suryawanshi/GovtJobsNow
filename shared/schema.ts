@@ -265,3 +265,74 @@ export type Exam = typeof exams.$inferSelect;
 export type AdminPasswordChange = z.infer<typeof adminPasswordChangeSchema>;
 export type CreateAdminUser = z.infer<typeof createAdminUserSchema>;
 export type UpdateJob = z.infer<typeof updateJobSchema>;
+
+// ============================================================
+// BLOG POSTS
+// ============================================================
+export const blogPosts = pgTable("blog_posts", {
+  id: varchar("id").primaryKey().notNull().default(sql`gen_random_uuid()`),
+
+  // Core
+  title: text("title").notNull(),
+  slug: varchar("slug").unique().notNull(),
+  content: text("content").notNull().default(""),
+  excerpt: text("excerpt"),
+  category: text("category"),
+  tags: json("tags").default([]),
+  coverImage: text("cover_image"),
+  coverImageAlt: text("cover_image_alt"),
+  coverImageCaption: text("cover_image_caption"),
+  authorName: text("author_name").default("GovtJobNow Editorial"),
+  authorBio: text("author_bio"),
+  authorImage: text("author_image"),
+  readingTime: integer("reading_time").default(5),
+  status: text("status").notNull().default("draft"), // "draft" | "published"
+
+  // Traditional SEO
+  seoTitle: text("seo_title"),
+  seoDescription: text("seo_description"),
+  seoKeywords: text("seo_keywords"),
+  canonicalUrl: text("canonical_url"),
+  indexing: text("indexing").default("index"),   // "index" | "noindex"
+  follow: text("follow").default("follow"),        // "follow" | "nofollow"
+
+  // Social Sharing
+  ogTitle: text("og_title"),
+  ogDescription: text("og_description"),
+  ogImage: text("og_image"),
+  twitterCard: text("twitter_card").default("summary_large_image"), // "summary_large_image" | "summary"
+
+  // AI / AEO Schema
+  schemaType: text("schema_type").default("BlogPosting"), // "BlogPosting" | "HowTo" | "NewsArticle" | "Article"
+  faq: json("faq").default([]),     // [{ question: string, answer: string }]
+  howTo: json("how_to").default([]), // [{ step: string, description: string }]
+
+  // Settings
+  tocEnabled: boolean("toc_enabled").default(true),
+  ctaType: text("cta_type").default("newsletter"),
+  viewCount: integer("view_count").default(0),
+
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  viewCount: true,
+});
+
+export const searchBlogPostsSchema = z.object({
+  status: z.enum(["draft", "published"]).optional(),
+  category: z.string().optional(),
+  tag: z.string().optional(),
+  search: z.string().optional(),
+  page: z.number().min(1).optional(),
+  limit: z.number().min(1).max(50).optional(),
+});
+
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type SearchBlogPostsParams = z.infer<typeof searchBlogPostsSchema>;

@@ -50,15 +50,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   });
 
-  // Serve strict robots.txt for AdSense & generic bots
+  // Robots.txt — allows general + AI search crawlers, blocks admin routes
   app.get("/robots.txt", (req, res) => {
+    const baseUrl = process.env.BASE_URL || "https://govtjobnow.com";
     res.type("text/plain");
     res.send(`User-agent: *
 Allow: /
-Sitemap: https://govtjobnow.com/sitemap.xml
+Disallow: /admin/
+Disallow: /api/admin/
+Sitemap: ${baseUrl}/sitemap.xml
 
+# Google AdSense
 User-agent: Mediapartners-Google
-Allow: /`);
+Allow: /
+
+# AI Search Agents — allowed to crawl public content
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+
+User-agent: cohere-ai
+Allow: /
+Disallow: /admin/
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin/`);
   });
 
   // Setup Multer for PDF/Image Notification Uploads - Allow configuration via environment variable
@@ -110,27 +143,54 @@ Allow: /`);
   app.get("/sitemap.xml", async (req, res) => {
     try {
       const allJobs = await storage.getAllJobs();
-
-      const baseUrl = "https://govtjobnow.com";
+      const baseUrl = process.env.BASE_URL || "https://govtjobnow.com";
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-      // Add static routes
-      const staticRoutes = ["", "/exams", "/about-us", "/contact", "/faq", "/privacy-policy", "/terms-of-service", "/disclaimer", "/jobs/ssc", "/jobs/railway"];
+      // Static routes
+      const staticRoutes = [
+        { path: "", priority: "1.0", changefreq: "daily" },
+        { path: "/blog", priority: "0.9", changefreq: "daily" },
+        { path: "/exams", priority: "0.8", changefreq: "daily" },
+        { path: "/about-us", priority: "0.6", changefreq: "monthly" },
+        { path: "/contact", priority: "0.5", changefreq: "monthly" },
+        { path: "/faq", priority: "0.7", changefreq: "weekly" },
+        { path: "/privacy-policy", priority: "0.4", changefreq: "yearly" },
+        { path: "/terms-of-service", priority: "0.4", changefreq: "yearly" },
+        { path: "/disclaimer", priority: "0.4", changefreq: "yearly" },
+        { path: "/jobs/ssc", priority: "0.8", changefreq: "daily" },
+        { path: "/jobs/railway", priority: "0.8", changefreq: "daily" },
+      ];
       for (const route of staticRoutes) {
-        xml += `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <changefreq>daily</changefreq>\n    <priority>${route === "" ? "1.0" : "0.8"}</priority>\n  </url>\n`;
+        xml += `  <url>\n    <loc>${baseUrl}${route.path}</loc>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
       }
 
-      // Add Job routes
+      // Job routes (prefer slug, fallback to id)
       for (const job of allJobs) {
-        const lastMod = job.createdAt ? new Date(job.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-        xml += `  <url>\n    <loc>${baseUrl}/job/${job.id}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        const jobPath = job.slug ? `/job/${job.slug}` : `/job/${job.id}`;
+        const lastMod = job.createdAt ? new Date(job.createdAt).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
+        xml += `  <url>\n    <loc>${baseUrl}${jobPath}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+      }
+
+      // Blog post routes
+      try {
+        const { blogStorage } = await import("./blog-storage");
+        const blogEntries = await blogStorage.getAllPublishedForSitemap();
+        for (const post of blogEntries) {
+          const lastMod = (post.updatedAt || post.publishedAt)
+            ? new Date((post.updatedAt || post.publishedAt)!).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0];
+          xml += `  <url>\n    <loc>${baseUrl}/blog/${post.slug}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
+        }
+      } catch (blogErr) {
+        console.warn("[Sitemap] Could not load blog posts:", blogErr);
       }
 
       xml += `</urlset>`;
 
       res.header("Content-Type", "application/xml");
+      res.header("Cache-Control", "public, max-age=3600"); // cache 1 hour
       res.send(xml);
     } catch (error) {
       console.error("Sitemap generation error:", error);
@@ -1478,9 +1538,154 @@ ${categories.map(category => `  <url>
     }
   });
 
+  // ============================================================
+  // BLOG ROUTES
+  // ============================================================
+  const { blogStorage } = await import("./blog-storage");
+  const { insertBlogPostSchema, searchBlogPostsSchema } = await import("@shared/schema");
+
+  // Serve IndexNow verification key file dynamically
+  app.get("/:key.txt", (req, res, next) => {
+    const indexNowKey = process.env.INDEXNOW_KEY;
+    if (!indexNowKey || req.params.key !== indexNowKey) return next();
+    res.type("text/plain").send(indexNowKey);
+  });
+
+  // ---- Public Blog Routes ----
+
+  // GET /api/blog — paginated published posts
+  app.get("/api/blog", async (req, res) => {
+    try {
+      const q: any = { ...req.query };
+      if (q.page) q.page = parseInt(q.page);
+      if (q.limit) q.limit = parseInt(q.limit);
+      Object.keys(q).forEach((k) => { if (q[k] === "" || q[k] === "null") delete q[k]; });
+      // Public endpoint always serves published posts only
+      q.status = "published";
+      const params = searchBlogPostsSchema.parse(q);
+      const result = await blogStorage.getAllBlogPosts(params);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid query parameters", error });
+    }
+  });
+
+  // GET /api/blog/recent — recent published posts for sidebar
+  app.get("/api/blog/recent", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 5;
+      const posts = await blogStorage.getRecentBlogPosts(limit);
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch recent posts", error });
+    }
+  });
+
+  // GET /api/blog/tags — all unique tags from published posts
+  app.get("/api/blog/tags", async (req, res) => {
+    try {
+      const { posts } = await blogStorage.getAllBlogPosts({ status: "published", limit: 200 });
+      const tagSet = new Set<string>();
+      posts.forEach((p) => {
+        if (Array.isArray(p.tags)) p.tags.forEach((t: string) => tagSet.add(t));
+      });
+      res.json(Array.from(tagSet).sort());
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch tags", error });
+    }
+  });
+
+  // GET /api/blog/:slug — single published post
+  app.get("/api/blog/:slug", async (req, res) => {
+    try {
+      const post = await blogStorage.getBlogPostBySlug(req.params.slug);
+      if (!post || post.status !== "published") {
+        return res.status(404).json({ message: "Blog post not found" });
+      }
+      blogStorage.incrementBlogViewCount(post.id).catch(console.error);
+      res.json(post);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch blog post", error });
+    }
+  });
+
+  // ---- Admin Blog Routes ----
+
+  // GET /api/admin/blog — all posts (drafts + published)
+  app.get("/api/admin/blog", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const q: any = { ...req.query };
+      if (q.page) q.page = parseInt(q.page);
+      if (q.limit) q.limit = parseInt(q.limit);
+      Object.keys(q).forEach((k) => { if (q[k] === "" || q[k] === "null") delete q[k]; });
+      const params = searchBlogPostsSchema.parse(q);
+      const result = await blogStorage.getAllBlogPosts(params);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid query parameters", error });
+    }
+  });
+
+  // POST /api/admin/blog — create blog post
+  app.post("/api/admin/blog", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const data = insertBlogPostSchema.parse(req.body);
+      const post = await blogStorage.createBlogPost(data);
+      res.status(201).json(post);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid blog post data", error });
+    }
+  });
+
+  // PUT /api/admin/blog/:id — update blog post
+  app.put("/api/admin/blog/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const data = insertBlogPostSchema.partial().parse(req.body);
+      const post = await blogStorage.updateBlogPost(req.params.id, data);
+      if (!post) return res.status(404).json({ message: "Blog post not found" });
+      res.json(post);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid blog post data", error });
+    }
+  });
+
+  // DELETE /api/admin/blog/:id — delete blog post
+  app.delete("/api/admin/blog/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const success = await blogStorage.deleteBlogPost(req.params.id);
+      if (!success) return res.status(404).json({ message: "Blog post not found" });
+      res.json({ message: "Blog post deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete blog post", error });
+    }
+  });
+
+  // GET /api/admin/blog/linking-suggestions/:id — similar posts by tags
+  app.get("/api/admin/blog/linking-suggestions/:id", async (req, res) => {
+    const token = req.headers.authorization?.replace("Bearer ", "");
+    if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
+    try {
+      const post = await blogStorage.getBlogPostById(req.params.id);
+      const tags: string[] = post ? ((post.tags as string[]) || []) : [];
+      const suggestions = await blogStorage.getLinkingSuggestions(req.params.id, tags);
+      res.json(suggestions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch linking suggestions", error });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
+
 
 // Helper function to calculate extraction quality
 function calculateExtractionQuality(data: any): number {

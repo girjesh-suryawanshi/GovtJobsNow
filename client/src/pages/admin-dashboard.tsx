@@ -17,7 +17,8 @@ import {
   Calendar,
   Users,
   LayoutDashboard,
-  Megaphone
+  Megaphone,
+  BookOpen
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -29,6 +30,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import ManualJobEntry from "@/components/admin/manual-job-entry";
 import ManualExamEntry from "@/components/admin/manual-exam-entry";
+import ManualBlogEntry from "@/components/admin/manual-blog-entry";
 import AdminManagement from "@/components/admin/admin-management";
 import SignUpUserManagement from "@/components/admin/signup-user-management";
 import AdminAdsSettings from "@/components/admin/AdminAdsSettings";
@@ -47,7 +49,7 @@ export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"jobs" | "exams" | "signup-users" | "admins" | "ads">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "exams" | "blog" | "signup-users" | "admins" | "ads">("jobs");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -207,7 +209,7 @@ export default function AdminDashboard() {
                     <Briefcase className="h-4 w-4" />
                     Job Management
                   </button>
-                  <button
+                   <button
                     onClick={() => setActiveTab("exams")}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                       activeTab === "exams" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"
@@ -215,6 +217,15 @@ export default function AdminDashboard() {
                   >
                     <Calendar className="h-4 w-4" />
                     Exam Calendar
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("blog")}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      activeTab === "blog" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <BookOpen className="h-4 w-4" />
+                    Blog Posts
                   </button>
                 </nav>
               </div>
@@ -258,6 +269,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl shadow-sm border p-6 min-h-[600px]">
               {activeTab === "jobs" && <ManualJobEntry onJobAdded={checkAuthAndFetchData} />}
               {activeTab === "exams" && <ManualExamEntry />}
+              {activeTab === "blog" && <ManualBlogEntry />}
               {activeTab === "signup-users" && <SignUpUserManagement />}
               {activeTab === "admins" && <AdminManagement />}
               {activeTab === "ads" && <AdminAdsSettings />}

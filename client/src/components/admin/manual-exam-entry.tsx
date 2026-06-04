@@ -388,7 +388,7 @@ export default function ManualExamEntry() {
     }
   };
 
-  const formatDate = (date: string) => {
+  const formatDate = (date: string | null | undefined) => {
     if (!date) return "";
     return new Date(date).toLocaleDateString('en-IN', {
       day: '2-digit',
@@ -856,18 +856,7 @@ export default function ManualExamEntry() {
             />
           </div>
 
-          {/* Syllabus */}
-          <div className="space-y-2">
-            <Label htmlFor="syllabus">Syllabus</Label>
-            <Textarea
-              id="syllabus"
-              value={formData.syllabus}
-              onChange={(e) => handleInputChange("syllabus", e.target.value)}
-              placeholder="Describe the exam syllabus and topics..."
-              rows={4}
-              data-testid="textarea-syllabus"
-            />
-          </div>
+
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 pt-4">
@@ -963,7 +952,7 @@ export default function ManualExamEntry() {
                           <Building2 className="h-3 w-3" />
                           {exam.conductingOrganization}
                         </div>
-                        <div className="flex items-center gap-1">u c
+                        <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           Exam: {formatDate(exam.examDate)}
                         </div>

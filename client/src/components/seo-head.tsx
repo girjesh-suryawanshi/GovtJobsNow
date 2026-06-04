@@ -1,161 +1,128 @@
-import { useEffect } from 'react';
-import { useQuery } from "@tanstack/react-query";
-import { SiteSettings } from "@shared/schema";
+import { useEffect, useRef } from 'react';
 
-interface SEOHeadProps {
+interface JsonLdBlock {
+  id: string;
+  schema: object;
+}
+
+interface SEOProps {
   title?: string;
   description?: string;
   keywords?: string;
+  author?: string;
+  robots?: string;
+  canonical?: string;
   image?: string;
   url?: string;
   type?: 'website' | 'article';
   publishedTime?: string;
   modifiedTime?: string;
-  author?: string;
   siteName?: string;
-  locale?: string;
-  alternateLocale?: string;
+  twitterCard?: 'summary_large_image' | 'summary';
+  jsonLd?: object | object[];
 }
 
-export default function SEOHead({
+export default function SEO({
   title = "GovtJobNow - Latest Government Jobs, Sarkari Naukri 2025",
-  description = "Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU. Apply for central & state govt jobs online.",
-  keywords = "government jobs, sarkari naukri, govt jobs 2025, SSC jobs, railway jobs, banking jobs, UPSC jobs, latest govt jobs, central government jobs, state government jobs, sarkari result",
+  description = "Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU.",
+  keywords = "government jobs, sarkari naukri, govt jobs 2025, SSC jobs, railway jobs, banking jobs, UPSC jobs",
+  author = "GovtJobNow",
+  robots = "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+  canonical,
   image = "/og-image.jpg",
   url = "https://govtjobnow.com",
   type = "website",
   publishedTime,
   modifiedTime,
-  author = "GovtJobNow",
   siteName = "GovtJobNow",
-  locale = "en_IN",
-  alternateLocale = "hi_IN"
-}: SEOHeadProps) {
-  const { data: settings } = useQuery<SiteSettings>({
-    queryKey: ["/api/site-settings"],
-  });
-  
+  twitterCard = "summary_large_image",
+  jsonLd,
+}: SEOProps) {
+  const jsonLdIdsRef = useRef<string[]>([]);
+
   useEffect(() => {
-    // Update document title
+    // ---- Document title ----
     document.title = title;
 
-    // Create or update meta tags
-    const updateMetaTag = (name: string, content: string, property?: boolean) => {
-      const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-      let meta = document.querySelector(selector) as HTMLMetaElement;
-      
-      if (!meta) {
-        meta = document.createElement('meta');
-        if (property) {
-          meta.setAttribute('property', name);
-        } else {
-          meta.setAttribute('name', name);
-        }
-        document.head.appendChild(meta);
+    const setMeta = (selector: string, content: string, attrName = 'content') => {
+      let el = document.querySelector(selector) as HTMLMetaElement | null;
+      if (!el) {
+        el = document.createElement('meta');
+        const [attr, val] = selector.replace('meta[', '').replace(']', '').split('="');
+        el.setAttribute(attr, val.replace('"', ''));
+        document.head.appendChild(el);
       }
-      
-      meta.setAttribute('content', content);
+      el.setAttribute(attrName, content);
     };
 
-    const updateLinkTag = (rel: string, href: string) => {
-      let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
-      
-      if (!link) {
-        link = document.createElement('link');
-        link.setAttribute('rel', rel);
-        document.head.appendChild(link);
+    const setLink = (rel: string, href: string, extra?: Record<string, string>) => {
+      let el = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null;
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', rel);
+        document.head.appendChild(el);
       }
-      
-      link.setAttribute('href', href);
+      el.setAttribute('href', href);
+      if (extra) Object.entries(extra).forEach(([k, v]) => el!.setAttribute(k, v));
     };
 
-    // Basic meta tags
-    updateMetaTag('description', description);
-    updateMetaTag('keywords', keywords);
-    updateMetaTag('author', author);
-    updateMetaTag('robots', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
-    updateMetaTag('googlebot', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
-    updateMetaTag('viewport', 'width=device-width, initial-scale=1, shrink-to-fit=no');
-    
-    // Open Graph tags
-    updateMetaTag('og:title', title, true);
-    updateMetaTag('og:description', description, true);
-    updateMetaTag('og:type', type, true);
-    updateMetaTag('og:url', url, true);
-    updateMetaTag('og:image', image, true);
-    updateMetaTag('og:image:width', '1200', true);
-    updateMetaTag('og:image:height', '630', true);
-    updateMetaTag('og:image:alt', title, true);
-    updateMetaTag('og:site_name', siteName, true);
-    updateMetaTag('og:locale', locale, true);
-    
-    if (alternateLocale) {
-      updateMetaTag('og:locale:alternate', alternateLocale, true);
+    // Core meta
+    setMeta('meta[name="description"]', description);
+    setMeta('meta[name="keywords"]', keywords);
+    setMeta('meta[name="author"]', author);
+    setMeta('meta[name="robots"]', robots);
+    setMeta('meta[name="googlebot"]', robots);
+    setMeta('meta[name="viewport"]', 'width=device-width, initial-scale=1, shrink-to-fit=no');
+
+    // Open Graph
+    setMeta('meta[property="og:title"]', title);
+    setMeta('meta[property="og:description"]', description);
+    setMeta('meta[property="og:type"]', type);
+    setMeta('meta[property="og:url"]', url);
+    setMeta('meta[property="og:image"]', image);
+    setMeta('meta[property="og:image:width"]', '1200');
+    setMeta('meta[property="og:image:height"]', '630');
+    setMeta('meta[property="og:image:alt"]', title);
+    setMeta('meta[property="og:site_name"]', siteName);
+    setMeta('meta[property="og:locale"]', 'en_IN');
+    if (publishedTime) setMeta('meta[property="article:published_time"]', publishedTime);
+    if (modifiedTime) setMeta('meta[property="article:modified_time"]', modifiedTime);
+
+    // Twitter
+    setMeta('meta[name="twitter:card"]', twitterCard);
+    setMeta('meta[name="twitter:title"]', title);
+    setMeta('meta[name="twitter:description"]', description);
+    setMeta('meta[name="twitter:image"]', image);
+    setMeta('meta[name="twitter:site"]', '@GovtJobNow');
+    setMeta('meta[name="twitter:creator"]', '@GovtJobNow');
+
+    // Canonical
+    setLink('canonical', canonical || url);
+
+    // ---- JSON-LD injection ----
+    // Remove previously injected scripts from this component instance
+    jsonLdIdsRef.current.forEach((id) => document.getElementById(id)?.remove());
+    jsonLdIdsRef.current = [];
+
+    if (jsonLd) {
+      const schemas = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+      schemas.forEach((schema, i) => {
+        const id = `seo-jsonld-${Date.now()}-${i}`;
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.id = id;
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+        jsonLdIdsRef.current.push(id);
+      });
     }
 
-    if (publishedTime) {
-      updateMetaTag('article:published_time', publishedTime, true);
-    }
-
-    if (modifiedTime) {
-      updateMetaTag('article:modified_time', modifiedTime, true);
-    }
-
-    // Twitter Card tags
-    updateMetaTag('twitter:card', 'summary_large_image');
-    updateMetaTag('twitter:title', title);
-    updateMetaTag('twitter:description', description);
-    updateMetaTag('twitter:image', image);
-    updateMetaTag('twitter:creator', '@GovtJobNow');
-    updateMetaTag('twitter:site', '@GovtJobNow');
-
-    // Additional SEO tags
-    updateMetaTag('theme-color', '#2563eb');
-    updateMetaTag('msapplication-navbutton-color', '#2563eb');
-    updateMetaTag('apple-mobile-web-app-status-bar-style', 'black-translucent');
-    updateMetaTag('format-detection', 'telephone=no');
-
-    // Canonical URL
-    updateLinkTag('canonical', url);
-
-    // Hreflang tags for Indian localization
-    updateLinkTag('alternate', `${url}?lang=hi`);
-    document.querySelector('link[rel="alternate"][hreflang="hi-IN"]')?.remove();
-    const hreflangHi = document.createElement('link');
-    hreflangHi.setAttribute('rel', 'alternate');
-    hreflangHi.setAttribute('hreflang', 'hi-IN');
-    hreflangHi.setAttribute('href', `${url}?lang=hi`);
-    document.head.appendChild(hreflangHi);
-
-    const hreflangEn = document.createElement('link');
-    hreflangEn.setAttribute('rel', 'alternate');
-    hreflangEn.setAttribute('hreflang', 'en-IN');
-    hreflangEn.setAttribute('href', url);
-    document.head.appendChild(hreflangEn);
-
-    // Dynamic AdSense Header Script Injection
-    if (settings?.adsEnabled && settings.adsHeaderCode) {
-      const scriptId = "adsense-header-script";
-      if (!document.getElementById(scriptId)) {
-        // Create a temporary container to parse the HTML string
-        const temp = document.createElement('div');
-        temp.innerHTML = settings.adsHeaderCode;
-        const scriptElement = temp.querySelector('script');
-        
-        if (scriptElement) {
-          const newScript = document.createElement('script');
-          newScript.id = scriptId;
-          // Copy all attributes from the provided script tag
-          Array.from(scriptElement.attributes).forEach(attr => {
-            newScript.setAttribute(attr.name, attr.value);
-          });
-          newScript.innerHTML = scriptElement.innerHTML;
-          document.head.appendChild(newScript);
-        }
-      }
-    }
-
-  }, [title, description, keywords, image, url, type, publishedTime, modifiedTime, author, siteName, locale, alternateLocale, settings?.adsEnabled, settings?.adsHeaderCode]);
+    // Cleanup JSON-LD on unmount
+    return () => {
+      jsonLdIdsRef.current.forEach((id) => document.getElementById(id)?.remove());
+      jsonLdIdsRef.current = [];
+    };
+  }, [title, description, keywords, author, robots, canonical, image, url, type, publishedTime, modifiedTime, siteName, twitterCard, jsonLd]);
 
   return null;
-}
+}

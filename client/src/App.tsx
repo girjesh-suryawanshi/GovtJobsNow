@@ -20,6 +20,8 @@ import SSCJobs from "@/pages/ssc-jobs";
 import RailwayJobs from "@/pages/railway-jobs";
 import NotFound from "@/pages/not-found";
 import AboutUs from "@/pages/about-us";
+import BlogList from "@/pages/blog-list";
+import BlogDetail from "@/pages/blog-detail";
 import CookieBanner from "@/components/cookie-banner";
 import InstallPWA from "@/components/install-pwa";
 import PWAManualGuide from "@/components/pwa-manual-guide";
@@ -41,6 +43,8 @@ function Router() {
       <Route path="/about-us" component={AboutUs} />
       <Route path="/jobs/ssc" component={SSCJobs} />
       <Route path="/jobs/railway" component={RailwayJobs} />
+      <Route path="/blog" component={BlogList} />
+      <Route path="/blog/:slug" component={BlogDetail} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -5,7 +5,8 @@ import { Link } from "wouter";
 import { 
   ArrowLeft, Calendar, Bell, ExternalLink, FileText, 
   MessageCircle, Send, Facebook, Building2, Sparkles, 
-  BookOpen, Target, Download, Share2, Info, Timer, ShieldCheck
+  BookOpen, Target, Download, Share2, Info, Timer, ShieldCheck,
+  Globe
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import OrganizationLogo from "@/components/organization-logo";

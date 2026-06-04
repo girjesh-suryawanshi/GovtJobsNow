@@ -216,7 +216,7 @@ function ExamCard({ exam }: ExamCardProps) {
           {exam.officialWebsite ? (
             <Button
               className="flex-1 bg-slate-900 hover:bg-blue-700 text-white font-black h-12 shadow-xl shadow-slate-200 transition-all rounded-xl gap-3"
-              onClick={() => window.open(exam.officialWebsite, '_blank')}
+              onClick={() => window.open(exam.officialWebsite || undefined, '_blank')}
             >
               <Globe className="h-5 w-5" />
               7. VISIT OFFICIAL WEBSITE
@@ -300,19 +300,18 @@ export default function ExamCalendarPage() {
         return matchesSearch && matchesOrg;
       });
 
-      // Sort exams
-      filtered.sort((a, b) => {
-        switch (sortBy) {
-          case "examDate":
-            return new Date(a.examDate).getTime() - new Date(b.examDate).getTime();
-          case "registrationEnd":
-            return new Date(a.registrationEndDate).getTime() - new Date(b.registrationEndDate).getTime();
-          case "title":
-            return a.title.localeCompare(b.title);
-          default:
-            return 0;
-        }
-      });
+        filtered.sort((a, b) => {
+          switch (sortBy) {
+            case "examDate":
+              return new Date(a.examDate || 0).getTime() - new Date(b.examDate || 0).getTime();
+            case "registrationEnd":
+              return new Date(a.registrationEndDate || 0).getTime() - new Date(b.registrationEndDate || 0).getTime();
+            case "title":
+              return a.title.localeCompare(b.title);
+            default:
+              return 0;
+          }
+        });
 
       return filtered;
     }
