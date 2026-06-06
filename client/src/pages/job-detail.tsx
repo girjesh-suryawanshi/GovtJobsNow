@@ -5,7 +5,8 @@ import { Link } from "wouter";
 import {
   ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark,
   Share2, ExternalLink, FileText, MessageCircle, Send, Facebook,
-  Building2, Sparkles, BookOpen, ShieldCheck, Target, Download, ChevronRight
+  Building2, Sparkles, BookOpen, ShieldCheck, Target, Download, ChevronRight,
+  GraduationCap, Briefcase, User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -193,7 +194,7 @@ export default function JobDetail() {
                 />
 
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight tracking-tight">
+                  <h1 className="text-2xl md:text-3xl font-syne font-extrabold leading-tight tracking-tight" style={{ color: 'var(--gjn-blue)' }}>
                     {job.title}
                   </h1>
 
@@ -234,101 +235,89 @@ export default function JobDetail() {
             <div className="lg:col-span-2 p-8 md:p-12 space-y-12 border-r border-gray-50">
               {/* 🔹 INFO GRID */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <InfoItem label="Salary" value={job.salary ? `₹${job.salary}` : "N/A"} />
-                <InfoItem label="Qualification" value={job.qualification || "N/A"} />
-                <InfoItem label="Experience" value={job.experienceRequired || "N/A"} />
-                <InfoItem label="Age Limit" value={job.ageLimit || "N/A"} />
+                <InfoItem label="Salary" value={job.salary ? `₹${job.salary}` : "N/A"} icon={<IndianRupee className="h-4 w-4" />} />
+                <InfoItem label="Qualification" value={job.qualification || "N/A"} icon={<GraduationCap className="h-4 w-4" />} />
+                <InfoItem label="Experience" value={job.experienceRequired || "N/A"} icon={<Briefcase className="h-4 w-4" />} />
+                <InfoItem label="Age Limit" value={job.ageLimit || "N/A"} icon={<User className="h-4 w-4" />} />
               </div>
 
-              {/* VACANCIES (Ultra-Premium Responsive Layout) */}
+              {/* VACANCIES (Clean Structured Layout) */}
               {positions.length > 0 && (
-                <section className="bg-white p-5 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-gray-200/40 relative overflow-hidden group">
-                  {/* Decorative background accent */}
-                  <div className="absolute top-0 right-0 p-8 md:p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-1000">
-                    <Users className="w-40 h-40 md:w-64 md:h-64 text-blue-600" />
+                <div className="page-section p-6 md:p-8 space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--gjn-border)] pb-4">
+                    <div>
+                      <h3 className="text-xl md:text-2xl font-syne font-bold flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }}>
+                        <Users className="h-6 w-6" /> Positions Available
+                      </h3>
+                      <p className="text-sm font-medium text-gray-500 mt-1">
+                        Detailed breakdown of specific posts
+                      </p>
+                    </div>
+                    <Badge className="self-start sm:self-auto bg-blue-50 text-[var(--gjn-blue)] border-none font-black px-4 py-2 text-xs uppercase tracking-widest rounded-xl">
+                      {positions.reduce((acc, pos) => acc + pos.numberOfVacancies, 0)} Total Openings
+                    </Badge>
                   </div>
 
-                  <div className="relative z-10">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
-                      <div>
-                        <h3 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                          <div className="p-2 bg-blue-50/80 rounded-xl">
-                            <Users className="h-5 w-5 md:h-6 w-6 text-blue-600" />
-                          </div>
-                          Positions Available
-                        </h3>
-                        <p className="text-xs md:text-sm font-bold text-gray-500 mt-2 px-1">
-                          Detailed breakdown of specific posts
-                        </p>
-                      </div>
-                      <Badge className="self-start sm:self-auto bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200 shadow-sm font-black px-3 py-2 md:px-4 md:py-2 text-[10px] uppercase tracking-[0.15em] rounded-xl flex items-center gap-2">
-                        {positions.reduce((acc, pos) => acc + pos.numberOfVacancies, 0)} Total Openings
-                      </Badge>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4 md:gap-5">
-                      {positions.map((pos) => (
-                        <div
-                          key={pos.id}
-                          className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6 p-5 md:p-6 rounded-[1.5rem] md:rounded-3xl bg-gray-50/50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300"
-                        >
-                          <div className="flex-1 space-y-2">
-                            <h4 className="text-base md:text-lg font-black text-gray-900 tracking-tight leading-tight">
-                              {pos.positionName}
-                            </h4>
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-xs md:text-sm font-bold text-gray-500">
-                              <span className="flex items-start sm:items-center gap-1.5 leading-tight"><BookOpen className="h-3.5 w-3.5 text-gray-400 shrink-0 mt-0.5 sm:mt-0" /> <span className="line-clamp-2 md:line-clamp-none">{pos.qualification}</span></span>
-                            </div>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-1 gap-4 pt-4 md:pt-0 border-t md:border-t-0 md:border-l border-gray-200 md:pl-6 min-w-full md:min-w-[140px]">
-                            <div className="text-left md:text-right">
-                              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 flex items-center md:justify-end gap-1">Total Posts</p>
-                              <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-none font-black text-xs md:text-sm px-2.5 py-1 rounded-lg">
-                                {pos.numberOfVacancies}
-                              </Badge>
-                            </div>
-                            <div className="text-right flex flex-col items-end">
-                              <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 text-right w-full">Salary</p>
-                              <p className="text-xs md:text-sm font-black text-green-600 truncate max-w-full text-right">
-                                {pos.salaryRange || "As per rules"}
-                              </p>
-                            </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    {positions.map((pos) => (
+                      <div
+                        key={pos.id}
+                        className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border border-[var(--gjn-border)] hover:border-[var(--gjn-amber)] transition-colors bg-white"
+                      >
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold text-gray-900 leading-tight">
+                            {pos.positionName}
+                          </h4>
+                          <div className="flex items-center gap-2 text-sm font-medium text-gray-500 mt-2">
+                            <GraduationCap className="h-4 w-4 text-gray-400" />
+                            <span>{pos.qualification}</span>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        
+                        <div className="flex items-center gap-6 md:justify-end border-t md:border-t-0 md:border-l border-[var(--gjn-border)] pt-4 md:pt-0 md:pl-6 min-w-max">
+                          <div className="text-left">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Posts</p>
+                            <Badge className="bg-amber-50 text-[var(--gjn-amber)] border-none font-black px-3 py-1">
+                              {pos.numberOfVacancies}
+                            </Badge>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Salary</p>
+                            <p className="text-sm font-bold text-green-600">
+                              {pos.salaryRange || "As per rules"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </section>
+                </div>
               )}
 
 
 
 
-              {/* Winning Innovation: Prep Guide (Premium Style) */}
+              {/* Prep Guide */}
               {job.prepGuide && (
-                <section className="bg-blue-600 p-8 rounded-[2rem] text-white relative overflow-hidden group shadow-2xl shadow-blue-200">
-                  <div className="absolute -top-10 -right-10 opacity-10 group-hover:rotate-12 transition-transform duration-1000">
-                    <Sparkles className="h-48 w-48" />
-                  </div>
-                  <h3 className="text-xl font-black mb-6 flex items-center gap-3">
-                    <Sparkles className="h-7 w-7 text-yellow-300" />
+                <section className="page-section p-8 space-y-6">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <Sparkles className="h-6 w-6 text-[var(--gjn-amber)]" />
                     AI-Powered Preparation Guide
                   </h3>
-                  <div className="text-blue-50 leading-relaxed whitespace-pre-wrap font-bold text-sm">
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm font-medium">
                     {job.prepGuide}
                   </div>
                 </section>
               )}
 
-              {/* Syllabus Section (Premium Style) */}
+              {/* Syllabus Section */}
               {job.syllabus && (
-                <section className="bg-purple-50 p-8 rounded-[2rem] border border-purple-100">
-                  <h3 className="text-xl font-black text-purple-900 mb-6 flex items-center gap-3">
-                    <BookOpen className="h-7 w-7 text-purple-600" />
+                <section className="page-section p-8 space-y-6">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <BookOpen className="h-6 w-6" />
                     Detailed Syllabus Breakdown
                   </h3>
-                  <div className="text-purple-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic">
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm font-medium">
                     {job.syllabus}
                   </div>
                 </section>
@@ -337,47 +326,47 @@ export default function JobDetail() {
               {/* Middle Ad Placement */}
               <AdUnit slot="job-middle-content" />
 
-              {/* Notification Summary (Premium Style) */}
-              <section className="bg-emerald-50 p-8 rounded-[2rem] border border-emerald-100">
-                <h3 className="text-xl font-black text-emerald-900 mb-6 flex items-center gap-3">
-                  <FileText className="h-7 w-7 text-emerald-600" /> Notification Summary
+              {/* Notification Summary */}
+              <section className="page-section p-8 space-y-6">
+                <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                  <FileText className="h-6 w-6" /> Notification Summary
                 </h3>
-                <div className="text-emerald-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic prose prose-emerald max-w-none">
+                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm font-medium prose max-w-none">
                   {job.description}
                 </div>
               </section>
 
 
 
-              {/* Eligibility & Fees (Premium Solid Style) */}
-              <section className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-amber-50 p-8 rounded-[2rem] border border-amber-100 mt-6">
+              {/* Eligibility & Fees */}
+              <section className="page-section grid grid-cols-1 md:grid-cols-2 gap-8 p-8 mt-6">
                 <div className="space-y-6">
-                  <h3 className="text-xl font-black text-amber-900 mb-6 flex items-center gap-3 border-b border-amber-200/50 pb-4">
-                    <Target className="h-7 w-7 text-amber-600" /> Eligibility Details
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3 border-b border-[var(--gjn-border)] pb-4" style={{ color: 'var(--gjn-blue)' }}>
+                    <Target className="h-6 w-6" /> Eligibility Details
                   </h3>
                   <div className="space-y-5">
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Age Limit</p>
-                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.ageLimit || "As per official rules"}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1">Age Limit</p>
+                      <p className="text-sm font-semibold text-gray-900 leading-relaxed">{job.ageLimit || "As per official rules"}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Educational Qualification</p>
-                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.qualification}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1">Educational Qualification</p>
+                      <p className="text-sm font-semibold text-gray-900 leading-relaxed">{job.qualification}</p>
                     </div>
                   </div>
                 </div>
-                <div className="space-y-6 md:border-l md:border-amber-200/50 md:pl-8">
-                  <h3 className="text-xl font-black text-amber-900 mb-6 flex items-center gap-3 border-b border-amber-200/50 pb-4">
-                    <IndianRupee className="h-7 w-7 text-amber-600" /> Fees & Dates
+                <div className="space-y-6 md:border-l md:border-[var(--gjn-border)] md:pl-8">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3 border-b border-[var(--gjn-border)] pb-4" style={{ color: 'var(--gjn-blue)' }}>
+                    <IndianRupee className="h-6 w-6" /> Fees & Dates
                   </h3>
                   <div className="space-y-5">
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Application Fee</p>
-                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.applicationFee || "Refer to Official Notification"}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1">Application Fee</p>
+                      <p className="text-sm font-semibold text-gray-900 leading-relaxed">{job.applicationFee || "Refer to Official Notification"}</p>
                     </div>
                     <div>
-                      <p className="text-[11px] font-black uppercase tracking-widest text-amber-600/80 mb-1">Application Start Date</p>
-                      <p className="text-sm font-semibold text-amber-900/90 leading-relaxed italic">{job.applicationStartDate || "Refer to link"}</p>
+                      <p className="text-[11px] font-black uppercase tracking-widest text-gray-400 mb-1">Application Start Date</p>
+                      <p className="text-sm font-semibold text-gray-900 leading-relaxed">{job.applicationStartDate || "Refer to link"}</p>
                     </div>
                   </div>
                 </div>
@@ -385,24 +374,24 @@ export default function JobDetail() {
 
               {/* Selection Process */}
               {job.selectionProcess && (
-                <section className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100/50">
-                  <h3 className="text-xl font-black text-blue-900 mb-4 flex items-center justify-center md:justify-start gap-3">
-                    <Target className="h-7 w-7 text-blue-600" /> Selection Process
+                <section className="page-section p-8 space-y-4">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <Target className="h-6 w-6" /> Selection Process
                   </h3>
-                  <div className="text-blue-900/80 leading-relaxed font-bold text-sm">
+                  <div className="text-gray-700 leading-relaxed font-medium text-sm">
                     {job.selectionProcess}
                   </div>
                 </section>
               )}
 
-              {/* Official Vacancy Matrix (Premium Solid Style) */}
+              {/* Official Vacancy Matrix */}
               {job.vacancyBreakdown && (
-                <section id="vacancies" className="bg-rose-50 p-8 rounded-[2rem] border border-rose-100">
-                  <h3 className="text-xl font-black text-rose-900 mb-6 flex items-center gap-3">
-                    <Users className="h-7 w-7 text-rose-600" />
+                <section id="vacancies" className="page-section p-8 space-y-6">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <Users className="h-6 w-6" />
                     Official Vacancy Matrix
                   </h3>
-                  <div className="text-rose-900/80 leading-relaxed whitespace-pre-wrap font-medium text-sm italic prose prose-rose max-w-none">
+                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap font-medium text-sm prose max-w-none">
                     {job.vacancyBreakdown}
                   </div>
                 </section>
@@ -411,8 +400,8 @@ export default function JobDetail() {
               {/* Official Notifications (Multiple) */}
               {((job.notifications as any[]) || []).length > 0 && (
                 <section id="documents" className="space-y-6">
-                  <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
-                    <Download className="h-7 w-7 text-blue-600" /> Notifications & Documents
+                  <h3 className="text-xl font-syne font-bold flex items-center justify-center md:justify-start gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <Download className="h-6 w-6" /> Notifications & Documents
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {((job.notifications as any[]) || []).map((notif, idx) => (
@@ -441,8 +430,8 @@ export default function JobDetail() {
 
               {/* Important Links (New Section) */}
               <section className="space-y-6">
-                <h3 className="text-xl font-black text-gray-900 flex items-center justify-center md:justify-start gap-3">
-                  <ExternalLink className="h-7 w-7 text-indigo-600" /> Important Links
+                <h3 className="text-xl font-syne font-bold flex items-center justify-center md:justify-start gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                  <ExternalLink className="h-6 w-6" /> Important Links
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Dynamic Notification Links mirrored here if short */}
@@ -609,13 +598,16 @@ export default function JobDetail() {
 
 /* ---------------- SMALL COMPONENTS ---------------- */
 
-function InfoItem({ label, value }: { label: string; value: string }) {
+function InfoItem({ label, value, icon }: { label: string; value: string; icon?: React.ReactNode }) {
   return (
-    <div className="bg-white border rounded-xl p-4 hover:shadow-md transition">
-      <p className="text-[11px] uppercase tracking-wide text-gray-400 font-semibold">
-        {label}
-      </p>
-      <p className="text-sm font-semibold text-gray-900 mt-1">
+    <div className="bg-[var(--gjn-bg)] border border-[var(--gjn-border)] rounded-[16px] p-4 flex flex-col hover:shadow-md transition">
+      <div className="flex items-center gap-2 mb-2">
+        {icon && <div className="text-[var(--gjn-blue)] bg-white p-1.5 rounded-lg shadow-sm border border-[var(--gjn-border)]">{icon}</div>}
+        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">
+          {label}
+        </p>
+      </div>
+      <p className="text-sm font-black text-gray-900 mt-auto leading-tight">
         {value}
       </p>
     </div>
