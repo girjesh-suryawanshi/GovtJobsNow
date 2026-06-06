@@ -30,6 +30,8 @@ export default function HorizontalFilterBar({ filters, onFilterChange, onOpenMob
 
   return (
     <div
+      id="departments"
+      data-testid="filters-sidebar"
       style={{
         background: "#fff",
         border: "1.5px solid var(--gjn-border)",

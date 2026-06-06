@@ -688,10 +688,27 @@ Disallow: /admin/`);
       - employmentType: "Permanent", "Contract", "Apprentice", "Temporary", "Part-time"
       - dates (applicationStartDate, deadline): Must strictly be in YYYY-MM-DD format.
 
-      CRITICAL SEO INSTRUCTION:
-      The "title" and "description" fields must NOT be exact copy-pastes from the source text. You must REWRITE them to be highly readable, attractive, and 100% unique human-written content to avoid Google SEO duplicate content penalties.
+      CRITICAL JSON FORMATTING:
+      You are generating a JSON object. All string values MUST be on a single line. YOU MUST NOT USE ACTUAL NEWLINE CHARACTERS IN THE OUTPUT.
+      If you need to represent a newline or line break inside the Markdown description, you MUST type the literal characters \\n (a backslash followed by the letter n).
+      Do NOT output multi-line strings. Failure to escape newlines will crash the system.
+      
       - "title": Create a catchy, clear, and professional job title.
-      - "description": Write a comprehensive, highly engaging, completely original summary of the job role, responsibilities, and key instructions in easy-to-read paragraphs. Do NOT just copy the source text sentences.
+      - "description": Write a comprehensive, completely original summary of the job. You MUST format the description using Markdown. At the end of the description, you MUST include the following 4 sections formatted as Markdown headings (use H3 '###'):
+        
+        ### 1. Common mistakes / What to check before applying [Organization Name] Recruitment
+        [Extract or generate content here based on the notification or general best practices]
+        
+        ### 2. Who can apply for This Job & How to Apply for [Organization Name] Recruitment 2026
+        [Extract or generate eligibility and application steps here]
+        
+        ### 3. Important Document Required to Apply For [Organization Name] Recruitment
+        [Extract or generate required documents list here]
+        
+        ### 4. How to Apply for [Organization Name] Recruitment
+        [Extract or generate step-by-step application instructions here]
+        
+        Use the actual organization or department name where [Organization Name] is specified. If the exact details aren't in the text, you MUST generate reasonable, highly relevant SEO-friendly content for each section based on your AI knowledge. Do NOT just copy the source text sentences.
       
       SCHEMA:
       {
@@ -736,9 +753,38 @@ Disallow: /admin/`);
       if (!match) {
         throw new Error("No JSON object found in response");
       }
-      const jsonStr = match[0];
+      let jsonStr = match[0];
 
-      const parsedData = JSON.parse(jsonStr);
+      let parsedData;
+      try {
+        parsedData = JSON.parse(jsonStr);
+      } catch (parseError) {
+        // Fallback: manually escape unescaped newlines inside strings.
+        // LLMs frequently fail to escape newlines when writing Markdown inside JSON strings.
+        let inString = false;
+        let cleaned = "";
+        for (let i = 0; i < jsonStr.length; i++) {
+          const char = jsonStr[i];
+          if (char === '"' && jsonStr[i - 1] !== '\\') {
+            inString = !inString;
+          }
+          if (inString && char === '\n') {
+            cleaned += '\\n';
+          } else if (inString && char === '\r') {
+            // strip carriage returns
+          } else if (inString && char === '\t') {
+            cleaned += '\\t';
+          } else {
+            cleaned += char;
+          }
+        }
+        try {
+          parsedData = JSON.parse(cleaned);
+        } catch (secondError) {
+          throw new Error("Failed to parse JSON even after cleaning: " + secondError);
+        }
+      }
+
       // Clean nulls to empty strings for UI components
       for (const key in parsedData) {
         if (parsedData[key] === null) parsedData[key] = "";
@@ -812,9 +858,35 @@ Disallow: /admin/`);
       if (!match) {
         throw new Error("No JSON object found in response");
       }
-      const jsonStr = match[0];
+      let jsonStr = match[0];
   
-      const parsedData = JSON.parse(jsonStr);
+      let parsedData;
+      try {
+        parsedData = JSON.parse(jsonStr);
+      } catch (parseError) {
+        let inString = false;
+        let cleaned = "";
+        for (let i = 0; i < jsonStr.length; i++) {
+          const char = jsonStr[i];
+          if (char === '"' && jsonStr[i - 1] !== '\\') {
+            inString = !inString;
+          }
+          if (inString && char === '\n') {
+            cleaned += '\\n';
+          } else if (inString && char === '\r') {
+            // strip carriage returns
+          } else if (inString && char === '\t') {
+            cleaned += '\\t';
+          } else {
+            cleaned += char;
+          }
+        }
+        try {
+          parsedData = JSON.parse(cleaned);
+        } catch (secondError) {
+          throw new Error("Failed to parse JSON even after cleaning: " + secondError);
+        }
+      }
       // Clean nulls to empty strings for UI components
       for (const key in parsedData) {
         if (parsedData[key] === null) parsedData[key] = "";

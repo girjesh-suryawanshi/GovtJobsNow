@@ -292,13 +292,7 @@ export default function FiltersSidebar({ filters, onFilterChange, isOpen = false
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside 
-        id="departments"
-        data-testid="filters-sidebar"
-        className="hidden lg:block lg:w-1/4 sticky top-24 self-start"
-      >
-        {filtersContent}
-      </aside>
+
 
       {/* Mobile Overlay */}
       {isOpen && (

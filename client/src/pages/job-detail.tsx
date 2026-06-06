@@ -35,6 +35,7 @@ import { apiRequest } from "@/lib/api";
 import type { Job } from "@/types/job";
 import { type SiteSettings } from "@shared/schema";
 import SocialShare from "@/components/social-share";
+import ReactMarkdown from "react-markdown";
 
 interface JobPosition {
   id: string;
@@ -304,8 +305,8 @@ export default function JobDetail() {
                     <Sparkles className="h-6 w-6 text-[var(--gjn-amber)]" />
                     AI-Powered Preparation Guide
                   </h3>
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm font-medium">
-                    {job.prepGuide}
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown>{job.prepGuide}</ReactMarkdown>
                   </div>
                 </section>
               )}
@@ -317,8 +318,8 @@ export default function JobDetail() {
                     <BookOpen className="h-6 w-6" />
                     Detailed Syllabus Breakdown
                   </h3>
-                  <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm font-medium">
-                    {job.syllabus}
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown>{job.syllabus}</ReactMarkdown>
                   </div>
                 </section>
               )}
@@ -331,8 +332,8 @@ export default function JobDetail() {
                 <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
                   <FileText className="h-6 w-6" /> Notification Summary
                 </h3>
-                <div className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm font-medium prose max-w-none">
-                  {job.description}
+                <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                  <ReactMarkdown>{job.description}</ReactMarkdown>
                 </div>
               </section>
 
