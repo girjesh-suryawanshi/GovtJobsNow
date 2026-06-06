@@ -19,8 +19,27 @@ aiRouter.post("/chat", async (req, res) => {
 
     const provider = settings.aiModelProvider || "gemini";
 
-    // 2. Add Job Context if provided
+    // 2. Local Database Search (RAG)
+    const matchedJobs = await storage.searchJobsForRAG(message);
+    const matchedExams = await storage.searchExamsForRAG(message);
+    
     let systemPrompt = "You are the GovtJobNow AI Assistant. You help users with their questions about government jobs in India. Be concise, accurate, and professional.";
+    
+    if (matchedJobs.length > 0 || matchedExams.length > 0) {
+      systemPrompt += `\n\nI have found the following relevant information in our database:`;
+      
+      matchedJobs.forEach(job => {
+        systemPrompt += `\n- JOB: ${job.title} | Department: ${job.department} | Qualification: ${job.qualification} | Age: ${job.ageLimit || "Not specified"} | Apply link: [Click here to view full details](https://govtjobnow.com/job/${job.slug})`;
+      });
+      
+      matchedExams.forEach(exam => {
+        systemPrompt += `\n- EXAM: ${exam.title} | Link: [Click here to view full details](https://govtjobnow.com/exam/${exam.slug})`;
+      });
+      
+      systemPrompt += `\n\nUse this exact data to answer the user's question if it's relevant. You MUST include the exact Markdown link (e.g. [text](https://govtjobnow.com/job/slug)) at the end of your answer so the user can click it to visit the page. Do NOT make up links.`;
+    }
+
+    // 3. Add Job Context if provided (from the current page)
     if (jobId) {
       const job = await storage.getJob(jobId);
       if (job) {

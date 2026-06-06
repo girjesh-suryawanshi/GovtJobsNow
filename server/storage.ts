@@ -15,6 +15,7 @@ export interface IStorage {
   getJobBySlug(slug: string): Promise<Job | undefined>;
   getAllJobs(): Promise<Job[]>;
   searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }>;
+  searchJobsForRAG(query: string): Promise<Job[]>;
   createJob(job: InsertJob): Promise<Job>;
   createJobWithPositions(jobData: any): Promise<Job>;
   getJobPositions(jobId: string): Promise<JobPosition[]>;
@@ -34,6 +35,7 @@ export interface IStorage {
   getExam(id: string): Promise<Exam | undefined>;
   getExamBySlug(slug: string): Promise<Exam | undefined>;
   getAllExams(): Promise<Exam[]>;
+  searchExamsForRAG(query: string): Promise<Exam[]>;
   createExam(exam: InsertExam): Promise<Exam>;
   updateExam(id: string, exam: Partial<InsertExam>): Promise<Exam | undefined>;
   deleteExam(id: string): Promise<boolean>;
@@ -82,12 +84,30 @@ export class MemStorage implements IStorage {
     return this.users.delete(id);
   }
 
+  async getAllExams(): Promise<Exam[]> {
+    return Array.from(this.exams.values()).sort((a, b) => 
+      new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    );
+  }
+  async searchExamsForRAG(query: string): Promise<Exam[]> {
+    const q = query.toLowerCase();
+    return Array.from(this.exams.values())
+      .filter(e => e.title.toLowerCase().includes(q))
+      .slice(0, 3);
+  }
+
   async getJob(id: string): Promise<Job | undefined> { return this.jobs.get(id); }
   async getJobBySlug(slug: string): Promise<Job | undefined> {
     return Array.from(this.jobs.values()).find(j => j.slug === slug);
   }
   async getAllJobs(): Promise<Job[]> { return Array.from(this.jobs.values()).sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()); }
-  async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: [], total: 0 }; }
+  async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: Array.from(this.jobs.values()), total: this.jobs.size }; }
+  async searchJobsForRAG(query: string): Promise<Job[]> {
+    const q = query.toLowerCase();
+    return Array.from(this.jobs.values())
+      .filter(j => j.title.toLowerCase().includes(q) || (j.department && j.department.toLowerCase().includes(q)))
+      .slice(0, 3);
+  }
   async createJob(insertJob: InsertJob): Promise<Job> {
     const id = randomUUID();
     const job = { ...insertJob, id, createdAt: new Date(), positions: insertJob.positions || "1", viewCount: 0 } as Job;
@@ -138,7 +158,6 @@ export class MemStorage implements IStorage {
   async getExamBySlug(slug: string): Promise<Exam | undefined> {
     return Array.from(this.exams.values()).find(e => e.slug === slug);
   }
-  async getAllExams(): Promise<Exam[]> { return Array.from(this.exams.values()); }
   async createExam(exam: InsertExam): Promise<Exam> {
     const id = randomUUID();
     const e = { ...exam, id, createdAt: new Date() } as Exam;
@@ -260,6 +279,22 @@ export class DatabaseStorage implements IStorage {
     const limit = params.limit || 10;
     return { jobs: sortedJobs.slice((page - 1) * limit, page * limit), total: sortedJobs.length };
   }
+  
+  async searchJobsForRAG(query: string): Promise<Job[]> {
+    try {
+      const searchTerms = query.split(' ').filter(t => t.length > 2);
+      if (searchTerms.length === 0) return [];
+      const term = `%${searchTerms[0]}%`;
+      return await db.select()
+        .from(jobs)
+        .where(sql`${jobs.title} ILIKE ${term} OR ${jobs.department} ILIKE ${term}`)
+        .limit(3);
+    } catch (error) {
+      console.error("Error in searchJobsForRAG:", error);
+      return [];
+    }
+  }
+
   async createJob(insertJob: InsertJob): Promise<Job> {
     const [job] = await db.insert(jobs).values(insertJob).returning();
     return job;
@@ -343,6 +378,22 @@ export class DatabaseStorage implements IStorage {
   async getAllExams(): Promise<Exam[]> {
     return await db.select().from(exams).orderBy(desc(exams.createdAt));
   }
+
+  async searchExamsForRAG(query: string): Promise<Exam[]> {
+    try {
+      const searchTerms = query.split(' ').filter(t => t.length > 2);
+      if (searchTerms.length === 0) return [];
+      const term = `%${searchTerms[0]}%`;
+      return await db.select()
+        .from(exams)
+        .where(sql`${exams.title} ILIKE ${term}`)
+        .limit(3);
+    } catch (error) {
+      console.error("Error in searchExamsForRAG:", error);
+      return [];
+    }
+  }
+
   async createExam(exam: InsertExam): Promise<Exam> {
     const [newExam] = await db.insert(exams).values(exam).returning();
     return newExam;
