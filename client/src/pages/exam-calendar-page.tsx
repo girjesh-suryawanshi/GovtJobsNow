@@ -323,19 +323,16 @@ export default function ExamCalendarPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header />
 
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto pb-12">
         {/* Page Header */}
-        <div className="text-center mb-16 space-y-4">
-          <Badge className="bg-blue-600 text-white font-black px-4 py-1 uppercase tracking-widest text-[10px] rounded-full">
+        <div className="page-hero mb-10" style={{ borderRadius: '0 0 20px 20px' }}>
+          <Badge className="bg-white text-[var(--gjn-blue2)] hover:bg-gray-50 font-black px-4 py-1 uppercase tracking-widest text-[10px] rounded-full mb-4">
             Live Updates
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
-            Government <span className="text-blue-600">Exam Calendar</span>
-          </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto font-medium">
+          <h1>Government Exam Calendar</h1>
+          <p>
             The most reliable source for Indian government exam dates, registration deadlines, and official notifications.
           </p>
-          <div className="h-1.5 w-24 bg-blue-600 mx-auto rounded-full" />
         </div>
 
         {/* Filters */}

@@ -8,16 +8,16 @@ export default function AboutUs() {
             <Header />
 
             {/* Hero Section */}
-            <section className="bg-gradient-to-r from-blue-900 to-indigo-900 text-white py-20 px-4">
+            <div className="page-hero mb-10" style={{ borderRadius: '0 0 20px 20px' }}>
                 <div className="max-w-4xl mx-auto text-center">
-                    <h1 className="text-4xl md:text-5xl font-bold mb-6">About GovtJobNow</h1>
-                    <p className="text-xl text-blue-100 leading-relaxed">
+                    <h1>About GovtJobNow</h1>
+                    <p>
                         India's most trusted and reliable portal for government job notifications,
                         exam calendars, and career guidance. We bridge the gap between talented
                         candidates and their dream government careers.
                     </p>
                 </div>
-            </section>
+            </div>
 
             {/* Content Section */}
             <main className="max-w-4xl mx-auto px-4 py-16">

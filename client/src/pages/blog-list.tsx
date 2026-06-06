@@ -80,19 +80,15 @@ export default function BlogList() {
       <Header />
 
       {/* Hero Banner */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 text-white py-16 px-4">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-8 left-8 w-64 h-64 rounded-full bg-white/20 blur-3xl" />
-          <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-indigo-400/30 blur-3xl" />
-        </div>
+      <div className="page-hero mb-10" style={{ borderRadius: '0 0 20px 20px' }}>
         <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 text-blue-100 text-xs font-medium px-4 py-1.5 rounded-full mb-5">
+          <div className="inline-flex items-center gap-2 bg-white/20 text-white text-xs font-medium px-4 py-1.5 rounded-full mb-5">
             <BookOpen className="w-3.5 h-3.5" /> Expert Knowledge Base
           </div>
-          <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
+          <h1>
             Government Job Insights & Guides
           </h1>
-          <p className="text-blue-100 text-lg max-w-2xl mx-auto mb-8">
+          <p>
             Strategies, tips, and news to help you crack the most competitive Sarkari exams in India.
           </p>
           {/* Search */}
@@ -114,7 +110,7 @@ export default function BlogList() {
             </button>
           </form>
         </div>
-      </section>
+      </div>
 
       <div className="max-w-7xl mx-auto px-4 py-10">
         {/* Filters */}

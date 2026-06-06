@@ -110,7 +110,7 @@ export default function JobDetail() {
   const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
+    <div className="min-h-screen" style={{ background: 'var(--gjn-bg)' }}>
       <SEOHead
         title={`${job.title} - ${job.department} | GovtJobNow Official`}
         description={`Official notification for ${job.title} in ${job.department}. Apply before ${job.deadline}.`}
@@ -120,33 +120,33 @@ export default function JobDetail() {
       <Header onScrollToDepartments={() => window.location.href = '/#departments'} />
 
       {/* Sticky Professional Sub-Header */}
-      <div className={`fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm transition-all duration-300 transform ${showStickyHeader ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-md shadow-sm transition-all duration-300 transform ${showStickyHeader ? 'translate-y-0' : '-translate-y-full'}`} style={{ background: 'rgba(26, 63, 168, 0.95)', borderBottom: '1px solid var(--gjn-blue2)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4 overflow-hidden text-sm">
-            <div className="hidden sm:block">
-              <OrganizationLogo department={job?.recruitingOrganization || job?.department || ""} className="h-8 w-8" />
+            <div className="hidden sm:block p-1 bg-white rounded-full">
+              <OrganizationLogo department={job?.recruitingOrganization || job?.department || ""} className="h-7 w-7" />
             </div>
-            <p className="font-black text-gray-900 truncate max-w-[200px] md:max-w-md">{job?.title}</p>
+            <p className="font-syne font-black text-white truncate max-w-[200px] md:max-w-md">{job?.title}</p>
           </div>
 
           <div className="hidden md:flex items-center gap-6">
-            <a href="#overview" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Overview</a>
-            <a href="#vacancies" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Vacancies</a>
-            <a href="#timeline" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Timeline</a>
-            <a href="#documents" className="text-xs font-black uppercase tracking-widest text-gray-400 hover:text-blue-600 transition-colors">Documents</a>
+            <a href="#overview" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Overview</a>
+            <a href="#vacancies" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Vacancies</a>
+            <a href="#timeline" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Timeline</a>
+            <a href="#documents" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Documents</a>
           </div>
 
           <div className="flex items-center gap-3">
-            <Button size="sm" className="hidden sm:flex bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl px-4 py-2" onClick={() => window.open(job?.notificationFileUrl || job?.sourceUrl || '#', '_blank')}>
+            <button className="hidden sm:flex gjn-btn-primary" onClick={() => window.open(job?.notificationFileUrl || job?.sourceUrl || '#', '_blank')}>
               Apply Now
-            </Button>
+            </button>
             <SocialShare
               url={window.location.href}
               title={job?.title || ""}
               trigger={
-                <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border-gray-100">
-                  <Share2 className="h-4 w-4 text-gray-400" />
-                </Button>
+                <button className="flex items-center justify-center h-9 w-9 rounded-xl" style={{ border: '1.5px solid rgba(255,255,255,0.2)', background: 'transparent' }}>
+                  <Share2 className="h-4 w-4 text-white" />
+                </button>
               }
             />
           </div>
@@ -157,9 +157,9 @@ export default function JobDetail() {
         {/* BACK + BREADCRUMB */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <Link href="/">
-            <Button variant="ghost" className="hover:bg-transparent hover:text-blue-600 p-0 text-gray-400 font-black uppercase tracking-widest text-[10px]">
+            <button className="flex items-center font-black uppercase tracking-widest text-[10px]" style={{ color: 'var(--gjn-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
               <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
-            </Button>
+            </button>
           </Link>
 
           <Breadcrumbs
@@ -208,23 +208,22 @@ export default function JobDetail() {
               </div>
 
               <div className="flex gap-2">
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow-sm"
+                <button
+                  className="gjn-btn-primary"
                   onClick={() => window.open(job.sourceUrl || '#', '_blank')}
                 >
                   Apply Now
-                </Button>
+                </button>
 
-                <Button
-                  variant="outline"
+                <button
                   onClick={() => setIsSaved(!isSaved)}
-                  className="rounded-lg"
+                  className="flex items-center justify-center rounded-lg"
+                  style={{ width: '40px', background: 'transparent', border: '1.5px solid var(--gjn-border)' }}
                 >
                   <Bookmark
-                    className={`h-4 w-4 ${isSaved ? "fill-black" : ""
-                      }`}
+                    className={`h-4 w-4 ${isSaved ? "fill-[var(--gjn-amber)] text-[var(--gjn-amber)]" : "text-gray-400"}`}
                   />
-                </Button>
+                </button>
               </div>
 
             </div>
@@ -532,21 +531,20 @@ export default function JobDetail() {
                 <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 space-y-8">
                   <div className="space-y-4">
                     <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Application Status</h4>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-12 sm:h-14 shadow-2xl shadow-blue-100 flex items-center justify-center gap-2" onClick={() => window.open(job.sourceUrl, '_blank')}>
+                    <button className="gjn-btn-primary w-full flex items-center justify-center gap-2 h-12 sm:h-14" style={{ borderRadius: '16px' }} onClick={() => window.open(job.sourceUrl, '_blank')}>
                       Apply Online <ExternalLink className="h-5 w-5" />
-                    </Button>
+                    </button>
 
                     {/* Modern Multi-Notification Priority */}
                     {((job.notifications as any[]) || []).length > 0 ? (
                       ((job.notifications as any[]) || []).map((notif, idx) => (
-                        <Button
+                        <button
                           key={idx}
-                          variant="outline"
-                          className="w-full border-gray-200 text-gray-700 hover:bg-blue-50 hover:text-blue-600 font-black rounded-2xl h-14 flex items-center justify-center gap-2 transition-all"
+                          className="gjn-btn-secondary w-full flex items-center justify-center gap-2 h-14" style={{ borderRadius: '16px' }}
                           onClick={() => window.open(notif.url, '_blank')}
                         >
-                          {notif.label} {notif.type === 'file' ? <Download className="h-5 w-5 text-blue-500" /> : <ExternalLink className="h-5 w-5 text-blue-500" />}
-                        </Button>
+                          {notif.label} {notif.type === 'file' ? <Download className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
+                        </button>
                       ))
                     ) : job.notificationFileUrl && (
                       <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-white font-black rounded-2xl h-14 flex items-center justify-center gap-2" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
@@ -558,9 +556,9 @@ export default function JobDetail() {
                       url={window.location.href}
                       title={job.title}
                       trigger={
-                        <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50 font-black rounded-2xl h-12 sm:h-14">
-                          <Share2 className="mr-2 h-5 w-5" /> Share Openings
-                        </Button>
+                        <button className="w-full flex items-center justify-center gap-2 h-12 sm:h-14" style={{ background: 'transparent', border: 'none', color: 'var(--gjn-blue2)', fontWeight: 800, cursor: 'pointer' }}>
+                          <Share2 className="h-5 w-5" /> Share Openings
+                        </button>
                       }
                     />
                   </div>
@@ -600,9 +598,9 @@ export default function JobDetail() {
               <p className="text-[10px] font-black text-green-600 uppercase leading-none">Hiring Now</p>
             </div>
           </div>
-          <Button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-2xl h-12 shadow-lg shadow-blue-200" onClick={() => window.open(job?.sourceUrl || '#', '_blank')}>
+          <button className="flex-1 gjn-btn-primary flex items-center justify-center gap-1" style={{ borderRadius: '16px', height: '48px' }} onClick={() => window.open(job?.sourceUrl || '#', '_blank')}>
             Apply Online <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

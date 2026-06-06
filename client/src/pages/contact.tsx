@@ -40,9 +40,9 @@ export default function Contact() {
       <Header />
       
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+        <div className="page-hero mb-12" style={{ borderRadius: '20px' }}>
+          <h1>Contact Us</h1>
+          <p>
             Have questions about government jobs or need assistance? Our team is here to help you navigate your career journey.
           </p>
         </div>

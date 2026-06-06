@@ -1,25 +1,23 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation, Link } from "wouter";
+import { Link } from "wouter";
 import Header from "@/components/header";
 import SEOHead from "@/components/seo-head";
 import FeatureShowcase from "@/components/feature-showcase";
-import AdvancedSearchTags from "@/components/advanced-search-tags";
 import FiltersSidebar from "@/components/filters-sidebar";
+import HorizontalFilterBar from "@/components/horizontal-filter-bar";
 import JobCard from "@/components/job-card";
-import JobDetailModal from "@/components/job-detail-modal";
 import JobComparison from "@/components/job-comparison";
 import JobAlerts from "@/components/job-alerts";
 import JobTracker from "@/components/job-tracker";
 import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
 import UserProfileModal from "@/components/user-profile-modal";
-import { AdUnit } from "@/components/ad-unit";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Filter, Sparkles } from "lucide-react";
+import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Sparkles, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
 
@@ -54,7 +52,6 @@ const RESULT_ITEMS = [
 ];
 
 export default function Home() {
-  const [, setLocation] = useLocation();
   const [searchParams, setSearchParams] = useState<SearchJobsParams>({
     search: "",
     department: "all-departments",
@@ -67,7 +64,7 @@ export default function Home() {
     limit: 10,
   });
   
-  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [compareJobs, setCompareJobs] = useState<Job[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -351,10 +348,11 @@ export default function Home() {
             </Button>
           </div>
 
-          {/* ─── ADVANCED SEARCH TAGS ─── */}
-          <AdvancedSearchTags
-            onAdvancedSearch={handleAdvancedSearch}
-            currentSearch={searchParams.search || ""}
+          {/* ─── HORIZONTAL FILTER BAR ─── */}
+          <HorizontalFilterBar
+            filters={searchParams}
+            onFilterChange={handleFilterChange}
+            onOpenMobileFilters={() => setIsMobileFiltersOpen(true)}
           />
 
           {/* ─── JOBS HEADER BAR ─── */}
@@ -418,7 +416,6 @@ export default function Home() {
                         <JobCard
                           key={job.id}
                           job={job}
-                          onClick={() => setSelectedJob(job)}
                           onCompare={() => handleCompareJob(job)}
                           onTrack={() => { setJobToTrack(job); setShowJobTracker(true); }}
                           isComparing={compareJobs.some(j => j.id === job.id)}
@@ -558,14 +555,7 @@ export default function Home() {
         onToggle={() => setIsMobileFiltersOpen(false)}
       />
 
-      {selectedJob && (
-        <JobDetailModal
-          job={selectedJob}
-          isOpen={!!selectedJob}
-          onClose={() => setSelectedJob(null)}
-          onTrack={() => { setJobToTrack(selectedJob); setShowJobTracker(true); }}
-        />
-      )}
+
 
       {showComparison && compareJobs.length > 0 && (
         <JobComparison

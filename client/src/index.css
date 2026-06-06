@@ -398,6 +398,63 @@
   }
 }
 
+/* ─── GLOBAL PAGE THEMING UTILITIES ─── */
+.page-hero {
+  position: relative;
+  background: linear-gradient(135deg, var(--gjn-blue) 0%, var(--gjn-blue2) 100%);
+  color: #fff;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  overflow: hidden;
+}
+.page-hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+.page-hero p {
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.page-section {
+  background: #fff;
+  border: 1.5px solid var(--gjn-border);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.gjn-btn-primary {
+  background-color: var(--gjn-amber);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  transition: background-color 0.15s;
+  border: none;
+  cursor: pointer;
+}
+.gjn-btn-primary:hover {
+  background-color: #d97706;
+}
+
+.gjn-btn-secondary {
+  background-color: transparent;
+  color: var(--gjn-blue2);
+  border: 1.5px solid var(--gjn-blue2);
+  font-weight: 700;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+.gjn-btn-secondary:hover {
+  background-color: #eff6ff;
+}
+
 /* ─── SCROLL UTILITY ─── */
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
