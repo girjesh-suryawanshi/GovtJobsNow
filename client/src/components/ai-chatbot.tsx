@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Bot, User, Loader2, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,11 +21,57 @@ export default function AiChatbot() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [location] = useLocation();
 
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-IN';
+
+      recognitionRef.current.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setInput((prev) => prev + (prev ? " " : "") + transcript);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+          setIsListening(true);
+        } catch (e) {
+          console.error("Speech recognition start error", e);
+        }
+      } else {
+        alert("Voice recognition is not supported in this browser.");
+      }
+    }
+  };
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -139,7 +185,17 @@ export default function AiChatbot() {
                 placeholder="Ask about age limits, syllabus..."
                 className="rounded-full bg-gray-50 border-gray-200 focus-visible:ring-blue-500 focus-visible:ring-offset-0"
               />
-              <Button type="submit" disabled={!input.trim() || isLoading} size="icon" className="rounded-full bg-blue-600 hover:bg-blue-700">
+              <Button 
+                type="button" 
+                onClick={toggleListening} 
+                variant="outline"
+                size="icon" 
+                className={`rounded-full shrink-0 transition-colors ${isListening ? 'bg-red-50 text-red-600 border-red-200 hover:bg-red-100 hover:text-red-700' : 'text-gray-500 hover:text-blue-600'}`}
+                title={isListening ? "Stop listening" : "Start voice typing"}
+              >
+                {isListening ? <MicOff className="h-4 w-4 animate-pulse" /> : <Mic className="h-4 w-4" />}
+              </Button>
+              <Button type="submit" disabled={!input.trim() || isLoading} size="icon" className="rounded-full bg-blue-600 hover:bg-blue-700 shrink-0">
                 <Send className="h-4 w-4" />
               </Button>
             </form>
