@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import Header from "@/components/header";
 import SEOHead from "@/components/seo-head";
-import HeroSection from "@/components/hero-section";
-import StatsDashboard from "@/components/stats-dashboard";
 import FeatureShowcase from "@/components/feature-showcase";
 import AdvancedSearchTags from "@/components/advanced-search-tags";
 import FiltersSidebar from "@/components/filters-sidebar";
@@ -24,6 +22,36 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Grid3X3, List, ChevronLeft, ChevronRight, Bell, Target, Calendar, Filter, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import type { Job, SearchJobsParams } from "@/types/job";
+
+// ─── STATIC DATA ──────────────────────────────────────────────────────────────
+const CATEGORIES = [
+  { icon: '🏛️', name: 'UPSC',       count: '42 Jobs',  dept: 'Union Public Service Commission' },
+  { icon: '🚆', name: 'Railway',    count: '186 Jobs', dept: 'Railway Recruitment Board' },
+  { icon: '🏦', name: 'Banking',    count: '93 Jobs',  dept: 'Banking Sector' },
+  { icon: '⚔️', name: 'Defence',    count: '71 Jobs',  dept: 'Defense Services' },
+  { icon: '📋', name: 'SSC',        count: '58 Jobs',  dept: 'Staff Selection Commission' },
+  { icon: '🏥', name: 'Medical',    count: '34 Jobs',  dept: 'Healthcare & Medical' },
+  { icon: '👮', name: 'Police',     count: '47 Jobs',  dept: 'Police & Security Forces' },
+  { icon: '🏫', name: 'Teaching',   count: '120 Jobs', dept: 'Education & Teaching' },
+  { icon: '⚙️', name: 'PSU',        count: '29 Jobs',  dept: 'Public Sector Undertaking' },
+  { icon: '🌐', name: 'State Govt', count: '208 Jobs', dept: 'State Government' },
+];
+
+const QUICK_FILTERS = [
+  { label: 'All',          value: '' },
+  { label: '10th Pass',    value: '10th' },
+  { label: '12th Pass',    value: '12th' },
+  { label: 'Graduate',     value: 'graduate' },
+  { label: 'Engineering',  value: 'engineering' },
+  { label: 'Central Govt', value: 'Central Government' },
+  { label: 'State Govt',   value: 'State Government' },
+];
+
+const RESULT_ITEMS = [
+  { icon: '📋', title: 'SSC CHSL 2024 Final Result — Declared', org: 'Staff Selection Commission', date: '4 June 2026', declared: true },
+  { icon: '🏦', title: 'IBPS PO 2025 Main Result — Expected Soon', org: 'IBPS', date: 'June 2026', declared: false },
+  { icon: '🚆', title: 'RRB Group D CBT Result 2025 — Declared', org: 'Railway Recruitment Board', date: '1 June 2026', declared: true },
+];
 
 export default function Home() {
   const [, setLocation] = useLocation();
@@ -174,325 +202,391 @@ export default function Home() {
 
   const totalPages = Math.ceil((jobsData?.total || 0) / searchParams.limit!);
 
+  const [activeTab, setActiveTab] = useState<'jobs' | 'exams' | 'results'>('jobs');
+  const [quickFilter, setQuickFilter] = useState('');
+
+  // Apply quick-filter pill to qualification search
+  const handleQuickFilter = (value: string) => {
+    setQuickFilter(value);
+    if (value === '') {
+      handleFilterChange({ qualification: 'all-qualifications', jobCategory: undefined });
+    } else if (value === 'Central Government' || value === 'State Government') {
+      handleFilterChange({ jobCategory: value, qualification: 'all-qualifications' });
+    } else {
+      handleFilterChange({ qualification: value, jobCategory: undefined });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen" style={{ background: 'var(--gjn-bg)' }}>
       <SEOHead
         title="GovtJobNow - Latest Government Jobs, Sarkari Naukri 2025 | 3900+ Govt Jobs"
         description="Find latest government jobs, sarkari naukri notifications 2025. Browse 3900+ verified govt jobs from SSC, Railway, Banking, UPSC, Defence, PSU. Apply for central & state government jobs online."
         keywords="government jobs, sarkari naukri, govt jobs 2025, SSC jobs, railway jobs, banking jobs, UPSC jobs, latest govt jobs, central government jobs, state government jobs, sarkari result, govt job portal, indian government jobs, sarkari naukri 2025"
         url="https://govtjobnow.com"
       />
-      <Header 
+      <Header
         onScrollToDepartments={handleScrollToDepartments}
+        onSearch={handleSearch}
       />
-      <HeroSection onSearch={handleSearch} onLocationChange={(location) => handleFilterChange({ location })} />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <StatsDashboard />
-        <AdUnit slot="home-top-fluid" className="mt-8" />
+
+      {/* ─── ATF LEADERBOARD AD ─── */}
+      <div style={{ maxWidth: '1280px', margin: '12px auto 0', padding: '0 16px' }}>
+        <div className="ad-unit ad-leaderboard">
+          <span>📢 Advertisement — Above The Fold</span>
+        </div>
       </div>
 
-      {/* AI Eligibility Setup Banner */}
-      {!profile && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
-              <Target className="h-32 w-32" />
-            </div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-center md:text-left">
-                <h3 className="text-xl md:text-2xl font-bold text-white mb-2 flex items-center justify-center md:justify-start gap-2">
-                  <Sparkles className="h-6 w-6 text-yellow-300" />
+      {/* ─── MAIN PAGE WRAP ─── */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 16px 100px', display: 'grid', gridTemplateColumns: '1fr 300px', gap: '20px' }} className="main-page-grid">
+        {/* ══════════════ LEFT / MAIN COLUMN ══════════════ */}
+        <div style={{ minWidth: 0 }}>
+
+          {/* ─── TRUST BAR ─── */}
+          <div className="trust-bar">
+            <div className="trust-item"><span className="live-dot" />&nbsp;Live Updates</div>
+            <div className="trust-item">✅ 1,24,800+ Verified Jobs</div>
+            <div className="trust-item">🔒 Official Sources Only</div>
+            <div className="trust-item" id="last-updated">🕐 Last Updated: Today</div>
+            <div className="trust-item">📰 Google News Approved</div>
+          </div>
+
+          {/* ─── CATEGORY GRID ─── */}
+          <p className="section-title-bar">Browse by Category</p>
+          <div className="cat-grid">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.name}
+                className="cat-card"
+                onClick={() => handleFilterChange({ department: cat.dept, page: 1 })}
+                aria-label={`Browse ${cat.name} jobs`}
+              >
+                <div className="cat-icon">{cat.icon}</div>
+                <div className="cat-name">{cat.name}</div>
+                <div className="cat-count">{cat.count}</div>
+              </button>
+            ))}
+          </div>
+
+          {/* ─── AI ELIGIBILITY BANNER (profile setup) ─── */}
+          {!profile && (
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #1a3fa8 0%, #2563eb 100%)',
+                borderRadius: '10px', padding: '16px 20px', marginBottom: '16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px',
+                color: '#fff',
+              }}
+            >
+              <div>
+                <p style={{ fontFamily: "'Syne',sans-serif", fontWeight: 800, fontSize: '15px', marginBottom: '4px' }}>
+                  <Sparkles className="inline h-4 w-4 mr-1 text-yellow-300" />
                   See Jobs You Are Eligible For!
-                </h3>
-                <p className="text-blue-100 max-w-xl">
-                  Set up your profile once & we'll instantly check age limits, qualifications, and category relaxations for every job.
+                </p>
+                <p style={{ fontSize: '12px', opacity: 0.85 }}>
+                  Set up your profile once — we'll instantly match age, qualification & category.
                 </p>
               </div>
-              <Button 
+              <button
                 onClick={() => setIsProfileModalOpen(true)}
-                className="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
+                style={{
+                  background: '#f59e0b', color: '#fff', border: 'none',
+                  borderRadius: '8px', padding: '9px 18px',
+                  fontWeight: 700, fontSize: '13px', cursor: 'pointer', whiteSpace: 'nowrap',
+                }}
               >
-                Set Up AI Matcher
-              </Button>
+                Set Up Matcher →
+              </button>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {profile && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-blue-100 dark:border-blue-900/50 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="bg-blue-100 dark:bg-blue-900/50 p-2 rounded-full">
-                <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-white">Matching for your profile</p>
-                <p className="text-xs text-gray-500">{profile.qualification} • {profile.category} • Born {profile.dob}</p>
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setIsProfileModalOpen(true)}
-              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+          {profile && (
+            <div
+              style={{
+                background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)',
+                padding: '12px 16px', marginBottom: '16px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}
             >
-              Edit Profile
-            </Button>
-          </div>
-        </div>
-      )}
-      
-      <section className="py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            <FiltersSidebar 
-              filters={searchParams} 
-              onFilterChange={handleFilterChange}
-              isOpen={isMobileFiltersOpen}
-              onToggle={() => setIsMobileFiltersOpen(false)}
-            />
-            
-            <main className="lg:w-3/4">
-              <AdvancedSearchTags 
-                onAdvancedSearch={handleAdvancedSearch}
-                currentSearch={searchParams.search || ""}
-              />
-              {/* Mobile Filter Toggle */}
-              <div className="lg:hidden mb-4">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsMobileFiltersOpen(true)}
-                  className="w-full flex items-center justify-center gap-2"
-                >
-                  <Filter className="h-4 w-4" />
-                  Show Filters
-                </Button>
-              </div>
-
-              <div className="mb-6">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-                  <div>
-                    <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Latest Government Jobs</h2>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
-                    </p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {compareJobs.length > 0 && (
-                        <Button 
-                          variant="default" 
-                          onClick={() => setShowComparison(true)}
-                        >
-                          View Comparison ({compareJobs.length}/3)
-                        </Button>
-                      )}
-                      <Button 
-                        variant="outline"
-                        onClick={() => setShowJobAlerts(true)}
-                        className="flex items-center gap-2"
-                      >
-                        <Bell className="h-4 w-4" />
-                        Job Alerts
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        onClick={() => setShowJobTracker(true)}
-                        className="flex items-center gap-2"
-                      >
-                        <Target className="h-4 w-4" />
-                        Track Applications
-                      </Button>
-                      <Button 
-                        variant="outline"
-                        onClick={() => window.location.href = '/exams'}
-                        className="flex items-center gap-2"
-                      >
-                        <Calendar className="h-4 w-4" />
-                        Exam Calendar
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  {/* Mobile-friendly toolbar with overflow handling */}
-                  <div className="flex items-center gap-2 overflow-x-auto -mx-2 px-2 sm:overflow-visible sm:mx-0 sm:px-0">
-                    <Select 
-                      value={searchParams.sortBy} 
-                      onValueChange={(value) => handleFilterChange({ sortBy: value as any })}
-                    >
-                      <SelectTrigger className="w-40 shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="latest">Latest First</SelectItem>
-                        <SelectItem value="deadline">Deadline</SelectItem>
-                        <SelectItem value="title">Title A-Z</SelectItem>
-                        <SelectItem value="department">Department</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <ToggleGroup 
-                      type="single" 
-                      value={viewMode} 
-                      onValueChange={(value) => value && setViewMode(value as "grid" | "list")} 
-                      className="shrink-0" 
-                      data-testid="toggle-view"
-                    >
-                      <ToggleGroupItem 
-                        value="list" 
-                        aria-label="List view" 
-                        className="h-10 w-10" 
-                        data-testid="button-list-view"
-                      >
-                        <List className="h-4 w-4" />
-                      </ToggleGroupItem>
-                      <ToggleGroupItem 
-                        value="grid" 
-                        aria-label="Grid view" 
-                        className="h-10 w-10" 
-                        data-testid="button-grid-view"
-                      >
-                        <Grid3X3 className="h-4 w-4" />
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Target className="h-5 w-5" style={{ color: 'var(--gjn-blue2)' }} />
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: 600 }}>Matching for your profile</p>
+                  <p style={{ fontSize: '11px', color: 'var(--gjn-muted)' }}>{profile.qualification} • {profile.category} • Born {profile.dob}</p>
                 </div>
               </div>
+              <button
+                onClick={() => setIsProfileModalOpen(true)}
+                style={{ fontSize: '12px', fontWeight: 600, color: 'var(--gjn-blue2)', background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                Edit Profile
+              </button>
+            </div>
+          )}
+      
+          {/* ─── TABS ─── */}
+          <div className="gjn-tabs">
+            <div className={`gjn-tab ${activeTab === 'jobs' ? 'active' : ''}`} onClick={() => setActiveTab('jobs')}>🔥 Latest Jobs</div>
+            <div className={`gjn-tab ${activeTab === 'exams' ? 'active' : ''}`} onClick={() => { setActiveTab('exams'); window.location.href = '/exams'; }}>📅 Upcoming Exams</div>
+            <div className={`gjn-tab ${activeTab === 'results' ? 'active' : ''}`} onClick={() => setActiveTab('results')}>📊 Results</div>
+          </div>
 
-              {isLoading ? (
-                <div className="space-y-4">
+          {/* ─── QUICK FILTER PILLS ─── */}
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '14px' }}>
+            {QUICK_FILTERS.map((f) => (
+              <button
+                key={f.label}
+                className={`filter-pill ${quickFilter === f.value ? 'active' : ''}`}
+                onClick={() => handleQuickFilter(f.value)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {/* ─── MOBILE FILTER TOGGLE ─── */}
+          <div style={{ display: 'none' }} className="mobile-filter-btn" id="mobile-filter-btn">
+            <Button variant="outline" onClick={() => setIsMobileFiltersOpen(true)} className="w-full flex items-center justify-center gap-2" style={{ marginBottom: '12px' }}>
+              <Filter className="h-4 w-4" /> Show Filters
+            </Button>
+          </div>
+
+          {/* ─── ADVANCED SEARCH TAGS ─── */}
+          <AdvancedSearchTags
+            onAdvancedSearch={handleAdvancedSearch}
+            currentSearch={searchParams.search || ""}
+          />
+
+          {/* ─── JOBS HEADER BAR ─── */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+            <div>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: '16px', fontWeight: 800, color: 'var(--gjn-blue)' }}>
+                Latest Government Jobs
+              </h2>
+              <p style={{ fontSize: '12px', color: 'var(--gjn-muted)' }}>
+                Showing {jobsData?.jobs?.length || 0} of {jobsData?.total || 0} jobs
+              </p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {compareJobs.length > 0 && (
+                <button
+                  onClick={() => setShowComparison(true)}
+                  style={{ background: 'var(--gjn-blue2)', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Compare ({compareJobs.length}/3)
+                </button>
+              )}
+              <Select value={searchParams.sortBy} onValueChange={(value) => handleFilterChange({ sortBy: value as any })}>
+                <SelectTrigger style={{ width: '140px', fontSize: '12px', height: '34px' }}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="latest">Latest First</SelectItem>
+                  <SelectItem value="deadline">By Deadline</SelectItem>
+                  <SelectItem value="title">Title A–Z</SelectItem>
+                  <SelectItem value="department">Department</SelectItem>
+                </SelectContent>
+              </Select>
+              <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'grid' | 'list')} data-testid="toggle-view">
+                <ToggleGroupItem value="list" aria-label="List view" className="h-8 w-8" data-testid="button-list-view"><List className="h-4 w-4" /></ToggleGroupItem>
+                <ToggleGroupItem value="grid" aria-label="Grid view" className="h-8 w-8" data-testid="button-grid-view"><Grid3X3 className="h-4 w-4" /></ToggleGroupItem>
+              </ToggleGroup>
+              <button onClick={() => setShowJobAlerts(true)} style={{ background: 'none', border: '1.5px solid var(--gjn-border)', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '13px' }} title="Job Alerts"><Bell className="h-4 w-4" /></button>
+              <button onClick={() => setIsMobileFiltersOpen(true)} style={{ background: 'none', border: '1.5px solid var(--gjn-border)', borderRadius: '6px', padding: '6px 10px', cursor: 'pointer', fontSize: '13px', display: 'none' }} className="mobile-only-filter" title="Filters"><Filter className="h-4 w-4" /></button>
+            </div>
+          </div>
+
+          {isLoading ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 animate-pulse">
-                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
-                      <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                        <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                    <div key={i} style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '16px' }}>
+                      <div className="skeleton" style={{ height: '16px', width: '65%', marginBottom: '10px' }} />
+                      <div className="skeleton" style={{ height: '12px', width: '40%', marginBottom: '8px' }} />
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <div className="skeleton" style={{ height: '11px', width: '80px' }} />
+                        <div className="skeleton" style={{ height: '11px', width: '80px' }} />
+                        <div className="skeleton" style={{ height: '11px', width: '100px' }} />
                       </div>
                     </div>
                   ))}
                 </div>
               ) : jobsData?.jobs?.length ? (
                 <>
-                  <div className={viewMode === "grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
-                    {jobsData.jobs.map((job) => (
-                      <JobCard
-                        key={job.id}
-                        job={job}
-                        onClick={() => setSelectedJob(job)}
-                        onCompare={() => handleCompareJob(job)}
-                        onTrack={() => {
-                          setJobToTrack(job);
-                          setShowJobTracker(true);
-                        }}
-                        isComparing={compareJobs.some(j => j.id === job.id)}
-                      />
+                  <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}>
+                    {jobsData.jobs.map((job, idx) => (
+                      <>
+                        <JobCard
+                          key={job.id}
+                          job={job}
+                          onClick={() => setSelectedJob(job)}
+                          onCompare={() => handleCompareJob(job)}
+                          onTrack={() => { setJobToTrack(job); setShowJobTracker(true); }}
+                          isComparing={compareJobs.some(j => j.id === job.id)}
+                        />
+                        {/* In-feed ad every 5 cards */}
+                        {(idx + 1) % 5 === 0 && (
+                          <div key={`ad-${idx}`} className="ad-unit ad-infeed">
+                            <span>🎯 Advertisement</span>
+                          </div>
+                        )}
+                      </>
                     ))}
                   </div>
 
-                  <AdUnit slot="home-list-middle" />
-
                   {/* Pagination */}
-                  <div className="mt-8 flex justify-center">
-                    <nav className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handlePageChange(searchParams.page! - 1)}
-                        disabled={searchParams.page === 1}
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      
-                      {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                        const page = i + 1;
-                        return (
-                          <Button
-                            key={page}
-                            variant={searchParams.page === page ? "default" : "outline"}
-                            onClick={() => handlePageChange(page)}
-                          >
-                            {page}
-                          </Button>
-                        );
-                      })}
-                      
-                      {totalPages > 5 && (
-                        <>
-                          <span className="px-2">...</span>
-                          <Button
-                            variant="outline"
-                            onClick={() => handlePageChange(totalPages)}
-                          >
-                            {totalPages}
-                          </Button>
-                        </>
-                      )}
-                      
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handlePageChange(searchParams.page! + 1)}
-                        disabled={searchParams.page === totalPages}
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </nav>
+                  <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                    <Button variant="outline" size="icon" onClick={() => handlePageChange(searchParams.page! - 1)} disabled={searchParams.page === 1}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                      const page = i + 1;
+                      return (
+                        <Button key={page} variant={searchParams.page === page ? 'default' : 'outline'} size="sm" onClick={() => handlePageChange(page)}>
+                          {page}
+                        </Button>
+                      );
+                    })}
+                    {totalPages > 5 && (
+                      <><span style={{ padding: '0 4px', lineHeight: '2' }}>…</span>
+                        <Button variant="outline" size="sm" onClick={() => handlePageChange(totalPages)}>{totalPages}</Button>
+                      </>
+                    )}
+                    <Button variant="outline" size="icon" onClick={() => handlePageChange(searchParams.page! + 1)} disabled={searchParams.page === totalPages}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
+
+                  {/* Recent Results section */}
+                  {activeTab === 'results' || (
+                    <div style={{ marginTop: '28px' }}>
+                      <p className="section-title-bar">📊 Recent Results & Merit Lists</p>
+                      {RESULT_ITEMS.map((r, i) => (
+                        <div key={i} style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '12px 16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontSize: '22px' }}>{r.icon}</span>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: '13px', fontWeight: 700 }}>{r.title}</p>
+                            <p style={{ fontSize: '11px', color: 'var(--gjn-muted)', marginTop: '2px' }}>{r.org} • {r.date}</p>
+                          </div>
+                          <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', background: r.declared ? '#dcfce7' : '#fef3c7', color: r.declared ? '#15803d' : '#92400e' }}>
+                            {r.declared ? '✅ Declared' : '⏳ Expected'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </>
               ) : (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                  <p className="text-gray-500 dark:text-gray-400 text-lg">No jobs found matching your criteria</p>
-                  <p className="text-gray-400 dark:text-gray-500 mt-2">Try adjusting your search or filters</p>
+                <div style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '48px', textAlign: 'center' }}>
+                  <p style={{ fontSize: '15px', color: 'var(--gjn-muted)' }}>No jobs found matching your criteria</p>
+                  <p style={{ fontSize: '12px', color: 'var(--gjn-muted)', marginTop: '6px' }}>Try adjusting your search or filters</p>
                 </div>
               )}
-            </main>
+
+        </div>{/* end main col */}
+
+        {/* ══════════════ RIGHT SIDEBAR ══════════════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }} className="home-sidebar">
+
+          {/* Sticky Sidebar Ad */}
+          <div className="ad-unit ad-sidebar" style={{ marginBottom: '16px' }}>
+            <span>📌 Advertisement</span>
+            <span style={{ fontSize: '10px', opacity: 0.7 }}>300×600 · Sticky sidebar</span>
           </div>
-        </div>
-      </section>
+
+          {/* Job Alert Box */}
+          <div style={{ background: 'linear-gradient(135deg, #1a3fa8, #2563eb)', borderRadius: '10px', padding: '16px', textAlign: 'center', color: '#fff', marginBottom: '16px' }}>
+            <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: '15px', fontWeight: 800, marginBottom: '6px' }}>🔔 Free Job Alerts</h3>
+            <p style={{ fontSize: '11px', opacity: 0.85, marginBottom: '12px' }}>Get instant WhatsApp / Email alerts for jobs matching your qualification</p>
+            <Button onClick={() => setShowJobAlerts(true)} style={{ width: '100%', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', padding: '9px', fontWeight: 700, fontSize: '13px', cursor: 'pointer' }}>
+              Subscribe Free →
+            </Button>
+          </div>
+
+          {/* Trending Searches sidebar card */}
+          <div className="gjn-sidebar-card">
+            <div className="gjn-sidebar-head">🔥 Trending Searches</div>
+            {["RRB NTPC 2025 Apply Online", "SSC CGL 2026 Syllabus", "SBI PO Admit Card 2026", "UPSC Prelims 2026 Answer Key", "Army Agniveer Recruitment"].map((t, i) => (
+              <button
+                key={i}
+                className="gjn-sidebar-item"
+                style={{ width: '100%', textAlign: 'left', cursor: 'pointer', background: 'none', border: 'none' }}
+                onClick={() => handleFilterChange({ search: t, page: 1 })}
+              >
+                <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--gjn-blue2)', minWidth: '20px' }}>0{i+1}</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, flex: 1 }}>{t}</span>
+                {i === 0 && <span style={{ fontSize: '10px', fontWeight: 700, color: '#15803d', background: '#dcfce7', borderRadius: '4px', padding: '1px 5px' }}>Hot</span>}
+                {i === 2 && <span style={{ fontSize: '10px', fontWeight: 700, color: '#15803d', background: '#dcfce7', borderRadius: '4px', padding: '1px 5px' }}>New</span>}
+              </button>
+            ))}
+          </div>
+
+          {/* Upcoming Exams sidebar card */}
+          <div className="gjn-sidebar-card" style={{ marginTop: '0' }}>
+            <div className="gjn-sidebar-head">📅 Upcoming Exam Dates</div>
+            {[{d:'08',l:'RRB NTPC CBT-1 · Jun',hot:true},{d:'15',l:'IBPS RRB PO · Jun',hot:true},{d:'22',l:'SSC CGL Tier-1 · Jul'},{d:'01',l:'UPSC Mains · Sep'}].map((ex, i) => (
+              <Link key={i} href="/exams" className="gjn-sidebar-item">
+                <span style={{ fontSize: '11px', fontWeight: 800, color: ex.hot ? 'var(--gjn-red)' : 'var(--gjn-blue2)', minWidth: '20px' }}>{ex.d}</span>
+                <span style={{ fontSize: '12px', fontWeight: 600, flex: 1 }}>{ex.l}</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Sidebar Ad #2 */}
+          <div className="ad-unit" style={{ width: '100%', height: '250px', marginTop: '16px' }}>
+            <span>📌 Advertisement</span>
+            <span style={{ fontSize: '10px', opacity: 0.7 }}>300×250 · Medium Rectangle</span>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
+            <Button variant="outline" onClick={() => setShowJobTracker(true)} className="w-full flex items-center justify-center gap-2" style={{ fontSize: '12px' }}>
+              <Target className="h-4 w-4" /> Track Applications
+            </Button>
+            <Button variant="outline" onClick={() => { window.location.href = '/exams'; }} className="w-full flex items-center justify-center gap-2" style={{ fontSize: '12px' }}>
+              <Calendar className="h-4 w-4" /> Exam Calendar
+            </Button>
+          </div>
+
+        </div>{/* end sidebar */}
+      </div>{/* end main-page-grid */}
+
+      {/* Sidebar layout for mobile — show filters as a sheet */}
+      <FiltersSidebar
+        filters={searchParams}
+        onFilterChange={handleFilterChange}
+        isOpen={isMobileFiltersOpen}
+        onToggle={() => setIsMobileFiltersOpen(false)}
+      />
 
       {selectedJob && (
         <JobDetailModal
           job={selectedJob}
           isOpen={!!selectedJob}
           onClose={() => setSelectedJob(null)}
-          onTrack={() => {
-             setJobToTrack(selectedJob);
-             setShowJobTracker(true);
-          }}
+          onTrack={() => { setJobToTrack(selectedJob); setShowJobTracker(true); }}
         />
       )}
-      
+
       {showComparison && compareJobs.length > 0 && (
         <JobComparison
           jobs={compareJobs}
           onRemove={(jobId) => {
-            const newCompareJobs = compareJobs.filter(j => j.id !== jobId);
-            setCompareJobs(newCompareJobs);
-            if (newCompareJobs.length === 0) {
-              setShowComparison(false);
-            }
+            const newJobs = compareJobs.filter(j => j.id !== jobId);
+            setCompareJobs(newJobs);
+            if (newJobs.length === 0) setShowComparison(false);
           }}
-          onClose={() => {
-            setShowComparison(false);
-            setCompareJobs([]);
-          }}
+          onClose={() => { setShowComparison(false); setCompareJobs([]); }}
         />
       )}
-      
-      <JobAlerts
-        isOpen={showJobAlerts}
-        onClose={() => setShowJobAlerts(false)}
-      />
-      
+
+      <JobAlerts isOpen={showJobAlerts} onClose={() => setShowJobAlerts(false)} />
+
       <JobTracker
         isOpen={showJobTracker}
-        onClose={() => {
-          setShowJobTracker(false);
-          setJobToTrack(undefined);
-        }}
+        onClose={() => { setShowJobTracker(false); setJobToTrack(undefined); }}
         jobToAdd={jobToTrack}
       />
-      
-      
+
       <FloatingActionMenu
         onOpenJobAlerts={() => setShowJobAlerts(true)}
         onOpenJobTracker={() => setShowJobTracker(true)}
@@ -500,7 +594,6 @@ export default function Home() {
       />
 
       <FeatureShowcase />
-      
       <Footer onFilterChange={handleFilterChange} />
 
       <UserProfileModal
@@ -509,6 +602,19 @@ export default function Home() {
         onSave={saveProfile}
         initialProfile={profile}
       />
+
+      {/* ─── Live timestamp updater ─── */}
+      <script dangerouslySetInnerHTML={{ __html: `
+        (function(){
+          var el = document.getElementById('last-updated');
+          function update() {
+            if (!el) return;
+            var t = new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'});
+            el.innerHTML = '\u{1F550} Last Updated: Today ' + t;
+          }
+          update(); setInterval(update, 60000);
+        })();
+      `}} />
     </div>
   );
 }

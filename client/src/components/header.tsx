@@ -1,300 +1,239 @@
-import { useState } from "react";
-import { Link } from "wouter";
-import { Menu, X, Search, Bell, User, Briefcase, Building2, Calendar, HelpCircle, LogOut, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { Bell, User, LogOut, Download, Menu, X, HelpCircle } from "lucide-react";
 import AuthModal from "@/components/auth-modal";
 import HelpModal from "@/components/help-modal";
 import { useUser } from "@/contexts/user-context";
 import { usePWA } from "@/contexts/pwa-context";
-import { Download } from "lucide-react";
 
 interface HeaderProps {
   onScrollToDepartments?: () => void;
+  onSearch?: (query: string) => void;
 }
 
-export default function Header({ onScrollToDepartments }: HeaderProps) {
+const NAV_LINKS = [
+  { href: "/",              label: "🏠 Home",           active: true },
+  { href: "/",              label: "📋 Latest Jobs" },
+  { href: "/exams",         label: "📅 Exam Calendar" },
+  { href: "/blog",          label: "📚 Blog" },
+  { href: "/jobs/ssc",      label: "📋 SSC Jobs" },
+  { href: "/jobs/railway",  label: "🚆 Railway Jobs" },
+  { href: "/about-us",      label: "ℹ️ About Us" },
+  { href: "/contact",       label: "📞 Contact" },
+];
+
+export default function Header({ onScrollToDepartments, onSearch }: HeaderProps) {
   const { user, logout, isAuthenticated } = useUser();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [location] = useLocation();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'register'>('signin');
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
   const { isInstallable, installApp, isInstalled } = usePWA();
-  
-  // High-visibility fallback for all mobile/desktop users
+
   const isMobileOrDesktop = /iPhone|iPad|iPod|Android|Windows|Mac|Linux/i.test(navigator.userAgent);
   const shouldShowInstall = (isInstallable || isMobileOrDesktop) && !isInstalled;
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch?.(searchValue);
+  };
+
+  // Close mobile menu on route change
+  useEffect(() => { setIsMobileMenuOpen(false); }, [location]);
+
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-lg border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-18">
-          {/* Logo Section */}
-          <div className="flex items-center">
-            <Link href="/">
-              <div className="flex-shrink-0 cursor-pointer group">
-                <div className="flex items-center gap-3">
-                  <div className="relative h-12 w-12 overflow-hidden rounded-xl shadow-xl group-hover:shadow-2xl transition-all duration-300 border border-white/10">
-                    <div className="h-full w-full bg-blue-600 flex items-center justify-center">
-                      <Briefcase className="h-7 w-7 text-white" />
-                    </div>
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                      GovtJobNow
-                    </h1>
-                    <p className="text-xs text-gray-500 font-medium">India's #1 Government Job Portal</p>
-                  </div>
-                </div>
-              </div>
+    <>
+      <header className="gjn-header">
+        {/* ─── TOP BAR ─── */}
+        <div className="gjn-header-top">
+          <div className="gjn-header-inner">
+            {/* Logo */}
+            <Link href="/" className="gjn-logo">
+              Govt<span>Job</span>Now
             </Link>
-          </div>
 
-          {/* Navigation Menu */}
-          <nav className="hidden lg:flex items-center space-x-1">
-            <Link href="/" className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium transition-all duration-300 flex items-center gap-2">
-              <Search className="h-4 w-4" />
-              Browse Jobs
-            </Link>
-            <button
-              onClick={onScrollToDepartments}
-              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 font-medium transition-all duration-300 flex items-center gap-2"
-            >
-              <Building2 className="h-4 w-4" />
-              Departments
-            </button>
-            <Link
-              href="/exams"
-              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium transition-all duration-300 flex items-center gap-2"
-            >
-              <Calendar className="h-4 w-4" />
-              Exam Calendar
-            </Link>
-            <Link
-              href="/about-us"
-              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950 font-medium transition-all duration-300 flex items-center gap-2"
-            >
-              <Users className="h-4 w-4" />
-              About Us
-            </Link>
-            <button
-              onClick={() => setShowHelpModal(true)}
-              className="px-4 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 font-medium transition-all duration-300 flex items-center gap-2"
-            >
-              <HelpCircle className="h-4 w-4" />
-              Help Center
-            </button>
-          </nav>
+            {/* Search */}
+            <form className="gjn-search" onSubmit={handleSearch}>
+              <input
+                type="text"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search jobs, exams, admit cards… e.g. SSC GD 2026"
+                aria-label="Search government jobs"
+              />
+              <button type="submit" aria-label="Search">🔍</button>
+            </form>
 
-          {/* Right Actions */}
-          <div className="hidden md:flex items-center space-x-3">
-            <ThemeToggle />
-            {shouldShowInstall && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950 animate-pulse-subtle"
-                onClick={installApp}
+            {/* Actions (hidden on small screens via CSS) */}
+            <div className="gjn-header-actions flex items-center gap-2">
+              {shouldShowInstall && (
+                <button
+                  className="gjn-btn-alert"
+                  onClick={installApp}
+                  title="Install the app"
+                >
+                  <Download className="inline h-3 w-3 mr-1" />
+                  Install App
+                </button>
+              )}
+              <button
+                className="gjn-btn-alert"
+                onClick={() => {
+                  setAuthMode('signin');
+                  setShowAuthModal(true);
+                }}
+                aria-label="Get Job Alerts"
               >
-                <Download className="h-4 w-4 mr-2" />
-                Install App
-              </Button>
-            )}
-            {isAuthenticated ? (
-              <>
-                {/* User is logged in */}
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    Welcome, <span className="font-medium text-blue-600 dark:text-blue-400">{user?.fullName}</span>
+                🔔 Get Alerts
+              </button>
+
+              {isAuthenticated ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-white text-xs font-semibold hidden lg:block">
+                    Hi, {user?.fullName?.split(' ')[0]}
                   </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950"
+                  <button
+                    className="gjn-btn-alert"
+                    style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}
                     onClick={logout}
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
+                    <LogOut className="inline h-3 w-3 mr-1" />
                     Logout
-                  </Button>
+                  </button>
                 </div>
-              </>
-            ) : (
-              <>
-                {/* User is not logged in */}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950"
-                  onClick={() => {
-                    setAuthMode('signin');
-                    setShowAuthModal(true);
-                  }}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-
-                <Button
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all"
+              ) : (
+                <button
+                  className="gjn-btn-alert"
+                  style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)' }}
                   onClick={() => {
                     setAuthMode('register');
                     setShowAuthModal(true);
                   }}
                 >
+                  <User className="inline h-3 w-3 mr-1" />
                   Register Free
-                </Button>
-              </>
-            )}
-          </div>
+                </button>
+              )}
 
-          {/* Mobile Right Actions */}
-          <div className="flex lg:hidden items-center space-x-2">
-            {shouldShowInstall && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 animate-pulse-subtle"
-                onClick={installApp}
-                title="Install App"
+              {/* Mobile hamburger */}
+              <button
+                className="lg:hidden text-white p-1"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle menu"
               >
-                <Download className="h-5 w-5" />
-              </Button>
-            )}
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
+                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="lg:hidden border-t border-gray-200 dark:border-gray-700 py-4 bg-gray-50 dark:bg-gray-800">
-            <nav className="flex flex-col space-y-2">
-              <Link href="/" className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3">
-                <Search className="h-4 w-4" />
-                Browse Jobs
-              </Link>
-              <button
-                onClick={() => {
-                  onScrollToDepartments?.();
-                  setIsMenuOpen(false);
-                }}
-                className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
-              >
-                <Building2 className="h-4 w-4" />
-                Departments
-              </button>
+        {/* ─── NAV BAR ─── */}
+        <nav className="gjn-nav-bar" aria-label="Main navigation">
+          <div className="gjn-nav-inner">
+            {NAV_LINKS.map((link) => (
               <Link
-                href="/exams"
-                onClick={() => setIsMenuOpen(false)}
-                className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
+                key={link.href + link.label}
+                href={link.href}
+                className={location === link.href && link.label.includes('Home') ? 'active' : ''}
               >
-                <Calendar className="h-4 w-4" />
-                Exam Calendar
+                {link.label}
               </Link>
-              <button
-                onClick={() => {
-                  setShowHelpModal(true);
-                  setIsMenuOpen(false);
+            ))}
+            <button
+              onClick={onScrollToDepartments}
+              style={{
+                color: 'rgba(255,255,255,0.85)', background: 'none', border: 'none',
+                padding: '9px 16px', fontSize: '12px', fontWeight: '600',
+                cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px',
+                borderBottom: '3px solid transparent',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#f59e0b'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}
+            >
+              🏢 Departments
+            </button>
+            <button
+              onClick={() => setShowHelpModal(true)}
+              style={{
+                color: 'rgba(255,255,255,0.85)', background: 'none', border: 'none',
+                padding: '9px 16px', fontSize: '12px', fontWeight: '600',
+                cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '5px',
+                borderBottom: '3px solid transparent',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#f59e0b'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}
+            >
+              ❓ Help
+            </button>
+          </div>
+        </nav>
+
+        {/* ─── MOBILE DROPDOWN MENU ─── */}
+        {isMobileMenuOpen && (
+          <div
+            style={{
+              background: '#162f8a', borderTop: '1px solid rgba(255,255,255,0.1)',
+              padding: '8px 0',
+            }}
+          >
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                style={{
+                  display: 'block', padding: '10px 20px',
+                  color: 'rgba(255,255,255,0.85)', textDecoration: 'none',
+                  fontSize: '13px', fontWeight: '600',
+                  borderLeft: '3px solid transparent',
                 }}
-                className="px-4 py-3 text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950 font-medium rounded-lg transition-all duration-300 flex items-center gap-3"
               >
-                <HelpCircle className="h-4 w-4" />
-                Help Center
-              </button>
-
-              <div className="px-4 py-2 flex flex-col gap-2">
-                <ThemeToggle />
-                {shouldShowInstall && (
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start border-blue-200 text-blue-600 hover:bg-blue-50"
-                    onClick={() => {
-                      installApp();
-                      setIsMenuOpen(false);
-                    }}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Install Official App
-                  </Button>
-                )}
-              </div>
-
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 space-y-2">
-                {isAuthenticated ? (
-                  <>
-                    {/* User is logged in - Mobile */}
-                    <div className="px-4 py-2 text-sm text-gray-700">
-                      Welcome, <span className="font-medium text-blue-600">{user?.fullName}</span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={() => {
-                        logout();
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    {/* User is not logged in - Mobile */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start"
-                      onClick={() => {
-                        setAuthMode('signin');
-                        setShowAuthModal(true);
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      <User className="h-4 w-4 mr-2" />
-                      Sign In
-                    </Button>
-                    <Button
-                      size="sm"
-                      className="w-full bg-gradient-to-r from-blue-600 to-indigo-600"
-                      onClick={() => {
-                        setAuthMode('register');
-                        setShowAuthModal(true);
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      Register Free
-                    </Button>
-                  </>
-                )}
-              </div>
-            </nav>
+                {link.label}
+              </Link>
+            ))}
           </div>
         )}
-      </div>
+      </header>
 
-      {/* Auth Modal */}
+      {/* ─── MOBILE BOTTOM NAV ─── */}
+      <nav className="gjn-mobile-nav" aria-label="Mobile navigation">
+        <div className="gjn-mobile-nav-inner">
+          <Link href="/" className={location === '/' ? 'active' : ''}>
+            <span className="ico">🏠</span>Home
+          </Link>
+          <Link href="/" className="">
+            <span className="ico">📋</span>Jobs
+          </Link>
+          <Link href="/exams">
+            <span className="ico">📅</span>Exams
+          </Link>
+          <Link href="/blog">
+            <span className="ico">📚</span>Blog
+          </Link>
+          <button
+            onClick={() => { setAuthMode('signin'); setShowAuthModal(true); }}
+            style={{
+              flex: 1, textAlign: 'center', color: 'rgba(255,255,255,0.7)',
+              background: 'none', border: 'none', padding: '10px 4px',
+              fontSize: '10px', fontWeight: '600', display: 'flex',
+              flexDirection: 'column', alignItems: 'center', gap: '2px', cursor: 'pointer',
+            }}
+          >
+            <span style={{ fontSize: '18px' }}>🔔</span>Alerts
+          </button>
+        </div>
+      </nav>
+
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         mode={authMode}
       />
-
-      {/* Help Modal */}
       <HelpModal
         isOpen={showHelpModal}
         onClose={() => setShowHelpModal(false)}
       />
-    </header>
+    </>
   );
 }

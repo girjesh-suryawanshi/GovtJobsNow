@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { MapPin, Users, Calendar, Globe, Bookmark, Share2, IndianRupee, CheckCircle2, XCircle, Info, Target } from "lucide-react";
+import { Bookmark, Share2, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import OrganizationLogo from "@/components/organization-logo";
 import { useToast } from "@/hooks/use-toast";
 import type { Job } from "@/types/job";
@@ -26,123 +24,197 @@ export default function JobCard({ job, onClick, onCompare, onTrack, isComparing 
   const eligibility = checkEligibility(job, profile);
   const showEligibility = profile !== null;
 
-  const handleSaveJob = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setIsSaved(!isSaved);
-    toast({
-      title: isSaved ? "Removed from Watchlist" : "Added to Watchlist",
-      description: job.title
-    });
-  };
-
-
-
+  // ─── Deadline helpers ───────────────────────────────────────────
   const getDaysLeft = (deadline: string) => {
-    const deadlineDate = new Date(deadline);
-    const today = new Date();
-    const diffTime = deadlineDate.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : 0;
-  };
-
-  const getUrgencyColor = (deadline: string) => {
-    const daysLeft = getDaysLeft(deadline);
-    if (daysLeft <= 0) return 'text-gray-500 bg-gray-100';
-    if (daysLeft <= 3) return 'text-red-700 bg-red-100';
-    if (daysLeft <= 7) return 'text-orange-700 bg-orange-100';
-    return 'text-green-700 bg-green-100';
+    const d = new Date(deadline);
+    if (isNaN(d.getTime())) return null;
+    const diff = Math.ceil((d.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+    return diff;
   };
 
   const daysLeft = getDaysLeft(job.deadline);
-  const isExpired = daysLeft <= 0;
+  const isExpired = daysLeft !== null && daysLeft <= 0;
+  const isUrgent  = daysLeft !== null && daysLeft > 0 && daysLeft <= 3;
+
+  // ─── Border accent logic ─────────────────────────────────────────
+  const cardBorderClass =
+    isExpired               ? "border-std" :
+    isUrgent                ? "border-hot"  :
+    daysLeft !== null && daysLeft <= 7 ? "border-feat" : "border-new";
+
+  // ─── Badges ─────────────────────────────────────────────────────
+  const badgeEl = isExpired ? (
+    <span className="gjn-badge gjn-badge-exp">Closed</span>
+  ) : isUrgent ? (
+    <>
+      <span className="gjn-badge gjn-badge-hot">🔥 Hot</span>
+      <span className="gjn-badge gjn-badge-last">Last {daysLeft}d</span>
+    </>
+  ) : daysLeft !== null && daysLeft <= 7 ? (
+    <span className="gjn-badge gjn-badge-feat">⭐ Featured</span>
+  ) : (
+    <span className="gjn-badge gjn-badge-new">✅ New</span>
+  );
+
+  // ─── Eligibility strip color ─────────────────────────────────────
+  const eligStyle = eligibility.isEligible
+    ? { background: '#f0fdf4', borderColor: '#bbf7d0', color: '#15803d' }
+    : { background: '#fff1f2', borderColor: '#fecdd3', color: '#be123c' };
+
+  const handleSave = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsSaved(!isSaved);
+    toast({ title: isSaved ? "Removed from Watchlist" : "Saved to Watchlist", description: job.title });
+  };
 
   return (
-    <Card 
-      className={`hover:shadow-xl transition-all duration-300 cursor-pointer border-l-4 ${
-        isExpired ? 'border-l-gray-400 opacity-80' : 
-        daysLeft <= 3 ? 'border-l-red-500 bg-red-50/10' :
-        daysLeft <= 7 ? 'border-l-orange-500' : 'border-l-blue-500'
-      } hover:-translate-y-1 rounded-2xl overflow-hidden`}
+    <div
+      className={`gjn-job-card animate-fade-up ${cardBorderClass}`}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      aria-label={`View details for ${job.title}`}
     >
-      <CardContent className="p-5">
-        <div className="flex items-start gap-4 mb-4">
-          <OrganizationLogo department={job.department} recruitingOrganization={job.recruitingOrganization} className="h-12 w-12 rounded-xl shadow-sm bg-white p-1" />
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-2 leading-snug">{job.title}</h3>
-            <p className="text-blue-600 font-semibold text-xs uppercase tracking-wider">{job.department}</p>
-          </div>
-          <Badge className={`rounded-lg px-2 py-1 text-[10px] font-black uppercase ${getUrgencyColor(job.deadline)}`}>
-            {isExpired ? 'Expired' : `${daysLeft}d left`}
-          </Badge>
+      {/* ─── TOP ROW ─── */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        <div className="org-icon">
+          <OrganizationLogo
+            department={job.department}
+            recruitingOrganization={job.recruitingOrganization}
+            className="h-7 w-7"
+          />
         </div>
 
-        {showEligibility && (
-          <div className={`mb-4 flex items-center gap-2 p-2.5 rounded-xl border ${
-            eligibility.isEligible ? 'bg-green-50 border-green-100 text-green-800' : 'bg-red-50 border-red-100 text-red-800'
-          }`}>
-            {eligibility.isEligible ? <CheckCircle2 className="h-4 w-4 text-green-600" /> : <XCircle className="h-4 w-4 text-red-600" />}
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              {eligibility.isEligible ? 'Target: Eligible' : 'Target: Not Eligible'}
-            </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Badge row */}
+          <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginBottom: '5px', flexWrap: 'wrap' }}>
+            {badgeEl}
           </div>
-        )}
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          <Badge variant="outline" className="text-[10px] font-bold text-gray-400 border-gray-100 px-2 py-0.5">
-            <MapPin className="h-3 w-3 mr-1" /> {job.location}
-          </Badge>
-          <Badge variant="outline" className="text-[10px] font-bold text-gray-400 border-gray-100 px-2 py-0.5">
-            {job.qualification}
-          </Badge>
-          {job.positions && (
-            <Badge variant="outline" className="text-[10px] font-bold text-gray-400 border-gray-100 px-2 py-0.5">
-              <Users className="h-3 w-3 mr-1" /> {job.positions}
-            </Badge>
-          )}
-        </div>
+          {/* Title */}
+          <h3
+            className="line-clamp-2"
+            style={{
+              fontFamily: "'Syne', sans-serif",
+              fontSize: '14px', fontWeight: 700,
+              color: 'var(--gjn-text)', lineHeight: '1.35', marginBottom: '2px',
+            }}
+          >
+            {job.title}
+          </h3>
 
-        <div className="bg-gray-50 rounded-2xl p-4 flex items-center justify-between mb-4 border border-gray-100/50">
-          <div>
-            <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 mb-0.5">Estimated Salary</p>
-            <div className="flex items-center gap-1 text-green-700 font-black text-base">
-              <IndianRupee className="h-4 w-4" />
-              {job.salary || "Best in Industry"}
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={handleSaveJob} className="h-9 w-9 rounded-full text-gray-400 hover:text-orange-500 hover:bg-orange-50 transition-colors">
-              <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-orange-500 text-orange-500' : ''}`} />
-            </Button>
-            <SocialShare 
-              url={`${window.location.origin}/job/${job.slug || job.id}`}
-              title={job.title}
-              trigger={
-                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} className="h-9 w-9 rounded-full text-gray-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              }
-            />
-          </div>
-        </div>
+          {/* Org / location */}
+          <p style={{ fontSize: '12px', color: 'var(--gjn-muted)', marginBottom: '7px' }}>
+            {job.department} • {job.location}
+          </p>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-          <div className="flex items-center justify-between sm:justify-start sm:gap-6 shrink-0 order-2 sm:order-1">
-            <div className="flex flex-col">
-              <span className="text-[9px] font-black text-gray-300 uppercase tracking-widest mb-0.5">Posted</span>
-              <span className="text-[10px] font-bold text-gray-400">{job.postedOn}</span>
-            </div>
-            {onTrack && (
-              <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onTrack(); }} className="h-10 rounded-xl text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all border border-blue-50 dark:border-blue-900/30 sm:border-none">
-                <Target className="h-4 w-4 mr-2 text-blue-500 animate-pulse" /> Track App
-              </Button>
+          {/* Meta chips */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {job.positions && (
+              <span className="meta-chip">👥 {job.positions} Posts</span>
+            )}
+            <span className="meta-chip">🎓 {job.qualification}</span>
+            <span className="meta-chip">📍 {job.location}</span>
+            {job.salary && (
+              <span className="meta-chip">💰 {job.salary}</span>
             )}
           </div>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-8 h-12 sm:h-10 font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-100 transition-all hover:scale-105 active:scale-95 order-1 sm:order-2" onClick={onClick} disabled={isExpired}>
-            {isExpired ? 'Closed' : 'View Details'}
-          </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* ─── ELIGIBILITY STRIP ─── */}
+      {showEligibility && (
+        <div
+          style={{
+            marginTop: '10px', padding: '6px 10px', borderRadius: '6px',
+            border: '1px solid', ...eligStyle,
+            fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px',
+          }}
+        >
+          {eligibility.isEligible ? '✅' : '❌'}
+          {eligibility.isEligible ? 'You are eligible for this position' : eligibility.reason || 'You may not meet all criteria'}
+        </div>
+      )}
+
+      {/* ─── FOOTER BAR ─── */}
+      <div className="card-footer-bar">
+        <span className={`deadline-text ${isExpired ? 'expired' : ''}`}>
+          ⏰ {isExpired ? 'Closed' : `Last Date: ${job.deadline}`}
+        </span>
+
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          {/* Save */}
+          <button
+            onClick={handleSave}
+            title={isSaved ? 'Remove from watchlist' : 'Save job'}
+            style={{
+              background: 'transparent', border: '1.5px solid var(--gjn-border)',
+              borderRadius: '6px', padding: '5px 9px', cursor: 'pointer',
+              fontSize: '14px', lineHeight: 1,
+              color: isSaved ? '#f59e0b' : 'var(--gjn-muted)',
+              borderColor: isSaved ? '#f59e0b' : undefined,
+              transition: 'all 0.15s',
+            }}
+            aria-label="Save job"
+          >
+            {isSaved ? '🔔' : '🔔'}
+          </button>
+
+          {/* Share */}
+          <SocialShare
+            url={`${window.location.origin}/job/${job.slug || job.id}`}
+            title={job.title}
+            trigger={
+              <button
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: 'transparent', border: '1.5px solid var(--gjn-border)',
+                  borderRadius: '6px', padding: '5px 9px', cursor: 'pointer',
+                  fontSize: '13px', color: 'var(--gjn-muted)', transition: 'all 0.15s',
+                }}
+                aria-label="Share job"
+              >
+                <Share2 className="h-3.5 w-3.5" />
+              </button>
+            }
+          />
+
+          {/* Track */}
+          {onTrack && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onTrack(); }}
+              style={{
+                background: 'transparent', border: '1.5px solid var(--gjn-border)',
+                borderRadius: '6px', padding: '5px 9px', cursor: 'pointer',
+                fontSize: '12px', fontWeight: 600, color: 'var(--gjn-muted)',
+                transition: 'all 0.15s',
+              }}
+              title="Track Application"
+              aria-label="Track application"
+            >
+              <Target className="h-3.5 w-3.5" />
+            </button>
+          )}
+
+          {/* View Details CTA */}
+          <button
+            onClick={(e) => { e.stopPropagation(); onClick(); }}
+            disabled={isExpired}
+            style={{
+              background: isExpired ? '#94a3b8' : 'var(--gjn-blue2)',
+              color: '#fff', border: 'none', borderRadius: '6px',
+              padding: '7px 16px', fontSize: '12px', fontWeight: 700,
+              cursor: isExpired ? 'not-allowed' : 'pointer',
+              transition: 'background 0.15s', whiteSpace: 'nowrap',
+            }}
+            onMouseEnter={(e) => { if (!isExpired) e.currentTarget.style.background = 'var(--gjn-blue)'; }}
+            onMouseLeave={(e) => { if (!isExpired) e.currentTarget.style.background = 'var(--gjn-blue2)'; }}
+          >
+            {isExpired ? 'Closed' : 'View Details →'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GovtJobNow — Sarkari Naukri Portal | Latest Govt Jobs 2026</title>
+<meta name="description" content="GovtJobNow — India's most trusted Sarkari Naukri portal. Get latest government job notifications, admit cards, results & exam dates for SSC, UPSC, Railway, Banking, Army and more." />
+<meta name="keywords" content="sarkari naukri, govt jobs 2026, SSC CGL, RRB NTPC, UPSC, SBI PO, admit card, government result" />
+<meta name="robots" content="index, follow" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM — CSS CUSTOM PROPERTIES
+   ═══════════════════════════════════════════════ */
+:root {
+  --blue:       #1a3fa8;   /* Primary Blue */
+  --blue-dark:  #162f8a;   /* Nav dark blue */
+  --blue2:      #2563eb;   /* Accent Blue */
+  --blue-light: #eff6ff;   /* Blue tint bg */
+  --amber:      #f59e0b;   /* CTA / Badge gold */
+  --amber-dark: #d97706;
+  --red:        #ef4444;   /* Deadline / Hot */
+  --green:      #16a34a;   /* Success / New */
+  --bg:         #f0f4fb;   /* Page background */
+  --card:       #ffffff;   /* Card background */
+  --border:     #dde3f0;   /* Card border */
+  --text:       #0f172a;   /* Primary text */
+  --muted:      #64748b;   /* Muted text */
+  --ad-bg:      #fef9ee;   /* Ad unit cream */
+  --ad-border:  #e5d89a;   /* Ad dashed border */
+  --radius:     10px;
+  --shadow-sm:  0 1px 4px rgba(26,63,168,.08);
+  --shadow-md:  0 4px 20px rgba(37,99,235,.12);
+  --shadow-lg:  0 8px 32px rgba(37,99,235,.18);
+}
+
+/* ═══════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Noto Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; color: inherit; }
+button { font-family: 'Noto Sans', sans-serif; }
+img { max-width: 100%; }
+
+/* ═══════════════════════════════════════════════
+   STICKY HEADER
+   ═══════════════════════════════════════════════ */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--blue);
+  box-shadow: 0 2px 16px rgba(26,63,168,.4);
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: -0.5px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+.logo span { color: var(--amber); }
+.logo-badge {
+  font-size: 9px;
+  background: var(--amber);
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  margin-left: 6px;
+  align-self: center;
+  letter-spacing: .4px;
+}
+
+.search-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: border-color .2s, box-shadow .2s;
+  max-width: 620px;
+}
+.search-bar:focus-within {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(245,158,11,.15);
+}
+.search-bar input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
+  color: var(--text);
+}
+.search-bar input::placeholder { color: #94a3b8; }
+.search-bar button {
+  background: var(--amber);
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: 700;
+  color: #fff;
+  font-size: 16px;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.search-bar button:hover { background: var(--amber-dark); }
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.btn-alert {
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background .15s, transform .1s;
+  letter-spacing: .2px;
+}
+.btn-alert:hover {
+  background: var(--amber-dark);
+  transform: translateY(-1px);
+}
+
+/* NAV BAR */
+.nav-bar {
+  background: var(--blue-dark);
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.nav-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-inner a {
+  color: rgba(255,255,255,.82);
+  text-decoration: none;
+  padding: 10px 18px;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background .15s, color .15s;
+  border-bottom: 3px solid transparent;
+  letter-spacing: .1px;
+}
+.nav-inner a:hover,
+.nav-inner a.active {
+  color: var(--amber);
+  border-bottom-color: var(--amber);
+  background: rgba(255,255,255,.06);
+}
+
+/* ═══════════════════════════════════════════════
+   AD PLACEMENT MAP:
+   1. ATF Leaderboard (below header)  — Highest CPM,    ~35% revenue
+   2. In-Feed between cards (every 5th) — Highest CTR,  ~40% revenue
+   3. Sidebar 300×600 sticky          — Viewability boost, ~15% revenue
+   4. Sidebar 300×250                 — Fill rate,        ~5% revenue
+   5. Mobile anchor (fixed bottom)    — Mobile CTR,       ~15% revenue
+   Total = 5 complementary placements, no overlap, policy compliant
+   ═══════════════════════════════════════════════ */
+
+/* AD UNIT BASE STYLE */
+.ad-unit {
+  background: var(--ad-bg);
+  border: 1.5px dashed var(--ad-border);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  color: #a08c3a;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  position: relative;
+  overflow: hidden;
+}
+.ad-unit::before {
+  content: "Advertisement";
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  font-size: 9px;
+  color: #b09844;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+.ad-unit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(229,216,154,.1) 10px,
+    rgba(229,216,154,.1) 11px
+  );
+  pointer-events: none;
+}
+
+/* AD PLACEMENT 1: ATF Leaderboard — HIGHEST CPM */
+.ad-leaderboard {
+  width: 100%;
+  height: 90px;
+}
+
+/* AD PLACEMENT 2: In-Feed Native — HIGHEST CTR */
+.ad-infeed {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+/* AD PLACEMENT 3: Sidebar 300×600 sticky */
+.ad-sidebar-large {
+  width: 100%;
+  height: 300px;
+}
+
+/* AD PLACEMENT 4: Sidebar 300×250 */
+.ad-sidebar-med {
+  width: 100%;
+  height: 250px;
+}
+
+/* AD PLACEMENT 5: Mobile Anchor — HIGHEST MOBILE CTR */
+.ad-anchor {
+  /* Highest mobile CTR placement — fixed above mobile nav */
+  position: fixed;
+  bottom: 56px;
+  left: 0;
+  right: 0;
+  height: 56px;
+  z-index: 190;
+  background: var(--ad-bg);
+  border-top: 2px dashed var(--ad-border);
+  display: none; /* shown only on mobile via JS */
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #a08c3a;
+  font-weight: 700;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+}
+.ad-anchor .close-btn {
+  position: absolute;
+  right: 14px;
+  background: rgba(160,140,58,.2);
+  border: 1px solid var(--ad-border);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a08c3a;
+  transition: background .15s;
+}
+.ad-anchor .close-btn:hover {
+  background: rgba(160,140,58,.35);
+}
+
+.atf-ad-wrap {
+  max-width: 1280px;
+  margin: 12px auto 0;
+  padding: 0 20px;
+}
+
+/* ═══════════════════════════════════════════════
+   PAGE LAYOUT
+   ═══════════════════════════════════════════════ */
+.page-wrap {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 20px 100px;
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 22px;
+}
+.main-col { min-width: 0; }
+
+/* ═══════════════════════════════════════════════
+   TRUST BAR
+   ═══════════════════════════════════════════════ */
+.trust-bar {
+  background: linear-gradient(135deg, #1a3fa8 0%, #2563eb 50%, #1d4ed8 100%);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: var(--shadow-sm);
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1px;
+}
+.trust-item .icon { font-size: 15px; }
+
+/* Animated live dot */
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  display: inline-block;
+  position: relative;
+  animation: blink-dot 1.2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(74,222,128,.5);
+}
+.live-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid rgba(74,222,128,.4);
+  animation: ping 1.2s ease-in-out infinite;
+}
+@keyframes blink-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .3; }
+}
+@keyframes ping {
+  0%   { transform: scale(.8); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION TITLE
+   ═══════════════════════════════════════════════ */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--blue);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue2), transparent);
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   CATEGORY GRID (5-col desktop / 3-col mobile)
+   ═══════════════════════════════════════════════ */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.cat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  padding: 16px 8px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .22s;
+  text-decoration: none;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeUp .35s ease both;
+}
+.cat-card:nth-child(2)  { animation-delay: .04s; }
+.cat-card:nth-child(3)  { animation-delay: .08s; }
+.cat-card:nth-child(4)  { animation-delay: .12s; }
+.cat-card:nth-child(5)  { animation-delay: .16s; }
+.cat-card:nth-child(6)  { animation-delay: .20s; }
+.cat-card:nth-child(7)  { animation-delay: .24s; }
+.cat-card:nth-child(8)  { animation-delay: .28s; }
+.cat-card:nth-child(9)  { animation-delay: .32s; }
+.cat-card:nth-child(10) { animation-delay: .36s; }
+
+.cat-card:hover {
+  border-color: var(--blue2);
+  box-shadow: 0 6px 20px rgba(37,99,235,.18);
+  transform: translateY(-3px);
+}
+.cat-icon { font-size: 28px; margin-bottom: 6px; }
+.cat-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: .1px;
+}
+.cat-count {
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--bg);
+  border-radius: 99px;
+  padding: 2px 8px;
+  margin-top: 5px;
+  display: inline-block;
+  border: 1px solid var(--border);
+}
+
+/* ═══════════════════════════════════════════════
+   TABS + FILTER ROW
+   ═══════════════════════════════════════════════ */
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 14px;
+}
+.tab {
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  margin-bottom: -2px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--blue2); }
+.tab.active {
+  color: var(--blue2);
+  border-bottom-color: var(--blue2);
+}
+
+.filter-row {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.filter-btn {
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  border-radius: 99px;
+  padding: 5px 15px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--muted);
+}
+.filter-btn:hover,
+.filter-btn.active {
+  background: var(--blue2);
+  color: #fff;
+  border-color: var(--blue2);
+  box-shadow: 0 2px 8px rgba(37,99,235,.25);
+}
+
+/* ═══════════════════════════════════════════════
+   JOB CARDS
+   ═══════════════════════════════════════════════ */
+.job-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  transition: box-shadow .2s, border-color .2s, transform .15s;
+  position: relative;
+  animation: fadeUp .35s ease both;
+}
+.job-card:nth-child(1)  { animation-delay: .05s; }
+.job-card:nth-child(2)  { animation-delay: .10s; }
+.job-card:nth-child(3)  { animation-delay: .15s; }
+.job-card:nth-child(4)  { animation-delay: .20s; }
+.job-card:nth-child(5)  { animation-delay: .25s; }
+
+.job-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--blue2);
+  transform: translateY(-1px);
+}
+
+/* Card tier borders */
+.job-card.hot      { border-left: 4px solid var(--red); }
+.job-card.new-job  { border-left: 4px solid var(--green); }
+.job-card.featured { border-left: 4px solid var(--amber); }
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+}
+.org-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.card-info { flex: 1; min-width: 0; }
+
+.card-badges {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  line-height: 1.35;
+}
+.card-org {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Badges */
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  white-space: nowrap;
+}
+.badge-hot      { background: #fee2e2; color: var(--red); }
+.badge-new      { background: #dcfce7; color: var(--green); }
+.badge-featured { background: #fef3c7; color: #92400e; }
+.badge-last     { background: #fff0f0; color: #b91c1c; border: 1px solid #fca5a5; }
+
+/* Card footer */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.deadline {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.card-actions { display: flex; gap: 8px; align-items: center; }
+
+.btn-view {
+  background: var(--blue2);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  white-space: nowrap;
+}
+.btn-view:hover {
+  background: var(--blue);
+  transform: translateY(-1px);
+}
+.btn-save {
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 11px;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all .15s;
+  line-height: 1;
+}
+.btn-save:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: #fffbeb;
+}
+
+/* ═══════════════════════════════════════════════
+   RESULTS STRIP SECTION
+   ═══════════════════════════════════════════════ */
+.result-strip {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  padding: 13px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: box-shadow .2s, border-color .2s;
+}
+.result-strip:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--blue2);
+}
+.rs-icon { font-size: 24px; flex-shrink: 0; }
+.rs-info { flex: 1; min-width: 0; }
+.rs-title {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rs-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.rs-status {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.status-declared { background: #dcfce7; color: var(--green); }
+.status-expected { background: #fef3c7; color: #92400e; }
+
+/* ═══════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════ */
+.side-col {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.sidebar-head {
+  background: var(--blue);
+  color: #fff;
+  padding: 11px 16px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+.sidebar-list { }
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text);
+  transition: background .15s;
+}
+.sidebar-item:last-child { border-bottom: none; }
+.sidebar-item:hover { background: var(--blue-light); }
+.si-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--blue2);
+  min-width: 20px;
+}
+.si-text { font-size: 12px; font-weight: 600; flex: 1; line-height: 1.3; }
+.si-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  background: #dcfce7;
+  border-radius: 4px;
+  padding: 2px 6px;
+  white-space: nowrap;
+}
+.si-badge.amber {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+/* Alert / Signup Box */
+.alert-box {
+  background: linear-gradient(135deg, #1a3fa8, #2563eb);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  text-align: center;
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+.alert-box h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+.alert-box p {
+  font-size: 11px;
+  opacity: .85;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.alert-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 7px;
+  border: none;
+  font-size: 13px;
+  margin-bottom: 8px;
+  outline: none;
+  font-family: 'Noto Sans', sans-serif;
+}
+.alert-input:focus {
+  box-shadow: 0 0 0 3px rgba(245,158,11,.4);
+}
+.alert-submit {
+  width: 100%;
+  background: var(--amber);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 10px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.alert-submit:hover {
+  background: var(--amber-dark);
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════
+   MOBILE BOTTOM NAV
+   ═══════════════════════════════════════════════ */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 56px;
+  left: 0;
+  right: 0;
+  background: var(--blue);
+  z-index: 180;
+  border-top: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 -4px 16px rgba(26,63,168,.3);
+}
+.mobile-nav-inner {
+  display: flex;
+  justify-content: space-around;
+}
+.mobile-nav a {
+  flex: 1;
+  text-align: center;
+  color: rgba(255,255,255,.65);
+  text-decoration: none;
+  padding: 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: color .15s;
+}
+.mobile-nav a .ico { font-size: 19px; }
+.mobile-nav a.active,
+.mobile-nav a:hover { color: var(--amber); }
+
+/* ═══════════════════════════════════════════════
+   LOAD ANIMATIONS
+   ═══════════════════════════════════════════════ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+   ═══════════════════════════════════════════════ */
+
+/* Tablet: ≤900px */
+@media (max-width: 900px) {
+  .page-wrap {
+    grid-template-columns: 1fr;
+    padding: 14px 14px 160px;
+  }
+  .side-col { display: none; }
+  .cat-grid { grid-template-columns: repeat(3, 1fr); }
+  .mobile-nav { display: block; }
+  .ad-anchor { display: flex; }
+}
+
+/* Mobile: ≤540px */
+@media (max-width: 540px) {
+  .cat-grid { grid-template-columns: repeat(3, 1fr); }
+  .header-actions { display: none; }
+  .header-top { padding: 9px 12px; gap: 10px; }
+  .logo { font-size: 20px; }
+  .logo-badge { display: none; }
+  .trust-bar { gap: 10px; padding: 10px 14px; }
+  .trust-item { font-size: 11px; }
+  .card-actions .btn-save { display: none; }
+  .atf-ad-wrap { padding: 0 12px; }
+  .filter-row { gap: 5px; }
+  .filter-btn { padding: 5px 11px; font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     STICKY HEADER — Logo · Search · Alert CTA
+     ═══════════════════════════════════════════════ -->
+<header>
+  <div class="header-top">
+    <a class="logo" href="#">Govt<span>Job</span>Now <span class="logo-badge">2026</span></a>
+    <div class="search-bar">
+      <input
+        type="search"
+        id="site-search"
+        placeholder="Search jobs, exams, admit cards… e.g. SSC GD 2026"
+        autocomplete="off"
+        aria-label="Search government jobs"
+      />
+      <button type="button" aria-label="Search">🔍</button>
+    </div>
+    <div class="header-actions">
+      <button class="btn-alert" id="alert-btn" aria-label="Get Job Alerts">🔔 Get Alerts</button>
+    </div>
+  </div>
+
+  <!-- NAV BAR — horizontally scrollable on mobile -->
+  <nav class="nav-bar" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="#" class="active" id="nav-home">🏠 Home</a>
+      <a href="#jobs-section" id="nav-jobs">📋 Latest Jobs</a>
+      <a href="#" id="nav-admit">📄 Admit Card</a>
+      <a href="#results-section" id="nav-results">📊 Results</a>
+      <a href="#" id="nav-calendar">📅 Exam Calendar</a>
+      <a href="#" id="nav-syllabus">📚 Syllabus</a>
+      <a href="#" id="nav-answer">✍️ Answer Key</a>
+      <a href="#" id="nav-notify">🔔 Notifications</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══════════════════════════════════════════════
+     AD PLACEMENT 1: ATF LEADERBOARD
+     Highest CPM zone (~35% of total ad revenue)
+     728×90 above the fold — loads before content scroll
+     ═══════════════════════════════════════════════ -->
+<div class="atf-ad-wrap">
+  <div class="ad-unit ad-leaderboard" role="complementary" aria-label="Advertisement">
+    <span>📢 Leaderboard Ad — 728×90 · Above The Fold · Highest CPM Zone</span>
+    <span style="font-size:9px;opacity:.6">Replace this div with your AdSense &lt;ins&gt; tag</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     MAIN PAGE WRAPPER (2-col grid)
+     ═══════════════════════════════════════════════ -->
+<div class="page-wrap">
+
+  <!-- ────────────────────────────────────────────
+       MAIN COLUMN
+       ──────────────────────────────────────────── -->
+  <main class="main-col">
+
+    <!-- ══ TRUST BAR ══ -->
+    <div class="trust-bar" aria-label="Trust signals">
+      <div class="trust-item" id="live-indicator">
+        <span class="live-dot"></span> Live Updates
+      </div>
+      <div class="trust-item">
+        <span class="icon">✅</span> 1,24,800+ Verified Jobs
+      </div>
+      <div class="trust-item">
+        <span class="icon">🔒</span> Official Sources Only
+      </div>
+      <div class="trust-item" id="timestamp-item">
+        <span class="icon">🕐</span> <span id="last-updated">Last Updated: Today 11:42 AM</span>
+      </div>
+      <div class="trust-item">
+        <span class="icon">📰</span> Google News Approved
+      </div>
+    </div>
+
+    <!-- ══ CATEGORY GRID — 10 departments ══ -->
+    <h2 class="section-title">Browse by Category</h2>
+    <div class="cat-grid" role="list">
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">🏛️</div>
+        <div class="cat-name">UPSC</div>
+        <div class="cat-count">42 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">🚆</div>
+        <div class="cat-name">Railway</div>
+        <div class="cat-count">186 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">🏦</div>
+        <div class="cat-name">Banking</div>
+        <div class="cat-count">93 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">⚔️</div>
+        <div class="cat-name">Defence</div>
+        <div class="cat-count">71 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">📋</div>
+        <div class="cat-name">SSC</div>
+        <div class="cat-count">58 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">🏥</div>
+        <div class="cat-name">Medical</div>
+        <div class="cat-count">34 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">👮</div>
+        <div class="cat-name">Police</div>
+        <div class="cat-count">47 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">🏫</div>
+        <div class="cat-name">Teaching</div>
+        <div class="cat-count">120 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">⚙️</div>
+        <div class="cat-name">PSU</div>
+        <div class="cat-count">29 Jobs</div>
+      </a>
+      <a class="cat-card" href="#" role="listitem">
+        <div class="cat-icon">🌐</div>
+        <div class="cat-name">State Govt</div>
+        <div class="cat-count">208 Jobs</div>
+      </a>
+    </div>
+
+    <!-- ══ TABS + FILTERS ══ -->
+    <div class="tabs" id="jobs-section" role="tablist">
+      <div class="tab active" id="tab-jobs" role="tab" aria-selected="true">🔥 Latest Jobs</div>
+      <div class="tab" id="tab-exams" role="tab" aria-selected="false">📅 Upcoming Exams</div>
+      <div class="tab" id="tab-results" role="tab" aria-selected="false">📊 Results</div>
+    </div>
+    <div class="filter-row" id="filter-row" role="group" aria-label="Filter jobs">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="10th">10th Pass</button>
+      <button class="filter-btn" data-filter="12th">12th Pass</button>
+      <button class="filter-btn" data-filter="graduate">Graduate</button>
+      <button class="filter-btn" data-filter="engineering">Engineering</button>
+      <button class="filter-btn" data-filter="central">Central Govt</button>
+      <button class="filter-btn" data-filter="state">State Govt</button>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         JOB CARDS (3 tiers: HOT / NEW / FEATURED)
+         ══════════════════════════════════════════ -->
+
+    <!-- JOB CARD 1 — HOT (red left border) -->
+    <article class="job-card hot" id="job-1">
+      <div class="card-top">
+        <div class="org-icon" aria-hidden="true">🚆</div>
+        <div class="card-info">
+          <div class="card-badges">
+            <span class="badge badge-hot">🔥 Hot</span>
+            <span class="badge badge-last">Last 3 Days</span>
+          </div>
+          <h3 class="card-title">RRB NTPC 2025 — 11,558 Posts Recruitment</h3>
+          <p class="card-org">Railway Recruitment Board (RRB) &bull; All India</p>
+          <div class="card-meta">
+            <span class="meta-chip">👥 11,558 Posts</span>
+            <span class="meta-chip">🎓 12th / Graduate</span>
+            <span class="meta-chip">📍 All India</span>
+            <span class="meta-chip">💰 ₹19,900–35,400</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="deadline">⏰ Last Date: 12 June 2026</span>
+        <div class="card-actions">
+          <button class="btn-save" title="Save this job" aria-label="Save job">🔔</button>
+          <button class="btn-view" onclick="alert('Opening RRB NTPC details…')">View Details →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- JOB CARD 2 — NEW (green left border) -->
+    <article class="job-card new-job" id="job-2">
+      <div class="card-top">
+        <div class="org-icon" aria-hidden="true">🏦</div>
+        <div class="card-info">
+          <div class="card-badges">
+            <span class="badge badge-new">✅ New</span>
+          </div>
+          <h3 class="card-title">SBI PO 2026 — Probationary Officer Recruitment</h3>
+          <p class="card-org">State Bank of India &bull; All India</p>
+          <div class="card-meta">
+            <span class="meta-chip">👥 2,000 Posts</span>
+            <span class="meta-chip">🎓 Graduate</span>
+            <span class="meta-chip">📍 All India</span>
+            <span class="meta-chip">💰 ₹41,960–63,840</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="deadline">⏰ Last Date: 28 June 2026</span>
+        <div class="card-actions">
+          <button class="btn-save" aria-label="Save job">🔔</button>
+          <button class="btn-view" onclick="alert('Opening SBI PO details…')">View Details →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- JOB CARD 3 — FEATURED (amber left border) -->
+    <article class="job-card featured" id="job-3">
+      <div class="card-top">
+        <div class="org-icon" aria-hidden="true">🏛️</div>
+        <div class="card-info">
+          <div class="card-badges">
+            <span class="badge badge-featured">⭐ Featured</span>
+          </div>
+          <h3 class="card-title">UPSC Civil Services (IAS/IPS) 2026 — Prelims</h3>
+          <p class="card-org">Union Public Service Commission &bull; All India</p>
+          <div class="card-meta">
+            <span class="meta-chip">👥 1,056 Posts</span>
+            <span class="meta-chip">🎓 Graduate</span>
+            <span class="meta-chip">📍 All India</span>
+            <span class="meta-chip">📅 Prelims: 25 May 2026</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="deadline">⏰ Admit Card: Released</span>
+        <div class="card-actions">
+          <button class="btn-save" aria-label="Save job">🔔</button>
+          <button class="btn-view" onclick="alert('Opening UPSC details…')">Download Admit Card →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════
+         AD PLACEMENT 2a: IN-FEED NATIVE AD #1
+         Between job cards — 2–3× higher CTR vs banner
+         Best practice: insert after every 3rd card
+         ═══════════════════════════════════════════ -->
+    <div class="ad-unit ad-infeed" role="complementary" aria-label="Advertisement">
+      <span>🎯 In-Feed Native Ad · Between Listings · 2–3× Higher CTR Than Banner</span>
+      <span style="font-size:9px;opacity:.6">Replace with AdSense in-feed unit (matching content)</span>
+    </div>
+
+    <!-- JOB CARD 4 — NEW -->
+    <article class="job-card new-job" id="job-4">
+      <div class="card-top">
+        <div class="org-icon" aria-hidden="true">⚔️</div>
+        <div class="card-info">
+          <div class="card-badges">
+            <span class="badge badge-new">✅ New</span>
+          </div>
+          <h3 class="card-title">Indian Army Agniveer Recruitment 2026</h3>
+          <p class="card-org">Indian Army &bull; All India</p>
+          <div class="card-meta">
+            <span class="meta-chip">👥 40,000 Posts</span>
+            <span class="meta-chip">🎓 10th / 12th Pass</span>
+            <span class="meta-chip">📍 All India</span>
+            <span class="meta-chip">🕐 Age: 17.5–23 yrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="deadline">⏰ Last Date: 20 July 2026</span>
+        <div class="card-actions">
+          <button class="btn-save" aria-label="Save job">🔔</button>
+          <button class="btn-view" onclick="alert('Opening Army Agniveer details…')">View Details →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- JOB CARD 5 — Standard -->
+    <article class="job-card" id="job-5">
+      <div class="card-top">
+        <div class="org-icon" aria-hidden="true">📋</div>
+        <div class="card-info">
+          <div class="card-badges"></div>
+          <h3 class="card-title">SSC CGL 2026 — Combined Graduate Level Exam</h3>
+          <p class="card-org">Staff Selection Commission &bull; All India</p>
+          <div class="card-meta">
+            <span class="meta-chip">👥 17,727 Posts</span>
+            <span class="meta-chip">🎓 Graduate</span>
+            <span class="meta-chip">📍 All India</span>
+            <span class="meta-chip">💰 ₹25,500–81,100</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="deadline">⏰ Last Date: 07 July 2026</span>
+        <div class="card-actions">
+          <button class="btn-save" aria-label="Save job">🔔</button>
+          <button class="btn-view" onclick="alert('Opening SSC CGL details…')">View Details →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════
+         AD PLACEMENT 2b: IN-FEED NATIVE AD #2
+         After every 3rd card (cards 6, 9, 12…)
+         ═══════════════════════════════════════════ -->
+    <div class="ad-unit ad-infeed" role="complementary" aria-label="Advertisement">
+      <span>🎯 In-Feed Native Ad #2 · Every 3rd Card = AdSense Best Practice</span>
+      <span style="font-size:9px;opacity:.6">Use "matched content" for highest RPM</span>
+    </div>
+
+    <!-- JOB CARD 6 — Standard -->
+    <article class="job-card" id="job-6">
+      <div class="card-top">
+        <div class="org-icon" aria-hidden="true">🏥</div>
+        <div class="card-info">
+          <div class="card-badges"></div>
+          <h3 class="card-title">AIIMS Nursing Officer Recruitment 2026</h3>
+          <p class="card-org">All India Institute of Medical Sciences &bull; All India</p>
+          <div class="card-meta">
+            <span class="meta-chip">👥 3,493 Posts</span>
+            <span class="meta-chip">🎓 B.Sc Nursing</span>
+            <span class="meta-chip">📍 All India</span>
+            <span class="meta-chip">💰 ₹44,900+</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="deadline">⏰ Last Date: 30 June 2026</span>
+        <div class="card-actions">
+          <button class="btn-save" aria-label="Save job">🔔</button>
+          <button class="btn-view" onclick="alert('Opening AIIMS details…')">View Details →</button>
+        </div>
+      </div>
+    </article>
+
+    <!-- ══ RESULTS STRIP SECTION ══ -->
+    <div style="margin-top:28px;" id="results-section">
+      <h2 class="section-title">📊 Recent Results &amp; Merit Lists</h2>
+      <div class="result-strip">
+        <span class="rs-icon">📋</span>
+        <div class="rs-info">
+          <div class="rs-title">SSC CHSL 2024 Final Result — Declared</div>
+          <div class="rs-meta">Staff Selection Commission &bull; 4 June 2026</div>
+        </div>
+        <span class="rs-status status-declared">✅ Declared</span>
+      </div>
+      <div class="result-strip">
+        <span class="rs-icon">🏦</span>
+        <div class="rs-info">
+          <div class="rs-title">IBPS PO 2025 Main Result — Expected Soon</div>
+          <div class="rs-meta">Institute of Banking Personnel Selection &bull; June 2026</div>
+        </div>
+        <span class="rs-status status-expected">⏳ Expected</span>
+      </div>
+      <div class="result-strip">
+        <span class="rs-icon">🚆</span>
+        <div class="rs-info">
+          <div class="rs-title">RRB Group D CBT Result 2025 — Declared</div>
+          <div class="rs-meta">Railway Recruitment Board &bull; 1 June 2026</div>
+        </div>
+        <span class="rs-status status-declared">✅ Declared</span>
+      </div>
+    </div>
+
+  </main><!-- /main-col -->
+
+
+  <!-- ────────────────────────────────────────────
+       SIDEBAR (desktop only — hidden ≤900px)
+       ──────────────────────────────────────────── -->
+  <aside class="side-col" aria-label="Sidebar">
+
+    <!-- AD PLACEMENT 3: Sticky 300×600 — Viewability boost (~15% revenue) -->
+    <!-- Sticky scroll = 40–60% more viewability than non-sticky -->
+    <div style="position:sticky;top:80px;display:flex;flex-direction:column;gap:16px;">
+      <div class="ad-unit ad-sidebar-large" role="complementary" aria-label="Advertisement">
+        <span>📌 Sticky Sidebar Ad</span>
+        <span>300×600 · Half Page</span>
+        <span style="font-size:9px;opacity:.65">Sticky scroll = 40–60% more viewability</span>
+      </div>
+
+      <!-- JOB ALERT SIGNUP -->
+      <div class="alert-box">
+        <h3>🔔 Free Job Alerts</h3>
+        <p>Get instant WhatsApp &amp; Email alerts for jobs matching your qualification</p>
+        <input class="alert-input" type="email" placeholder="Your Email or WhatsApp No." aria-label="Email or WhatsApp" />
+        <button class="alert-submit" onclick="alert('Subscribed! You will get alerts soon.')">Subscribe Free →</button>
+      </div>
+
+      <!-- TRENDING SEARCHES -->
+      <div class="sidebar-card">
+        <div class="sidebar-head">🔥 Trending Searches</div>
+        <div class="sidebar-list">
+          <a class="sidebar-item" href="#">
+            <span class="si-num">01</span>
+            <span class="si-text">RRB NTPC 2025 Apply Online</span>
+            <span class="si-badge">Hot</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num">02</span>
+            <span class="si-text">SSC CGL 2026 Syllabus PDF</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num">03</span>
+            <span class="si-text">SBI PO Admit Card 2026</span>
+            <span class="si-badge">New</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num">04</span>
+            <span class="si-text">UPSC Prelims 2026 Answer Key</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num">05</span>
+            <span class="si-text">Army Agniveer Recruitment 2026</span>
+            <span class="si-badge amber">Trending</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- UPCOMING EXAM DATES -->
+      <div class="sidebar-card">
+        <div class="sidebar-head">📅 Upcoming Exam Dates</div>
+        <div class="sidebar-list">
+          <a class="sidebar-item" href="#">
+            <span class="si-num" style="color:var(--red)">08</span>
+            <span class="si-text">RRB NTPC CBT-1 &bull; Jun 2026</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num" style="color:var(--red)">15</span>
+            <span class="si-text">IBPS RRB PO &bull; Jun 2026</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num">22</span>
+            <span class="si-text">SSC CGL Tier-1 &bull; Jul 2026</span>
+          </a>
+          <a class="sidebar-item" href="#">
+            <span class="si-num">01</span>
+            <span class="si-text">UPSC Mains &bull; Sep 2026</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- AD PLACEMENT 4: Sidebar 300×250 — Fill rate (~5% revenue) -->
+      <div class="ad-unit ad-sidebar-med" role="complementary" aria-label="Advertisement">
+        <span>📌 Sidebar Ad #2</span>
+        <span>300×250 · Medium Rectangle</span>
+        <span style="font-size:9px;opacity:.65">High fill rate on desktop</span>
+      </div>
+
+    </div><!-- /sticky wrapper -->
+  </aside><!-- /side-col -->
+
+</div><!-- /page-wrap -->
+
+
+<!-- ═══════════════════════════════════════════════
+     MOBILE BOTTOM NAV BAR (hidden on desktop)
+     Active tab highlighted amber
+     ═══════════════════════════════════════════════ -->
+<nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+  <div class="mobile-nav-inner">
+    <a href="#" class="active" data-mob="home"><span class="ico">🏠</span>Home</a>
+    <a href="#jobs-section" data-mob="jobs"><span class="ico">📋</span>Jobs</a>
+    <a href="#" data-mob="admit"><span class="ico">📄</span>Admit</a>
+    <a href="#results-section" data-mob="results"><span class="ico">📊</span>Results</a>
+    <a href="#" data-mob="alerts"><span class="ico">🔔</span>Alerts</a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════
+     AD PLACEMENT 5: MOBILE ANCHOR AD (fixed bottom)
+     Highest mobile CTR placement (~15% mobile revenue)
+     Sits above the mobile nav bar
+     ═══════════════════════════════════════════════ -->
+<div class="ad-anchor" id="anchor-ad" role="complementary" aria-label="Advertisement">
+  📢 Mobile Anchor Ad — 320×50 · Fixed Bottom · Highest Mobile CTR
+  <button class="close-btn" id="close-anchor" aria-label="Close ad" onclick="closeAnchorAd()">✕</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     JAVASCRIPT
+     - Tab switching
+     - Filter buttons
+     - Auto live timestamp
+     - Mobile nav active state
+     - Mobile anchor ad dismiss
+     ═══════════════════════════════════════════════ -->
+<script>
+  /* ── Tab switching ── */
+  document.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.tab').forEach(function(t) {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+    });
+  });
+
+  /* ── Filter pill buttons ── */
+  document.querySelectorAll('.filter-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(function(b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+    });
+  });
+
+  /* ── Desktop nav active state ── */
+  document.querySelectorAll('.nav-inner a').forEach(function(link) {
+    link.addEventListener('click', function() {
+      document.querySelectorAll('.nav-inner a').forEach(function(l) {
+        l.classList.remove('active');
+      });
+      link.classList.add('active');
+    });
+  });
+
+  /* ── Mobile nav active state ── */
+  document.querySelectorAll('.mobile-nav a').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      document.querySelectorAll('.mobile-nav a').forEach(function(l) {
+        l.classList.remove('active');
+      });
+      link.classList.add('active');
+    });
+  });
+
+  /* ── Live timestamp (auto-updates every 60s) ── */
+  function updateTimestamp() {
+    var now  = new Date();
+    var opts = { hour: '2-digit', minute: '2-digit', hour12: true };
+    var t    = now.toLocaleTimeString('en-IN', opts);
+    var el   = document.getElementById('last-updated');
+    if (el) el.textContent = 'Last Updated: Today ' + t;
+  }
+  updateTimestamp();
+  setInterval(updateTimestamp, 60000);
+
+  /* ── Mobile anchor ad dismiss ── */
+  function closeAnchorAd() {
+    var ad = document.getElementById('anchor-ad');
+    var nav = document.getElementById('mobile-nav');
+    if (ad) ad.style.display = 'none';
+    if (nav) nav.style.bottom = '0';
+  }
+
+  /* ── Save / alert buttons feedback ── */
+  document.querySelectorAll('.btn-save').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var orig = btn.textContent;
+      btn.textContent = '✅';
+      btn.style.borderColor = 'var(--green)';
+      btn.style.color = 'var(--green)';
+      setTimeout(function() {
+        btn.textContent = orig;
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }, 2000);
+    });
+  });
+
+  /* ── Alert CTA button ── */
+  var alertBtn = document.getElementById('alert-btn');
+  if (alertBtn) {
+    alertBtn.addEventListener('click', function() {
+      alert('📢 Enter your email or WhatsApp number in the Job Alert box on this page to get free instant alerts!');
+    });
+  }
+</script>
+
+</body>
+</html>
