@@ -214,6 +214,12 @@ export const exams = pgTable("exams", {
   officialWebsite: text("official_website"),
   resultsDate: text("results_date"),
   admitCardDate: text("admit_card_date"),
+  applicationFee: text("application_fee"),
+  eligibility: text("eligibility"),
+  ageLimit: text("age_limit"),
+  syllabus: text("syllabus"),
+  examMode: text("exam_mode"),
+  examBrief: text("exam_brief"),
   slug: varchar("slug").unique(),
   notifications: json("notifications").default([]),
   customLinks: json("custom_links").default([]),
@@ -243,6 +249,11 @@ export const siteSettings = pgTable("site_settings", {
   joinArattaiUrl: text("join_arattai_url").default("https://www.arattai.in/Example"),
   joinFacebookUrl: text("join_facebook_url").default("https://www.facebook.com/Example"),
   enabledSocialPlatforms: json("enabled_social_platforms").default(["whatsapp", "telegram", "facebook", "twitter", "linkedin"]),
+  aiModelProvider: text("ai_model_provider").default("gemini"), // "gemini" | "groq" | "ollama"
+  geminiApiKey: text("gemini_api_key"),
+  groqApiKey: text("groq_api_key"),
+  ollamaEndpoint: text("ollama_endpoint").default("http://localhost:11434"),
+  ollamaModel: text("ollama_model").default("llama3"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

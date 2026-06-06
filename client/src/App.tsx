@@ -25,6 +25,7 @@ import BlogDetail from "@/pages/blog-detail";
 import CookieBanner from "@/components/cookie-banner";
 import InstallPWA from "@/components/install-pwa";
 import PWAManualGuide from "@/components/pwa-manual-guide";
+import AiChatbot from "@/components/ai-chatbot";
 
 function Router() {
   return (
@@ -61,6 +62,7 @@ function App() {
             <CookieBanner />
             <InstallPWA />
             <PWAManualGuide />
+            <AiChatbot />
           </TooltipProvider>
         </PWAProvider>
       </UserProvider>

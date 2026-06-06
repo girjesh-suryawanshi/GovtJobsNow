@@ -15,6 +15,7 @@ import fs from "fs";
 import express from "express";
 import crypto from "crypto";
 import { generateFeaturedImage } from "./generate-image";
+import { aiRouter } from "./ai-router";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Visitor Tracking Middleware
@@ -1683,6 +1684,9 @@ ${categories.map(category => `  <url>
   });
 
   const httpServer = createServer(app);
+  
+  app.use("/api", aiRouter);
+  
   return httpServer;
 }
 

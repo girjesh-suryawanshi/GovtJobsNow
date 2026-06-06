@@ -235,7 +235,7 @@ export default function Home() {
       </div>
 
       {/* ─── MAIN PAGE WRAP ─── */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 16px 100px', display: 'grid', gridTemplateColumns: '1fr 300px', gap: '20px' }} className="main-page-grid">
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 16px 100px' }} className="main-page-grid">
         {/* ══════════════ LEFT / MAIN COLUMN ══════════════ */}
         <div style={{ minWidth: 0 }}>
 

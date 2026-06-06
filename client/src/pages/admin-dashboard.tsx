@@ -18,7 +18,8 @@ import {
   Users,
   LayoutDashboard,
   Megaphone,
-  BookOpen
+  BookOpen,
+  Bot
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -34,6 +35,7 @@ import ManualBlogEntry from "@/components/admin/manual-blog-entry";
 import AdminManagement from "@/components/admin/admin-management";
 import SignUpUserManagement from "@/components/admin/signup-user-management";
 import AdminAdsSettings from "@/components/admin/AdminAdsSettings";
+import AdminAiSettings from "@/components/admin/admin-ai-settings";
 
 interface DashboardStats {
   totalProcessed: number;
@@ -49,7 +51,7 @@ export default function AdminDashboard() {
   const [adminUser, setAdminUser] = useState<any>(null);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"jobs" | "exams" | "blog" | "signup-users" | "admins" | "ads">("jobs");
+  const [activeTab, setActiveTab] = useState<"jobs" | "exams" | "blog" | "signup-users" | "admins" | "ads" | "ai">("jobs");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -252,6 +254,15 @@ export default function AdminDashboard() {
                     Admin Settings
                   </button>
                   <button
+                    onClick={() => setActiveTab("ai")}
+                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      activeTab === "ai" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    <Bot className="h-4 w-4" />
+                    AI Assistant
+                  </button>
+                  <button
                     onClick={() => setActiveTab("ads")}
                     className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                       activeTab === "ads" ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-100"
@@ -273,6 +284,7 @@ export default function AdminDashboard() {
               {activeTab === "signup-users" && <SignUpUserManagement />}
               {activeTab === "admins" && <AdminManagement />}
               {activeTab === "ads" && <AdminAdsSettings />}
+              {activeTab === "ai" && <AdminAiSettings />}
             </div>
           </div>
         </div>

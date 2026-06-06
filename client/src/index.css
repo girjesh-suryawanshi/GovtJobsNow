@@ -140,7 +140,7 @@
   .cat-grid { grid-template-columns: repeat(4, 1fr); }
 }
 @media (max-width: 540px) {
-  .cat-grid { grid-template-columns: repeat(3, 1fr); }
+  .cat-grid { grid-template-columns: repeat(2, 1fr); }
 }
 .cat-card {
   background: #fff; border-radius: 10px;
@@ -261,7 +261,7 @@
 }
 .gjn-search:focus-within { border-color: var(--gjn-amber); }
 .gjn-search input {
-  flex: 1; border: none; outline: none;
+  flex: 1; min-width: 0; border: none; outline: none;
   padding: 9px 12px; font-size: 13px;
   font-family: 'Noto Sans', sans-serif; color: var(--gjn-text);
   background: transparent;
@@ -386,9 +386,14 @@
 }
 
 /* ─── MAIN PAGE GRID RESPONSIVE ─── */
+.main-page-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+}
 @media (max-width: 900px) {
   .main-page-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
   }
   .home-sidebar {
     display: none !important;
@@ -425,6 +430,11 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+@media (max-width: 640px) {
+  .page-section {
+    padding: 1.25rem;
+  }
 }
 
 .gjn-btn-primary {
