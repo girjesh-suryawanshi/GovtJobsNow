@@ -1394,22 +1394,78 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
                   )}
                 </div>
 
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-2 pt-2 items-center">
                   <Input 
                     placeholder="Resulting Image URL: /uploads/featured-....png"
                     value={formData.featuredImageUrl || ""} 
                     onChange={(e) => handleInputChange("featuredImageUrl", e.target.value)}
                     className="flex-1 bg-white"
                   />
+                  
+                  {/* Custom Featured Image Upload */}
+                  <div className="shrink-0 relative">
+                    <Input 
+                      type="file"
+                      accept="image/*"
+                      id="featured-image-upload"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        
+                        if (file.size > 10 * 1024 * 1024) {
+                          toast({
+                            title: "File too large",
+                            description: "Please upload an image smaller than 10MB.",
+                            variant: "destructive"
+                          });
+                          return;
+                        }
+
+                        const uploadData = new FormData();
+                        uploadData.append("file", file);
+                        try {
+                          const token = localStorage.getItem('admin_token');
+                          const response = await fetch('/api/upload', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}` },
+                            body: uploadData
+                          });
+                          if (response.ok) {
+                            const data = await response.json();
+                            handleInputChange("featuredImageUrl", data.url);
+                            toast({ title: "Image Uploaded", description: "Your custom featured image has been uploaded successfully!" });
+                          } else {
+                            toast({ title: "Upload Failed", variant: "destructive" });
+                          }
+                        } catch (error) {
+                          toast({ title: "Upload Failed", variant: "destructive" });
+                        } finally {
+                          e.target.value = ''; // Reset
+                        }
+                      }}
+                    />
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => document.getElementById("featured-image-upload")?.click()}
+                      className="bg-gray-100 hover:bg-gray-200 text-gray-700 h-10 px-3"
+                      title="Upload Custom Image"
+                    >
+                      <Upload className="w-4 h-4 md:mr-2" />
+                      <span className="hidden md:inline">Upload</span>
+                    </Button>
+                  </div>
+
                   <Button 
                     type="button" 
                     variant="outline" 
                     onClick={handleGenerateFeaturedImage}
                     disabled={isGeneratingImage || !formData.title || !formData.department || !formData.qualification}
-                    className="bg-indigo-600 text-white hover:bg-indigo-700 border-transparent shadow-md font-bold shrink-0"
+                    className="bg-indigo-600 text-white hover:bg-indigo-700 border-transparent shadow-md font-bold shrink-0 h-10"
                   >
                     {isGeneratingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
-                    Burn Text to Image
+                    <span className="hidden md:inline">Burn Text to Image</span>
                   </Button>
                 </div>
                 {formData.featuredImageUrl && (
