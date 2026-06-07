@@ -11,28 +11,36 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
     <aside className={`w-full ${className}`}>
       <div className="sticky top-6 flex flex-col gap-6">
         
+        {/* SIDEBAR SECTION 1: Top Advertisement Block (300x600) */}
+        <div className="bg-gray-50 border-[1.5px] border-gray-100 rounded-[20px] p-6 flex flex-col items-center justify-center text-center shadow-sm h-[600px] overflow-hidden w-full">
+          <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Advertisement</p>
+          <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-100/50">
+            <span className="text-gray-400 font-medium text-sm">300 × 600<br/>Sticky Sidebar</span>
+          </div>
+        </div>
+
         {/* NEW SIDEBAR SECTION 0: Application Status (Only shown if job exists) */}
         {job && (
-          <div className="bg-white border border-gray-100 rounded-[24px] p-6 shadow-sm flex flex-col gap-5">
+          <div className="bg-white border-[1.5px] border-gray-100 rounded-[20px] p-6 flex flex-col gap-5 shadow-sm w-full">
             <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Application Status</h3>
             
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               <button 
-                className="w-full h-[50px] rounded-xl text-[15px] font-bold bg-[var(--gjn-blue2)] text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                className="w-full h-[52px] rounded-xl text-[15px] font-bold bg-[var(--gjn-blue2)] text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2"
                 onClick={() => window.open(job.sourceUrl || '#', '_blank')}
               >
                 Apply Online <ExternalLink className="h-4 w-4" />
               </button>
               
               <button 
-                className="w-full h-[50px] rounded-xl text-[15px] font-bold bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                className="w-full h-[52px] rounded-xl text-[15px] font-bold bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
                 onClick={() => window.open(job.notificationFileUrl || job.sourceUrl || '#', '_blank')}
               >
                 Official Notification <ExternalLink className="h-4 w-4" />
               </button>
               
               <button 
-                className="w-full h-11 rounded-xl text-sm font-bold bg-white text-[var(--gjn-blue2)] hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 mt-1"
+                className="w-full h-12 rounded-xl text-sm font-bold bg-white text-[var(--gjn-blue2)] hover:bg-blue-50 transition-colors flex items-center justify-center gap-2"
                 onClick={() => {
                   if (navigator.share) {
                     navigator.share({
@@ -49,16 +57,16 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
               </button>
             </div>
 
-            <hr className="border-gray-100" />
+            <hr className="border-gray-100 my-1" />
             
             <div className="flex flex-col gap-2">
               <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Registration Deadline</h3>
-              <div className="bg-red-400/80 text-white rounded-xl py-3 px-4 font-black text-xl text-center shadow-sm">
+              <div className="bg-red-400/80 text-white rounded-xl py-4 px-4 font-black text-xl text-center shadow-sm">
                 {job.deadline || "Check Notice"}
               </div>
             </div>
 
-            <div className="bg-orange-50/50 border border-orange-100 rounded-xl p-4 mt-2">
+            <div className="bg-orange-50/50 border border-orange-100 rounded-xl p-5 mt-2">
               <p className="text-[10px] font-black uppercase tracking-widest text-orange-500 mb-1.5">Note</p>
               <p className="text-xs font-bold text-orange-800/80 leading-relaxed">
                 Always verify details on the official government portal before making any payment.
@@ -67,16 +75,8 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
           </div>
         )}
 
-        {/* SIDEBAR SECTION 1: Top Advertisement Block (300x600) */}
-        <div className="bg-gray-50 border border-gray-200 rounded-[20px] p-4 flex flex-col items-center justify-center text-center shadow-sm h-[600px] overflow-hidden">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Advertisement</p>
-          <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-100/50">
-            <span className="text-gray-400 font-medium text-sm">300 × 600<br/>Sticky Sidebar</span>
-          </div>
-        </div>
-
         {/* SIDEBAR SECTION 2: Free Job Alert Card */}
-        <div className="bg-gradient-to-br from-blue-900 to-[var(--gjn-blue)] rounded-[20px] p-6 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden">
+        <div className="bg-gradient-to-br from-blue-900 to-[var(--gjn-blue)] rounded-[20px] p-6 text-white shadow-sm relative overflow-hidden w-full">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
           
           <div className="relative z-10">
@@ -96,65 +96,67 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
         </div>
 
         {/* SIDEBAR SECTION 3: Trending Searches */}
-        <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
-            <div className="p-1.5 bg-red-50 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-red-500" />
-            </div>
-            <h3 className="text-lg font-syne font-bold text-gray-900">🔥 Trending Searches</h3>
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm w-full">
+          <div className="bg-[#1c3f94] px-4 py-3.5 flex items-center gap-2">
+            <span className="text-[18px]">🔥</span>
+            <h3 className="text-[16px] font-bold text-white whitespace-nowrap tracking-wide">
+              Trending Searches
+            </h3>
           </div>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col">
             {[
-              { id: "01", text: "SSC MTS 2027 Apply Online", badge: "HOT", color: "bg-red-500" },
-              { id: "02", text: "SSC CGL 2027 Syllabus", badge: "NEW", color: "bg-blue-500" },
-              { id: "03", text: "SBI PO Admit Card 2026", badge: "", color: "" },
-              { id: "04", text: "UPSC Prelims 2027 Answer Key", badge: "TRENDING", color: "bg-amber-500" },
-              { id: "05", text: "Army Agniveer Recruitment", badge: "", color: "" },
-            ].map((item, i) => (
-              <a href="#" key={i} className="flex items-start gap-3 group">
-                <span className="text-sm font-black text-gray-300 group-hover:text-[var(--gjn-blue)] transition-colors">{item.id}</span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-700 group-hover:text-[var(--gjn-blue)] transition-colors leading-tight">
-                    {item.text}
-                  </p>
-                  {item.badge && (
-                    <span className={`inline-block mt-1.5 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest text-white ${item.color}`}>
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
+              { id: "01", text: "RRB NTPC 2025 Apply Online", badge: "Hot" },
+              { id: "02", text: "SSC CGL 2026 Syllabus", badge: "" },
+              { id: "03", text: "SBI PO Admit Card 2026", badge: "New" },
+              { id: "04", text: "UPSC Prelims 2026 Answer Key", badge: "" },
+              { id: "05", text: "Army Agniveer Recruitment", badge: "" },
+            ].map((item, i, arr) => (
+              <a href="#" key={i} className={`flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                <span className="text-[14px] font-bold text-blue-600 w-5 text-center shrink-0">
+                  {item.id}
+                </span>
+                <span className="flex-1 text-[14px] font-bold text-gray-900 truncate">
+                  {item.text}
+                </span>
+                {item.badge && (
+                  <span className="px-2 py-0.5 rounded bg-[#dcfce7] text-[#166534] text-[12px] font-semibold shrink-0">
+                    {item.badge}
+                  </span>
+                )}
               </a>
             ))}
           </div>
         </div>
 
         {/* SIDEBAR SECTION 4: Upcoming Exam Dates */}
-        <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm">
-          <div className="flex items-center gap-3 mb-5 pb-4 border-b border-gray-100">
-            <div className="p-1.5 bg-purple-50 rounded-lg">
-              <Calendar className="h-5 w-5 text-purple-600" />
-            </div>
-            <h3 className="text-lg font-syne font-bold text-gray-900">📅 Upcoming Exam Dates</h3>
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm w-full">
+          <div className="bg-[#1c3f94] px-4 py-3.5 flex items-center gap-2">
+            <Calendar className="h-[18px] w-[18px] text-white/80" />
+            <h3 className="text-[16px] font-bold text-white whitespace-nowrap tracking-wide">
+              Upcoming Exam Dates
+            </h3>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col">
             {[
-              { exam: "IBPS RRB Clerk", date: "Jun" },
-              { exam: "SSC CGL Tier 1", date: "Jul" },
-              { exam: "UPSC CDS", date: "Aug" },
-              { exam: "JEE Main", date: "Sep" },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100 cursor-pointer">
-                <span className="text-sm font-medium text-gray-800">{item.exam}</span>
-                <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-none rounded-lg px-2.5 py-1 text-xs font-bold">
-                  {item.date}
-                </Badge>
-              </div>
+              { id: "08", color: "text-red-600", text: "RRB NTPC CBT-1 • Jun" },
+              { id: "15", color: "text-red-600", text: "IBPS RRB PO • Jun" },
+              { id: "22", color: "text-blue-600", text: "SSC CGL Tier-1 • Jul" },
+              { id: "01", color: "text-blue-600", text: "UPSC Mains • Sep" },
+            ].map((item, i, arr) => (
+              <a href="#" key={i} className={`flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                <span className={`text-[14px] font-bold w-5 text-center shrink-0 ${item.color}`}>
+                  {item.id}
+                </span>
+                <span className="flex-1 text-[14px] font-bold text-gray-900 truncate">
+                  {item.text}
+                </span>
+              </a>
             ))}
           </div>
         </div>
 
         {/* SIDEBAR SECTION 5: Second Advertisement (300x250) */}
-        <div className="bg-gray-50 border border-gray-200 rounded-[20px] p-4 flex flex-col items-center justify-center text-center shadow-sm h-[250px] overflow-hidden">
+        <div className="bg-gray-50 border-[1.5px] border-gray-100 rounded-[20px] p-6 flex flex-col items-center justify-center text-center shadow-sm h-[250px] overflow-hidden w-full">
           <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Advertisement</p>
           <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-100/50">
             <span className="text-gray-400 font-medium text-sm">300 × 250<br/>Medium Rectangle</span>
@@ -162,7 +164,7 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
         </div>
 
         {/* SIDEBAR SECTION 6: Quick Tools */}
-        <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm">
+        <div className="bg-white border-[1.5px] border-gray-100 rounded-[20px] p-6 shadow-sm w-full">
           <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Quick Tools</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
@@ -184,7 +186,7 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
         </div>
 
         {/* SIDEBAR SECTION 7: Popular Job Categories */}
-        <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm">
+        <div className="bg-white border-[1.5px] border-gray-100 rounded-[20px] p-6 shadow-sm w-full">
           <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Popular Categories</h3>
           <div className="flex flex-wrap gap-2">
             {[
@@ -202,7 +204,7 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
         </div>
 
         {/* SIDEBAR SECTION 8: Important Links */}
-        <div className="bg-white border border-gray-100 rounded-[20px] p-6 shadow-sm">
+        <div className="bg-white border-[1.5px] border-gray-100 rounded-[20px] p-6 shadow-sm w-full">
           <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Important Links</h3>
           <div className="flex flex-col gap-2">
             {[

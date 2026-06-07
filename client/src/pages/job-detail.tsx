@@ -6,7 +6,7 @@ import {
   ArrowLeft, MapPin, Users, Calendar, IndianRupee, Bookmark,
   Share2, ExternalLink, FileText, MessageCircle, Send, Facebook,
   Building2, Sparkles, BookOpen, ShieldCheck, Target, Download, ChevronRight,
-  GraduationCap, Briefcase, User
+  GraduationCap, Briefcase, User, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -259,27 +259,30 @@ export default function JobDetail() {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        {/* BACK + BREADCRUMB */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-          <Link href="/">
-            <button className="flex items-center font-black uppercase tracking-widest text-[10px]" style={{ color: 'var(--gjn-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
-              <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
-            </button>
-          </Link>
+      {/* ─── MAIN PAGE WRAP ─── */}
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '16px 16px 100px' }} className="main-page-grid">
+        {/* ══════════════ LEFT / MAIN COLUMN ══════════════ */}
+        <div style={{ minWidth: 0 }} id="overview">
+          {/* BACK + BREADCRUMB */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 px-2">
+            <Link href="/">
+              <button className="flex items-center font-black uppercase tracking-widest text-[10px]" style={{ color: 'var(--gjn-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
+              </button>
+            </Link>
 
-          <Breadcrumbs
-            items={[
-              { label: job.jobCategory || "Jobs", href: "/#departments" },
-              { label: job.title }
-            ]}
-          />
-        </div>
+            <Breadcrumbs
+              items={[
+                { label: job.jobCategory || "Jobs", href: "/#departments" },
+                { label: job.title }
+              ]}
+            />
+          </div>
 
-        <div id="overview" className="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/40 border border-gray-100 overflow-hidden">
+          <div className="w-full">
           {/* FEATURED IMAGE BANNER */}
           {(job as any).featuredImageUrl && (
-            <div className="w-full bg-gray-50 flex justify-center border-b border-gray-100">
+            <div className="w-full bg-gray-50 flex justify-center border border-gray-100 rounded-[24px] overflow-hidden mb-6">
               <img 
                 src={(job as any).featuredImageUrl} 
                 alt={`${job.title} Notification Banner`} 
@@ -288,7 +291,8 @@ export default function JobDetail() {
             </div>
           )}
           
-          <div className="bg-white border border-gray-100 rounded-[24px] p-6 md:p-8 m-4 md:m-6 shadow-sm relative z-10">
+          {/* 🔹 HEADER */}
+          <div className="bg-white border border-gray-100 rounded-[24px] p-6 md:p-8 shadow-sm relative z-10 mb-8">
             <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
               
               {/* Left Side: Logo, Title */}
@@ -309,29 +313,33 @@ export default function JobDetail() {
                     {job.department || "Department"} • {job.location || "Multiple Locations"}
                   </p>
 
-                  <div className="flex flex-wrap items-center gap-4 md:gap-6 mt-4 text-xs md:text-sm">
+                  <div className="flex flex-row flex-wrap items-center gap-x-2 gap-y-2 mt-4 text-xs md:text-sm text-gray-600">
                     {/* Meta row */}
                     {job.createdAt && (
-                      <div className="flex items-center gap-2 whitespace-nowrap">
-                        <Calendar className="h-4 w-4 text-gray-400" />
-                        <p className="text-gray-600 font-medium">
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Calendar className="h-4 w-4 opacity-70" />
+                        <span className="font-medium">
                           Posted On: {new Date(job.createdAt).toISOString().split('T')[0]}
-                        </p>
+                        </span>
                       </div>
                     )}
-                    {job.createdAt && <div className="w-1 h-1 rounded-full bg-gray-300"></div>}
-                    <div className="flex items-center gap-2 whitespace-nowrap">
-                      <Target className="h-4 w-4 text-red-400" />
-                      <p className="text-red-600 font-medium">
-                        Last Date: {job.deadline || "Check notification"}
-                      </p>
+                    
+                    {job.createdAt && <span className="opacity-40 font-bold hidden sm:inline-block">•</span>}
+                    
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Clock className="h-4 w-4 opacity-70 text-red-500" />
+                      <span className="font-bold text-red-600">
+                        Last Date: {job.deadline || "Check Notice"}
+                      </span>
                     </div>
-                    <div className="w-1 h-1 rounded-full bg-gray-300"></div>
-                    <div className="flex items-center gap-2 whitespace-nowrap">
-                      <Users className="h-4 w-4 text-blue-400" />
-                      <p className="text-blue-600 font-medium">
+                    
+                    <span className="opacity-40 font-bold hidden sm:inline-block">•</span>
+                    
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
+                      <Users className="h-4 w-4 opacity-70 text-blue-500" />
+                      <span className="font-bold text-blue-600">
                         Total Vacancy: {positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || "Not Specified"}
-                      </p>
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -356,11 +364,10 @@ export default function JobDetail() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 px-4 sm:px-0">
-            {/* Main Content Area */}
-            <div className="lg:col-span-3 pb-8 md:pb-12 space-y-10 lg:pr-8 lg:border-r border-gray-100">
-              {/* PHASE 3: QUICK INFO STRIP */}
-              <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap gap-3 mb-6 hide-scrollbar snap-x snap-mandatory">
+
+          <div className="pb-8 md:pb-12 space-y-8">
+            {/* PHASE 3: QUICK INFO STRIP */}
+            <div className="flex overflow-x-auto pb-4 md:pb-0 md:flex-wrap gap-3 mb-2 hide-scrollbar snap-x snap-mandatory">
                 <QuickInfoCard 
                   label="Organization" 
                   value={job.department || "Government"} 
@@ -792,12 +799,12 @@ export default function JobDetail() {
               {/* Related Content (Internal Linking) */}
               <RelatedJobs jobId={job.id} />
             </div>
-
-            {/* Desktop Sidebar Area */}
-            <div className="hidden lg:block lg:col-span-1 relative mt-12">
-              <JobSidebar job={job} />
-            </div>
           </div>
+        </div> {/* end left column */}
+
+        {/* ══════════════ RIGHT SIDEBAR ══════════════ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }} className="home-sidebar">
+          <JobSidebar job={job} />
         </div>
       </div>
       <Footer />
