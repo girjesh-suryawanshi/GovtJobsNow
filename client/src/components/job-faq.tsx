@@ -70,32 +70,30 @@ export const JobFAQ: React.FC<JobFAQProps> = ({ job }) => {
   }, [job, faqs]);
 
   return (
-    <div className="py-8">
-      <div className="flex items-center space-x-2 mb-6">
-        <div className="p-2 bg-primary/10 rounded-lg text-primary">
-          <HelpCircle className="h-5 w-5" />
-        </div>
-        <h3 className="text-xl font-extrabold tracking-tight text-foreground">
+    <section className="page-section p-6 md:p-8 space-y-6">
+      <div className="flex items-center space-x-3 mb-2 border-b border-[var(--gjn-border)] pb-4">
+        <HelpCircle className="h-6 w-6 text-[var(--gjn-blue)]" />
+        <h3 className="text-xl md:text-2xl font-sans font-extrabold tracking-tight" style={{ color: 'var(--gjn-blue)' }}>
           Frequently Asked Questions
         </h3>
       </div>
 
-      <Accordion type="single" collapsible className="w-full space-y-3">
+      <Accordion type="single" collapsible defaultValue="item-0" className="w-full space-y-4">
         {faqs.map((faq, index) => (
           <AccordionItem 
             key={index} 
             value={`item-${index}`}
-            className="border border-muted/50 rounded-xl px-4 bg-card/30 transition-all hover:bg-card/50"
+            className="border border-gray-100 rounded-2xl px-5 bg-white transition-all shadow-sm data-[state=open]:border-blue-100 data-[state=open]:shadow-md"
           >
-            <AccordionTrigger className="text-sm font-extrabold hover:no-underline py-4 text-left leading-relaxed">
+            <AccordionTrigger className="text-[15px] font-bold hover:no-underline py-5 text-left leading-relaxed text-gray-900">
               {faq.q}
             </AccordionTrigger>
-            <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4 font-medium">
+            <AccordionContent className="text-[15px] text-gray-600 leading-relaxed pb-5 font-medium border-t border-gray-50 pt-4">
               {faq.a}
             </AccordionContent>
           </AccordionItem>
         ))}
       </Accordion>
-    </div>
+    </section>
   );
 };

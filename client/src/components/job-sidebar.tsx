@@ -2,15 +2,71 @@ import { Link } from "wouter";
 import { 
   BellRing, TrendingUp, Calendar, MapPin, 
   FileText, CheckCircle2, ChevronRight, Share2, 
-  Search, ShieldCheck, Target, Download 
+  Search, ShieldCheck, Target, Download, ExternalLink
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-export function JobSidebar({ className = "" }: { className?: string }) {
+export function JobSidebar({ className = "", job }: { className?: string, job?: any }) {
   return (
     <aside className={`w-full ${className}`}>
       <div className="sticky top-6 flex flex-col gap-6">
         
+        {/* NEW SIDEBAR SECTION 0: Application Status (Only shown if job exists) */}
+        {job && (
+          <div className="bg-white border border-gray-100 rounded-[24px] p-6 shadow-sm flex flex-col gap-5">
+            <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Application Status</h3>
+            
+            <div className="flex flex-col gap-3">
+              <button 
+                className="w-full h-[50px] rounded-xl text-[15px] font-bold bg-[var(--gjn-blue2)] text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2"
+                onClick={() => window.open(job.sourceUrl || '#', '_blank')}
+              >
+                Apply Online <ExternalLink className="h-4 w-4" />
+              </button>
+              
+              <button 
+                className="w-full h-[50px] rounded-xl text-[15px] font-bold bg-white text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                onClick={() => window.open(job.notificationFileUrl || job.sourceUrl || '#', '_blank')}
+              >
+                Official Notification <ExternalLink className="h-4 w-4" />
+              </button>
+              
+              <button 
+                className="w-full h-11 rounded-xl text-sm font-bold bg-white text-[var(--gjn-blue2)] hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 mt-1"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: job.title,
+                      url: window.location.href,
+                    }).catch(console.error);
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Link copied to clipboard!");
+                  }
+                }}
+              >
+                <Share2 className="h-4 w-4" /> Share Openings
+              </button>
+            </div>
+
+            <hr className="border-gray-100" />
+            
+            <div className="flex flex-col gap-2">
+              <h3 className="text-xs font-black uppercase tracking-widest text-gray-400">Registration Deadline</h3>
+              <div className="bg-red-400/80 text-white rounded-xl py-3 px-4 font-black text-xl text-center shadow-sm">
+                {job.deadline || "Check Notice"}
+              </div>
+            </div>
+
+            <div className="bg-orange-50/50 border border-orange-100 rounded-xl p-4 mt-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-orange-500 mb-1.5">Note</p>
+              <p className="text-xs font-bold text-orange-800/80 leading-relaxed">
+                Always verify details on the official government portal before making any payment.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* SIDEBAR SECTION 1: Top Advertisement Block (300x600) */}
         <div className="bg-gray-50 border border-gray-200 rounded-[20px] p-4 flex flex-col items-center justify-center text-center shadow-sm h-[600px] overflow-hidden">
           <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Advertisement</p>

@@ -426,14 +426,15 @@
 
 .page-section {
   background: #fff;
-  border: 1.5px solid var(--gjn-border);
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--gjn-border);
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
 }
 @media (max-width: 640px) {
   .page-section {
-    padding: 1.25rem;
+    padding: 1.5rem;
+    border-radius: 20px;
   }
 }
 
