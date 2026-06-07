@@ -111,6 +111,30 @@ export default function JobDetail() {
 
   const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');
 
+  const customMarkdownComponents = {
+    h3: ({ node, ...props }: any) => (
+      <h3 className="text-xl md:text-2xl font-syne font-bold mt-10 mb-5 pb-3 border-b-2 border-amber-200 flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }} {...props} />
+    ),
+    ul: ({ node, ...props }: any) => (
+      <ul className="space-y-4 my-6 list-none pl-0" {...props} />
+    ),
+    li: ({ node, ...props }: any) => (
+      <li className="flex items-start gap-3">
+        <span className="text-amber-500 font-bold mt-0.5 flex-shrink-0 text-lg leading-none">✦</span>
+        <span className="text-gray-700 leading-relaxed text-[15px]">{props.children}</span>
+      </li>
+    ),
+    p: ({ node, ...props }: any) => (
+      <p className="text-gray-700 leading-relaxed my-5 text-[15px]" {...props} />
+    ),
+    strong: ({ node, ...props }: any) => (
+      <strong className="font-bold text-gray-900" {...props} />
+    ),
+    blockquote: ({ node, ...props }: any) => (
+      <blockquote className="p-5 bg-gradient-to-r from-blue-50 to-white border-l-4 border-blue-600 rounded-r-xl italic text-blue-900 my-8 shadow-sm font-medium" {...props} />
+    )
+  };
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--gjn-bg)' }}>
       <SEOHead
@@ -306,7 +330,7 @@ export default function JobDetail() {
                     AI-Powered Preparation Guide
                   </h3>
                   <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
-                    <ReactMarkdown>{job.prepGuide}</ReactMarkdown>
+                    <ReactMarkdown components={customMarkdownComponents}>{job.prepGuide}</ReactMarkdown>
                   </div>
                 </section>
               )}
@@ -319,7 +343,7 @@ export default function JobDetail() {
                     Detailed Syllabus Breakdown
                   </h3>
                   <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
-                    <ReactMarkdown>{job.syllabus}</ReactMarkdown>
+                    <ReactMarkdown components={customMarkdownComponents}>{job.syllabus}</ReactMarkdown>
                   </div>
                 </section>
               )}
@@ -333,7 +357,7 @@ export default function JobDetail() {
                   <FileText className="h-6 w-6" /> Notification Summary
                 </h3>
                 <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
-                  <ReactMarkdown>{job.description}</ReactMarkdown>
+                  <ReactMarkdown components={customMarkdownComponents}>{job.description}</ReactMarkdown>
                 </div>
               </section>
 

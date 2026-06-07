@@ -694,21 +694,46 @@ Disallow: /admin/`);
       Do NOT output multi-line strings. Failure to escape newlines will crash the system.
       
       - "title": Create a catchy, clear, and professional job title.
-      - "description": Write a comprehensive, completely original summary of the job. You MUST format the description using Markdown. At the end of the description, you MUST include the following 4 sections formatted as Markdown headings (use H3 '###'):
-        
-        ### 1. Common mistakes / What to check before applying [Organization Name] Recruitment
-        [Extract or generate content here based on the notification or general best practices]
-        
-        ### 2. Who can apply for This Job & How to Apply for [Organization Name] Recruitment 2026
-        [Extract or generate eligibility and application steps here]
-        
-        ### 3. Important Document Required to Apply For [Organization Name] Recruitment
-        [Extract or generate required documents list here]
-        
-        ### 4. How to Apply for [Organization Name] Recruitment
-        [Extract or generate step-by-step application instructions here]
-        
-        Use the actual organization or department name where [Organization Name] is specified. If the exact details aren't in the text, you MUST generate reasonable, highly relevant SEO-friendly content for each section based on your AI knowledge. Do NOT just copy the source text sentences.
+      - "description": You are an expert job posting writer and SEO/AEO/GEO content strategist. Transform the raw job posting into a fully optimized, humanized, and structured job listing that ranks on traditional search engines AND gets cited by AI search engines. You MUST format the description using Markdown. Use the actual organization or department name where [Organization Name] is specified. Include the following structure:
+
+        STEP 1 — REWRITE THE MAIN JOB DESCRIPTION
+        - Rewrite the original job description in a clear, humanized, conversational tone.
+        - Do NOT change any factual details (dates, eligibility, salary, vacancy count, post name).
+        - Optimize for AEO: write in a way that directly answers "Who is hiring?", "What is this job?", "Who can apply?", "What is the salary?" — because AI engines pull direct answers.
+        - Optimize for GEO: use natural language phrases people actually type or speak, include location + organization name in key sentences, write in question-answer style where possible.
+        - Add a compelling intro paragraph that summarizes the opportunity in 3–4 sentences.
+
+        STEP 2 — ADD THE FOLLOWING 5 SECTIONS EXACTLY IN THIS ORDER (formatted as Markdown H3 '###'):
+
+        ### ⚠️ Common Mistakes / What to Check Before Applying for [Organization Name] Recruitment
+        Write this section as a helpful, friendly guide. Use bullet points. Each point should be: specific and actionable (not generic), written in simple, human language, and focused on real mistakes candidates commonly make (wrong form, missing documents, age miscalculation, wrong category, signature missing, photo issues, fee payment errors, etc.). Include 8–12 bullet points.
+
+        ### 👤 Who Can Apply for This Job & How to Apply for [Organization Name] Recruitment
+        Write this section in two parts:
+        **Who Can Apply:**
+        - List eligibility criteria in bullet points (age, education, nationality, category-wise relaxation if any). Each bullet should be a complete, clear sentence. If age relaxation exists for SC/ST/OBC/PwD, mention it clearly.
+        **How to Apply (Overview):**
+        - Give a brief step-by-step overview in bullet points (detailed steps go in Section 5). Keep it simple: online/offline, portal name, deadline.
+
+        ### 📄 Important Documents Required to Apply for [Organization Name] Recruitment
+        List all documents in bullet points. Organize them in this order: 1. Identity & personal documents, 2. Educational certificates, 3. Category/caste certificate (if applicable), 4. Experience certificates (if applicable), 5. Photographs & signature, 6. Fee payment proof (if applicable). Write each document name clearly. Add a short note in brackets if needed (e.g., "Aadhar Card [for identity verification]").
+
+        ### 🏆 Selection Process for [Organization Name] Recruitment
+        Write the full selection process in bullet points. Include: each stage of selection (written test, physical test, interview, document verification, medical, etc.), what happens at each stage in simple language, qualifying criteria if mentioned, and final merit list / appointment process. Write it as if explaining to a first-time government job applicant.
+
+        ### 📝 How to Apply for [Organization Name] Recruitment — Step-by-Step Guide
+        Write a detailed step-by-step application guide in numbered bullet points. Include: where to go (official website URL if available), how to register, how to fill the form, how to upload documents, how to pay the fee, and how to submit and save the confirmation. End this section with: "Apply before the last date to avoid last-minute technical issues."
+
+        STEP 3 — SEO + AEO + GEO OPTIMIZATION RULES (apply throughout the description):
+        - Include the organization name + post name in every section heading.
+        - Use FAQ-style phrasing naturally within content (e.g., "Candidates often ask whether...").
+        - Write dates in full format (e.g., "15 June 2025" not "15/06/25") so AI engines read them correctly.
+        - Use location + job title together in at least 3 places (e.g., "Madhya Pradesh government job 2025", "[Organization] vacancy in [State/City]").
+        - Avoid keyword stuffing — write for humans first, search engines second.
+        - Every section must be able to stand alone as an answer snippet (AI engines pull sections independently).
+        - Use simple, active voice sentences — no passive voice where possible.
+        - Add a 2–3 line TL;DR summary at the very top of the description (before everything else) formatted exactly as:
+          > **Quick Summary:** [Organization Name] has released [X] vacancies for [Post Name]. Eligible candidates can apply [online/offline] before [Last Date]. [One key eligibility line].
       
       SCHEMA:
       {
