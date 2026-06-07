@@ -697,13 +697,23 @@ Disallow: /admin/`);
       - "description": You are an expert job posting writer and SEO/AEO/GEO content strategist. Transform the raw job posting into a fully optimized, humanized, and structured job listing that ranks on traditional search engines AND gets cited by AI search engines. You MUST format the description using Markdown. Use the actual organization or department name where [Organization Name] is specified. Include the following structure:
 
         STEP 1 — REWRITE THE MAIN JOB DESCRIPTION
-        - Rewrite the original job description in a clear, humanized, conversational tone.
-        - Do NOT change any factual details (dates, eligibility, salary, vacancy count, post name).
-        - Optimize for AEO: write in a way that directly answers "Who is hiring?", "What is this job?", "Who can apply?", "What is the salary?" — because AI engines pull direct answers.
-        - Optimize for GEO: use natural language phrases people actually type or speak, include location + organization name in key sentences, write in question-answer style where possible.
-        - Add a compelling intro paragraph that summarizes the opportunity in 3–4 sentences.
+        - Start with the exact heading "### 📝 Quick Summary".
+        - Under this heading, write ONLY a compelling intro paragraph that summarizes the opportunity in 3–4 sentences.
+        - Next, add the exact heading "### 💡 Key Takeaways".
+        - Extract Key Takeaways directly from the official notification content. Do NOT generate generic career advice.
+        - Generate concise bullet points from actual notification information.
+        - Include important details such as: Post Name, Total Vacancies, Eligibility Highlights, Age Limit, Application Dates, Application Fee, Selection Process, Important Instructions, Reservation Highlights, Special Conditions.
+        - This "Key Takeaways" section should contain 6-10 primary bullet points covering all the crucial details.
+        
+        CRITICAL: Immediately after the "Key Takeaways" section, you MUST insert the exact text "<!-- SPLIT -->" on its own line. Do not forget this separator.
 
         STEP 2 — ADD THE FOLLOWING 5 SECTIONS EXACTLY IN THIS ORDER (formatted as Markdown H3 '###'):
+
+        ### 📄 Important Documents Required to Apply for [Organization Name] Recruitment
+        List all documents in bullet points. Organize them in this order: 1. Identity & personal documents, 2. Educational certificates, 3. Category/caste certificate (if applicable), 4. Experience certificates (if applicable), 5. Photographs & signature, 6. Fee payment proof (if applicable). Write each document name clearly. Add a short note in brackets if needed (e.g., "Aadhar Card [for identity verification]").
+
+        ### 🏆 Selection Process for [Organization Name] Recruitment
+        Write the full selection process in bullet points. Include: each stage of selection (written test, physical test, interview, document verification, medical, etc.), what happens at each stage in simple language, qualifying criteria if mentioned, and final merit list / appointment process. Write it as if explaining to a first-time government job applicant.
 
         ### ⚠️ Common Mistakes / What to Check Before Applying for [Organization Name] Recruitment
         Write this section as a helpful, friendly guide. Use bullet points. Each point should be: specific and actionable (not generic), written in simple, human language, and focused on real mistakes candidates commonly make (wrong form, missing documents, age miscalculation, wrong category, signature missing, photo issues, fee payment errors, etc.). Include 8–12 bullet points.
@@ -714,12 +724,6 @@ Disallow: /admin/`);
         - List eligibility criteria in bullet points (age, education, nationality, category-wise relaxation if any). Each bullet should be a complete, clear sentence. If age relaxation exists for SC/ST/OBC/PwD, mention it clearly.
         **How to Apply (Overview):**
         - Give a brief step-by-step overview in bullet points (detailed steps go in Section 5). Keep it simple: online/offline, portal name, deadline.
-
-        ### 📄 Important Documents Required to Apply for [Organization Name] Recruitment
-        List all documents in bullet points. Organize them in this order: 1. Identity & personal documents, 2. Educational certificates, 3. Category/caste certificate (if applicable), 4. Experience certificates (if applicable), 5. Photographs & signature, 6. Fee payment proof (if applicable). Write each document name clearly. Add a short note in brackets if needed (e.g., "Aadhar Card [for identity verification]").
-
-        ### 🏆 Selection Process for [Organization Name] Recruitment
-        Write the full selection process in bullet points. Include: each stage of selection (written test, physical test, interview, document verification, medical, etc.), what happens at each stage in simple language, qualifying criteria if mentioned, and final merit list / appointment process. Write it as if explaining to a first-time government job applicant.
 
         ### 📝 How to Apply for [Organization Name] Recruitment — Step-by-Step Guide
         Write a detailed step-by-step application guide in numbered bullet points. Include: where to go (official website URL if available), how to register, how to fill the form, how to upload documents, how to pay the fee, and how to submit and save the confirmation. End this section with: "Apply before the last date to avoid last-minute technical issues."

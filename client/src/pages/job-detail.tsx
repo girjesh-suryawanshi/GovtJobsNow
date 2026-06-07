@@ -28,6 +28,7 @@ import JobPostingSchema from "@/components/job-posting-schema";
 import { AdUnit } from "@/components/ad-unit";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { RelatedJobs } from "@/components/related-jobs";
+import { JobSidebar } from "@/components/job-sidebar";
 import { TrendingJobs } from "@/components/trending-jobs";
 import { JobFAQ } from "@/components/job-faq";
 import { useToast } from "@/hooks/use-toast";
@@ -111,9 +112,47 @@ export default function JobDetail() {
 
   const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');
 
+  // Robust Markdown Parser to split sections
+  const rawDescription = job?.description || "";
+  // Split by markdown h3 headers `### `
+  const descriptionChunks = rawDescription.split(/(?=###\s+)/);
+
+  let quickSummary = "";
+  let keyTakeaways = "";
+  let importantDocuments = "";
+  let selectionProcessMd = "";
+  let commonMistakes = "";
+  let whoCanApply = "";
+  let howToApply = "";
+  let otherChunks: string[] = [];
+
+  descriptionChunks.forEach(chunk => {
+    const lowerChunk = chunk.toLowerCase();
+    if (lowerChunk.includes("quick summary") || (!chunk.trim().startsWith("###") && chunk.trim().length > 0)) {
+      // It's the quick summary, or the first intro chunk for older jobs
+      quickSummary = chunk;
+    } else if (lowerChunk.includes("key takeaways")) {
+      keyTakeaways = chunk;
+    } else if (lowerChunk.includes("important document")) {
+      importantDocuments = chunk;
+    } else if (lowerChunk.includes("selection process")) {
+      selectionProcessMd = chunk;
+    } else if (lowerChunk.includes("common mistake") || lowerChunk.includes("what to check")) {
+      commonMistakes = chunk;
+    } else if (lowerChunk.includes("who can apply")) {
+      whoCanApply = chunk;
+    } else if (lowerChunk.includes("how to apply")) {
+      howToApply = chunk;
+    } else {
+      if (chunk.trim().length > 0) {
+        otherChunks.push(chunk);
+      }
+    }
+  });
+
   const customMarkdownComponents = {
     h3: ({ node, ...props }: any) => (
-      <h3 className="text-xl md:text-2xl font-syne font-bold mt-10 mb-5 pb-3 border-b-2 border-amber-200 flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }} {...props} />
+      <h3 className="text-xl md:text-2xl font-syne font-bold mb-4 pb-4 border-b border-[var(--gjn-border)] flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }} {...props} />
     ),
     ul: ({ node, ...props }: any) => (
       <ul className="space-y-4 my-6 list-none pl-0" {...props} />
@@ -209,55 +248,68 @@ export default function JobDetail() {
           )}
           
           {/* 🔹 HEADER */}
-          <div className="bg-white border rounded-xl p-5 m-5 mb-6 shadow-sm hover:shadow-md transition relative z-10">
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-
-              <div className="flex gap-4">
-                <OrganizationLogo
-                  department={job.department || ""}
-                  className="h-12 w-12"
-                />
+          <div className="bg-white border border-gray-100 rounded-[24px] p-8 md:p-10 m-4 md:m-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+              
+              {/* Left Side: Logo, Title, Meta */}
+              <div className="flex flex-col max-w-full lg:max-w-[75%]">
+                <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center p-2 border border-gray-100 shadow-sm mb-6">
+                  <OrganizationLogo
+                    department={job.department || ""}
+                    className="h-12 w-12"
+                  />
+                </div>
 
                 <div>
-                  <h1 className="text-2xl md:text-3xl font-syne font-extrabold leading-tight tracking-tight" style={{ color: 'var(--gjn-blue)' }}>
+                  <h1 className="text-3xl md:text-[40px] lg:text-[48px] font-sans font-extrabold leading-[1.05] tracking-[-0.03em] text-balance text-left text-gray-900" style={{ color: 'var(--gjn-blue)' }}>
                     {job.title}
                   </h1>
 
-                  <p className="text-sm text-gray-500 mt-1 font-medium">
+                  <p className="text-lg md:text-xl font-medium text-gray-500 mt-3 md:mt-4 mb-4 md:mb-5">
                     {job.department || "Department"} • {job.location || "India"}
                   </p>
 
-                  <p className="text-sm text-red-500 font-semibold mt-2">
-                    ⏰ Last Date: {job.deadline || "Check notification"}
-                  </p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 mt-4 md:mt-5">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-gray-400" />
+                      <p className="text-base md:text-lg text-gray-600 font-medium">
+                        Posted On: {job.createdAt ? new Date(job.createdAt).toISOString().split('T')[0] : "N/A"}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-red-400" />
+                      <p className="text-base md:text-lg text-red-600 font-medium">
+                        Last Date: {job.deadline || "Check notification"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              {/* Right Side: Actions */}
+              <div className="flex flex-col sm:flex-row items-center lg:justify-end gap-3 md:gap-4 shrink-0 mt-4 lg:mt-0">
                 <button
-                  className="gjn-btn-primary"
+                  className="w-full sm:w-[200px] h-14 md:h-16 rounded-2xl text-lg font-bold bg-[var(--gjn-blue)] text-white hover:bg-blue-900 transition-all hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 whitespace-nowrap px-6"
                   onClick={() => window.open(job.sourceUrl || '#', '_blank')}
                 >
-                  Apply Now
+                  <Send className="h-5 w-5" /> Apply Now
                 </button>
 
                 <button
                   onClick={() => setIsSaved(!isSaved)}
-                  className="flex items-center justify-center rounded-lg"
-                  style={{ width: '40px', background: 'transparent', border: '1.5px solid var(--gjn-border)' }}
+                  title={isSaved ? "Saved" : "Save Job"}
+                  className="w-full sm:w-14 md:w-16 h-14 md:h-16 rounded-2xl text-lg font-bold bg-white border-2 border-gray-100 text-gray-600 hover:border-[var(--gjn-amber)] hover:text-[var(--gjn-amber)] transition-all hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
                 >
-                  <Bookmark
-                    className={`h-4 w-4 ${isSaved ? "fill-[var(--gjn-amber)] text-[var(--gjn-amber)]" : "text-gray-400"}`}
-                  />
+                  <Bookmark className={`h-6 w-6 md:h-7 md:w-7 ${isSaved ? "fill-[var(--gjn-amber)] text-[var(--gjn-amber)]" : ""}`} />
+                  <span className="sm:hidden">{isSaved ? "Saved" : "Save Job"}</span>
                 </button>
               </div>
 
             </div>
           </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3">
-            {/* Main Content */}
-            <div className="lg:col-span-2 p-8 md:p-12 space-y-12 border-r border-gray-50">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 px-4 sm:px-0">
+            {/* Main Content Area */}
+            <div className="lg:col-span-3 pb-8 md:pb-12 space-y-10 lg:pr-8 lg:border-r border-gray-100">
               {/* 🔹 INFO GRID */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <InfoItem label="Salary" value={job.salary ? `₹${job.salary}` : "N/A"} icon={<IndianRupee className="h-4 w-4" />} />
@@ -266,23 +318,48 @@ export default function JobDetail() {
                 <InfoItem label="Age Limit" value={job.ageLimit || "N/A"} icon={<User className="h-4 w-4" />} />
               </div>
 
-              {/* VACANCIES (Clean Structured Layout) */}
-              {positions.length > 0 && (
-                <div className="page-section p-6 md:p-8 space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--gjn-border)] pb-4">
-                    <div>
-                      <h3 className="text-xl md:text-2xl font-syne font-bold flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }}>
-                        <Users className="h-6 w-6" /> Positions Available
-                      </h3>
-                      <p className="text-sm font-medium text-gray-500 mt-1">
-                        Detailed breakdown of specific posts
-                      </p>
-                    </div>
-                    <Badge className="self-start sm:self-auto bg-blue-50 text-[var(--gjn-blue)] border-none font-black px-4 py-2 text-xs uppercase tracking-widest rounded-xl">
-                      {positions.reduce((acc, pos) => acc + pos.numberOfVacancies, 0)} Total Openings
-                    </Badge>
+              {/* 3. Notification Summary */}
+              {quickSummary && (
+                <section className="page-section p-8 space-y-6">
+                  {!quickSummary.trim().startsWith('###') && (
+                    <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                      <FileText className="h-6 w-6" /> Notification Summary
+                    </h3>
+                  )}
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{quickSummary}</ReactMarkdown>
                   </div>
+                </section>
+              )}
 
+              {/* 4. Key Takeaways */}
+              {keyTakeaways && (
+                <section className="page-section p-8 space-y-6">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{keyTakeaways}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* 5. VACANCIES (Clean Structured Layout) */}
+              <div className="page-section p-6 md:p-8 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--gjn-border)] pb-4">
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-syne font-bold flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }}>
+                      <Users className="h-6 w-6" /> Positions Available
+                    </h3>
+                    <p className="text-sm font-medium text-gray-500 mt-1">
+                      Detailed breakdown of specific posts
+                    </p>
+                  </div>
+                  {positions.length > 0 && (
+                    <Badge className="self-start sm:self-auto bg-blue-50 text-[var(--gjn-blue)] border-none font-black px-4 py-2 text-xs uppercase tracking-widest rounded-xl">
+                      Total Positions Available: {positions.reduce((acc, pos) => acc + (parseInt(pos.numberOfVacancies as any) || 0), 0)}
+                    </Badge>
+                  )}
+                </div>
+
+                {positions.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
                     {positions.map((pos) => (
                       <div
@@ -301,7 +378,7 @@ export default function JobDetail() {
                         
                         <div className="flex items-center gap-6 md:justify-end border-t md:border-t-0 md:border-l border-[var(--gjn-border)] pt-4 md:pt-0 md:pl-6 min-w-max">
                           <div className="text-left">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Posts</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Vacancies</p>
                             <Badge className="bg-amber-50 text-[var(--gjn-amber)] border-none font-black px-3 py-1">
                               {pos.numberOfVacancies}
                             </Badge>
@@ -316,50 +393,11 @@ export default function JobDetail() {
                       </div>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-gray-500 italic py-2">Vacancy details not officially specified.</p>
+                )}
+              </div>
 
-
-
-
-              {/* Prep Guide */}
-              {job.prepGuide && (
-                <section className="page-section p-8 space-y-6">
-                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
-                    <Sparkles className="h-6 w-6 text-[var(--gjn-amber)]" />
-                    AI-Powered Preparation Guide
-                  </h3>
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
-                    <ReactMarkdown components={customMarkdownComponents}>{job.prepGuide}</ReactMarkdown>
-                  </div>
-                </section>
-              )}
-
-              {/* Syllabus Section */}
-              {job.syllabus && (
-                <section className="page-section p-8 space-y-6">
-                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
-                    <BookOpen className="h-6 w-6" />
-                    Detailed Syllabus Breakdown
-                  </h3>
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
-                    <ReactMarkdown components={customMarkdownComponents}>{job.syllabus}</ReactMarkdown>
-                  </div>
-                </section>
-              )}
-
-              {/* Middle Ad Placement */}
-              <AdUnit slot="job-middle-content" />
-
-              {/* Notification Summary */}
-              <section className="page-section p-8 space-y-6">
-                <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
-                  <FileText className="h-6 w-6" /> Notification Summary
-                </h3>
-                <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
-                  <ReactMarkdown components={customMarkdownComponents}>{job.description}</ReactMarkdown>
-                </div>
-              </section>
 
 
 
@@ -397,18 +435,6 @@ export default function JobDetail() {
                 </div>
               </section>
 
-              {/* Selection Process */}
-              {job.selectionProcess && (
-                <section className="page-section p-8 space-y-4">
-                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
-                    <Target className="h-6 w-6" /> Selection Process
-                  </h3>
-                  <div className="text-gray-700 leading-relaxed font-medium text-sm">
-                    {job.selectionProcess}
-                  </div>
-                </section>
-              )}
-
               {/* Official Vacancy Matrix */}
               {job.vacancyBreakdown && (
                 <section id="vacancies" className="page-section p-8 space-y-6">
@@ -421,6 +447,96 @@ export default function JobDetail() {
                   </div>
                 </section>
               )}
+
+              {/* Prep Guide */}
+              {job.prepGuide && (
+                <section className="page-section p-8 space-y-6">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <Sparkles className="h-6 w-6 text-[var(--gjn-amber)]" />
+                    AI-Powered Preparation Guide
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{job.prepGuide}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* Syllabus Section */}
+              {job.syllabus && (
+                <section className="page-section p-8 space-y-6">
+                  <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                    <BookOpen className="h-6 w-6" />
+                    Detailed Syllabus Breakdown
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{job.syllabus}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* Middle Ad Placement */}
+              <AdUnit slot="job-middle-content" />
+
+              {/* 10. Important Documents */}
+              {importantDocuments && (
+                <section className="page-section p-8 space-y-6">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{importantDocuments}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* 11. Selection Process */}
+              {(selectionProcessMd || job.selectionProcess) && (
+                <section className="page-section p-8 space-y-6">
+                  {!selectionProcessMd && (
+                    <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                      <Target className="h-6 w-6" /> Selection Process
+                    </h3>
+                  )}
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>
+                      {selectionProcessMd || job.selectionProcess}
+                    </ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* 12. Common Mistakes */}
+              {commonMistakes && (
+                <section className="page-section p-8 space-y-6">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{commonMistakes}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* 13. Who Can Apply */}
+              {whoCanApply && (
+                <section className="page-section p-8 space-y-6">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{whoCanApply}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* 14. How to Apply */}
+              {howToApply && (
+                <section className="page-section p-8 space-y-6">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{howToApply}</ReactMarkdown>
+                  </div>
+                </section>
+              )}
+
+              {/* Other unknown markdown chunks to prevent data loss */}
+              {otherChunks.map((chunk, idx) => (
+                <section key={`other-${idx}`} className="page-section p-8 space-y-6">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                    <ReactMarkdown components={customMarkdownComponents}>{chunk}</ReactMarkdown>
+                  </div>
+                </section>
+              ))}
 
               {/* Official Notifications (Multiple) */}
               {((job.notifications as any[]) || []).length > 0 && (
@@ -526,9 +642,32 @@ export default function JobDetail() {
                   )}
                 </div>
               </section>
+              {/* Mobile Sidebar Placement (Appears AFTER article, BEFORE FAQ) */}
+              <div className="block lg:hidden w-full my-8">
+                <JobSidebar />
+              </div>
 
               {/* FAQ Section (Rich Snippets) */}
               <JobFAQ job={job} />
+
+              {/* 17. About Author */}
+              <section className="page-section p-8 bg-blue-50/30 border border-blue-100 rounded-3xl space-y-4 mt-8">
+                <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
+                  <User className="h-6 w-6 text-blue-500" />
+                  About the Author
+                </h3>
+                <div className="flex items-start gap-4">
+                  <div className="h-14 w-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-white shadow-sm">
+                    <span className="font-bold text-xl text-blue-700">G</span>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-lg">GovtJobNow Editorial Team</h4>
+                    <p className="text-gray-600 text-sm mt-1 leading-relaxed max-w-xl">
+                      Our expert editorial team diligently tracks, curates, and verifies government job notifications across India. We are committed to bringing you accurate, timely, and highly readable career opportunities.
+                    </p>
+                  </div>
+                </div>
+              </section>
 
               {/* Bottom Ad Placement */}
               <AdUnit slot="job-bottom-post" />
@@ -537,65 +676,9 @@ export default function JobDetail() {
               <RelatedJobs jobId={job.id} />
             </div>
 
-            {/* Sidebar Sticky */}
-            <div className="p-8 md:p-12 bg-gray-50/50 space-y-8">
-              <div className="sticky top-12 space-y-8">
-                <TrendingJobs variant="card" />
-
-                <div className="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-xl shadow-gray-200/20 space-y-8">
-                  <div className="space-y-4">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Application Status</h4>
-                    <button className="gjn-btn-primary w-full flex items-center justify-center gap-2 h-12 sm:h-14" style={{ borderRadius: '16px' }} onClick={() => window.open(job.sourceUrl, '_blank')}>
-                      Apply Online <ExternalLink className="h-5 w-5" />
-                    </button>
-
-                    {/* Modern Multi-Notification Priority */}
-                    {((job.notifications as any[]) || []).length > 0 ? (
-                      ((job.notifications as any[]) || []).map((notif, idx) => (
-                        <button
-                          key={idx}
-                          className="gjn-btn-secondary w-full flex items-center justify-center gap-2 h-14" style={{ borderRadius: '16px' }}
-                          onClick={() => window.open(notif.url, '_blank')}
-                        >
-                          {notif.label} {notif.type === 'file' ? <Download className="h-5 w-5" /> : <ExternalLink className="h-5 w-5" />}
-                        </button>
-                      ))
-                    ) : job.notificationFileUrl && (
-                      <Button variant="outline" className="w-full border-gray-200 text-gray-700 hover:bg-white font-black rounded-2xl h-14 flex items-center justify-center gap-2" onClick={() => window.open(job.notificationFileUrl as string, '_blank')}>
-                        Official Notification <Download className="h-5 w-5 text-blue-500" />
-                      </Button>
-                    )}
-
-                    <SocialShare
-                      url={window.location.href}
-                      title={job.title}
-                      trigger={
-                        <button className="w-full flex items-center justify-center gap-2 h-12 sm:h-14" style={{ background: 'transparent', border: 'none', color: 'var(--gjn-blue2)', fontWeight: 800, cursor: 'pointer' }}>
-                          <Share2 className="h-5 w-5" /> Share Openings
-                        </button>
-                      }
-                    />
-                  </div>
-
-                  <Separator className="bg-gray-100" />
-
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-gray-400 italic">
-                      <span>Registration Deadline</span>
-                    </div>
-                    <div id="timeline" className="p-5 bg-red-600 rounded-2xl text-white shadow-lg shadow-red-100 animate-pulse">
-                      <p className="text-center font-black text-xl">{job.deadline}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-orange-50 rounded-2xl border border-orange-100">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-2 underline">Note</p>
-                  <p className="text-xs text-orange-900/70 font-bold leading-relaxed">
-                    Always verify details on the official government portal before making any payment.
-                  </p>
-                </div>
-              </div>
+            {/* Desktop Sidebar Area */}
+            <div className="hidden lg:block lg:col-span-1 relative mt-12">
+              <JobSidebar />
             </div>
           </div>
         </div>
