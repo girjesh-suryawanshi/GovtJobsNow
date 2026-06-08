@@ -292,32 +292,34 @@ export default function JobDetail() {
           )}
           
           {/* 🔹 HEADER */}
-          <div className="bg-white border border-gray-100 rounded-[24px] p-6 md:p-8 shadow-sm relative z-10 mb-8">
-            <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-6">
+          <div className="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm relative z-10 mb-8">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
               
-              {/* Left Side: Logo, Title */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 flex-1 min-w-0">
-                <div className="w-12 h-12 md:w-16 md:h-16 shrink-0 rounded-2xl bg-gray-50 flex items-center justify-center p-2.5 border border-gray-100 shadow-sm mt-1">
+              {/* Left Side: Logo, Title, Meta */}
+              <div className="flex gap-4 flex-1 min-w-0">
+                {/* Logo */}
+                <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 rounded-xl bg-gray-50 flex items-center justify-center p-2 border border-gray-200 shadow-sm mt-1">
                   <OrganizationLogo
                     department={job.department || ""}
                     className="h-full w-full object-contain"
                   />
                 </div>
 
+                {/* Title and Meta */}
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-3xl md:text-[44px] lg:text-[48px] font-sans font-extrabold leading-[1.1] tracking-[-0.02em] text-balance text-left text-gray-900 line-clamp-2" style={{ color: 'var(--gjn-text)' }}>
+                  <h1 className="text-[20px] sm:text-[24px] md:text-[26px] font-sans font-extrabold leading-[1.3] text-[#0f172a] tracking-tight text-left">
                     {job.title}
                   </h1>
 
-                  <p className="text-sm md:text-base font-medium text-gray-500 mt-3">
+                  <p className="text-[13px] md:text-[14px] font-medium text-gray-500 mt-1.5">
                     {job.department || "Department"} • {job.location || "Multiple Locations"}
                   </p>
 
-                  <div className="flex flex-row flex-wrap items-center gap-x-2 gap-y-2 mt-4 text-xs md:text-sm text-gray-600">
+                  <div className="flex flex-row flex-wrap items-center gap-x-2 gap-y-2 mt-2.5 text-[12px] md:text-[13px] text-gray-600">
                     {/* Meta row */}
                     {job.createdAt && (
-                      <div className="flex items-center gap-1.5 whitespace-nowrap">
-                        <Calendar className="h-4 w-4 opacity-70" />
+                      <div className="flex items-center gap-1 whitespace-nowrap">
+                        <Calendar className="h-3.5 w-3.5 opacity-70" />
                         <span className="font-medium">
                           Posted On: {new Date(job.createdAt).toISOString().split('T')[0]}
                         </span>
@@ -326,18 +328,18 @@ export default function JobDetail() {
                     
                     {job.createdAt && <span className="opacity-40 font-bold hidden sm:inline-block">•</span>}
                     
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      <Clock className="h-4 w-4 opacity-70 text-red-500" />
-                      <span className="font-bold text-red-600">
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <Clock className="h-3.5 w-3.5 opacity-80 text-red-500" />
+                      <span className="font-semibold text-red-500">
                         Last Date: {job.deadline || "Check Notice"}
                       </span>
                     </div>
                     
                     <span className="opacity-40 font-bold hidden sm:inline-block">•</span>
                     
-                    <div className="flex items-center gap-1.5 whitespace-nowrap">
-                      <Users className="h-4 w-4 opacity-70 text-blue-500" />
-                      <span className="font-bold text-blue-600">
+                    <div className="flex items-center gap-1 whitespace-nowrap">
+                      <Users className="h-3.5 w-3.5 opacity-70 text-blue-500" />
+                      <span className="font-semibold text-blue-600">
                         Total Vacancy: {positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || "Not Specified"}
                       </span>
                     </div>
@@ -346,9 +348,9 @@ export default function JobDetail() {
               </div>
 
               {/* Right Side: Actions */}
-              <div className="flex sm:flex-row items-center gap-3 shrink-0 mt-2 xl:mt-1">
+              <div className="flex items-center gap-3 shrink-0 mt-4 md:mt-0">
                 <button
-                  className="h-11 md:h-[50px] px-6 md:px-8 rounded-xl text-[15px] font-bold bg-[var(--gjn-blue2)] text-white hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center whitespace-nowrap w-full sm:w-auto"
+                  className="h-10 md:h-11 px-5 md:px-6 rounded-lg text-[14px] font-bold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap flex items-center justify-center w-full md:w-auto"
                   onClick={() => window.open(job.sourceUrl || '#', '_blank')}
                 >
                   Apply Now
@@ -357,9 +359,9 @@ export default function JobDetail() {
                 <button
                   onClick={() => setIsSaved(!isSaved)}
                   title={isSaved ? "Saved" : "Save Job"}
-                  className="w-11 md:w-[50px] h-11 md:h-[50px] rounded-xl text-lg font-bold bg-white border border-gray-200 text-gray-600 hover:border-gray-300 transition-colors flex items-center justify-center shrink-0 shadow-sm"
+                  className="w-10 md:w-11 h-10 md:h-11 rounded-lg text-lg font-bold bg-white border border-gray-200 text-gray-600 hover:border-gray-300 transition-colors flex items-center justify-center shrink-0 shadow-sm"
                 >
-                  <Bookmark className={`h-5 w-5 ${isSaved ? "fill-current" : ""}`} />
+                  <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
                 </button>
               </div>
             </div>
