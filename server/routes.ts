@@ -237,6 +237,16 @@ Disallow: /admin/`);
     }
   });
 
+  // Get trending jobs
+  app.get("/api/jobs/trending", async (req, res) => {
+    try {
+      const trending = await storage.getTrendingJobs(5);
+      res.json(trending);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch trending jobs", error });
+    }
+  });
+
   // Get single job by ID
   app.get("/api/jobs/:id", async (req, res) => {
     try {
@@ -289,15 +299,7 @@ Disallow: /admin/`);
     }
   });
 
-  // Get trending jobs
-  app.get("/api/jobs/trending", async (req, res) => {
-    try {
-      const trending = await storage.getTrendingJobs(5);
-      res.json(trending);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch trending jobs", error });
-    }
-  });
+
 
   // Get job positions for a specific job
   app.get("/api/jobs/:id/positions", async (req, res) => {
