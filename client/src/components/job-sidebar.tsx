@@ -6,8 +6,30 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { AdUnit } from "@/components/ad-unit";
+import { useQuery } from "@tanstack/react-query";
+import { Job, Exam } from "@shared/schema";
 
 export function JobSidebar({ className = "", job }: { className?: string, job?: any }) {
+  const { data: trendingJobs = [] } = useQuery<Job[]>({
+    queryKey: ["/api/jobs/trending"],
+    queryFn: () => fetch("/api/jobs/trending").then((res) => res.json()),
+  });
+
+  const { data: allExams = [] } = useQuery<Exam[]>({
+    queryKey: ["/api/exams"],
+    queryFn: () => fetch("/api/exams").then((res) => res.json()),
+  });
+
+  // Process and sort upcoming exams (limit to 4)
+  const upcomingExams = allExams
+    .filter((exam) => {
+      if (!exam.examDate) return false;
+      const date = new Date(exam.examDate);
+      return date >= new Date(new Date().setHours(0, 0, 0, 0)); // Only future/today dates
+    })
+    .sort((a, b) => new Date(a.examDate!).getTime() - new Date(b.examDate!).getTime())
+    .slice(0, 4);
+
   return (
     <aside className={`w-full ${className}`}>
       <div className="sticky top-6 flex flex-col gap-6">
@@ -100,27 +122,26 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
             </h3>
           </div>
           <div className="flex flex-col">
-            {[
-              { id: "01", text: "RRB NTPC 2025 Apply Online", badge: "Hot" },
-              { id: "02", text: "SSC CGL 2026 Syllabus", badge: "" },
-              { id: "03", text: "SBI PO Admit Card 2026", badge: "New" },
-              { id: "04", text: "UPSC Prelims 2026 Answer Key", badge: "" },
-              { id: "05", text: "Army Agniveer Recruitment", badge: "" },
-            ].map((item, i, arr) => (
-              <a href="#" key={i} className={`flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                <span className="text-[14px] font-bold text-blue-600 w-5 text-center shrink-0">
-                  {item.id}
-                </span>
-                <span className="flex-1 text-[14px] font-bold text-gray-900 truncate">
-                  {item.text}
-                </span>
-                {item.badge && (
-                  <span className="px-2 py-0.5 rounded bg-[#dcfce7] text-[#166534] text-[12px] font-semibold shrink-0">
-                    {item.badge}
+            {trendingJobs.slice(0, 5).map((tJob, i, arr) => (
+              <Link href={`/job/${tJob.slug}`} key={tJob.id}>
+                <a className={`flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                  <span className="text-[14px] font-bold text-blue-600 w-5 text-center shrink-0">
+                    {String(i + 1).padStart(2, '0')}
                   </span>
-                )}
-              </a>
+                  <span className="flex-1 text-[14px] font-bold text-gray-900 truncate">
+                    {tJob.title}
+                  </span>
+                  {i < 2 && (
+                    <span className="px-2 py-0.5 rounded bg-[#dcfce7] text-[#166534] text-[12px] font-semibold shrink-0">
+                      Hot
+                    </span>
+                  )}
+                </a>
+              </Link>
             ))}
+            {trendingJobs.length === 0 && (
+              <div className="px-4 py-6 text-center text-sm text-gray-500 font-medium">Loading trending jobs...</div>
+            )}
           </div>
         </div>
 
@@ -133,21 +154,28 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
             </h3>
           </div>
           <div className="flex flex-col">
-            {[
-              { id: "08", color: "text-red-600", text: "RRB NTPC CBT-1 • Jun" },
-              { id: "15", color: "text-red-600", text: "IBPS RRB PO • Jun" },
-              { id: "22", color: "text-blue-600", text: "SSC CGL Tier-1 • Jul" },
-              { id: "01", color: "text-blue-600", text: "UPSC Mains • Sep" },
-            ].map((item, i, arr) => (
-              <a href="#" key={i} className={`flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`}>
-                <span className={`text-[14px] font-bold w-5 text-center shrink-0 ${item.color}`}>
-                  {item.id}
-                </span>
-                <span className="flex-1 text-[14px] font-bold text-gray-900 truncate">
-                  {item.text}
-                </span>
-              </a>
-            ))}
+            {upcomingExams.map((exam, i, arr) => {
+              const date = new Date(exam.examDate!);
+              const day = String(date.getDate()).padStart(2, '0');
+              const month = date.toLocaleDateString('en-US', { month: 'short' });
+              const isVerySoon = (date.getTime() - new Date().getTime()) < (14 * 24 * 60 * 60 * 1000); // within 14 days
+              
+              return (
+                <Link href={`/exam/${exam.slug}`} key={exam.id}>
+                  <a className={`flex items-center gap-4 px-4 py-3.5 hover:bg-gray-50 transition-colors ${i !== arr.length - 1 ? 'border-b border-gray-100' : ''}`}>
+                    <span className={`text-[14px] font-bold w-5 text-center shrink-0 ${isVerySoon ? 'text-red-600' : 'text-blue-600'}`}>
+                      {day}
+                    </span>
+                    <span className="flex-1 text-[14px] font-bold text-gray-900 truncate">
+                      {exam.title} • {month}
+                    </span>
+                  </a>
+                </Link>
+              );
+            })}
+            {upcomingExams.length === 0 && (
+              <div className="px-4 py-6 text-center text-sm text-gray-500 font-medium">No upcoming exams found.</div>
+            )}
           </div>
         </div>
 
