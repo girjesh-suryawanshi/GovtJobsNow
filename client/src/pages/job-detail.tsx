@@ -218,8 +218,8 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen" style={{ background: 'var(--gjn-bg)' }}>
       <SEOHead
-        title={`${job.title} - ${job.department} | GovtJobNow Official`}
-        description={`Official notification for ${job.title} in ${job.department}. Apply before ${job.deadline}.`}
+        title={`${job.title} Recruitment ${new Date(job.createdAt || Date.now()).getFullYear()} | ${job.department} | GovtJobsNow`}
+        description={`Apply online for ${positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || "various"} ${job.title} posts at ${job.department}. Check eligibility, salary, last date (${job.deadline || "Check Notice"}), and official notification.`}
         url={`https://govtjobnow.com/job/${job.slug || job.id}`}
       />
       <JobPostingSchema job={job} />
@@ -273,7 +273,7 @@ export default function JobDetail() {
 
             <Breadcrumbs
               items={[
-                { label: job.jobCategory || "Jobs", href: "/#departments" },
+                { label: job.jobCategory || "Jobs", href: `/category/${job.jobCategory?.toLowerCase().replace(/\s+/g, '-') || 'all'}` },
                 { label: job.title }
               ]}
             />

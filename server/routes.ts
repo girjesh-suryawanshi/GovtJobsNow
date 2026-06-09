@@ -163,6 +163,12 @@ Disallow: /admin/`);
         { path: "/jobs/ssc", priority: "0.8", changefreq: "daily" },
         { path: "/jobs/railway", priority: "0.8", changefreq: "daily" },
       ];
+      
+      const categories = ['bank', 'defence', 'upsc', 'teaching', 'police', 'state-govt'];
+      categories.forEach(cat => {
+        staticRoutes.push({ path: `/category/${cat}`, priority: "0.8", changefreq: "daily" });
+      });
+
       for (const route of staticRoutes) {
         xml += `  <url>\n    <loc>${baseUrl}${route.path}</loc>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
       }

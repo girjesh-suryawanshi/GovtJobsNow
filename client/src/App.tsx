@@ -18,6 +18,7 @@ import TermsOfService from "@/pages/terms-of-service";
 import Disclaimer from "@/pages/disclaimer";
 import SSCJobs from "@/pages/ssc-jobs";
 import RailwayJobs from "@/pages/railway-jobs";
+import CategoryDetail from "@/pages/category-detail";
 import NotFound from "@/pages/not-found";
 import AboutUs from "@/pages/about-us";
 import BlogList from "@/pages/blog-list";
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/about-us" component={AboutUs} />
       <Route path="/jobs/ssc" component={SSCJobs} />
       <Route path="/jobs/railway" component={RailwayJobs} />
+      <Route path="/category/:slug" component={CategoryDetail} />
       <Route path="/blog" component={BlogList} />
       <Route path="/blog/:slug" component={BlogDetail} />
       <Route component={NotFound} />
