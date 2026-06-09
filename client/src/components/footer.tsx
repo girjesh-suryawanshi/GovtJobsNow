@@ -114,8 +114,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
             <ul className="space-y-3">
               <li>
                 <Link
-                  href="/?search=Banking"
-                  onClick={() => onFilterChange?.({ search: "Banking" })}
+                  href="/bank-jobs"
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
@@ -124,8 +123,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/?search=Railway"
-                  onClick={() => onFilterChange?.({ search: "Railway" })}
+                  href="/railway-jobs"
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
@@ -134,18 +132,16 @@ export default function Footer({ onFilterChange }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/?search=Defense"
-                  onClick={() => onFilterChange?.({ search: "Defense" })}
+                  href="/defence-jobs"
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
-                  Defense Jobs
+                  Defence Jobs
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/?search=SSC"
-                  onClick={() => onFilterChange?.({ search: "SSC" })}
+                  href="/ssc-jobs"
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
                   <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
@@ -154,8 +150,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/?search=UPSC"
-                  onClick={() => onFilterChange?.({ search: "UPSC" })}
+                  href="/upsc-jobs"
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
                   <div className="w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
@@ -164,12 +159,11 @@ export default function Footer({ onFilterChange }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/?jobCategory=State Government"
-                  onClick={() => onFilterChange?.({ jobCategory: "State Government" })}
+                  href="/10th-pass-govt-jobs"
                   className="text-gray-400 hover:text-blue-400 transition-colors duration-200 flex items-center gap-2"
                 >
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full"></div>
-                  State Government
+                  10th Pass Jobs
                 </Link>
               </li>
             </ul>

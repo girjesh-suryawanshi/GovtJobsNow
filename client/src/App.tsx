@@ -19,6 +19,7 @@ import Disclaimer from "@/pages/disclaimer";
 import SSCJobs from "@/pages/ssc-jobs";
 import RailwayJobs from "@/pages/railway-jobs";
 import CategoryDetail from "@/pages/category-detail";
+import DynamicSeoLandingPage from "@/pages/dynamic-seo-landing";
 import NotFound from "@/pages/not-found";
 import AboutUs from "@/pages/about-us";
 import BlogList from "@/pages/blog-list";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/category/:slug" component={CategoryDetail} />
       <Route path="/blog" component={BlogList} />
       <Route path="/blog/:slug" component={BlogDetail} />
+      <Route path="/:slug" component={DynamicSeoLandingPage} />
       <Route component={NotFound} />
     </Switch>
   );

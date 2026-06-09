@@ -163,12 +163,16 @@ Disallow: /admin/`);
         { path: "/jobs/ssc", priority: "0.8", changefreq: "daily" },
         { path: "/jobs/railway", priority: "0.8", changefreq: "daily" },
       ];
+      const seoSlugs = [
+        "10th-pass-govt-jobs", "12th-pass-govt-jobs", "iti-govt-jobs", "diploma-govt-jobs", "graduate-govt-jobs", "btech-govt-jobs",
+        "government-jobs-in-maharashtra", "government-jobs-in-uttar-pradesh", "government-jobs-in-madhya-pradesh", "government-jobs-in-rajasthan", "government-jobs-in-bihar", "government-jobs-in-delhi",
+        "isro-jobs", "drdo-jobs", "sbi-jobs", "rbi-jobs", "lic-jobs", "indian-post-jobs", "railway-jobs", "ssc-jobs", "upsc-jobs", "defence-jobs", "bank-jobs", "army-jobs", "navy-jobs", "air-force-jobs",
+        "ssc-cgl", "ssc-chsl", "ibps-po", "rrb-ntpc", "upsc-cse"
+      ];
       
-      const categories = ['bank', 'defence', 'upsc', 'teaching', 'police', 'state-govt'];
-      categories.forEach(cat => {
-        staticRoutes.push({ path: `/category/${cat}`, priority: "0.8", changefreq: "daily" });
+      seoSlugs.forEach(slug => {
+        staticRoutes.push({ path: `/${slug}`, priority: "0.8", changefreq: "daily" });
       });
-
       for (const route of staticRoutes) {
         xml += `  <url>\n    <loc>${baseUrl}${route.path}</loc>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
       }
