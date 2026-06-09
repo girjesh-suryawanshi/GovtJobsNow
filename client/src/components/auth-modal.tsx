@@ -185,7 +185,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {mode === 'signin' ? 'Sign In to Your Account' : 'Create Your Account'}
