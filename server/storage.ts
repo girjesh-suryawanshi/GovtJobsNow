@@ -341,7 +341,7 @@ export class DatabaseStorage implements IStorage {
     
     // Sum vacancies (application estimates)
     const [vacancies] = await db.select({ 
-      sum: sql<number>`sum(coalesce(nullif(${jobs.positions}, '')::integer, 1))` 
+      sum: sql<number>`sum(case when trim(${jobs.positions}) ~ '^[0-9]+$' then trim(${jobs.positions})::integer else 1 end)` 
     }).from(jobs);
     
     return { 

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 // ============================================================
@@ -468,39 +469,60 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
 
   // Mutations
   const createMutation = useMutation({
-    mutationFn: (data: Partial<InsertBlogPost>) =>
-      fetch("/api/admin/blog", {
+    mutationFn: async (data: Partial<InsertBlogPost>) => {
+      const r = await fetch("/api/admin/blog", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
-      }).then((r) => r.json()),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to create post");
+      }
+      return r.json();
+    },
     onSuccess: (post: BlogPost) => {
       setCurrentPostId(post.id);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
       toast({ title: "✅ Post Created", description: `"${post.title}" saved successfully.` });
       onSaved?.();
     },
-    onError: () => toast({ title: "Error", description: "Failed to create post.", variant: "destructive" }),
+    onError: (error: Error) => toast({ title: "Error", description: error.message || "Failed to create post.", variant: "destructive" }),
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: Partial<InsertBlogPost>) =>
-      fetch(`/api/admin/blog/${currentPostId}`, {
+    mutationFn: async (data: Partial<InsertBlogPost>) => {
+      const r = await fetch(`/api/admin/blog/${currentPostId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(data),
-      }).then((r) => r.json()),
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err.message || "Failed to update post");
+      }
+      return r.json();
+    },
     onSuccess: (post: BlogPost) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
       toast({ title: "✅ Post Updated", description: `"${post.title}" updated.` });
       onSaved?.();
     },
-    onError: () => toast({ title: "Error", description: "Failed to update post.", variant: "destructive" }),
+    onError: (error: Error) => toast({ title: "Error", description: error.message || "Failed to update post.", variant: "destructive" }),
   });
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
   const handleSave = (publishNow = false) => {
+    if (!formData.title?.trim()) {
+      toast({ title: "Validation Error", description: "Post Title is required.", variant: "destructive" });
+      return;
+    }
+    if (!formData.slug?.trim()) {
+      toast({ title: "Validation Error", description: "URL Slug is required.", variant: "destructive" });
+      return;
+    }
+
     const data: Partial<InsertBlogPost> = {
       ...formData,
       status: publishNow ? "published" : (formData.status || "draft"),
@@ -570,10 +592,13 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
         </div>
 
         {/* Core Fields */}
-        <section className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-            <PenLine className="w-3.5 h-3.5" /> Core Content
-          </h3>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <PenLine className="w-4 h-4 text-blue-600" /> Core Content
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-5 pt-5">
 
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Post Title *</label>
@@ -746,13 +771,17 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
               className="font-mono text-xs resize-y"
             />
           </div>
-        </section>
+          </CardContent>
+        </Card>
 
         {/* Author Section */}
-        <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-            <FileText className="w-3.5 h-3.5" /> Author (EEAT Signals)
-          </h3>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <FileText className="w-4 h-4 text-purple-600" /> Author (EEAT Signals)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-5">
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Author Name</label>
             <Input value={formData.authorName || ""} onChange={(e) => update("authorName", e.target.value)} placeholder="Author full name" />
@@ -765,13 +794,17 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Author Image URL</label>
             <Input value={formData.authorImage || ""} onChange={(e) => update("authorImage", e.target.value)} placeholder="https://..." />
           </div>
-        </section>
+          </CardContent>
+        </Card>
 
         {/* SEO Fields */}
-        <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-            <BarChart2 className="w-3.5 h-3.5" /> Traditional SEO
-          </h3>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <BarChart2 className="w-4 h-4 text-emerald-600" /> Traditional SEO
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-5">
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 flex items-center justify-between">
               <span>SEO Title</span>
@@ -814,13 +847,17 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Canonical URL (optional)</label>
             <Input value={formData.canonicalUrl || ""} onChange={(e) => update("canonicalUrl", e.target.value)} placeholder="https://govtjobnow.com/blog/slug" />
           </div>
-        </section>
+          </CardContent>
+        </Card>
 
         {/* Social / OG */}
-        <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-            <Facebook className="w-3.5 h-3.5" /> Social Sharing
-          </h3>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <Facebook className="w-4 h-4 text-blue-500" /> Social Sharing
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-5">
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">OG Title</label>
             <Input value={formData.ogTitle || ""} onChange={(e) => update("ogTitle", e.target.value)} placeholder="Leave blank to use post title" />
@@ -840,13 +877,17 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
               <option value="summary">Summary</option>
             </select>
           </div>
-        </section>
+          </CardContent>
+        </Card>
 
         {/* AEO/Schema */}
-        <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-            <Zap className="w-3.5 h-3.5" /> AI / AEO Schema
-          </h3>
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+          <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
+              <Zap className="w-4 h-4 text-amber-500" /> AI / AEO Schema
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-5">
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block">Schema Type</label>
             <select className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background" value={formData.schemaType || "BlogPosting"} onChange={(e) => update("schemaType", e.target.value)}>
@@ -874,7 +915,8 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
               Enable Table of Contents
             </label>
           </div>
-        </section>
+          </CardContent>
+        </Card>
       </div>
 
       {/* ================================================================

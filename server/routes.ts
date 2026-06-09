@@ -1756,6 +1756,11 @@ ${categories.map(category => `  <url>
       const post = await blogStorage.createBlogPost(data);
       res.status(201).json(post);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        const issues = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ');
+        return res.status(400).json({ message: `Validation Error: ${issues}` });
+      }
+      console.error("Blog post creation error:", error);
       res.status(400).json({ message: "Invalid blog post data", error });
     }
   });
@@ -1770,6 +1775,11 @@ ${categories.map(category => `  <url>
       if (!post) return res.status(404).json({ message: "Blog post not found" });
       res.json(post);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        const issues = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ');
+        return res.status(400).json({ message: `Validation Error: ${issues}` });
+      }
+      console.error("Blog post update error:", error);
       res.status(400).json({ message: "Invalid blog post data", error });
     }
   });

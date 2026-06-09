@@ -133,7 +133,7 @@ export default function BlogList() {
             </button>
           ))}
           {/* Tag filters */}
-          {tags.slice(0, 8).map((tag) => (
+          {(Array.isArray(tags) ? tags : []).slice(0, 8).map((tag) => (
             <button
               key={tag}
               onClick={() => { setActiveTag(activeTag === tag ? "" : tag); setPage(1); }}
