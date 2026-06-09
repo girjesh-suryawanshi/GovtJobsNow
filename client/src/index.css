@@ -70,10 +70,16 @@
   body {
     @apply antialiased bg-background text-foreground;
     font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 14px;
+    font-size: 1rem; /* Converted from 14px to rem for accessibility scaling */
     line-height: 1.6;
     background-color: var(--gjn-bg);
     color: var(--gjn-text);
+  }
+  
+  /* Global Accessibility Focus Rings */
+  *:focus-visible {
+    outline: 2px solid var(--gjn-blue2) !important;
+    outline-offset: 2px !important;
   }
 }
 
@@ -101,6 +107,15 @@
 .animate-fade-up-2 { animation: fadeUp 0.35s 0.10s ease both; }
 .animate-fade-up-3 { animation: fadeUp 0.35s 0.15s ease both; }
 .animate-fade-up-4 { animation: fadeUp 0.35s 0.20s ease both; }
+
+/* ─── PERFORMANCE UTILITIES ─── */
+/* Prevents layout shifts on images */
+.aspect-video-safe {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
 
 /* ─── SECTION TITLE ─── */
 .section-title-bar {

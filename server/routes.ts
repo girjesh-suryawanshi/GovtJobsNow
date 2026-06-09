@@ -312,7 +312,8 @@ Disallow: /admin/`);
   // Create new job (admin only)
   app.post("/api/jobs", async (req, res) => {
     try {
-      const jobData = insertJobSchema.parse(req.body);
+      // This is a legacy endpoint, we'll assign a generic editor if used without auth
+      const jobData = insertJobSchema.parse({ ...req.body, authorName: "GovtJobsNow Editor" });
       const job = await storage.createJob(jobData);
       res.status(201).json(job);
     } catch (error) {
@@ -1024,6 +1025,12 @@ Disallow: /admin/`);
     }
 
     try {
+      const adminUser = await adminStorage.getAdminById(adminId);
+      const authorName = adminUser?.username || "GovtJobsNow Editor";
+      
+      // Inject authorName into the body
+      req.body.authorName = authorName;
+
       // Check if it's a multiple positions job
       if (req.body.useMultiplePositions && req.body.jobPositions) {
         // Handle multiple positions job

@@ -553,6 +553,7 @@ export default function Home() {
         onFilterChange={handleFilterChange}
         isOpen={isMobileFiltersOpen}
         onToggle={() => setIsMobileFiltersOpen(false)}
+        hideOnDesktop={true}
       />
 
 

@@ -212,7 +212,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <form onSubmit={handleSignIn} className="space-y-4">
+                <form onSubmit={handleSignIn} className="space-y-4" aria-label="Sign In Form">
                   <div className="space-y-2">
                     <Label htmlFor="signin-email">Email</Label>
                     <div className="relative">
@@ -226,6 +226,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         onChange={(e) => setSignInData({...signInData, email: e.target.value})}
                         className="pl-10"
                         required
+                        aria-required="true"
                       />
                     </div>
                   </div>
@@ -243,6 +244,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         onChange={(e) => setSignInData({...signInData, password: e.target.value})}
                         className="pl-10 pr-10"
                         required
+                        aria-required="true"
                       />
                       <Button
                         type="button"
@@ -250,6 +252,8 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -284,7 +288,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <form onSubmit={handleRegister} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4" aria-label="Registration Form">
                   <div className="space-y-2">
                     <Label htmlFor="register-name">Full Name</Label>
                     <div className="relative">
@@ -298,6 +302,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         onChange={(e) => setRegisterData({...registerData, fullName: e.target.value})}
                         className="pl-10"
                         required
+                        aria-required="true"
                       />
                     </div>
                   </div>
@@ -315,6 +320,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         onChange={(e) => setRegisterData({...registerData, email: e.target.value})}
                         className="pl-10"
                         required
+                        aria-required="true"
                       />
                     </div>
                   </div>
@@ -348,6 +354,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         onChange={(e) => setRegisterData({...registerData, password: e.target.value})}
                         className="pl-10 pr-10"
                         required
+                        aria-required="true"
                       />
                       <Button
                         type="button"
@@ -355,6 +362,8 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2"
                         onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>
@@ -374,6 +383,7 @@ export default function AuthModal({ isOpen, onClose, mode }: AuthModalProps) {
                         onChange={(e) => setRegisterData({...registerData, confirmPassword: e.target.value})}
                         className="pl-10"
                         required
+                        aria-required="true"
                       />
                     </div>
                   </div>

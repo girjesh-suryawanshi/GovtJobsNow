@@ -33,6 +33,7 @@ export const jobs = pgTable("jobs", {
   slug: varchar("slug").unique(),
   notifications: json("notifications").default([]),
   customLinks: json("custom_links").default([]),
+  authorName: text("author_name"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

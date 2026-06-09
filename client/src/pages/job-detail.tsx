@@ -37,6 +37,7 @@ import type { Job } from "@/types/job";
 import { type SiteSettings } from "@shared/schema";
 import SocialShare from "@/components/social-share";
 import ReactMarkdown from "react-markdown";
+import { useUser } from "@/contexts/user-context";
 
 interface JobPosition {
   id: string;
@@ -53,6 +54,7 @@ export default function JobDetail() {
   const [isSaved, setIsSaved] = useState(false);
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const { toast } = useToast();
+  const { user } = useUser();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -601,7 +603,7 @@ export default function JobDetail() {
                       <Target className="h-6 w-6" /> Selection Process
                     </h3>
                   )}
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none w-full min-w-0 break-words overflow-x-hidden">
                     <ReactMarkdown components={customMarkdownComponents}>
                       {selectionProcessMd || job.selectionProcess}
                     </ReactMarkdown>
@@ -612,7 +614,7 @@ export default function JobDetail() {
               {/* 12. Common Mistakes */}
               {commonMistakes && (
                 <section className="page-section p-8 space-y-6">
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none w-full min-w-0 break-words overflow-x-hidden">
                     <ReactMarkdown components={customMarkdownComponents}>{commonMistakes}</ReactMarkdown>
                   </div>
                 </section>
@@ -621,7 +623,7 @@ export default function JobDetail() {
               {/* 13. Who Can Apply */}
               {whoCanApply && (
                 <section className="page-section p-8 space-y-6">
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none w-full min-w-0 break-words overflow-x-hidden">
                     <ReactMarkdown components={customMarkdownComponents}>{whoCanApply}</ReactMarkdown>
                   </div>
                 </section>
@@ -630,7 +632,7 @@ export default function JobDetail() {
               {/* 14. How to Apply */}
               {howToApply && (
                 <section className="page-section p-8 space-y-6">
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none w-full min-w-0 break-words overflow-x-hidden">
                     <ReactMarkdown components={customMarkdownComponents}>{howToApply}</ReactMarkdown>
                   </div>
                 </section>
@@ -639,7 +641,7 @@ export default function JobDetail() {
               {/* Other unknown markdown chunks to prevent data loss */}
               {otherChunks.map((chunk, idx) => (
                 <section key={`other-${idx}`} className="page-section p-8 space-y-6">
-                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
+                  <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none w-full min-w-0 break-words overflow-x-hidden">
                     <ReactMarkdown components={customMarkdownComponents}>{chunk}</ReactMarkdown>
                   </div>
                 </section>
@@ -774,8 +776,12 @@ export default function JobDetail() {
                   <div className="flex-1">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
                       <div>
-                        <h4 className="font-extrabold text-gray-900 text-xl md:text-2xl">Priya Sharma</h4>
-                        <p className="text-[var(--gjn-blue2)] font-bold text-sm tracking-wide uppercase mt-1">Senior Recruitment Analyst</p>
+                        <h4 className="font-extrabold text-gray-900 text-xl md:text-2xl">
+                          {job.authorName || "GovtJobsNow Editorial Team"}
+                        </h4>
+                        <p className="text-[var(--gjn-blue2)] font-bold text-sm tracking-wide uppercase mt-1">
+                          {job.authorName ? "Verified Admin" : "Verified Official Publisher"}
+                        </p>
                       </div>
                       <a href="#" className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shrink-0">
                         View Full Profile <ExternalLink className="h-4 w-4" />
@@ -789,7 +795,7 @@ export default function JobDetail() {
                     </div>
 
                     <p className="text-gray-600 text-[15px] leading-relaxed font-medium">
-                      Priya is a former SSC selection board member turned recruitment analyst. She specializes in breaking down complex government notifications into highly readable, actionable steps. All information is cross-verified with official gazettes.
+                      {job.authorName || "The GovtJobsNow Editorial Team"} specializes in breaking down complex government notifications into highly readable, actionable steps. All information is cross-verified with official gazettes.
                     </p>
                   </div>
                 </div>

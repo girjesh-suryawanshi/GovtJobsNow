@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X, MapPin, Building2, GraduationCap, IndianRupee, Calendar, Filter } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import type { SearchJobsParams } from "@/types/job";
 
 interface FiltersSidebarProps {
@@ -14,9 +15,10 @@ interface FiltersSidebarProps {
   onFilterChange: (filters: Partial<SearchJobsParams>) => void;
   isOpen?: boolean;
   onToggle?: () => void;
+  hideOnDesktop?: boolean;
 }
 
-export default function FiltersSidebar({ filters, onFilterChange, isOpen = false, onToggle }: FiltersSidebarProps) {
+export default function FiltersSidebar({ filters, onFilterChange, isOpen = false, onToggle, hideOnDesktop = false }: FiltersSidebarProps) {
   const handleClearFilters = () => {
     onFilterChange({
       department: "all-departments",
@@ -291,26 +293,26 @@ export default function FiltersSidebar({ filters, onFilterChange, isOpen = false
 
   return (
     <>
-      {/* Desktop Sidebar */}
-
-
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
-          {/* Backdrop */}
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-            onClick={onToggle}
-          />
-          
-          {/* Sidebar Panel */}
-          <div className="relative ml-auto h-full w-full max-w-sm bg-white shadow-xl overflow-y-auto">
-            <div className="p-4">
-              {filtersContent}
-            </div>
-          </div>
+      {/* Desktop Sidebar (Hidden on Mobile) */}
+      {!hideOnDesktop && (
+        <div className="hidden lg:block w-1/4 sticky top-24 h-[calc(100vh-8rem)] overflow-y-auto custom-scrollbar pr-2">
+          {filtersContent}
         </div>
       )}
+
+      {/* Mobile Drawer */}
+      <Sheet open={isOpen} onOpenChange={(open) => !open && onToggle && onToggle()}>
+        <SheetContent side="left" className="w-full max-w-sm overflow-y-auto sm:max-w-md p-4">
+          <SheetHeader className="mb-4 text-left">
+            <SheetTitle className="text-xl font-bold flex items-center gap-2 text-blue-900">
+              <Filter className="h-5 w-5" /> Job Filters
+            </SheetTitle>
+          </SheetHeader>
+          <div className="mt-4">
+            {filtersContent}
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
