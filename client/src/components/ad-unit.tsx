@@ -8,6 +8,7 @@ interface AdUnitProps {
   format?: "auto" | "rectangle" | "horizontal" | "vertical";
   className?: string;
   label?: string;
+  style?: React.CSSProperties;
 }
 
 /**
@@ -18,7 +19,8 @@ export const AdUnit: React.FC<AdUnitProps> = ({
   slot, 
   format = "auto", 
   className = "", 
-  label = "Sponsored" 
+  label = "Sponsored",
+  style
 }) => {
   const adRef = useRef<HTMLDivElement>(null);
   const { data: settings, isLoading } = useQuery<SiteSettings>({
@@ -44,7 +46,7 @@ export const AdUnit: React.FC<AdUnitProps> = ({
 
   // Render real AdSense unit if enabled
   return (
-    <div className={`my-8 w-full overflow-hidden ${className}`} ref={adRef}>
+    <div className={`my-8 w-full overflow-hidden ${className}`} ref={adRef} style={style}>
       <div className="flex flex-col items-center justify-center">
         <span className="mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
           {label}

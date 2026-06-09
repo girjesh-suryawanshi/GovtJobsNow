@@ -5,6 +5,7 @@ import {
   Search, ShieldCheck, Target, Download, ExternalLink
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { AdUnit } from "@/components/ad-unit";
 
 export function JobSidebar({ className = "", job }: { className?: string, job?: any }) {
   return (
@@ -12,12 +13,7 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
       <div className="sticky top-6 flex flex-col gap-6">
         
         {/* SIDEBAR SECTION 1: Top Advertisement Block (300x600) */}
-        <div className="bg-gray-50 border-[1.5px] border-gray-100 rounded-[20px] p-6 flex flex-col items-center justify-center text-center shadow-sm h-[600px] overflow-hidden w-full">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Advertisement</p>
-          <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-100/50">
-            <span className="text-gray-400 font-medium text-sm">300 × 600<br/>Sticky Sidebar</span>
-          </div>
-        </div>
+        <AdUnit slot="job-sidebar-top" className="bg-gray-50 border-[1.5px] border-gray-100 rounded-[20px] shadow-sm w-full" label="Advertisement" />
 
         {/* NEW SIDEBAR SECTION 0: Application Status (Only shown if job exists) */}
         {job && (
@@ -156,12 +152,7 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
         </div>
 
         {/* SIDEBAR SECTION 5: Second Advertisement (300x250) */}
-        <div className="bg-gray-50 border-[1.5px] border-gray-100 rounded-[20px] p-6 flex flex-col items-center justify-center text-center shadow-sm h-[250px] overflow-hidden w-full">
-          <p className="text-xs font-black uppercase tracking-widest text-gray-400 mb-2">Advertisement</p>
-          <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center bg-gray-100/50">
-            <span className="text-gray-400 font-medium text-sm">300 × 250<br/>Medium Rectangle</span>
-          </div>
-        </div>
+        <AdUnit slot="job-sidebar-middle" className="bg-gray-50 border-[1.5px] border-gray-100 rounded-[20px] shadow-sm w-full" label="Advertisement" />
 
         {/* SIDEBAR SECTION 6: Quick Tools */}
         <div className="bg-white border-[1.5px] border-gray-100 rounded-[20px] p-6 shadow-sm w-full">

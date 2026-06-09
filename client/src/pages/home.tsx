@@ -12,6 +12,7 @@ import JobAlerts from "@/components/job-alerts";
 import JobTracker from "@/components/job-tracker";
 import FloatingActionMenu from "@/components/floating-action-menu";
 import Footer from "@/components/footer";
+import { AdUnit } from "@/components/ad-unit";
 import UserProfileModal from "@/components/user-profile-modal";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { Button } from "@/components/ui/button";
@@ -229,9 +230,7 @@ export default function Home() {
 
       {/* ─── ATF LEADERBOARD AD ─── */}
       <div style={{ maxWidth: '1280px', margin: '12px auto 0', padding: '0 16px' }}>
-        <div className="ad-unit ad-leaderboard">
-          <span>📢 Advertisement — Above The Fold</span>
-        </div>
+        <AdUnit slot="home-leaderboard" className="ad-unit ad-leaderboard" label="" />
       </div>
 
       {/* ─── MAIN PAGE WRAP ─── */}
@@ -422,9 +421,7 @@ export default function Home() {
                         />
                         {/* In-feed ad every 5 cards */}
                         {(idx + 1) % 5 === 0 && (
-                          <div key={`ad-${idx}`} className="ad-unit ad-infeed">
-                            <span>🎯 Advertisement</span>
-                          </div>
+                          <AdUnit key={`ad-${idx}`} slot={`home-infeed-${idx}`} className="ad-unit ad-infeed" label="" />
                         )}
                       </>
                     ))}
@@ -485,10 +482,7 @@ export default function Home() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }} className="home-sidebar">
 
           {/* Sticky Sidebar Ad */}
-          <div className="ad-unit ad-sidebar" style={{ marginBottom: '16px' }}>
-            <span>📌 Advertisement</span>
-            <span style={{ fontSize: '10px', opacity: 0.7 }}>300×600 · Sticky sidebar</span>
-          </div>
+          <AdUnit slot="home-sidebar-sticky" className="ad-unit ad-sidebar" style={{ marginBottom: '16px' }} label="" />
 
           {/* Job Alert Box */}
           <div style={{ background: 'linear-gradient(135deg, #1a3fa8, #2563eb)', borderRadius: '10px', padding: '16px', textAlign: 'center', color: '#fff', marginBottom: '16px' }}>
@@ -529,10 +523,7 @@ export default function Home() {
           </div>
 
           {/* Sidebar Ad #2 */}
-          <div className="ad-unit" style={{ width: '100%', height: '250px', marginTop: '16px' }}>
-            <span>📌 Advertisement</span>
-            <span style={{ fontSize: '10px', opacity: 0.7 }}>300×250 · Medium Rectangle</span>
-          </div>
+          <AdUnit slot="home-sidebar-bottom" className="ad-unit" style={{ width: '100%', height: '250px', marginTop: '16px' }} label="" />
 
           {/* Actions */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '16px' }}>
