@@ -451,8 +451,9 @@ export default function JobDetail() {
               )}
 
               {/* 5. VACANCIES (Clean Structured Layout) */}
-              <div className="page-section p-6 md:p-8 space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--gjn-border)] pb-4">
+              {positions.length > 0 && (
+                <div className="page-section p-6 md:p-8 space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--gjn-border)] pb-4">
                   <div>
                     <h3 className="text-xl md:text-2xl font-syne font-bold flex items-center gap-2" style={{ color: 'var(--gjn-blue)' }}>
                       <Users className="h-6 w-6" /> Positions Available
@@ -468,7 +469,6 @@ export default function JobDetail() {
                   )}
                 </div>
 
-                {positions.length > 0 ? (
                   <div className="grid grid-cols-1 gap-4">
                     {positions.map((pos) => (
                       <div
@@ -502,10 +502,8 @@ export default function JobDetail() {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <p className="text-gray-500 italic py-2">Vacancy details not officially specified.</p>
-                )}
-              </div>
+                </div>
+              )}
 
 
 
