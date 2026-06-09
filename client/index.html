@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#2563eb" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <title>GovtJobsNow - Official Job Portal</title>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('SW registered!', reg))
-            .catch(err => console.log('SW registration failed', err));
-        });
-      }
-    </script>
-    <meta name="description" content="Find the latest government jobs, exam calendars, syllabus, and admit cards on GovtJobsNow. 100% verified opportunities across banking, railways, defense, and PSU sectors." />
-    <meta name="keywords" content="Government Jobs, Sarkari Naukri, SSC Jobs, Railway Jobs, Banking Jobs, UPSC, PSU Jobs, Latest Govt Jobs 2026, Exam Calendar" />
-    <meta name="author" content="GovtJobsNow" />
-    <meta property="og:title" content="GovtJobsNow - Your Gateway to Government Careers" />
-    <meta property="og:description" content="Discover thousands of verified government jobs and get instant updates on exam dates and results." />
-    <meta property="og:type" content="website" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#2563eb" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <title>GovtJobsNow - Official Job Portal</title>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registered!', reg))
+          .catch(err => console.log('SW registration failed', err));
+      });
+    }
+  </script>
+  <meta name="description"
+    content="Find the latest government jobs, exam calendars, syllabus, and admit cards on GovtJobsNow. 100% verified opportunities across banking, railways, defense, and PSU sectors." />
+  <meta name="keywords"
+    content="Government Jobs, Sarkari Naukri, SSC Jobs, Railway Jobs, Banking Jobs, UPSC, PSU Jobs, Latest Govt Jobs 2026, Exam Calendar" />
+  <meta name="author" content="GovtJobsNow" />
+  <meta property="og:title" content="GovtJobsNow - Your Gateway to Government Careers" />
+  <meta property="og:description"
+    content="Discover thousands of verified government jobs and get instant updates on exam dates and results." />
+  <meta property="og:type" content="website" />
+  <meta name="google-site-verification" content="6SyfPOkqzXoyOld4_JQTJpPZMxX0dOxrqlJFhpP-1mo" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+  <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+</body>
+
 </html>
