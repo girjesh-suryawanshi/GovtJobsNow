@@ -116,16 +116,16 @@ export default function Header({ onScrollToDepartments, onSearch }: HeaderProps)
                   Register Free
                 </button>
               )}
-
-              {/* Mobile hamburger */}
-              <button
-                className="lg:hidden text-white p-1"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label="Toggle menu"
-              >
-                {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
             </div>
+
+            {/* Mobile hamburger */}
+            <button
+              className="lg:hidden text-white p-1 ml-auto"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
           </div>
         </div>
 

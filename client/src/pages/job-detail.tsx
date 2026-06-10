@@ -350,9 +350,9 @@ export default function JobDetail() {
               </div>
 
               {/* Right Side: Actions */}
-              <div className="flex items-center gap-3 shrink-0 mt-4 md:mt-0">
+              <div className="flex items-center gap-3 shrink-0 mt-4 md:mt-0 w-full md:w-auto">
                 <button
-                  className="h-10 md:h-11 px-5 md:px-6 rounded-lg text-[14px] font-bold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap flex items-center justify-center w-full md:w-auto"
+                  className="h-10 md:h-11 px-5 md:px-6 rounded-lg text-[14px] font-bold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap flex items-center justify-center flex-1 md:w-auto"
                   onClick={() => window.open(job.sourceUrl || '#', '_blank')}
                 >
                   Apply Now
@@ -485,16 +485,16 @@ export default function JobDetail() {
                           </div>
                         </div>
                         
-                        <div className="flex items-center gap-6 md:justify-end border-t md:border-t-0 md:border-l border-[var(--gjn-border)] pt-4 md:pt-0 md:pl-6 min-w-max">
-                          <div className="text-left">
+                        <div className="flex items-start sm:items-center justify-between gap-4 sm:gap-6 md:justify-end border-t md:border-t-0 md:border-l border-[var(--gjn-border)] pt-4 md:pt-0 md:pl-6 w-full md:w-auto mt-4 md:mt-0">
+                          <div className="text-left shrink-0">
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Vacancies</p>
                             <Badge className="bg-amber-50 text-[var(--gjn-amber)] border-none font-black px-3 py-1">
                               {pos.numberOfVacancies}
                             </Badge>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex-1 min-w-0">
                             <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Salary</p>
-                            <p className="text-sm font-bold text-green-600">
+                            <p className="text-sm font-bold text-green-600 break-words">
                               {pos.salaryRange || "As per rules"}
                             </p>
                           </div>

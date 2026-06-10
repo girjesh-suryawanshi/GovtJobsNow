@@ -53,10 +53,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items, className = "" 
   return (
     <nav 
       aria-label="Breadcrumb" 
-      className={`flex items-center space-x-2 text-xs font-medium text-muted-foreground ${className}`}
+      className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium text-muted-foreground ${className}`}
     >
-      <Link href="/" className="flex items-center transition-colors hover:text-primary">
-        <Home className="mr-1 h-3.5 w-3.5" />
+      <Link href="/" className="flex items-center gap-1 transition-colors hover:text-primary">
+        <Home className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Home</span>
       </Link>
       
