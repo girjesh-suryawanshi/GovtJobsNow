@@ -167,12 +167,12 @@ export default function JobDetail() {
     ),
     li: ({ node, ...props }: any) => (
       <li className="flex items-start gap-3">
-        <span className="text-amber-500 font-bold mt-0.5 flex-shrink-0 text-lg leading-none">✦</span>
-        <span className="text-gray-700 leading-relaxed text-[15px]">{props.children}</span>
+        <span className="text-amber-500 font-bold mt-0.5 flex-shrink-0 text-lg md:text-xl leading-none">✦</span>
+        <span className="text-gray-700 leading-relaxed md:leading-loose text-[15px] md:text-base">{props.children}</span>
       </li>
     ),
     p: ({ node, ...props }: any) => (
-      <p className="text-gray-700 leading-relaxed my-5 text-[15px]" {...props} />
+      <p className="text-gray-700 leading-relaxed md:leading-loose my-5 text-[15px] md:text-base" {...props} />
     ),
     strong: ({ node, ...props }: any) => (
       <strong className="font-bold text-gray-900" {...props} />
@@ -238,10 +238,10 @@ export default function JobDetail() {
           </div>
 
           <div className="hidden md:flex items-center gap-6">
-            <a href="#overview" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Overview</a>
-            <a href="#vacancies" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Vacancies</a>
-            <a href="#timeline" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Timeline</a>
-            <a href="#documents" className="text-xs font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Documents</a>
+            <a href="#overview" className="text-xs md:text-sm font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Overview</a>
+            <a href="#vacancies" className="text-xs md:text-sm font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Vacancies</a>
+            <a href="#timeline" className="text-xs md:text-sm font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Timeline</a>
+            <a href="#documents" className="text-xs md:text-sm font-black uppercase tracking-widest text-blue-200 hover:text-white transition-colors">Documents</a>
           </div>
 
           <div className="flex items-center gap-3">
@@ -268,7 +268,7 @@ export default function JobDetail() {
           {/* BACK + BREADCRUMB */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 px-2">
             <Link href="/">
-              <button className="flex items-center font-black uppercase tracking-widest text-[10px]" style={{ color: 'var(--gjn-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
+              <button className="flex items-center font-black uppercase tracking-widest text-[10px] md:text-xs lg:text-sm" style={{ color: 'var(--gjn-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
                 <ArrowLeft className="h-4 w-4 mr-2" /> Back to Dashboard
               </button>
             </Link>

@@ -32,6 +32,7 @@ export default function HorizontalFilterBar({ filters, onFilterChange, onOpenMob
     <div
       id="departments"
       data-testid="filters-sidebar"
+      className="flex-wrap lg:flex-nowrap"
       style={{
         background: "#fff",
         border: "1.5px solid var(--gjn-border)",
@@ -41,7 +42,6 @@ export default function HorizontalFilterBar({ filters, onFilterChange, onOpenMob
         display: "flex",
         alignItems: "center",
         gap: "8px",
-        flexWrap: "wrap",
       }}
     >
       {/* Label */}
