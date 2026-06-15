@@ -4,6 +4,27 @@ import fs from "fs";
 import path from "path";
 import { registerRoutes } from "./routes";
 import { scheduleAutomaticScraping } from "./scraper";
+import { pool } from "./db";
+
+// Run database migrations on startup to ensure schema is up to date.
+// Uses IF NOT EXISTS so it is safe to run on every boot.
+async function runMigrations() {
+  try {
+    console.log("Running database migrations...");
+    await pool.query(`
+      ALTER TABLE site_settings
+        ADD COLUMN IF NOT EXISTS ai_model_provider text DEFAULT 'gemini',
+        ADD COLUMN IF NOT EXISTS gemini_api_key text,
+        ADD COLUMN IF NOT EXISTS groq_api_key text,
+        ADD COLUMN IF NOT EXISTS ollama_endpoint text DEFAULT 'http://localhost:11434',
+        ADD COLUMN IF NOT EXISTS ollama_model text DEFAULT 'llama3'
+    `);
+    console.log("Database migrations completed successfully.");
+  } catch (err) {
+    // Log but don't crash — the columns may already exist or the table may not need them yet.
+    console.error("Migration warning (non-fatal):", err);
+  }
+}
 
 // Local log function (vite-free)
 function log(message: string, source = "express") {
@@ -294,6 +315,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Run DB migrations before starting the server
+  await runMigrations();
+
   const server = await registerRoutes(app);
 
   // Start automatic job scraping
