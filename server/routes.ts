@@ -793,6 +793,7 @@ Disallow: /admin/`);
       // Robust JSON cleaning to strip markdown and conversational text
       const match = response.match(/\{[\s\S]*\}/);
       if (!match) {
+        console.error("No JSON found in AI response. Raw response (first 500 chars):", response.slice(0, 500));
         throw new Error("No JSON object found in response");
       }
       let jsonStr = match[0];
@@ -898,6 +899,7 @@ Disallow: /admin/`);
       // Robust JSON cleaning to strip markdown and conversational text
       const match = response.match(/\{[\s\S]*\}/);
       if (!match) {
+        console.error("No JSON found in AI response. Raw response (first 500 chars):", response.slice(0, 500));
         throw new Error("No JSON object found in response");
       }
       let jsonStr = match[0];

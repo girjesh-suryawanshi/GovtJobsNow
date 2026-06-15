@@ -16,7 +16,9 @@ export async function generateText(prompt: string, provider: "gemini" | "groq" =
         body: JSON.stringify({
           model: "llama-3.3-70b-versatile",
           messages: [{ role: "user", content: prompt }],
-          temperature: 0.1
+          temperature: 0.1,
+          max_tokens: 32768,
+          response_format: { type: "json_object" }
         })
       });
 
@@ -24,14 +26,25 @@ export async function generateText(prompt: string, provider: "gemini" | "groq" =
 
       if (!response.ok) {
         console.error("Groq API Error Response:", JSON.stringify(data, null, 2));
-        throw new Error(data.error?.message || "Groq API rejected request");
+        // If Groq rejects json_object mode (context too long, etc.), fall back to Gemini
+        console.warn("Groq request failed, falling back to Gemini...");
+        return generateText(prompt, "gemini");
       }
 
       if (!data.choices || data.choices.length === 0) {
         throw new Error("No choices returned from Groq");
       }
 
-      const text = data.choices[0]?.message?.content;
+      const choice = data.choices[0];
+      const finishReason = choice?.finish_reason;
+
+      // If Groq truncated the output, fall back to Gemini which can handle larger responses
+      if (finishReason === "length") {
+        console.warn("Groq response was truncated (finish_reason: length). Falling back to Gemini...");
+        return generateText(prompt, "gemini");
+      }
+
+      const text = choice?.message?.content;
 
       if (!text) {
         throw new Error("Empty text response from Groq");
