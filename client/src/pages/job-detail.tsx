@@ -342,7 +342,11 @@ export default function JobDetail() {
                     <div className="flex items-center gap-1 whitespace-nowrap">
                       <Users className="h-3.5 w-3.5 opacity-70 text-blue-500" />
                       <span className="font-semibold text-blue-600">
-                        Total Vacancy: {positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || "Not Specified"}
+                        Total Vacancy: {
+                          positions.length > 0
+                            ? positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || "Not Specified"
+                            : (job.positions && job.positions !== "0" && job.positions !== "" ? job.positions : "Check Notice")
+                        }
                       </span>
                     </div>
                   </div>
@@ -386,7 +390,11 @@ export default function JobDetail() {
                 />
                 <QuickInfoCard 
                   label="Vacancies" 
-                  value={positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0).toString() || "N/A"} 
+                  value={
+                    positions.length > 0
+                      ? (positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || 0).toString()
+                      : (job.positions && job.positions !== "0" && job.positions !== "" ? job.positions : "Check Notice")
+                  } 
                   icon={<Users className="h-5 w-5" />} 
                   color="text-amber-600" bg="bg-amber-50" border="border-amber-100" 
                 />

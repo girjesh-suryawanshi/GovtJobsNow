@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ import {
   ImagePlus
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 // ... (existing job templates and options)
 const jobTemplates = {
@@ -362,7 +363,23 @@ export default function ManualJobEntry({ onJobAdded }: ManualJobEntryProps) {
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [showTemplates, setShowTemplates] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  const [aiProvider, setAiProvider] = useState<"gemini" | "groq">("groq");
+  const [aiProvider, setAiProvider] = useState<"gemini" | "groq">("gemini");
+
+  // Load saved AI provider from site settings on mount
+  const { data: siteSettings } = useQuery({
+    queryKey: ["/api/site-settings"],
+    queryFn: async () => {
+      const res = await fetch("/api/site-settings");
+      if (!res.ok) throw new Error("Failed to fetch site settings");
+      return res.json();
+    }
+  });
+
+  useEffect(() => {
+    if (siteSettings?.aiModelProvider && (siteSettings.aiModelProvider === "gemini" || siteSettings.aiModelProvider === "groq")) {
+      setAiProvider(siteSettings.aiModelProvider as "gemini" | "groq");
+    }
+  }, [siteSettings]);
   const [theme, setTheme] = useState("saffron-glass");
   const [customBgUrl, setCustomBgUrl] = useState("");
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
