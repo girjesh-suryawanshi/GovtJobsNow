@@ -13,7 +13,7 @@ export interface IStorage {
   // Job-related methods
   getJob(id: string): Promise<Job | undefined>;
   getJobBySlug(slug: string): Promise<Job | undefined>;
-  getAllJobs(): Promise<Job[]>;
+  getAllJobs(limit?: number): Promise<Job[]>;
   searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }>;
   searchJobsForRAG(query: string): Promise<Job[]>;
   createJob(job: InsertJob): Promise<Job>;
@@ -30,6 +30,7 @@ export interface IStorage {
   getRelatedJobs(jobId: string, category?: string, department?: string, limit?: number): Promise<Job[]>;
   getTrendingJobs(limit?: number): Promise<Job[]>;
   incrementJobViewCount(jobId: string): Promise<void>;
+  getDepartmentCounts(): Promise<Record<string, number>>;
 
   // Exam-related methods
   getExam(id: string): Promise<Exam | undefined>;
@@ -100,7 +101,10 @@ export class MemStorage implements IStorage {
   async getJobBySlug(slug: string): Promise<Job | undefined> {
     return Array.from(this.jobs.values()).find(j => j.slug === slug);
   }
-  async getAllJobs(): Promise<Job[]> { return Array.from(this.jobs.values()).sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime()); }
+  async getAllJobs(limit?: number): Promise<Job[]> {
+    const sorted = Array.from(this.jobs.values()).sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+    return limit ? sorted.slice(0, limit) : sorted;
+  }
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> { return { jobs: Array.from(this.jobs.values()), total: this.jobs.size }; }
   async searchJobsForRAG(query: string): Promise<Job[]> {
     const q = query.toLowerCase();
@@ -146,6 +150,13 @@ export class MemStorage implements IStorage {
     return Array.from(this.jobs.values())
       .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
       .slice(0, limit);
+  }
+  async getDepartmentCounts(): Promise<Record<string, number>> {
+    const map: Record<string, number> = {};
+    this.jobs.forEach(job => {
+      map[job.department] = (map[job.department] || 0) + 1;
+    });
+    return map;
   }
   async incrementJobViewCount(jobId: string): Promise<void> {
     const job = this.jobs.get(jobId);
@@ -195,6 +206,11 @@ export class MemStorage implements IStorage {
         joinArattaiUrl: "https://www.arattai.in/Example",
         joinFacebookUrl: "https://www.facebook.com/Example",
         enabledSocialPlatforms: ["whatsapp", "telegram", "facebook", "twitter", "linkedin"],
+        aiModelProvider: "gemini",
+        geminiApiKey: null,
+        groqApiKey: null,
+        ollamaEndpoint: "http://localhost:11434",
+        ollamaModel: "llama3",
         updatedAt: new Date()
       };
     }
@@ -235,8 +251,10 @@ export class DatabaseStorage implements IStorage {
     const [job] = await db.select().from(jobs).where(eq(jobs.slug, slug));
     return job || undefined;
   }
-  async getAllJobs(): Promise<Job[]> {
-    return await db.select().from(jobs).orderBy(desc(jobs.createdAt));
+  async getAllJobs(limit?: number): Promise<Job[]> {
+    const q = db.select().from(jobs).orderBy(desc(jobs.createdAt));
+    if (limit) return await q.limit(limit);
+    return await q;
   }
   async searchJobs(params: SearchJobsParams): Promise<{ jobs: Job[]; total: number }> {
     const { normalizeFilters, jobMatchesFilters } = await import('@shared/filters');
@@ -363,6 +381,15 @@ export class DatabaseStorage implements IStorage {
   }
   async getTrendingJobs(limit: number = 5): Promise<Job[]> {
     return await db.select().from(jobs).orderBy(desc(jobs.viewCount), desc(jobs.createdAt)).limit(limit);
+  }
+  async getDepartmentCounts(): Promise<Record<string, number>> {
+    const counts = await db.select({
+      department: jobs.department,
+      count: sql<number>`count(*)`,
+    }).from(jobs).groupBy(jobs.department);
+    const map: Record<string, number> = {};
+    counts.forEach(c => { map[c.department] = Number(c.count); });
+    return map;
   }
   async incrementJobViewCount(jobId: string): Promise<void> {
     await db.update(jobs).set({ viewCount: sql`${jobs.viewCount} + 1` }).where(eq(jobs.id, jobId));
@@ -500,6 +527,11 @@ export class DatabaseStorage implements IStorage {
         joinArattaiUrl: "https://www.arattai.in/Example",
         joinFacebookUrl: "https://www.facebook.com/Example",
         enabledSocialPlatforms: ["whatsapp", "telegram", "facebook", "twitter", "linkedin"],
+        aiModelProvider: "gemini",
+        geminiApiKey: null,
+        groqApiKey: null,
+        ollamaEndpoint: "http://localhost:11434",
+        ollamaModel: "llama3",
         updatedAt: new Date() 
       };
     }

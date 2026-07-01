@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Fragment } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import Header from "@/components/header";
@@ -24,16 +24,16 @@ import type { Job, SearchJobsParams } from "@/types/job";
 
 // ─── STATIC DATA ──────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { icon: '🏛️', name: 'UPSC',       count: '42 Jobs',  dept: 'Union Public Service Commission' },
-  { icon: '🚆', name: 'Railway',    count: '186 Jobs', dept: 'Railway Recruitment Board' },
-  { icon: '🏦', name: 'Banking',    count: '93 Jobs',  dept: 'Banking Sector' },
-  { icon: '⚔️', name: 'Defence',    count: '71 Jobs',  dept: 'Defense Services' },
-  { icon: '📋', name: 'SSC',        count: '58 Jobs',  dept: 'Staff Selection Commission' },
-  { icon: '🏥', name: 'Medical',    count: '34 Jobs',  dept: 'Healthcare & Medical' },
-  { icon: '👮', name: 'Police',     count: '47 Jobs',  dept: 'Police & Security Forces' },
-  { icon: '🏫', name: 'Teaching',   count: '120 Jobs', dept: 'Education & Teaching' },
-  { icon: '⚙️', name: 'PSU',        count: '29 Jobs',  dept: 'Public Sector Undertaking' },
-  { icon: '🌐', name: 'State Govt', count: '208 Jobs', dept: 'State Government' },
+  { icon: '🏛️', name: 'UPSC',       dept: 'Union Public Service Commission' },
+  { icon: '🚆', name: 'Railway',    dept: 'Railway Recruitment Board' },
+  { icon: '🏦', name: 'Banking',    dept: 'Banking Sector' },
+  { icon: '⚔️', name: 'Defence',    dept: 'Defense Services' },
+  { icon: '📋', name: 'SSC',        dept: 'Staff Selection Commission' },
+  { icon: '🏥', name: 'Medical',    dept: 'Healthcare & Medical' },
+  { icon: '👮', name: 'Police',     dept: 'Police & Security Forces' },
+  { icon: '🏫', name: 'Teaching',   dept: 'Education & Teaching' },
+  { icon: '⚙️', name: 'PSU',        dept: 'Public Sector Undertaking' },
+  { icon: '🌐', name: 'State Govt', dept: 'State Government' },
 ];
 
 const QUICK_FILTERS = [
@@ -44,12 +44,6 @@ const QUICK_FILTERS = [
   { label: 'Engineering',  value: 'engineering' },
   { label: 'Central Govt', value: 'Central Government' },
   { label: 'State Govt',   value: 'State Government' },
-];
-
-const RESULT_ITEMS = [
-  { icon: '📋', title: 'SSC CHSL 2024 Final Result — Declared', org: 'Staff Selection Commission', date: '4 June 2026', declared: true },
-  { icon: '🏦', title: 'IBPS PO 2025 Main Result — Expected Soon', org: 'IBPS', date: 'June 2026', declared: false },
-  { icon: '🚆', title: 'RRB Group D CBT Result 2025 — Declared', org: 'Railway Recruitment Board', date: '1 June 2026', declared: true },
 ];
 
 export default function Home() {
@@ -96,24 +90,35 @@ export default function Home() {
     refetchInterval: 30000, // Refetch every 30 seconds for fresh jobs
   });
 
-  // URL query parameter synchronization
+  // Fetch live job counts per department for category grid
+  const { data: deptCounts = {} } = useQuery<Record<string, number>>({
+    queryKey: ["/api/jobs/dept-counts"],
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  // URL query parameter synchronization — uses popstate so back/forward navigation works reactively
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const updates: Partial<SearchJobsParams> = {};
-    
-    if (params.has('search')) updates.search = params.get('search')!;
-    if (params.has('department')) updates.department = params.get('department')!;
-    if (params.has('jobCategory')) updates.jobCategory = params.get('jobCategory')!;
-    if (params.has('location')) updates.location = params.get('location')!;
-    if (params.has('qualification')) updates.qualification = params.get('qualification')!;
-    if (params.has('salaryRange')) updates.salaryRange = params.get('salaryRange')!;
-    if (params.has('postedDate')) updates.postedDate = params.get('postedDate') as any;
-    if (params.has('sortBy')) updates.sortBy = params.get('sortBy') as any;
-    
-    if (Object.keys(updates).length > 0) {
-      setSearchParams(prev => ({ ...prev, ...updates }));
-    }
-  }, [window.location.search]);
+    const syncFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      const updates: Partial<SearchJobsParams> = {};
+      
+      if (params.has('search')) updates.search = params.get('search')!;
+      if (params.has('department')) updates.department = params.get('department')!;
+      if (params.has('jobCategory')) updates.jobCategory = params.get('jobCategory')!;
+      if (params.has('location')) updates.location = params.get('location')!;
+      if (params.has('qualification')) updates.qualification = params.get('qualification')!;
+      if (params.has('salaryRange')) updates.salaryRange = params.get('salaryRange')!;
+      if (params.has('postedDate')) updates.postedDate = params.get('postedDate') as any;
+      if (params.has('sortBy')) updates.sortBy = params.get('sortBy') as any;
+      
+      if (Object.keys(updates).length > 0) {
+        setSearchParams(prev => ({ ...prev, ...updates }));
+      }
+    };
+    syncFromUrl(); // Sync on mount
+    window.addEventListener('popstate', syncFromUrl);
+    return () => window.removeEventListener('popstate', syncFromUrl);
+  }, []); // Empty deps — syncFromUrl reads window.location directly
 
   const handleSearch = (query: string) => {
     handleFilterChange({ search: query });
@@ -259,7 +264,9 @@ export default function Home() {
               >
                 <div className="cat-icon">{cat.icon}</div>
                 <div className="cat-name">{cat.name}</div>
-                <div className="cat-count">{cat.count}</div>
+                <div className="cat-count">
+                  {deptCounts[cat.dept] !== undefined ? `${deptCounts[cat.dept]} Jobs` : '— Jobs'}
+                </div>
               </button>
             ))}
           </div>
@@ -411,9 +418,8 @@ export default function Home() {
                 <>
                   <div className={viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''}>
                     {jobsData.jobs.map((job, idx) => (
-                      <>
+                      <Fragment key={job.id}>
                         <JobCard
-                          key={job.id}
                           job={job}
                           onCompare={() => handleCompareJob(job)}
                           onTrack={() => { setJobToTrack(job); setShowJobTracker(true); }}
@@ -421,51 +427,55 @@ export default function Home() {
                         />
                         {/* In-feed ad every 5 cards */}
                         {(idx + 1) % 5 === 0 && (
-                          <AdUnit key={`ad-${idx}`} slot={`home-infeed-${idx}`} className="ad-unit ad-infeed" label="" />
+                          <AdUnit slot={`home-infeed-${idx}`} className="ad-unit ad-infeed" label="" />
                         )}
-                      </>
+                      </Fragment>
                     ))}
                   </div>
 
                   {/* Pagination */}
-                  <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '6px' }}>
+                  <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'center', gap: '6px', flexWrap: 'wrap' }}>
                     <Button variant="outline" size="icon" onClick={() => handlePageChange(searchParams.page! - 1)} disabled={searchParams.page === 1}>
                       <ChevronLeft className="h-4 w-4" />
                     </Button>
-                    {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                      const page = i + 1;
-                      return (
-                        <Button key={page} variant={searchParams.page === page ? 'default' : 'outline'} size="sm" onClick={() => handlePageChange(page)}>
-                          {page}
-                        </Button>
+                    {(() => {
+                      const current = searchParams.page!;
+                      const pages: (number | 'ellipsis')[] = [];
+                      if (totalPages <= 7) {
+                        for (let i = 1; i <= totalPages; i++) pages.push(i);
+                      } else {
+                        pages.push(1);
+                        if (current > 3) pages.push('ellipsis');
+                        for (let i = Math.max(2, current - 1); i <= Math.min(totalPages - 1, current + 1); i++) pages.push(i);
+                        if (current < totalPages - 2) pages.push('ellipsis');
+                        pages.push(totalPages);
+                      }
+                      return pages.map((p, i) =>
+                        p === 'ellipsis' ? (
+                          <span key={`ellipsis-${i}`} style={{ padding: '0 4px', lineHeight: '2' }}>…</span>
+                        ) : (
+                          <Button key={p} variant={current === p ? 'default' : 'outline'} size="sm" onClick={() => handlePageChange(p as number)}>
+                            {p}
+                          </Button>
+                        )
                       );
-                    })}
-                    {totalPages > 5 && (
-                      <><span style={{ padding: '0 4px', lineHeight: '2' }}>…</span>
-                        <Button variant="outline" size="sm" onClick={() => handlePageChange(totalPages)}>{totalPages}</Button>
-                      </>
-                    )}
-                    <Button variant="outline" size="icon" onClick={() => handlePageChange(searchParams.page! + 1)} disabled={searchParams.page === totalPages}>
+                    })()}
+                    <Button variant="outline" size="icon" onClick={() => handlePageChange(searchParams.page! + 1)} disabled={searchParams.page === totalPages || totalPages === 0}>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
 
-                  {/* Recent Results section */}
-                  {activeTab === 'results' || (
+                  {/* Recent Results section — only shown when Results tab is active */}
+                  {activeTab === 'results' && (
                     <div style={{ marginTop: '28px' }}>
-                      <p className="section-title-bar">📊 Recent Results & Merit Lists</p>
-                      {RESULT_ITEMS.map((r, i) => (
-                        <div key={i} style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '12px 16px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontSize: '22px' }}>{r.icon}</span>
-                          <div style={{ flex: 1 }}>
-                            <p style={{ fontSize: '13px', fontWeight: 700 }}>{r.title}</p>
-                            <p style={{ fontSize: '11px', color: 'var(--gjn-muted)', marginTop: '2px' }}>{r.org} • {r.date}</p>
-                          </div>
-                          <span style={{ fontSize: '10px', fontWeight: 700, padding: '3px 8px', borderRadius: '4px', background: r.declared ? '#dcfce7' : '#fef3c7', color: r.declared ? '#15803d' : '#92400e' }}>
-                            {r.declared ? '✅ Declared' : '⏳ Expected'}
-                          </span>
-                        </div>
-                      ))}
+                      <p className="section-title-bar">📊 Recent Results &amp; Merit Lists</p>
+                      <div style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '36px', textAlign: 'center' }}>
+                        <p style={{ fontSize: '28px', marginBottom: '10px' }}>📊</p>
+                        <p style={{ fontSize: '14px', fontWeight: 700, color: 'var(--gjn-text)' }}>Results Coming Soon</p>
+                        <p style={{ fontSize: '12px', color: 'var(--gjn-muted)', marginTop: '4px' }}>
+                          Official result notifications will appear here as they are declared.
+                        </p>
+                      </div>
                     </div>
                   )}
                 </>

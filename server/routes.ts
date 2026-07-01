@@ -143,7 +143,7 @@ Disallow: /admin/`);
   // Serve dynamic sitemap.xml
   app.get("/sitemap.xml", async (req, res) => {
     try {
-      const allJobs = await storage.getAllJobs();
+      const allJobs = await storage.getAllJobs(5000); // Limit to prevent OOM on large datasets
       const baseUrl = process.env.BASE_URL || "https://govtjobnow.com";
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
@@ -244,6 +244,16 @@ Disallow: /admin/`);
       res.json(trending);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch trending jobs", error });
+    }
+  });
+
+  // Get live job counts by department — used for category grid (must be before /:id)
+  app.get("/api/jobs/dept-counts", async (req, res) => {
+    try {
+      const counts = await storage.getDepartmentCounts();
+      res.json(counts);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch department counts", error });
     }
   });
 
@@ -508,8 +518,8 @@ Disallow: /admin/`);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // For demo purposes, use simple password comparison
-      const isValidPassword = password === admin.password || await verifyPassword(password, admin.password);
+      // Only bcrypt verification — plain-text comparison removed (security fix)
+      const isValidPassword = await verifyPassword(password, admin.password);
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
