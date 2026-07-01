@@ -46,7 +46,7 @@ export const RelatedJobs: React.FC<RelatedJobsProps> = ({ jobId }) => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {jobs.map((job) => (
-          <Link key={job.id} href={`/job/${job.id}`}>
+          <Link key={job.id} href={`/job/${job.slug || job.id}`}>
             <Card className="h-full border border-muted/50 hover:border-primary/40 transition-all hover:shadow-lg hover:shadow-primary/5 group cursor-pointer overflow-hidden bg-card/50 backdrop-blur-sm">
               <CardContent className="p-4 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-3">
