@@ -4,98 +4,111 @@ import type {
   UrlProcessingLog,
   ExtractionTemplate
 } from "@shared/schema";
-
-// In-memory storage for admin functionality
-// In production, this would be replaced with database operations
+import { db } from "./db";
+import { adminUsers } from "@shared/schema";
+import { eq, desc } from "drizzle-orm";
 
 class AdminStorage {
-  private adminUsers: AdminUser[] = [
-    {
-      id: "admin-1",
-      username: "34420124",
-      email: "admin@govtjobnow.in",
-      password: "pass@123", // Temporarily use plain text for testing
-      role: "admin",
-      isActive: true,
-      lastLogin: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ];
-
+  // NOTE: processingLogs and templates remain in-memory (no dedicated DB tables yet)
   private processingLogs: UrlProcessingLog[] = [];
   private templates: ExtractionTemplate[] = [];
 
-  // Admin User Operations
+  // ─── Admin User Operations (Database-backed) ──────────────────────────────
+
   async getAdminByUsername(username: string): Promise<AdminUser | undefined> {
-    return this.adminUsers.find(user => user.username === username && user.isActive);
+    try {
+      const [admin] = await db
+        .select()
+        .from(adminUsers)
+        .where(eq(adminUsers.username, username));
+      return admin && admin.isActive ? admin : undefined;
+    } catch (err) {
+      console.error("[AdminStorage] getAdminByUsername error:", err);
+      return undefined;
+    }
   }
 
   async getAdminById(id: string): Promise<AdminUser | undefined> {
-    return this.adminUsers.find(user => user.id === id && user.isActive);
+    try {
+      const [admin] = await db
+        .select()
+        .from(adminUsers)
+        .where(eq(adminUsers.id, id));
+      return admin && admin.isActive ? admin : undefined;
+    } catch (err) {
+      console.error("[AdminStorage] getAdminById error:", err);
+      return undefined;
+    }
   }
 
   async createAdminUser(data: InsertAdminUser): Promise<AdminUser> {
-    const newAdmin: AdminUser = {
-      id: `admin-${Date.now()}`,
-      ...data,
-      role: data.role || "admin",
-      isActive: true, // Explicitly set new users as active
-      lastLogin: null,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-
-    this.adminUsers.push(newAdmin);
+    const [newAdmin] = await db.insert(adminUsers).values(data).returning();
     return newAdmin;
   }
 
   async updateAdminLastLogin(id: string): Promise<void> {
-    const admin = this.adminUsers.find(user => user.id === id);
-    if (admin) {
-      admin.lastLogin = new Date();
-      admin.updatedAt = new Date();
+    try {
+      await db
+        .update(adminUsers)
+        .set({ lastLogin: new Date(), updatedAt: new Date() })
+        .where(eq(adminUsers.id, id));
+    } catch (err) {
+      console.error("[AdminStorage] updateAdminLastLogin error:", err);
     }
   }
 
   async updateAdminPassword(id: string, newPassword: string): Promise<boolean> {
-    const admin = this.adminUsers.find(user => user.id === id);
-    if (admin) {
-      admin.password = newPassword;
-      admin.updatedAt = new Date();
-      return true;
+    try {
+      const result = await db
+        .update(adminUsers)
+        .set({ password: newPassword, updatedAt: new Date() })
+        .where(eq(adminUsers.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (err) {
+      console.error("[AdminStorage] updateAdminPassword error:", err);
+      return false;
     }
-    return false;
   }
 
   async getAllAdminUsers(): Promise<AdminUser[]> {
-    return this.adminUsers.filter(user => user.isActive);
+    try {
+      return await db
+        .select()
+        .from(adminUsers)
+        .where(eq(adminUsers.isActive, true))
+        .orderBy(desc(adminUsers.createdAt));
+    } catch (err) {
+      console.error("[AdminStorage] getAllAdminUsers error:", err);
+      return [];
+    }
   }
 
   async updateAdminUser(id: string, updates: Partial<Omit<AdminUser, 'id' | 'createdAt'>>): Promise<AdminUser | undefined> {
-    const adminIndex = this.adminUsers.findIndex(user => user.id === id);
-    if (adminIndex === -1) return undefined;
-
-    this.adminUsers[adminIndex] = {
-      ...this.adminUsers[adminIndex],
-      ...updates,
-      updatedAt: new Date()
-    };
-
-    return this.adminUsers[adminIndex];
+    try {
+      const [updated] = await db
+        .update(adminUsers)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(adminUsers.id, id))
+        .returning();
+      return updated || undefined;
+    } catch (err) {
+      console.error("[AdminStorage] updateAdminUser error:", err);
+      return undefined;
+    }
   }
 
   async deleteAdminUser(id: string): Promise<boolean> {
-    const adminIndex = this.adminUsers.findIndex(user => user.id === id);
-    if (adminIndex === -1) return false;
-
-    // Actual deletion as requested
-    this.adminUsers.splice(adminIndex, 1);
-    return true;
+    try {
+      const result = await db.delete(adminUsers).where(eq(adminUsers.id, id));
+      return (result.rowCount ?? 0) > 0;
+    } catch (err) {
+      console.error("[AdminStorage] deleteAdminUser error:", err);
+      return false;
+    }
   }
 
-  // URL Processing Log Operations
+  // ─── URL Processing Log Operations (In-memory) ───────────────────────────
+
   async createProcessingLog(data: Omit<UrlProcessingLog, 'id' | 'createdAt' | 'updatedAt'>): Promise<UrlProcessingLog> {
     const log: UrlProcessingLog = {
       id: `log-${Date.now()}`,
@@ -103,7 +116,6 @@ class AdminStorage {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-
     this.processingLogs.push(log);
     return log;
   }
@@ -111,13 +123,11 @@ class AdminStorage {
   async updateProcessingLog(id: string, updates: Partial<UrlProcessingLog>): Promise<UrlProcessingLog | undefined> {
     const logIndex = this.processingLogs.findIndex(log => log.id === id);
     if (logIndex === -1) return undefined;
-
     this.processingLogs[logIndex] = {
       ...this.processingLogs[logIndex],
       ...updates,
       updatedAt: new Date()
     };
-
     return this.processingLogs[logIndex];
   }
 
@@ -138,7 +148,8 @@ class AdminStorage {
       .slice(0, limit);
   }
 
-  // Template Operations
+  // ─── Template Operations (In-memory) ─────────────────────────────────────
+
   async getTemplates(): Promise<ExtractionTemplate[]> {
     return this.templates.filter(t => t.isActive);
   }
@@ -154,7 +165,6 @@ class AdminStorage {
       createdAt: new Date(),
       updatedAt: new Date()
     };
-
     this.templates.push(template);
     return template;
   }
@@ -167,7 +177,8 @@ class AdminStorage {
     }
   }
 
-  // Statistics
+  // ─── Dashboard Statistics ─────────────────────────────────────────────────
+
   async getAdminDashboardStats(adminId: string): Promise<{
     totalProcessed: number;
     successfulExtractions: number;
@@ -177,15 +188,12 @@ class AdminStorage {
     recentActivity: UrlProcessingLog[];
   }> {
     const adminLogs = await this.getProcessingLogsByAdmin(adminId);
-
     const totalProcessed = adminLogs.length;
     const successfulExtractions = adminLogs.filter(log => log.status === 'completed').length;
     const failedExtractions = adminLogs.filter(log => log.status === 'failed').length;
     const reviewRequired = adminLogs.filter(log => log.status === 'review_required').length;
-
     const totalTime = adminLogs.reduce((sum, log) => sum + (log.processingTimeMs || 0), 0);
     const avgProcessingTime = totalProcessed > 0 ? Math.round(totalTime / totalProcessed) : 0;
-
     const recentActivity = adminLogs.slice(0, 10);
 
     return {

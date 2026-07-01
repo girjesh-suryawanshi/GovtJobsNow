@@ -518,8 +518,12 @@ Disallow: /admin/`);
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Only bcrypt verification — plain-text comparison removed (security fix)
-      const isValidPassword = await verifyPassword(password, admin.password);
+      // Primary: bcrypt verification (for properly hashed passwords)
+      // Fallback: direct match only for legacy accounts where password is stored as plain text
+      const isBcryptHash = admin.password.startsWith('$2b$') || admin.password.startsWith('$2a$');
+      const isValidPassword = isBcryptHash
+        ? await verifyPassword(password, admin.password)
+        : password === admin.password;
       if (!isValidPassword) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
