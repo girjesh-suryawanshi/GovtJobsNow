@@ -5,7 +5,7 @@ export async function generateText(prompt: string, provider: "gemini" | "groq" =
       console.warn("Missing Groq API Key! Falling back to Gemini...");
       return generateText(prompt, "gemini");
     }
-    
+
     try {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",

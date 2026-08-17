@@ -21,22 +21,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Visitor Tracking Middleware
   app.use(async (req, res, next) => {
     // Only track non-API and non-static asset requests to avoid over-counting
-    if (req.method === "GET" && 
-        !req.path.startsWith("/api") && 
-        !req.path.startsWith("/uploads") && 
-        !req.path.includes(".")) {
-      
+    if (req.method === "GET" &&
+      !req.path.startsWith("/api") &&
+      !req.path.startsWith("/uploads") &&
+      !req.path.includes(".")) {
+
       try {
         const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown";
         const userAgent = req.headers["user-agent"] || "";
         const ipHash = crypto.createHash("sha256").update(`${ip}-${userAgent}`).digest("hex");
-        
+
         // Manual cookie parsing since cookie-parser might not be installed
         const cookies = req.headers.cookie || "";
         const hasVisitorCookie = cookies.split(";").some(c => c.trim().startsWith("gj_visitor="));
-        
+
         const isNewSession = !hasVisitorCookie;
-        
+
         if (isNewSession) {
           // Set a long-lived cookie (1 month)
           res.cookie("gj_visitor", ipHash, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, path: "/" });
@@ -60,19 +60,15 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/admin/
 Sitemap: ${baseUrl}/sitemap.xml
-llms-txt: ${baseUrl}/llms.txt
 
 # Google AdSense
 User-agent: Mediapartners-Google
 Allow: /
 
-# AI Search Agents — allowed to crawl public content for GEO/AEO
+# AI Search Agents — allowed to crawl public content
 User-agent: GPTBot
 Allow: /
 Disallow: /admin/
-
-User-agent: ChatGPT-User
-Allow: /
 
 User-agent: ClaudeBot
 Allow: /
@@ -98,69 +94,6 @@ User-agent: Applebot-Extended
 Allow: /
 Disallow: /admin/`);
   });
-
-  // LLMS.txt — Generative Engine Optimization (GEO) Feed for LLMs (ChatGPT, Gemini, Perplexity, Claude)
-  app.get(["/llms.txt", "/llms-full.txt"], async (req, res) => {
-    try {
-      const baseUrl = process.env.BASE_URL || "https://govtjobnow.com";
-      const recentJobs = await storage.getAllJobs(20);
-      
-      let markdown = `# GovtJobNow.com — Official Government Job Verification Engine\n\n`;
-      markdown += `> GovtJobNow (https://govtjobnow.com) is an independent recruitment information aggregator dedicated to providing structured, verified, and timely notifications for Indian Central and State Government employment opportunities.\n\n`;
-      
-      markdown += `## Primary Qualification & Category Hubs\n`;
-      markdown += `- [10th Pass Govt Jobs](${baseUrl}/10th-pass-govt-jobs): Class 10th / Matriculation recruitment notifications.\n`;
-      markdown += `- [12th Pass Govt Jobs](${baseUrl}/12th-pass-govt-jobs): Higher Secondary recruitment announcements.\n`;
-      markdown += `- [Graduate Govt Jobs](${baseUrl}/graduate-govt-jobs): Degree level vacancies across central & state departments.\n`;
-      markdown += `- [SSC Recruitment](${baseUrl}/jobs/ssc): Staff Selection Commission CGL, CHSL, MTS, and GD posts.\n`;
-      markdown += `- [Railway Jobs](${baseUrl}/jobs/railway): Railway Recruitment Boards (RRB) NTPC, Group D, and Technical roles.\n`;
-      markdown += `- [Exam Calendar](${baseUrl}/exams): Upcoming government exam dates and admit card notifications.\n`;
-      markdown += `- [Official Blog](${baseUrl}/blog): Syllabus breakdowns, preparation guides, and career analysis.\n\n`;
-
-      markdown += `## Trust, E-E-A-T & Verification Policies\n`;
-      markdown += `- [Editorial Policy](${baseUrl}/editorial-policy): Primary gazette sourcing (.gov.in / .nic.in) and human editorial verification rules.\n`;
-      markdown += `- [Verification Protocol](${baseUrl}/verification-policy): 4-step recruitment validation protocol and fake job scam prevention.\n`;
-      markdown += `- [Author Profile & Credentials](${baseUrl}/author/editorial-team): Senior Editorial Desk (15+ Years Domain Experience).\n`;
-      markdown += `- [Report Correction Form](${baseUrl}/corrections): Community feedback and corrigendum reporting.\n\n`;
-
-      markdown += `## Recent Verified Recruitment Notifications\n`;
-      recentJobs.forEach(job => {
-        const slug = job.slug || job.id;
-        markdown += `- [${job.title}](${baseUrl}/job/${slug}): ${job.department} | Vacancies: ${job.positions || "Check Notice"} | Last Date: ${job.deadline || "TBA"}\n`;
-      });
-
-      res.type("text/plain");
-      res.send(markdown);
-    } catch (e) {
-      res.status(500).send("Error generating llms.txt");
-    }
-  });
-
-
-  // Dynamic ads.txt for Google AdSense compliance
-  app.get("/ads.txt", async (req, res) => {
-    res.type("text/plain");
-    try {
-      const settings = await storage.getSiteSettings();
-      let pubId = "";
-      if (settings?.adsHeaderCode) {
-        const match = settings.adsHeaderCode.match(/pub-\d+/);
-        if (match) pubId = match[0];
-      }
-      if (!pubId && process.env.ADSENSE_PUB_ID) {
-        const envVal = process.env.ADSENSE_PUB_ID;
-        pubId = envVal.startsWith("pub-") ? envVal : `pub-${envVal}`;
-      }
-      
-      if (pubId) {
-        return res.send(`google.com, ${pubId}, DIRECT, f08c47fec0942fa0\n# GovtJobNow.com Official Google AdSense Record`);
-      }
-      res.send(`# GovtJobNow.com Authorized Digital Sellers (ads.txt)\n# Google AdSense Publisher ID is served dynamically once configured in Site Settings.\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0`);
-    } catch (error) {
-      res.send(`# GovtJobNow.com Authorized Digital Sellers (ads.txt)\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0`);
-    }
-  });
-
 
   // Setup Multer for PDF/Image Notification Uploads - Allow configuration via environment variable
   const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
@@ -227,22 +160,16 @@ Disallow: /admin/`);
         { path: "/privacy-policy", priority: "0.4", changefreq: "yearly" },
         { path: "/terms-of-service", priority: "0.4", changefreq: "yearly" },
         { path: "/disclaimer", priority: "0.4", changefreq: "yearly" },
-        { path: "/editorial-policy", priority: "0.6", changefreq: "monthly" },
-        { path: "/verification-policy", priority: "0.6", changefreq: "monthly" },
-        { path: "/corrections", priority: "0.5", changefreq: "monthly" },
-        { path: "/author/editorial-team", priority: "0.6", changefreq: "monthly" },
         { path: "/jobs/ssc", priority: "0.8", changefreq: "daily" },
         { path: "/jobs/railway", priority: "0.8", changefreq: "daily" },
       ];
-
-
       const seoSlugs = [
         "10th-pass-govt-jobs", "12th-pass-govt-jobs", "iti-govt-jobs", "diploma-govt-jobs", "graduate-govt-jobs", "btech-govt-jobs",
         "government-jobs-in-maharashtra", "government-jobs-in-uttar-pradesh", "government-jobs-in-madhya-pradesh", "government-jobs-in-rajasthan", "government-jobs-in-bihar", "government-jobs-in-delhi",
         "isro-jobs", "drdo-jobs", "sbi-jobs", "rbi-jobs", "lic-jobs", "indian-post-jobs", "railway-jobs", "ssc-jobs", "upsc-jobs", "defence-jobs", "bank-jobs", "army-jobs", "navy-jobs", "air-force-jobs",
         "ssc-cgl", "ssc-chsl", "ibps-po", "rrb-ntpc", "upsc-cse"
       ];
-      
+
       seoSlugs.forEach(slug => {
         staticRoutes.push({ path: `/${slug}`, priority: "0.8", changefreq: "daily" });
       });
@@ -337,7 +264,7 @@ Disallow: /admin/`);
       if (!job) {
         return res.status(404).json({ message: "Job not found" });
       }
-      
+
       // Increment view count asynchronously
       storage.incrementJobViewCount(req.params.id).catch(err => {
         console.error("Error incrementing job view count:", err);
@@ -501,13 +428,13 @@ Disallow: /admin/`);
     try {
       const { fromError } = await import("zod-validation-error");
       const result = insertExamSchema.safeParse(req.body);
-      
+
       if (!result.success) {
         const validationError = fromError(result.error);
-        return res.status(400).json({ 
-          message: "Invalid exam data", 
+        return res.status(400).json({
+          message: "Invalid exam data",
           details: validationError.toString(),
-          error: result.error 
+          error: result.error
         });
       }
 
@@ -720,7 +647,7 @@ Disallow: /admin/`);
   app.delete("/api/admin/admins/:id", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     const currentAdminId = requireAdminAuth(token);
-    
+
     if (!currentAdminId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -766,195 +693,9 @@ Disallow: /admin/`);
     }
   });
 
-function smartOrganizeJobText(rawText: string) {
-  let title = rawText.split('\n')[0] || "Government Job Recruitment Notification 2026";
-  title = title
-    .replace(/^(FreeJobAlert\.Com|SarkariResult\.Com|EmploymentNews|Job Portal|Home|Welcome to)\s*[-:]?\s*/i, "")
-    .replace(/(Results|Admit Cards|Answer Key|Syllabus)\s*Home/gi, "")
-    .replace(/St\s*2026/g, "2026")
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  if (!title || title.length < 5) {
-    title = "Government Job Recruitment Notification 2026";
-  }
-
-  let department = "Other Government Department";
-  let recruitingOrg = "Government Department";
-  let jobCategory = "Central Government";
-
-  if (/Staff Selection Commission|SSC/i.test(rawText)) {
-    department = "Staff Selection Commission";
-    recruitingOrg = "Staff Selection Commission";
-    jobCategory = "Central Government";
-  } else if (/Union Public Service Commission|UPSC/i.test(rawText)) {
-    department = "Union Public Service Commission";
-    recruitingOrg = "Union Public Service Commission";
-    jobCategory = "Central Government";
-  } else if (/Railway|RRB|RRC/i.test(rawText)) {
-    department = "Railway Recruitment Board";
-    recruitingOrg = "Railway Recruitment Board";
-    jobCategory = "Railway";
-  } else if (/Bank|SBI|IBPS|RBI|NABARD/i.test(rawText)) {
-    department = "Banking Sector";
-    recruitingOrg = "Banking Selection Board";
-    jobCategory = "Banking";
-  } else if (/Police|Constable|SI|Daroga/i.test(rawText)) {
-    department = "Police & Security Forces";
-    recruitingOrg = "State Police Recruitment Board";
-    jobCategory = "Police";
-  } else if (/Army|Navy|Air Force|Defence|NDA|CDS/i.test(rawText)) {
-    department = "Defense Services";
-    recruitingOrg = "Ministry of Defence";
-    jobCategory = "Defence";
-  } else if (/AIIMS|Health|Medical|Hospital|Doctor|Nurse/i.test(rawText)) {
-    department = "Healthcare & Medical";
-    recruitingOrg = "Health Department";
-    jobCategory = "Healthcare";
-  } else if (/Teacher|School|College|University|Prof|Lecturer|TET|CTET/i.test(rawText)) {
-    department = "Education & Teaching";
-    recruitingOrg = "Education Department";
-    jobCategory = "Education";
-  } else if (/PSU|ONGC|NTPC|BHEL|SAIL|GAIL|IOCL|BPCL/i.test(rawText)) {
-    department = "Public Sector Undertaking";
-    recruitingOrg = "Public Sector Enterprise";
-    jobCategory = "PSU";
-  }
-
-  let qualification = "Graduate (Any Stream)";
-  if (/10th|Matriculation|SSLC|High School/i.test(rawText)) {
-    qualification = "10th Pass";
-  } else if (/12th|Higher Secondary|Intermediate|10\+2/i.test(rawText)) {
-    qualification = "12th Pass";
-  } else if (/ITI|Diploma/i.test(rawText)) {
-    qualification = "ITI/Diploma";
-  } else if (/B\.Tech|B\.E\.|Engineering/i.test(rawText)) {
-    qualification = "Engineering Degree";
-  } else if (/MBBS|MD|BAMS|Nursing/i.test(rawText)) {
-    qualification = "Medical Degree";
-  } else if (/Post Graduate|M\.A|M\.Sc|M\.Com|M\.Tech/i.test(rawText)) {
-    qualification = "Post Graduate";
-  }
-
-  let positions = "100+";
-  const posMatch = rawText.match(/(\d+[\d,]*)\s*(posts|vacancies|positions|openings)/i);
-  if (posMatch) {
-    positions = posMatch[1].replace(/,/g, '');
-  }
-
-  let deadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  const dateMatch = rawText.match(/(\d{4}[-/]\d{2}[-/]\d{2})|(\d{2}[-/]\d{2}[-/]\d{4})/);
-  if (dateMatch) {
-    const rawDate = dateMatch[0];
-    if (rawDate.includes("-") || rawDate.includes("/")) {
-      const parts = rawDate.split(/[-/]/);
-      if (parts[0].length === 4) {
-        deadline = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
-      } else if (parts[2].length === 4) {
-        deadline = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-      }
-    }
-  }
-
-  let applyLink = "https://example.com/apply";
-  const urlMatch = rawText.match(/(https?:\/\/[^\s"'<>]+)/i);
-  if (urlMatch) {
-    applyLink = urlMatch[1];
-  }
-
-  let salary = "As per Govt Rules (Level 4 to Level 7)";
-  const salMatch = rawText.match(/(Rs\.?|₹)\s*[\d,]+\s*-\s*[\d,]+/i);
-  if (salMatch) salary = salMatch[0];
-
-  let ageLimit = "18 - 30 Years";
-  const ageMatch = rawText.match(/(\d{2})\s*(to|-)\s*(\d{2})\s*years?/i);
-  if (ageMatch) ageLimit = `${ageMatch[1]} - ${ageMatch[3]} Years`;
-
-  let applicationFee = "Rs. 100/- (Exempted for SC/ST/Women)";
-  if (/fee/i.test(rawText)) {
-    const feeMatch = rawText.match(/(Rs\.?|₹)\s*\d+/i);
-    if (feeMatch) applicationFee = `${feeMatch[0]}/- (As per Notice)`;
-  }
-
-  const description = `> **Quick Summary:** Official recruitment notification released for various posts. Eligible candidates can review details and apply online before ${deadline}.
-
-### 📝 Quick Summary
-Applications are invited from eligible Indian citizens for recruitment to various positions. Candidates must review the official gazette guidelines before submitting the online form.
-
-### 💡 Key Takeaways
-- **Recruiting Authority:** ${recruitingOrg}
-- **Post Name:** Various Vacancies
-- **Total Positions:** ${positions}
-- **Qualification:** ${qualification}
-- **Application Deadline:** ${deadline}
-- **Selection Process:** Written Examination followed by Document Verification
-- **Application Fee:** ${applicationFee}
-
-<!-- SPLIT -->
-
-> 📌 **Related Opportunity:** Looking for more vacancies? Explore our updated lists of [10th Pass Govt Jobs](https://govtjobnow.com/10th-pass-govt-jobs) and [Graduate Govt Jobs](https://govtjobnow.com/graduate-govt-jobs).
-
-### 📄 Important Documents Required to Apply for ${recruitingOrg} Recruitment
-- Identity Proof (Aadhar Card / Voter ID / Passport)
-- Educational Qualification Certificates & Marksheets
-- Category / Caste Certificate (if applicable)
-- Passport size recent photograph and signature scan
-
-### 🏆 Selection Process for ${recruitingOrg} Recruitment
-- Stage 1: Computer Based Examination / Written Test
-- Stage 2: Skill Test / Physical Efficiency Test (where applicable)
-- Stage 3: Document Verification & Medical Examination
-
-### ⚠️ Common Mistakes / What to Check Before Applying for ${recruitingOrg} Recruitment
-- Ensure all personal details match official matriculation certificates.
-- Upload clear, recent photograph with light background.
-- Verify eligibility criteria and fee payment receipt before final submission.
-
-> 🛡️ **Verification Note:** All recruitment notifications published on GovtJobNow are verified against official government gazettes per our [Editorial Policy](https://govtjobnow.com/editorial-policy).
-
-### 👤 Who Can Apply for This Job & How to Apply for ${recruitingOrg} Recruitment
-**Who Can Apply:**
-- Indian citizens meeting the specified age limit and educational qualifications (${qualification}).
-
-**How to Apply (Overview):**
-- Visit the official portal, register your profile, fill application details, and pay fee before ${deadline}.
-
-### 📝 How to Apply for ${recruitingOrg} Recruitment — Step-by-Step Guide
-1. Go to the official recruitment portal.
-2. Click on New Registration and complete profile setup.
-3. Fill educational and personal details accurately.
-4. Upload required documents and pay application fee.
-5. Submit application and print receipt for future reference. Apply before the last date to avoid last-minute technical issues.`;
-
-  return {
-    title,
-    department,
-    location: "All India",
-    qualification,
-    deadline,
-    salary,
-    description,
-    applyLink,
-    sourceUrl: applyLink !== "https://example.com/apply" ? applyLink : "Manual Entry",
-    positions,
-    ageLimit,
-    applicationFee,
-    selectionProcess: "Written Exam & Document Verification",
-    experienceRequired: "Freshers Eligible",
-    jobCategory,
-    employmentType: "Permanent",
-    recruitingOrganization: recruitingOrg,
-    applicationStartDate: new Date().toISOString().split('T')[0],
-    vacancyBreakdown: "Detailed breakdown in official notification PDF",
-    prepGuide: "Focus on General Awareness, Quantitative Aptitude, Reasoning, and English Language basics.",
-    syllabus: "General Intelligence, General Knowledge, Numerical Ability, English Comprehension"
-  };
-}
-
   // Admin manual job creation
   // Gemini AI Job Extraction
   app.post("/api/admin/extract-job", async (req, res) => {
-
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Unauthorized" });
 
@@ -1122,22 +863,21 @@ Applications are invited from eligible Indian citizens for recruitment to variou
         parsedData.useMultiplePositions = parsedData.jobPositions.length > 1;
       }
 
-    } catch (error: any) {
-      console.warn("AI extraction unavailable or error occurred. Running Smart Local Organizer...", error?.message || error);
-      const localOrganizedData = smartOrganizeJobText(rawText);
-      res.json(localOrganizedData);
+      res.json(parsedData);
+    } catch (error) {
+      console.error("Gemini extraction error:", error);
+      res.status(500).json({ message: "Failed to extract job data" });
     }
   });
-
 
   // AI Exam Extraction (Supports Groq/Gemini)
   app.post("/api/admin/extract-exam", async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Unauthorized" });
-  
+
     const { rawText, provider } = req.body;
     if (!rawText) return res.status(400).json({ message: "Raw text is required" });
-  
+
     try {
       const { generateText } = await import("./gemini");
       const prompt = `Extract exam details from the following text and return ONLY a JSON object compatible with the following schema.
@@ -1168,7 +908,7 @@ Applications are invited from eligible Indian citizens for recruitment to variou
       - If no estimation is possible, return an empty string "".
   
       Text: ${rawText}`;
-  
+
       const response = await generateText(prompt, provider || "groq");
       // Robust JSON cleaning to strip markdown and conversational text
       const match = response.match(/\{[\s\S]*\}/);
@@ -1177,7 +917,7 @@ Applications are invited from eligible Indian citizens for recruitment to variou
         throw new Error("No JSON object found in response");
       }
       let jsonStr = match[0];
-  
+
       let parsedData;
       try {
         parsedData = JSON.parse(jsonStr);
@@ -1210,7 +950,7 @@ Applications are invited from eligible Indian citizens for recruitment to variou
         if (parsedData[key] === null) parsedData[key] = "";
         if (typeof parsedData[key] === "number") parsedData[key] = parsedData[key].toString();
       }
-  
+
       res.json(parsedData);
     } catch (error) {
       console.error("Exam extraction error:", error);
@@ -1305,7 +1045,7 @@ Applications are invited from eligible Indian citizens for recruitment to variou
     try {
       const adminUser = await adminStorage.getAdminById(adminId);
       const authorName = adminUser?.username || "GovtJobsNow Editor";
-      
+
       // Inject authorName into the body
       req.body.authorName = authorName;
 
@@ -1349,7 +1089,7 @@ Applications are invited from eligible Indian citizens for recruitment to variou
     } catch (error: any) {
       console.error("Failed to create manual job. Payload:", JSON.stringify(req.body, null, 2));
       console.error("Zod Error Details:", error.errors ? JSON.stringify(error.errors, null, 2) : error);
-      
+
       let message = "Invalid job data";
       if (error instanceof z.ZodError) {
         const firstError = error.errors[0];
@@ -1567,8 +1307,8 @@ Applications are invited from eligible Indian citizens for recruitment to variou
     try {
       const { title, department, qualification, positions, deadline, theme, customBgUrl } = req.body;
       const imageUrl = await generateFeaturedImage(
-        title || "Government Job", 
-        department || "", 
+        title || "Government Job",
+        department || "",
         qualification || "",
         positions || "1",
         deadline || "",
@@ -2090,9 +1830,9 @@ ${categories.map(category => `  <url>
   });
 
   const httpServer = createServer(app);
-  
+
   app.use("/api", aiRouter);
-  
+
   return httpServer;
 }
 
