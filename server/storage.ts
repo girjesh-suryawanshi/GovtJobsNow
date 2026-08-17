@@ -70,7 +70,8 @@ export class MemStorage implements IStorage {
   }
 
   private seedSampleData() {
-    const sampleJobs: Job[] = [
+    const sampleJobs: any[] = [
+
       {
         id: "1",
         title: "SSC CGL Recruitment 2026 Notification",
@@ -488,7 +489,8 @@ export class DatabaseStorage implements IStorage {
       count: sql<number>`count(*)`,
     }).from(jobs).groupBy(jobs.department);
     const map: Record<string, number> = {};
-    counts.forEach(c => { map[c.department] = Number(c.count); });
+    counts.forEach((c: any) => { map[c.department] = Number(c.count); });
+
     return map;
   }
   async incrementJobViewCount(jobId: string): Promise<void> {

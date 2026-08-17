@@ -132,14 +132,15 @@ export const blogStorage = {
     if (!tags.length) return all.slice(0, 6);
 
     // Score each post by tag overlap
-    const scored = all.map((p) => {
+    const scored = all.map((p: any) => {
       const pTags: string[] = (p.tags as string[]) || [];
-      const overlap = pTags.filter((t) => tags.includes(t)).length;
+      const overlap = pTags.filter((t: string) => tags.includes(t)).length;
       return { post: p, score: overlap };
     });
 
-    scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, 6).map((s) => s.post);
+    scored.sort((a: any, b: any) => b.score - a.score);
+    return scored.slice(0, 6).map((s: any) => s.post);
+
   },
 
   /** Increment view count */

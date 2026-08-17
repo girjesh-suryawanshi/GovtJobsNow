@@ -1,4 +1,6 @@
+import { Link } from "wouter";
 import { AdUnit } from "./ad-unit";
+
 
 export function PortalSidebar() {
   return (
@@ -27,28 +29,38 @@ export function PortalSidebar() {
           🔥 Trending Searches
         </div>
         <div className="p-0">
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">01</span>
-            <span className="text-[12px] font-semibold flex-1">RRB NTPC 2025 Apply Online</span>
-            <span className="text-[10px] font-bold text-[var(--green)] bg-[#dcfce7] rounded px-[5px] py-[1px]">Hot</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">02</span>
-            <span className="text-[12px] font-semibold flex-1">SSC CGL 2026 Syllabus</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">03</span>
-            <span className="text-[12px] font-semibold flex-1">SBI PO Admit Card 2026</span>
-            <span className="text-[10px] font-bold text-[var(--green)] bg-[#dcfce7] rounded px-[5px] py-[1px]">New</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">04</span>
-            <span className="text-[12px] font-semibold flex-1">UPSC Prelims 2026 Answer Key</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">05</span>
-            <span className="text-[12px] font-semibold flex-1">Army Agniveer Recruitment 2026</span>
-          </a>
+          <Link href="/jobs/railway">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">01</span>
+              <span className="text-[12px] font-semibold flex-1">RRB NTPC 2026 Apply Online</span>
+              <span className="text-[10px] font-bold text-[var(--green)] bg-[#dcfce7] rounded px-[5px] py-[1px]">Hot</span>
+            </a>
+          </Link>
+          <Link href="/jobs/ssc">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">02</span>
+              <span className="text-[12px] font-semibold flex-1">SSC CGL 2026 Syllabus</span>
+            </a>
+          </Link>
+          <Link href="/graduate-govt-jobs">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">03</span>
+              <span className="text-[12px] font-semibold flex-1">SBI PO Recruitment 2026</span>
+              <span className="text-[10px] font-bold text-[var(--green)] bg-[#dcfce7] rounded px-[5px] py-[1px]">New</span>
+            </a>
+          </Link>
+          <Link href="/exams">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">04</span>
+              <span className="text-[12px] font-semibold flex-1">UPSC Prelims 2026 Answer Key</span>
+            </a>
+          </Link>
+          <Link href="/10th-pass-govt-jobs">
+            <a className="flex items-center gap-2.5 p-[10px_14px] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">05</span>
+              <span className="text-[12px] font-semibold flex-1">10th Pass Govt Jobs 2026</span>
+            </a>
+          </Link>
         </div>
       </div>
 
@@ -58,24 +70,33 @@ export function PortalSidebar() {
           📅 Upcoming Exam Dates
         </div>
         <div className="p-0">
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--red)] min-w-[18px]">08</span>
-            <span className="text-[12px] font-semibold flex-1">RRB NTPC CBT-1 · Jun</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--red)] min-w-[18px]">15</span>
-            <span className="text-[12px] font-semibold flex-1">IBPS RRB PO · Jun</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">22</span>
-            <span className="text-[12px] font-semibold flex-1">SSC CGL Tier-1 · Jul</span>
-          </a>
-          <a className="flex items-center gap-2.5 p-[10px_14px] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]" href="#">
-            <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">01</span>
-            <span className="text-[12px] font-semibold flex-1">UPSC Mains · Sep</span>
-          </a>
+          <Link href="/exams">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--red)] min-w-[18px]">08</span>
+              <span className="text-[12px] font-semibold flex-1">RRB NTPC CBT-1 Exam</span>
+            </a>
+          </Link>
+          <Link href="/exams">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--red)] min-w-[18px]">15</span>
+              <span className="text-[12px] font-semibold flex-1">IBPS RRB PO Exam</span>
+            </a>
+          </Link>
+          <Link href="/exams">
+            <a className="flex items-center gap-2.5 p-[10px_14px] border-b border-[var(--border)] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">22</span>
+              <span className="text-[12px] font-semibold flex-1">SSC CGL Tier-1 Exam</span>
+            </a>
+          </Link>
+          <Link href="/exams">
+            <a className="flex items-center gap-2.5 p-[10px_14px] no-underline text-[var(--text)] transition-colors hover:bg-[var(--bg)]">
+              <span className="text-[11px] font-extrabold text-[var(--blue2)] min-w-[18px]">01</span>
+              <span className="text-[12px] font-semibold flex-1">UPSC Mains Exam</span>
+            </a>
+          </Link>
         </div>
       </div>
+
 
       {/* SECOND SIDEBAR AD */}
       <AdUnit slot="portal-sidebar-bottom" format="rectangle" />

@@ -833,9 +833,12 @@ export default function JobDetail() {
                           {(job as any).authorName ? "Verified Admin" : "Verified Official Publisher"}
                         </p>
                       </div>
-                      <a href="#" className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shrink-0">
-                        View Full Profile <ExternalLink className="h-4 w-4" />
-                      </a>
+                      <Link href="/author/editorial-team">
+                        <a className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shrink-0">
+                          View Full Profile <ExternalLink className="h-4 w-4" />
+                        </a>
+                      </Link>
+
                     </div>
                     
                     <div className="flex items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">

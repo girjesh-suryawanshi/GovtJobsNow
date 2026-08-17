@@ -187,19 +187,21 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
           <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Quick Tools</h3>
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: "Track Application", icon: <Target className="h-4 w-4" />, color: "text-blue-500", bg: "bg-blue-50" },
-              { label: "Exam Calendar", icon: <Calendar className="h-4 w-4" />, color: "text-purple-500", bg: "bg-purple-50" },
-              { label: "Latest Results", icon: <CheckCircle2 className="h-4 w-4" />, color: "text-green-500", bg: "bg-green-50" },
-              { label: "Admit Cards", icon: <FileText className="h-4 w-4" />, color: "text-amber-500", bg: "bg-amber-50" },
-              { label: "Syllabus", icon: <Search className="h-4 w-4" />, color: "text-rose-500", bg: "bg-rose-50" },
-              { label: "Answer Keys", icon: <ShieldCheck className="h-4 w-4" />, color: "text-teal-500", bg: "bg-teal-50" },
+              { label: "10th Pass Jobs", href: "/10th-pass-govt-jobs", icon: <Target className="h-4 w-4" />, color: "text-blue-500", bg: "bg-blue-50" },
+              { label: "Exam Calendar", href: "/exams", icon: <Calendar className="h-4 w-4" />, color: "text-purple-500", bg: "bg-purple-50" },
+              { label: "Graduate Jobs", href: "/graduate-govt-jobs", icon: <CheckCircle2 className="h-4 w-4" />, color: "text-green-500", bg: "bg-green-50" },
+              { label: "SSC Jobs", href: "/jobs/ssc", icon: <FileText className="h-4 w-4" />, color: "text-amber-500", bg: "bg-amber-50" },
+              { label: "Railway Jobs", href: "/jobs/railway", icon: <Search className="h-4 w-4" />, color: "text-rose-500", bg: "bg-rose-50" },
+              { label: "Blog & Guide", href: "/blog", icon: <ShieldCheck className="h-4 w-4" />, color: "text-teal-500", bg: "bg-teal-50" },
             ].map((tool, i) => (
-              <a href="#" key={i} className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all text-center group bg-white">
-                <div className={`p-2 rounded-lg ${tool.bg} ${tool.color} group-hover:scale-110 transition-transform`}>
-                  {tool.icon}
-                </div>
-                <span className="text-[11px] font-bold text-gray-700 leading-tight">{tool.label}</span>
-              </a>
+              <Link href={tool.href} key={i}>
+                <a className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl border border-gray-100 hover:border-gray-300 hover:shadow-sm transition-all text-center group bg-white">
+                  <div className={`p-2 rounded-lg ${tool.bg} ${tool.color} group-hover:scale-110 transition-transform`}>
+                    {tool.icon}
+                  </div>
+                  <span className="text-[11px] font-bold text-gray-700 leading-tight">{tool.label}</span>
+                </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -209,15 +211,22 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
           <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Popular Categories</h3>
           <div className="flex flex-wrap gap-2">
             {[
-              "SSC Jobs", "Railway Jobs", "Bank Jobs", 
-              "UPSC Jobs", "Teaching Jobs", "Defence Jobs", 
-              "State Govt Jobs", "Police Jobs"
+              { name: "SSC Jobs", href: "/jobs/ssc" },
+              { name: "Railway Jobs", href: "/jobs/railway" },
+              { name: "10th Pass", href: "/10th-pass-govt-jobs" },
+              { name: "12th Pass", href: "/12th-pass-govt-jobs" },
+              { name: "Graduate", href: "/graduate-govt-jobs" },
+              { name: "ITI Jobs", href: "/iti-govt-jobs" },
+              { name: "Diploma Jobs", href: "/diploma-govt-jobs" },
+              { name: "Exams", href: "/exams" }
             ].map((cat, i) => (
-              <a href={`#${cat.replace(/\s+/g, '-').toLowerCase()}`} key={i}>
-                <Badge className="bg-gray-100 text-gray-700 hover:bg-[var(--gjn-blue)] hover:text-white border-none rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer">
-                  {cat}
-                </Badge>
-              </a>
+              <Link href={cat.href} key={i}>
+                <a>
+                  <Badge className="bg-gray-100 text-gray-700 hover:bg-[var(--gjn-blue)] hover:text-white border-none rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer">
+                    {cat.name}
+                  </Badge>
+                </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -227,16 +236,23 @@ export function JobSidebar({ className = "", job }: { className?: string, job?: 
           <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 mb-4">Important Links</h3>
           <div className="flex flex-col gap-2">
             {[
-              "Latest Jobs", "Latest Results", "Latest Admit Cards", 
-              "Exam Calendar", "Government Schemes", "Current Affairs"
-            ].map((link, i) => (
-              <a href="#" key={i} className="flex items-center gap-2 py-2 text-sm font-medium text-gray-600 hover:text-[var(--gjn-blue)] hover:translate-x-1 transition-all">
-                <ChevronRight className="h-4 w-4 opacity-50" />
-                {link}
-              </a>
+              { name: "Latest Govt Jobs", href: "/" },
+              { name: "Exam Calendar", href: "/exams" },
+              { name: "Editorial Policy", href: "/editorial-policy" },
+              { name: "Verification Policy", href: "/verification-policy" },
+              { name: "Report Correction", href: "/corrections" },
+              { name: "Official Blog", href: "/blog" }
+            ].map((item, i) => (
+              <Link href={item.href} key={i}>
+                <a className="flex items-center gap-2 py-2 text-sm font-medium text-gray-600 hover:text-[var(--gjn-blue)] hover:translate-x-1 transition-all">
+                  <ChevronRight className="h-4 w-4 opacity-50" />
+                  {item.name}
+                </a>
+              </Link>
             ))}
           </div>
         </div>
+
 
       </div>
     </aside>

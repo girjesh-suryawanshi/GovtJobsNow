@@ -188,9 +188,11 @@ Disallow: /admin/`);
         { path: "/editorial-policy", priority: "0.6", changefreq: "monthly" },
         { path: "/verification-policy", priority: "0.6", changefreq: "monthly" },
         { path: "/corrections", priority: "0.5", changefreq: "monthly" },
+        { path: "/author/editorial-team", priority: "0.6", changefreq: "monthly" },
         { path: "/jobs/ssc", priority: "0.8", changefreq: "daily" },
         { path: "/jobs/railway", priority: "0.8", changefreq: "daily" },
       ];
+
 
       const seoSlugs = [
         "10th-pass-govt-jobs", "12th-pass-govt-jobs", "iti-govt-jobs", "diploma-govt-jobs", "graduate-govt-jobs", "btech-govt-jobs",

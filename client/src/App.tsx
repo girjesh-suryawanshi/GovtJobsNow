@@ -25,12 +25,15 @@ import AboutUs from "@/pages/about-us";
 import EditorialPolicy from "@/pages/editorial-policy";
 import VerificationPolicy from "@/pages/verification-policy";
 import CorrectionsPolicy from "@/pages/corrections-policy";
+import AuthorProfile from "@/pages/author-profile";
+import RedirectNotice from "@/pages/redirect-notice";
 import BlogList from "@/pages/blog-list";
 import BlogDetail from "@/pages/blog-detail";
 import CookieBanner from "@/components/cookie-banner";
 import InstallPWA from "@/components/install-pwa";
 import PWAManualGuide from "@/components/pwa-manual-guide";
 import AiChatbot from "@/components/ai-chatbot";
+import { PushNotificationBanner } from "@/components/push-notification-banner";
 
 function Router() {
   return (
@@ -50,6 +53,9 @@ function Router() {
       <Route path="/editorial-policy" component={EditorialPolicy} />
       <Route path="/verification-policy" component={VerificationPolicy} />
       <Route path="/corrections" component={CorrectionsPolicy} />
+      <Route path="/author/editorial-team" component={AuthorProfile} />
+      <Route path="/author/:slug" component={AuthorProfile} />
+      <Route path="/redirect" component={RedirectNotice} />
       <Route path="/jobs/ssc" component={SSCJobs} />
       <Route path="/jobs/railway" component={RailwayJobs} />
       <Route path="/category/:slug" component={CategoryDetail} />
@@ -73,11 +79,13 @@ function App() {
             <InstallPWA />
             <PWAManualGuide />
             <AiChatbot />
+            <PushNotificationBanner />
           </TooltipProvider>
         </PWAProvider>
       </UserProvider>
     </QueryClientProvider>
   );
 }
+
 
 export default App;

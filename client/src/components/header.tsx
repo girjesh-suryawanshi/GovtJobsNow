@@ -12,15 +12,21 @@ interface HeaderProps {
 }
 
 const NAV_LINKS = [
-  { href: "/",              label: "🏠 Home",           active: true },
-  { href: "/",              label: "📋 Latest Jobs" },
-  { href: "/exams",         label: "📅 Exam Calendar" },
-  { href: "/blog",          label: "📚 Blog" },
-  { href: "/jobs/ssc",      label: "📋 SSC Jobs" },
-  { href: "/jobs/railway",  label: "🚆 Railway Jobs" },
-  { href: "/about-us",      label: "ℹ️ About Us" },
-  { href: "/contact",       label: "📞 Contact" },
+  { href: "/", label: "🏠 Home", active: true },
+  { href: "/exams", label: "📅 Exam Calendar" },
+  { href: "/blog", label: "📚 Blog" },
+  { href: "/jobs/ssc", label: "📋 SSC Jobs" },
+  { href: "/jobs/railway", label: "🚆 Railway Jobs" },
+  { href: "/editorial-policy", label: "🛡️ Editorial Policy" },
+  { href: "/verification-policy", label: "✔️ Verification Policy" },
+  { href: "/privacy-policy", label: "🔒 Privacy Policy" },
+  { href: "/terms-of-service", label: "📜 Terms" },
+  { href: "/disclaimer", label: "⚠️ Disclaimer" },
+  { href: "/about-us", label: "ℹ️ About Us" },
+  { href: "/contact", label: "📞 Contact" },
 ];
+
+
 
 export default function Header({ onScrollToDepartments, onSearch }: HeaderProps) {
   const { user, logout, isAuthenticated } = useUser();
@@ -141,7 +147,7 @@ export default function Header({ onScrollToDepartments, onSearch }: HeaderProps)
                 {link.label}
               </Link>
             ))}
-            <button
+            {/* <button
               onClick={onScrollToDepartments}
               style={{
                 color: 'rgba(255,255,255,0.85)', background: 'none', border: 'none',
@@ -153,7 +159,7 @@ export default function Header({ onScrollToDepartments, onSearch }: HeaderProps)
               onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; }}
             >
               🏢 Departments
-            </button>
+            </button> */}
             <button
               onClick={() => setShowHelpModal(true)}
               style={{

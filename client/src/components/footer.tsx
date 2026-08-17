@@ -76,33 +76,34 @@ export default function Footer({ onFilterChange }: FooterProps) {
             <div className="space-y-3 mb-6">
               <div className="flex items-center gap-3 text-gray-400">
                 <Mail className="h-4 w-4 text-blue-400" />
-                <span className="text-sm">support@govtjobnow.in</span>
+                <span className="text-sm">support@govtjobnow.com</span>
               </div>
-              <div className="flex items-center gap-3 text-gray-400">
+              {/* <div className="flex items-center gap-3 text-gray-400">
                 <Phone className="h-4 w-4 text-green-400" />
                 <span className="text-sm">+91-1800-123-4567</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-3 text-gray-400">
                 <MapPin className="h-4 w-4 text-red-400" />
-                <span className="text-sm">New Delhi, India</span>
+                <span className="text-sm">Indore, India</span>
               </div>
             </div>
 
             {/* Social Links */}
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/Dailygovtjobsalert" className="bg-blue-600/20 p-3 rounded-lg text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 transition-all duration-200">
+              <a href="https://www.facebook.com/Dailygovtjobsalert" target="_blank" rel="noopener noreferrer" className="bg-blue-600/20 p-3 rounded-lg text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 transition-all duration-200" title="Facebook">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="bg-sky-600/20 p-3 rounded-lg text-sky-400 hover:bg-sky-600/30 hover:text-sky-300 transition-all duration-200">
+              <a href="https://x.com/dailygovtjobs" target="_blank" rel="noopener noreferrer" className="bg-sky-600/20 p-3 rounded-lg text-sky-400 hover:bg-sky-600/30 hover:text-sky-300 transition-all duration-200" title="Twitter / X">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="bg-blue-700/20 p-3 rounded-lg text-blue-400 hover:bg-blue-700/30 hover:text-blue-300 transition-all duration-200">
+              <a href="/contact" className="bg-blue-700/20 p-3 rounded-lg text-blue-400 hover:bg-blue-700/30 hover:text-blue-300 transition-all duration-200" title="Contact Us">
                 <Linkedin className="h-5 w-5" />
               </a>
-              <a href="https://www.instagram.com/dailygovtjobsalert/" className="bg-pink-600/20 p-3 rounded-lg text-pink-400 hover:bg-pink-600/30 hover:text-pink-300 transition-all duration-200">
+              <a href="https://www.instagram.com/dailygovtjobsalert/" target="_blank" rel="noopener noreferrer" className="bg-pink-600/20 p-3 rounded-lg text-pink-400 hover:bg-pink-600/30 hover:text-pink-300 transition-all duration-200" title="Instagram">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
+
           </div>
 
           {/* Job Categories */}
@@ -177,18 +178,18 @@ export default function Footer({ onFilterChange }: FooterProps) {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
+                <a href="/" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
                   Latest Jobs
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
+                <a href="/exams" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-                  Exam Results
+                  Exam Calender
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                   Admit Cards
@@ -205,7 +206,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
                   <div className="w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
                   Previous Papers
                 </a>
-              </li>
+              </li> */}
             </ul>
           </div>
 
