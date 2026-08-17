@@ -23,14 +23,14 @@ export default function Footer({ onFilterChange }: FooterProps) {
             <div className="bg-blue-600/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
               <Users className="h-8 w-8 text-blue-400" />
             </div>
-            <p className="text-2xl font-bold text-white">10L+</p>
+            <p className="text-2xl font-bold text-white">2K+</p>
             <p className="text-sm text-gray-400">Active Users</p>
           </div>
           <div className="text-center">
             <div className="bg-green-600/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
               <Star className="h-8 w-8 text-green-400" />
             </div>
-            <p className="text-2xl font-bold text-white">75K+</p>
+            <p className="text-2xl font-bold text-white">1K+</p>
             <p className="text-sm text-gray-400">Jobs Posted</p>
           </div>
           <div className="text-center">
@@ -183,12 +183,12 @@ export default function Footer({ onFilterChange }: FooterProps) {
                   Latest Jobs
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a href="/exams" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
                   Exam Calender
                 </a>
-              </li>
+              </li> */}
               {/* <li>
                 <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>

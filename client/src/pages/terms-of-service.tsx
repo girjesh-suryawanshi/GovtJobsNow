@@ -7,7 +7,7 @@ export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Terms of Service</h1>
@@ -222,9 +222,9 @@ export default function TermsOfService() {
               </p>
               <div className="bg-white p-4 rounded-lg">
                 <p className="text-gray-700"><strong>Email:</strong> legal@govtjobnow.com</p>
-                <p className="text-gray-700"><strong>Phone:</strong> +91 8800-XXX-XXX</p>
+                <p className="text-gray-700"><strong>Phone:</strong> +91 8889977743</p>
                 <p className="text-gray-700">
-                  <strong>Address:</strong> Plot No. 123, Sector 15, Gurgaon, Haryana - 122001, India
+                  <strong>Address:</strong> Polo Ground, Industrial State, Indore, MP - 452006, India
                 </p>
               </div>
             </CardContent>
