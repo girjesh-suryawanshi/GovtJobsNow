@@ -60,15 +60,19 @@ Allow: /
 Disallow: /admin/
 Disallow: /api/admin/
 Sitemap: ${baseUrl}/sitemap.xml
+llms-txt: ${baseUrl}/llms.txt
 
 # Google AdSense
 User-agent: Mediapartners-Google
 Allow: /
 
-# AI Search Agents — allowed to crawl public content
+# AI Search Agents — allowed to crawl public content for GEO/AEO
 User-agent: GPTBot
 Allow: /
 Disallow: /admin/
+
+User-agent: ChatGPT-User
+Allow: /
 
 User-agent: ClaudeBot
 Allow: /
@@ -94,6 +98,44 @@ User-agent: Applebot-Extended
 Allow: /
 Disallow: /admin/`);
   });
+
+  // LLMS.txt — Generative Engine Optimization (GEO) Feed for LLMs (ChatGPT, Gemini, Perplexity, Claude)
+  app.get(["/llms.txt", "/llms-full.txt"], async (req, res) => {
+    try {
+      const baseUrl = process.env.BASE_URL || "https://govtjobnow.com";
+      const recentJobs = await storage.getAllJobs(20);
+      
+      let markdown = `# GovtJobNow.com — Official Government Job Verification Engine\n\n`;
+      markdown += `> GovtJobNow (https://govtjobnow.com) is an independent recruitment information aggregator dedicated to providing structured, verified, and timely notifications for Indian Central and State Government employment opportunities.\n\n`;
+      
+      markdown += `## Primary Qualification & Category Hubs\n`;
+      markdown += `- [10th Pass Govt Jobs](${baseUrl}/10th-pass-govt-jobs): Class 10th / Matriculation recruitment notifications.\n`;
+      markdown += `- [12th Pass Govt Jobs](${baseUrl}/12th-pass-govt-jobs): Higher Secondary recruitment announcements.\n`;
+      markdown += `- [Graduate Govt Jobs](${baseUrl}/graduate-govt-jobs): Degree level vacancies across central & state departments.\n`;
+      markdown += `- [SSC Recruitment](${baseUrl}/jobs/ssc): Staff Selection Commission CGL, CHSL, MTS, and GD posts.\n`;
+      markdown += `- [Railway Jobs](${baseUrl}/jobs/railway): Railway Recruitment Boards (RRB) NTPC, Group D, and Technical roles.\n`;
+      markdown += `- [Exam Calendar](${baseUrl}/exams): Upcoming government exam dates and admit card notifications.\n`;
+      markdown += `- [Official Blog](${baseUrl}/blog): Syllabus breakdowns, preparation guides, and career analysis.\n\n`;
+
+      markdown += `## Trust, E-E-A-T & Verification Policies\n`;
+      markdown += `- [Editorial Policy](${baseUrl}/editorial-policy): Primary gazette sourcing (.gov.in / .nic.in) and human editorial verification rules.\n`;
+      markdown += `- [Verification Protocol](${baseUrl}/verification-policy): 4-step recruitment validation protocol and fake job scam prevention.\n`;
+      markdown += `- [Author Profile & Credentials](${baseUrl}/author/editorial-team): Senior Editorial Desk (15+ Years Domain Experience).\n`;
+      markdown += `- [Report Correction Form](${baseUrl}/corrections): Community feedback and corrigendum reporting.\n\n`;
+
+      markdown += `## Recent Verified Recruitment Notifications\n`;
+      recentJobs.forEach(job => {
+        const slug = job.slug || job.id;
+        markdown += `- [${job.title}](${baseUrl}/job/${slug}): ${job.department} | Vacancies: ${job.positions || "Check Notice"} | Last Date: ${job.deadline || "TBA"}\n`;
+      });
+
+      res.type("text/plain");
+      res.send(markdown);
+    } catch (e) {
+      res.status(500).send("Error generating llms.txt");
+    }
+  });
+
 
   // Dynamic ads.txt for Google AdSense compliance
   app.get("/ads.txt", async (req, res) => {

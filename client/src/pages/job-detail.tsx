@@ -461,12 +461,38 @@ export default function JobDetail() {
                   color="text-teal-600" bg="bg-teal-50" border="border-teal-100" 
                 />
                 <QuickInfoCard 
-                  label="Age Limit" 
-                  value={job.ageLimit || "Check Notice"} 
-                  icon={<User className="h-5 w-5" />} 
-                  color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100" 
+                  label="Deadline" 
+                  value={job.deadline || "Check Notice"} 
+                  icon={<Clock className="h-5 w-5" />} 
+                  color="text-red-600" bg="bg-red-50" border="border-red-100" 
                 />
+            </div>
+
+            {/* AEO (ANSWER ENGINE OPTIMIZATION) DIRECT Q&A SUMMARY */}
+            <div className="bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-2xl p-5 border border-blue-900 shadow-sm">
+              <div className="flex items-center gap-2 mb-3 text-xs font-bold text-amber-400 uppercase tracking-wider">
+                <span>✨ Key Takeaways &amp; Instant Answer Summary (AEO Direct Facts)</span>
               </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+                  <span className="text-blue-300 font-semibold block mb-0.5">Recruiting Authority:</span>
+                  <span className="font-bold text-white text-sm">{job.recruitingOrganization || job.department}</span>
+                </div>
+                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+                  <span className="text-blue-300 font-semibold block mb-0.5">Application Deadline:</span>
+                  <span className="font-bold text-amber-300 text-sm">{job.deadline || "Check Official Notice"}</span>
+                </div>
+                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+                  <span className="text-blue-300 font-semibold block mb-0.5">Educational Qualification:</span>
+                  <span className="font-bold text-white text-sm">{job.qualification || "Check Official PDF"}</span>
+                </div>
+                <div className="bg-white/10 p-3 rounded-xl backdrop-blur-sm">
+                  <span className="text-blue-300 font-semibold block mb-0.5">Salary Scale &amp; Pay Level:</span>
+                  <span className="font-bold text-green-300 text-sm">{job.salary || "As per Govt Rules"}</span>
+                </div>
+              </div>
+            </div>
+
 
               {/* PHASE 7: Executive Summary Callout */}
               {quickSummary && (

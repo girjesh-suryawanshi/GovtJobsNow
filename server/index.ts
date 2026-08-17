@@ -228,6 +228,43 @@ function serveStatic(app: express.Express) {
       // Replace existing description meta
       html = html.replace(/<meta name="description" content=".*?" \/>/, "");
 
+      const websiteSchema = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "GovtJobNow",
+        "url": baseUrl,
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${baseUrl}/?search={search_term_string}`
+          },
+          "query-input": "required name=search_term_string"
+        }
+      };
+
+      const organizationSchema = {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "GovtJobNow",
+        "url": baseUrl,
+        "logo": `${baseUrl}/logo.png`,
+        "publishingPrinciples": `${baseUrl}/editorial-policy`,
+        "correctionsPolicy": `${baseUrl}/corrections`,
+        "knowsAbout": [
+          "Government Recruitment Notifications",
+          "Staff Selection Commission (SSC) Jobs",
+          "Railway Recruitment Boards (RRB) Jobs",
+          "UPSC Civil Services Examination",
+          "Sarkari Naukri Gazette Verification"
+        ],
+        "sameAs": [
+          "https://www.facebook.com/Dailygovtjobsalert",
+          "https://x.com/dailygovtjobs",
+          "https://www.instagram.com/dailygovtjobsalert/"
+        ]
+      };
+
       const injectionTags = [
         // Webmaster verification (only if env vars are set)
         googleVerif ? `<meta name="google-site-verification" content="${googleVerif}" />` : "",
@@ -253,9 +290,12 @@ function serveStatic(app: express.Express) {
         `<meta name="twitter:site" content="@GovtJobNow" />`,
         // Canonical
         `<link rel="canonical" href="${canonical}" />`,
-        // JSON-LD
+        // JSON-LD Schemas (SEO, AEO, GEO)
+        `<script type="application/ld+json">${JSON.stringify(websiteSchema)}</script>`,
+        `<script type="application/ld+json">${JSON.stringify(organizationSchema)}</script>`,
         jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>` : "",
       ].filter(Boolean).join("\n    ");
+
 
       html = html.replace("</head>", `  ${injectionTags}\n  </head>`);
 
