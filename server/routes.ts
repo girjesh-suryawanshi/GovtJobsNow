@@ -95,6 +95,31 @@ Allow: /
 Disallow: /admin/`);
   });
 
+  // Dynamic ads.txt for Google AdSense compliance
+  app.get("/ads.txt", async (req, res) => {
+    res.type("text/plain");
+    try {
+      const settings = await storage.getSiteSettings();
+      let pubId = "";
+      if (settings?.adsHeaderCode) {
+        const match = settings.adsHeaderCode.match(/pub-\d+/);
+        if (match) pubId = match[0];
+      }
+      if (!pubId && process.env.ADSENSE_PUB_ID) {
+        const envVal = process.env.ADSENSE_PUB_ID;
+        pubId = envVal.startsWith("pub-") ? envVal : `pub-${envVal}`;
+      }
+      
+      if (pubId) {
+        return res.send(`google.com, ${pubId}, DIRECT, f08c47fec0942fa0\n# GovtJobNow.com Official Google AdSense Record`);
+      }
+      res.send(`# GovtJobNow.com Authorized Digital Sellers (ads.txt)\n# Google AdSense Publisher ID is served dynamically once configured in Site Settings.\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0`);
+    } catch (error) {
+      res.send(`# GovtJobNow.com Authorized Digital Sellers (ads.txt)\ngoogle.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0`);
+    }
+  });
+
+
   // Setup Multer for PDF/Image Notification Uploads - Allow configuration via environment variable
   const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), "uploads");
   if (!fs.existsSync(uploadDir)) {
@@ -160,9 +185,13 @@ Disallow: /admin/`);
         { path: "/privacy-policy", priority: "0.4", changefreq: "yearly" },
         { path: "/terms-of-service", priority: "0.4", changefreq: "yearly" },
         { path: "/disclaimer", priority: "0.4", changefreq: "yearly" },
+        { path: "/editorial-policy", priority: "0.6", changefreq: "monthly" },
+        { path: "/verification-policy", priority: "0.6", changefreq: "monthly" },
+        { path: "/corrections", priority: "0.5", changefreq: "monthly" },
         { path: "/jobs/ssc", priority: "0.8", changefreq: "daily" },
         { path: "/jobs/railway", priority: "0.8", changefreq: "daily" },
       ];
+
       const seoSlugs = [
         "10th-pass-govt-jobs", "12th-pass-govt-jobs", "iti-govt-jobs", "diploma-govt-jobs", "graduate-govt-jobs", "btech-govt-jobs",
         "government-jobs-in-maharashtra", "government-jobs-in-uttar-pradesh", "government-jobs-in-madhya-pradesh", "government-jobs-in-rajasthan", "government-jobs-in-bihar", "government-jobs-in-delhi",

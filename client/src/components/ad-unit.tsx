@@ -45,8 +45,15 @@ export const AdUnit: React.FC<AdUnitProps> = ({
   }
 
   // Render real AdSense unit if enabled
+  const minHeightStyle = format === "rectangle" ? "250px" : format === "vertical" ? "600px" : "90px";
+
   return (
-    <div className={`my-8 w-full overflow-hidden ${className}`} ref={adRef} style={style}>
+    <div 
+      className={`my-6 w-full overflow-hidden flex flex-col items-center justify-center transition-all ${className}`} 
+      ref={adRef} 
+      style={{ minHeight: minHeightStyle, ...style }}
+    >
+
       <div className="flex flex-col items-center justify-center">
         <span className="mb-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
           {label}

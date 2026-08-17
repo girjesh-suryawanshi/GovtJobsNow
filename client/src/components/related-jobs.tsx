@@ -34,7 +34,8 @@ export const RelatedJobs: React.FC<RelatedJobsProps> = ({ jobId }) => {
   if (!jobs || jobs.length === 0) return null;
 
   return (
-    <div className="py-8 border-t border-muted/30">
+    <div id="related-jobs-section" className="py-8 border-t border-muted/30">
+
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-extrabold tracking-tight text-foreground">
           You Might Also Be Interested In

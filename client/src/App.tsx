@@ -22,6 +22,9 @@ import CategoryDetail from "@/pages/category-detail";
 import DynamicSeoLandingPage from "@/pages/dynamic-seo-landing";
 import NotFound from "@/pages/not-found";
 import AboutUs from "@/pages/about-us";
+import EditorialPolicy from "@/pages/editorial-policy";
+import VerificationPolicy from "@/pages/verification-policy";
+import CorrectionsPolicy from "@/pages/corrections-policy";
 import BlogList from "@/pages/blog-list";
 import BlogDetail from "@/pages/blog-detail";
 import CookieBanner from "@/components/cookie-banner";
@@ -44,6 +47,9 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/about-us" component={AboutUs} />
+      <Route path="/editorial-policy" component={EditorialPolicy} />
+      <Route path="/verification-policy" component={VerificationPolicy} />
+      <Route path="/corrections" component={CorrectionsPolicy} />
       <Route path="/jobs/ssc" component={SSCJobs} />
       <Route path="/jobs/railway" component={RailwayJobs} />
       <Route path="/category/:slug" component={CategoryDetail} />

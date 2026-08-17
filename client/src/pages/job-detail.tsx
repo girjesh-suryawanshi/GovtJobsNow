@@ -114,6 +114,15 @@ export default function JobDetail() {
 
   const isVerified = job.sourceUrl.includes('.gov.in') || job.sourceUrl.includes('.nic.in');
 
+  const isExpired = (() => {
+    if (!job.deadline) return false;
+    const d = new Date(job.deadline);
+    if (isNaN(d.getTime())) return false;
+    d.setHours(23, 59, 59, 999);
+    return d.getTime() < Date.now();
+  })();
+
+
   // Robust Markdown Parser to split sections
   const rawDescription = job?.description || "";
   // Split by markdown h3 headers `### `
@@ -331,9 +340,9 @@ export default function JobDetail() {
                     {job.createdAt && <span className="opacity-40 font-bold hidden sm:inline-block">•</span>}
                     
                     <div className="flex items-center gap-1 whitespace-nowrap">
-                      <Clock className="h-3.5 w-3.5 opacity-80 text-red-500" />
-                      <span className="font-semibold text-red-500">
-                        Last Date: {job.deadline || "Check Notice"}
+                      <Clock className={`h-3.5 w-3.5 opacity-80 ${isExpired ? "text-amber-600" : "text-red-500"}`} />
+                      <span className={`font-semibold ${isExpired ? "text-amber-700 font-bold" : "text-red-500"}`}>
+                        {isExpired ? `Closed on ${job.deadline}` : `Last Date: ${job.deadline || "Check Notice"}`}
                       </span>
                     </div>
                     
@@ -345,8 +354,9 @@ export default function JobDetail() {
                         Total Vacancy: {
                           positions.length > 0
                             ? positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || "Not Specified"
-                            : (job.positions && job.positions !== "0" && job.positions !== "" ? job.positions : "Check Notice")
+                            : (job.positions && String(job.positions) !== "0" && String(job.positions) !== "" ? String(job.positions) : "Check Notice")
                         }
+
                       </span>
                     </div>
                   </div>
@@ -356,10 +366,10 @@ export default function JobDetail() {
               {/* Right Side: Actions */}
               <div className="flex items-center gap-3 shrink-0 mt-4 md:mt-0 w-full md:w-auto">
                 <button
-                  className="h-10 md:h-11 px-5 md:px-6 rounded-lg text-[14px] font-bold bg-[#2563eb] text-white hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap flex items-center justify-center flex-1 md:w-auto"
+                  className={`h-10 md:h-11 px-5 md:px-6 rounded-lg text-[14px] font-bold ${isExpired ? "bg-amber-600 hover:bg-amber-700 text-white" : "bg-[#2563eb] hover:bg-blue-700 text-white"} transition-colors shadow-sm whitespace-nowrap flex items-center justify-center flex-1 md:w-auto`}
                   onClick={() => window.open(job.sourceUrl || '#', '_blank')}
                 >
-                  Apply Now
+                  {isExpired ? "Official Notice PDF" : "Apply Now"}
                 </button>
 
                 <button
@@ -372,6 +382,39 @@ export default function JobDetail() {
               </div>
             </div>
           </div>
+
+          {/* Official Verification Bar */}
+          <div className="bg-white border border-slate-200 rounded-xl p-3 px-4 mb-6 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600 shadow-sm">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-blue-600" />
+              <span>Official Authority: <strong className="text-slate-900">{job.recruitingOrganization || job.department}</strong></span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-slate-400 font-medium">Verified Primary Document</span>
+              <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                Official Notification <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          </div>
+
+          {/* Expired Job Notice Banner */}
+          {isExpired && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-amber-100 rounded-xl text-amber-700 font-extrabold text-xl shrink-0">⚠️</div>
+                <div>
+                  <h4 className="font-extrabold text-amber-900 text-base">Application Deadline Passed</h4>
+                  <p className="text-xs text-amber-800 mt-0.5">
+                    This recruitment ({job.deadline}) is currently closed. Historical information is preserved below for reference.
+                  </p>
+                </div>
+              </div>
+              <a href="#related-jobs-section" className="whitespace-nowrap px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm">
+                Browse Open Jobs ↓
+              </a>
+            </div>
+          )}
+
 
           <div className="pb-8 md:pb-12 space-y-8">
             {/* PHASE 3: QUICK INFO STRIP */}
@@ -393,11 +436,12 @@ export default function JobDetail() {
                   value={
                     positions.length > 0
                       ? (positions.reduce((sum, pos) => sum + (parseInt(pos.numberOfVacancies as any) || 0), 0) || 0).toString()
-                      : (job.positions && job.positions !== "0" && job.positions !== "" ? job.positions : "Check Notice")
+                      : (job.positions && String(job.positions) !== "0" && String(job.positions) !== "" ? String(job.positions) : "Check Notice")
                   } 
                   icon={<Users className="h-5 w-5" />} 
                   color="text-amber-600" bg="bg-amber-50" border="border-amber-100" 
                 />
+
                 <QuickInfoCard 
                   label="Job Location" 
                   value={job.location || "All India"} 
@@ -783,10 +827,10 @@ export default function JobDetail() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
                       <div>
                         <h4 className="font-extrabold text-gray-900 text-xl md:text-2xl">
-                          {job.authorName || "GovtJobsNow Editorial Team"}
+                          {(job as any).authorName || "GovtJobsNow Editorial Team"}
                         </h4>
                         <p className="text-[var(--gjn-blue2)] font-bold text-sm tracking-wide uppercase mt-1">
-                          {job.authorName ? "Verified Admin" : "Verified Official Publisher"}
+                          {(job as any).authorName ? "Verified Admin" : "Verified Official Publisher"}
                         </p>
                       </div>
                       <a href="#" className="inline-flex items-center gap-1.5 text-sm font-bold text-gray-500 hover:text-blue-600 transition-colors bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 shrink-0">
@@ -801,8 +845,9 @@ export default function JobDetail() {
                     </div>
 
                     <p className="text-gray-600 text-[15px] leading-relaxed font-medium">
-                      {job.authorName || "The GovtJobsNow Editorial Team"} specializes in breaking down complex government notifications into highly readable, actionable steps. All information is cross-verified with official gazettes.
+                      {(job as any).authorName || "The GovtJobsNow Editorial Team"} specializes in breaking down complex government notifications into highly readable, actionable steps. All information is cross-verified with official gazettes.
                     </p>
+
                   </div>
                 </div>
               </section>

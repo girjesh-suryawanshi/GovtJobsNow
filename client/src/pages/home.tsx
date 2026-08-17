@@ -96,6 +96,13 @@ export default function Home() {
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
+  // Fetch overall live site stats
+  const { data: siteStats } = useQuery<{ totalJobs: number }>({
+    queryKey: ["/api/stats"],
+    staleTime: 60 * 1000,
+  });
+
+
   // URL query parameter synchronization — uses popstate so back/forward navigation works reactively
   useEffect(() => {
     const syncFromUrl = () => {
@@ -246,11 +253,12 @@ export default function Home() {
           {/* ─── TRUST BAR ─── */}
           <div className="trust-bar">
             <div className="trust-item"><span className="live-dot" />&nbsp;Live Updates</div>
-            <div className="trust-item">✅ 1,24,800+ Verified Jobs</div>
+            <div className="trust-item">✅ {siteStats?.totalJobs ? `${siteStats.totalJobs.toLocaleString()}+` : "Verified"} Active Jobs</div>
             <div className="trust-item">🔒 Official Sources Only</div>
             <div className="trust-item" id="last-updated">🕐 Last Updated: Today</div>
-            <div className="trust-item">📰 Google News Approved</div>
+            <div className="trust-item">📰 Verified Notifications</div>
           </div>
+
 
           {/* ─── CATEGORY GRID ─── */}
           <p className="section-title-bar">Browse by Category</p>
@@ -480,11 +488,44 @@ export default function Home() {
                   )}
                 </>
               ) : (
-                <div style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '48px', textAlign: 'center' }}>
-                  <p style={{ fontSize: '15px', color: 'var(--gjn-muted)' }}>No jobs found matching your criteria</p>
-                  <p style={{ fontSize: '12px', color: 'var(--gjn-muted)', marginTop: '6px' }}>Try adjusting your search or filters</p>
+                <div style={{ background: '#fff', borderRadius: '10px', border: '1.5px solid var(--gjn-border)', padding: '36px 24px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>🔍</div>
+                  <p style={{ fontSize: '15px', fontWeight: 700, color: 'var(--gjn-text)' }}>No jobs currently match your selected filters</p>
+                  <p style={{ fontSize: '12px', color: 'var(--gjn-muted)', marginTop: '4px', marginBottom: '16px' }}>
+                    Try adjusting your criteria or clearing search filters to see all available openings.
+                  </p>
+                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => {
+                        setQuickFilter('');
+                        setSearchParams({
+                          search: "",
+                          department: "all-departments",
+                          location: "all-locations",
+                          qualification: "all-qualifications",
+                          salaryRange: "all-salaries",
+                          postedDate: undefined,
+                          sortBy: "latest",
+                          page: 1,
+                          limit: 10,
+                        });
+                        window.history.pushState(null, '', window.location.pathname);
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleQuickFilter('10th')}>
+                      10th Pass Jobs
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => handleQuickFilter('Graduate')}>
+                      Graduate Jobs
+                    </Button>
+                  </div>
                 </div>
               )}
+
 
         </div>{/* end main col */}
 

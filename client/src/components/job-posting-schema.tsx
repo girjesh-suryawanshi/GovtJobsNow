@@ -24,7 +24,8 @@ export default function JobPostingSchema({ job }: JobPostingSchemaProps) {
     const existing = document.getElementById(`job-schema-${job.id}`);
     if (existing) existing.remove();
 
-    const salaryData = parseSalary(job.salary);
+    const salaryData = parseSalary(job.salary || undefined);
+
     
     const schema = {
       "@context": "https://schema.org/",

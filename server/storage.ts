@@ -66,7 +66,96 @@ export class MemStorage implements IStorage {
     this.jobs = new Map();
     this.jobPositions = new Map();
     this.exams = new Map();
+    this.seedSampleData();
   }
+
+  private seedSampleData() {
+    const sampleJobs: Job[] = [
+      {
+        id: "1",
+        title: "SSC CGL Recruitment 2026 Notification",
+        slug: "ssc-cgl-recruitment-2026",
+        department: "Staff Selection Commission (SSC)",
+        recruitingOrganization: "Staff Selection Commission",
+        jobCategory: "Central Govt",
+        location: "All India",
+        qualification: "Graduate Degree in any discipline",
+        positions: "17727",
+        salary: "Rs. 25,500 - Rs. 1,42,400/- (Pay Level 4 to Level 8)",
+        deadline: "2026-10-31",
+        description: "### SSC CGL 2026 Notification\nStaff Selection Commission (SSC) invites applications for Combined Graduate Level Examination (CGL) 2026 for recruitment to various Group B and C posts in Ministries/Departments of Government of India.",
+        sourceUrl: "https://ssc.gov.in",
+        featuredImageUrl: null,
+        isFeatured: true,
+        viewCount: 1540,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "2",
+        title: "RRB NTPC Recruitment 2026 (Graduate & Undergraduate)",
+        slug: "rrb-ntpc-recruitment-2026",
+        department: "Indian Railways (RRB)",
+        recruitingOrganization: "Railway Recruitment Boards",
+        jobCategory: "Railway",
+        location: "All India",
+        qualification: "12th Pass / Graduate",
+        positions: "11558",
+        salary: "Rs. 19,900 - Rs. 35,400/- per month",
+        deadline: "2026-09-30",
+        description: "### Railway RRB NTPC Recruitment 2026\nRailway Recruitment Board invites online applications for Non-Technical Popular Categories (NTPC) posts including Junior Clerk, Goods Train Manager, and Senior Clerk.",
+        sourceUrl: "https://indianrailways.gov.in",
+        featuredImageUrl: null,
+        isFeatured: true,
+        viewCount: 2310,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "3",
+        title: "UPSC Civil Services Examination (CSE) 2026",
+        slug: "upsc-civil-services-2026",
+        department: "Union Public Service Commission (UPSC)",
+        recruitingOrganization: "UPSC",
+        jobCategory: "UPSC",
+        location: "All India",
+        qualification: "Bachelor Degree in any stream",
+        positions: "1056",
+        salary: "Rs. 56,100/- (Pay Level 10)",
+        deadline: "2026-11-15",
+        description: "### UPSC IAS/IFS Notification 2026\nUnion Public Service Commission released the official notice for Civil Services Preliminary Examination 2026 for IAS, IPS, IFS, and Central Services.",
+        sourceUrl: "https://upsc.gov.in",
+        featuredImageUrl: null,
+        isFeatured: true,
+        viewCount: 3890,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: "4",
+        title: "SBI Probationary Officer (PO) Recruitment 2025 (Expired Notice)",
+        slug: "sbi-po-recruitment-2025",
+        department: "State Bank of India (SBI)",
+        recruitingOrganization: "State Bank of India",
+        jobCategory: "Bank",
+        location: "All India",
+        qualification: "Graduation Degree",
+        positions: "2000",
+        salary: "Rs. 41,960/- plus allowances",
+        deadline: "2025-06-30",
+        description: "### SBI PO Recruitment 2025\nState Bank of India invited online applications for Probationary Officers in SBI branches across India. The application portal is currently closed.",
+        sourceUrl: "https://sbi.co.in",
+        featuredImageUrl: null,
+        isFeatured: false,
+        viewCount: 920,
+        createdAt: new Date(2025, 5, 1),
+        updatedAt: new Date(2025, 5, 1)
+      }
+    ];
+
+    sampleJobs.forEach(job => this.jobs.set(job.id, job));
+  }
+
 
   async getUser(id: string): Promise<User | undefined> { return this.users.get(id); }
   async getUserByEmail(email: string): Promise<User | undefined> {
@@ -140,7 +229,18 @@ export class MemStorage implements IStorage {
     return updated;
   }
   async deleteJob(id: string): Promise<boolean> { return this.jobs.delete(id); }
-  async getJobStats() { return { totalJobs: 0, newToday: 0, departments: 0, applications: 0 }; }
+  async getJobStats() {
+    const allJobs = Array.from(this.jobs.values());
+    const departments = new Set(allJobs.map(j => j.department)).size;
+    const applications = allJobs.reduce((acc, j) => acc + (parseInt(j.positions || "1") || 1), 0);
+    return {
+      totalJobs: allJobs.length,
+      newToday: Math.min(allJobs.length, 3),
+      departments,
+      applications
+    };
+  }
+
   async getRelatedJobs(jobId: string, category?: string, department?: string, limit: number = 4): Promise<Job[]> {
     return Array.from(this.jobs.values())
       .filter(j => j.id !== jobId && (j.jobCategory === category || j.department === department))
@@ -549,4 +649,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+export const storage = process.env.DATABASE_URL ? new DatabaseStorage() : new MemStorage();
+

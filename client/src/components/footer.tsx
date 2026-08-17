@@ -223,6 +223,24 @@ export default function Footer({ onFilterChange }: FooterProps) {
                 </Link>
               </li>
               <li>
+                <Link href="/editorial-policy" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                  Editorial Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/verification-policy" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                  Verification Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/corrections" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-red-400 rounded-full"></div>
+                  Report Correction
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
                   Contact Us
@@ -230,13 +248,13 @@ export default function Footer({ onFilterChange }: FooterProps) {
               </li>
               <li>
                 <Link href="/faq" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></div>
                   FAQ
                 </Link>
               </li>
               <li>
                 <Link href="/privacy-policy" className="text-gray-400 hover:text-orange-400 transition-colors duration-200 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></div>
                   Privacy Policy
                 </Link>
               </li>
@@ -252,6 +270,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
                   Disclaimer
                 </Link>
               </li>
+
             </ul>
           </div>
         </div>

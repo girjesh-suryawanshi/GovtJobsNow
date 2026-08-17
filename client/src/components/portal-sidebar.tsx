@@ -4,11 +4,8 @@ export function PortalSidebar() {
   return (
     <div className="flex flex-col gap-4">
       {/* STICKY AD */}
-      <AdUnit type="sidebar-large">
-        <span>📌 Sticky Sidebar Ad</span>
-        <span>300×600 · Half Page</span>
-        <span className="text-[10px] opacity-70">Sticky scroll = 40–60% more viewability</span>
-      </AdUnit>
+      <AdUnit slot="portal-sidebar-sticky" format="vertical" />
+
 
       {/* JOB ALERT BOX */}
       <div className="bg-gradient-to-br from-[var(--blue)] to-[var(--blue2)] rounded-[10px] p-4 text-center text-white">
@@ -81,11 +78,8 @@ export function PortalSidebar() {
       </div>
 
       {/* SECOND SIDEBAR AD */}
-      <AdUnit type="sidebar-med">
-        <span>📌 Sidebar Ad #2</span>
-        <span>300×250 · Medium Rectangle</span>
-        <span className="text-[10px] opacity-70">High fill rate on desktop</span>
-      </AdUnit>
+      <AdUnit slot="portal-sidebar-bottom" format="rectangle" />
+
 
     </div>
   );

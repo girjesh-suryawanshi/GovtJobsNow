@@ -9,7 +9,9 @@ import { pool } from "./db";
 // Run database migrations on startup to ensure schema is up to date.
 // Uses IF NOT EXISTS so it is safe to run on every boot.
 async function runMigrations() {
+  if (!pool) return;
   try {
+
     console.log("Running database migrations...");
     await pool.query(`
       ALTER TABLE site_settings
