@@ -1765,21 +1765,44 @@ ${categories.map(category => `  <url>
     }
   });
 
+  // Helper to clean blog payload for Zod validation
+  const cleanBlogPayload = (rawBody: any) => {
+    const body = { ...rawBody };
+    // Handle empty date strings
+    if (typeof body.publishedAt === "string" && !body.publishedAt.trim()) {
+      delete body.publishedAt;
+    } else if (body.publishedAt === null) {
+      delete body.publishedAt;
+    }
+    // Convert empty optional strings to null or delete if unneeded
+    for (const key of Object.keys(body)) {
+      if (body[key] === null || body[key] === undefined) {
+        delete body[key];
+      }
+    }
+    return body;
+  };
+
   // POST /api/admin/blog — create blog post
   app.post("/api/admin/blog", async (req, res) => {
     const token = req.headers.authorization?.replace("Bearer ", "");
     if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
     try {
-      const data = insertBlogPostSchema.parse(req.body);
+      const payload = cleanBlogPayload(req.body);
+      const data = insertBlogPostSchema.parse(payload);
       const post = await blogStorage.createBlogPost(data);
       res.status(201).json(post);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         const issues = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ');
+        console.error("Blog post Zod Validation Error:", issues);
         return res.status(400).json({ message: `Validation Error: ${issues}` });
       }
+      if (error?.code === "23505" || error?.constraint === "blog_posts_slug_key") {
+        return res.status(400).json({ message: "A blog post with this URL slug already exists. Please enter a unique URL slug." });
+      }
       console.error("Blog post creation error:", error);
-      res.status(400).json({ message: "Invalid blog post data", error });
+      res.status(400).json({ message: error?.message || "Invalid blog post data", error });
     }
   });
 
@@ -1788,19 +1811,26 @@ ${categories.map(category => `  <url>
     const token = req.headers.authorization?.replace("Bearer ", "");
     if (!requireAdminAuth(token)) return res.status(401).json({ message: "Unauthorized" });
     try {
-      const data = insertBlogPostSchema.partial().parse(req.body);
+      const payload = cleanBlogPayload(req.body);
+      const data = insertBlogPostSchema.partial().parse(payload);
       const post = await blogStorage.updateBlogPost(req.params.id, data);
       if (!post) return res.status(404).json({ message: "Blog post not found" });
       res.json(post);
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof z.ZodError) {
         const issues = error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(', ');
+        console.error("Blog post update Zod Validation Error:", issues);
         return res.status(400).json({ message: `Validation Error: ${issues}` });
       }
+      if (error?.code === "23505" || error?.constraint === "blog_posts_slug_key") {
+        return res.status(400).json({ message: "A blog post with this URL slug already exists. Please enter a unique URL slug." });
+      }
       console.error("Blog post update error:", error);
-      res.status(400).json({ message: "Invalid blog post data", error });
+      res.status(400).json({ message: error?.message || "Invalid blog post data", error });
     }
   });
+
+
 
   // DELETE /api/admin/blog/:id — delete blog post
   app.delete("/api/admin/blog/:id", async (req, res) => {

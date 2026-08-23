@@ -80,7 +80,8 @@ export const blogStorage = {
     const offset = (page - 1) * limit;
 
     const conditions: any[] = [];
-    if (params.status) conditions.push(eq(blogPosts.status, params.status));
+    if (params.status && params.status !== "all") conditions.push(eq(blogPosts.status, params.status));
+
     if (params.category) conditions.push(eq(blogPosts.category, params.category));
     if (params.search) {
       conditions.push(

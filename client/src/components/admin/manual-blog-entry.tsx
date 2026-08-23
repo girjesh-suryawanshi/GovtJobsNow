@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Trash2, Save, Eye, EyeOff, Search, Tag, Image,
@@ -6,7 +6,9 @@ import {
   Link2, ChevronDown, ChevronUp, Loader2, CheckCircle2,
   XCircle, AlertTriangle, BookOpen, HelpCircle, ListChecks,
   Monitor, Smartphone, Copy, RefreshCw, PenLine, ExternalLink,
-  Zap, ArrowLeft
+  Zap, ArrowLeft, Filter, Calendar, Bold, Italic, Underline,
+  Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  List, ListOrdered, Quote, Code, Table, Sparkles, Undo, Redo
 } from "lucide-react";
 import { BlogPost, InsertBlogPost } from "@shared/schema";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,186 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+
+// ============================================================
+// WordPress-Style Rich Text WYSIWYG Editor Component
+// ============================================================
+interface WordPressEditorProps {
+  value: string;
+  onChange: (html: string) => void;
+}
+
+function WordPressEditor({ value, onChange }: WordPressEditorProps) {
+  const [mode, setMode] = useState<"visual" | "code">("visual");
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Synchronize value into editorRef when switching back to visual or initial load
+  useEffect(() => {
+    if (editorRef.current && mode === "visual") {
+      if (editorRef.current.innerHTML !== (value || "")) {
+        editorRef.current.innerHTML = value || "";
+      }
+    }
+  }, [value, mode]);
+
+  const exec = (command: string, val: string | undefined = undefined) => {
+    document.execCommand(command, false, val);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const insertHtml = (htmlStr: string) => {
+    document.execCommand("insertHTML", false, htmlStr);
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const handleLink = () => {
+    const url = prompt("Enter link URL (e.g. https://govtjobnow.com/...):");
+    if (url) {
+      exec("createLink", url);
+    }
+  };
+
+  const handleImage = () => {
+    const url = prompt("Enter image URL:");
+    if (url) {
+      const alt = prompt("Enter image alt text:", "Blog Image") || "Blog Image";
+      insertHtml(`<img src="${url}" alt="${alt}" class="my-4 rounded-xl shadow-md max-w-full h-auto" />`);
+    }
+  };
+
+  const handleTable = () => {
+    const tableHtml = `
+<table class="w-full my-4 border-collapse border border-slate-300">
+  <thead>
+    <tr class="bg-slate-100">
+      <th class="border border-slate-300 p-2 text-left">Header 1</th>
+      <th class="border border-slate-300 p-2 text-left">Header 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="border border-slate-300 p-2">Data 1</td>
+      <td class="border border-slate-300 p-2">Data 2</td>
+    </tr>
+  </tbody>
+</table>
+`;
+    insertHtml(tableHtml);
+  };
+
+  const handleCallout = () => {
+    const calloutHtml = `
+<div class="my-4 p-4 bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-600 rounded-r-xl">
+  <p class="font-bold text-blue-900 dark:text-blue-200 m-0">💡 Key Highlights</p>
+  <p class="text-sm text-blue-800 dark:text-blue-300 mt-1 m-0">Add your highlight summary text here...</p>
+</div>
+`;
+    insertHtml(calloutHtml);
+  };
+
+  return (
+    <div className="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm bg-white dark:bg-slate-900">
+      {/* WordPress Top Toolbar */}
+      <div className="flex flex-wrap items-center gap-1 p-2 bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs">
+        {/* Mode Switcher */}
+        <div className="flex bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg p-0.5 mr-2">
+          <button
+            type="button"
+            onClick={() => setMode("visual")}
+            className={`px-2.5 py-1 rounded-md font-semibold text-xs flex items-center gap-1 transition-colors ${mode === "visual" ? "bg-blue-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900 dark:text-slate-400"}`}
+          >
+            <Eye className="w-3.5 h-3.5" /> Visual Editor
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("code")}
+            className={`px-2.5 py-1 rounded-md font-semibold text-xs flex items-center gap-1 transition-colors ${mode === "code" ? "bg-blue-600 text-white shadow-xs" : "text-slate-600 hover:text-slate-900 dark:text-slate-400"}`}
+          >
+            <Code className="w-3.5 h-3.5" /> HTML Source
+          </button>
+        </div>
+
+        {mode === "visual" && (
+          <>
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+            {/* Block Formatting Selector */}
+            <select
+              onChange={(e) => exec("formatBlock", e.target.value)}
+              className="h-8 px-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md text-xs font-medium cursor-pointer"
+            >
+              <option value="p">Paragraph</option>
+              <option value="h2">Heading 2 (H2)</option>
+              <option value="h3">Heading 3 (H3)</option>
+              <option value="h4">Heading 4 (H4)</option>
+              <option value="blockquote">Quote Block</option>
+            </select>
+
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+            {/* Bold, Italic, Underline, Strike */}
+            <button type="button" onClick={() => exec("bold")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Bold"><Bold className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("italic")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Italic"><Italic className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("underline")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Underline"><Underline className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Strikethrough"><Strikethrough className="w-4 h-4" /></button>
+
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+            {/* Alignment */}
+            <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Align Left"><AlignLeft className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Align Center"><AlignCenter className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Align Right"><AlignRight className="w-4 h-4" /></button>
+
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+            {/* Lists */}
+            <button type="button" onClick={() => exec("insertUnorderedList")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Bulleted List"><List className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("insertOrderedList")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Numbered List"><ListOrdered className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("formatBlock", "blockquote")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Blockquote"><Quote className="w-4 h-4" /></button>
+
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+            {/* Media & Custom Inserts */}
+            <button type="button" onClick={handleLink} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-blue-600" title="Insert Link"><Link2 className="w-4 h-4" /></button>
+            <button type="button" onClick={handleImage} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-purple-600" title="Insert Image"><Image className="w-4 h-4" /></button>
+            <button type="button" onClick={handleTable} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-amber-600" title="Insert Table"><Table className="w-4 h-4" /></button>
+            <button type="button" onClick={handleCallout} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded text-green-600" title="Insert Callout Box"><Sparkles className="w-4 h-4" /></button>
+
+            <div className="h-4 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+
+            {/* Undo / Redo */}
+            <button type="button" onClick={() => exec("undo")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Undo"><Undo className="w-4 h-4" /></button>
+            <button type="button" onClick={() => exec("redo")} className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded" title="Redo"><Redo className="w-4 h-4" /></button>
+          </>
+        )}
+      </div>
+
+      {/* Editor Body */}
+      {mode === "visual" ? (
+        <div
+          ref={editorRef}
+          contentEditable
+          onInput={(e) => onChange(e.currentTarget.innerHTML)}
+          onBlur={(e) => onChange(e.currentTarget.innerHTML)}
+          className="min-h-[380px] p-5 outline-none prose dark:prose-invert max-w-none text-sm text-slate-900 dark:text-slate-100 font-sans leading-relaxed"
+          style={{ minHeight: "380px" }}
+        />
+      ) : (
+        <Textarea
+          value={value || ""}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="<h2>Introduction</h2><p>Article content HTML...</p>"
+          rows={16}
+          className="font-mono text-xs p-4 rounded-none border-none resize-y min-h-[380px] bg-slate-950 text-slate-100"
+        />
+      )}
+    </div>
+  );
+}
 
 // ============================================================
 // SEO / AEO Scoring Utilities
@@ -198,11 +380,14 @@ function TwitterCardPreview({ title, description, image }: { title: string; desc
 function toSlug(text: string): string {
   return text
     .toLowerCase()
+    .trim()
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
+
 
 // ============================================================
 // FAQ Builder
@@ -333,11 +518,12 @@ function LinkingSuggestionsTab({ postId, token }: { postId?: string; token: stri
 }
 
 // ============================================================
-// Main Component
+// Blog Editor Component Form
 // ============================================================
-interface ManualBlogEntryProps {
+interface BlogEditorFormProps {
   editingPost?: BlogPost | null;
   onSaved?: () => void;
+  onBack?: () => void;
 }
 
 const EMPTY_FORM: Partial<InsertBlogPost> = {
@@ -345,13 +531,13 @@ const EMPTY_FORM: Partial<InsertBlogPost> = {
   slug: "",
   content: "",
   excerpt: "",
-  category: "",
+  category: "Exam Guide",
   tags: [],
   coverImage: "",
   coverImageAlt: "",
   coverImageCaption: "",
   authorName: "GovtJobNow Editorial",
-  authorBio: "",
+  authorBio: "Senior Government Recruitment Content Editor",
   authorImage: "",
   readingTime: 5,
   status: "draft",
@@ -374,10 +560,9 @@ const EMPTY_FORM: Partial<InsertBlogPost> = {
 
 type ActiveTab = "seo" | "aeo" | "preview" | "links";
 
-export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntryProps) {
+function BlogEditorForm({ editingPost, onSaved, onBack }: BlogEditorFormProps) {
   const [formData, setFormData] = useState<Partial<InsertBlogPost>>(() => {
     if (!editingPost) return { ...EMPTY_FORM };
-    // Cast JSON db fields to their expected runtime types
     const { id, viewCount, createdAt, updatedAt, ...rest } = editingPost as any;
     return rest as Partial<InsertBlogPost>;
   });
@@ -484,7 +669,7 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
     onSuccess: (post: BlogPost) => {
       setCurrentPostId(post.id);
       queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
-      toast({ title: "✅ Post Created", description: `"${post.title}" saved successfully.` });
+      toast({ title: "✅ Post Saved", description: `"${post.title}" saved successfully.` });
       onSaved?.();
     },
     onError: (error: Error) => toast({ title: "Error", description: error.message || "Failed to create post.", variant: "destructive" }),
@@ -523,14 +708,23 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
       return;
     }
 
-    const data: Partial<InsertBlogPost> = {
+    // Prepare clean data structure to avoid Zod schema validation errors
+    const dataToSend: any = {
       ...formData,
       status: publishNow ? "published" : (formData.status || "draft"),
     };
+
+    // Clean optional properties if empty to avoid Zod date/string errors
+    if (!dataToSend.publishedAt) delete dataToSend.publishedAt;
+    if (!dataToSend.coverImage) delete dataToSend.coverImage;
+    if (!dataToSend.coverImageAlt) delete dataToSend.coverImageAlt;
+    if (!dataToSend.coverImageCaption) delete dataToSend.coverImageCaption;
+    if (!dataToSend.authorImage) delete dataToSend.authorImage;
+
     if (currentPostId) {
-      updateMutation.mutate(data);
+      updateMutation.mutate(dataToSend);
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(dataToSend);
     }
   };
 
@@ -547,11 +741,6 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
   };
 
   const faqs = (formData.faq as Array<{ question: string; answer: string }>) || [];
-
-  const scoreColor = (s: number) =>
-    s >= 70 ? "text-green-600 bg-green-50 border-green-200"
-      : s >= 40 ? "text-amber-600 bg-amber-50 border-amber-200"
-        : "text-red-600 bg-red-50 border-red-200";
 
   const TABS: { key: ActiveTab; label: string; icon: React.ReactNode }[] = [
     { key: "seo", label: "SEO", icon: <BarChart2 className="w-3.5 h-3.5" /> },
@@ -570,12 +759,17 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
         {/* Status Bar */}
         <div className="flex items-center justify-between sticky top-0 bg-white dark:bg-slate-950 py-2 z-10 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
+            {onBack && (
+              <Button variant="ghost" size="sm" onClick={onBack} className="text-slate-600 hover:text-slate-900 gap-1.5 text-xs font-semibold">
+                <ArrowLeft className="w-4 h-4" /> Back to All Posts
+              </Button>
+            )}
             <Badge className={formData.status === "published" ? "bg-green-100 text-green-700 border-green-200" : "bg-amber-100 text-amber-700 border-amber-200"}>
               {formData.status === "published" ? "Published" : "Draft"}
             </Badge>
             {currentPostId && (
               <a href={`/blog/${formData.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
-                View <ExternalLink className="w-3 h-3" />
+                View Live <ExternalLink className="w-3 h-3" />
               </a>
             )}
           </div>
@@ -586,7 +780,7 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
             </Button>
             <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => handleSave(true)} disabled={isSaving}>
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-              Publish
+              Publish Article
             </Button>
           </div>
         </div>
@@ -595,7 +789,7 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
-              <PenLine className="w-4 h-4 text-blue-600" /> Core Content
+              <PenLine className="w-4 h-4 text-blue-600" /> Article Content & Gutenberg-Style WordPress Editor
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5 pt-5">
@@ -609,7 +803,7 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
               <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block flex items-center justify-between">
                 URL Slug
                 <button onClick={() => { setSlugAutoMode(!slugAutoMode); }} className={`text-[10px] px-2 py-0.5 rounded-full transition-colors ${slugAutoMode ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}>
-                  {slugAutoMode ? "Auto" : "Manual"}
+                  {slugAutoMode ? "Auto Slug" : "Manual"}
                 </button>
               </label>
               <div className="flex items-center gap-2">
@@ -752,9 +946,10 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
               </div>
             </div>
 
+            {/* WordPress Rich Text WYSIWYG Editor */}
             <div>
-              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1 block flex items-center justify-between">
-                <span>Article Content (HTML)</span>
+              <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center justify-between">
+                <span>Article Body Editor (WordPress WYSIWYG Mode)</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full border ${formData.content?.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length || 0 >= 800
                     ? "bg-green-50 text-green-600 border-green-200"
                     : "bg-amber-50 text-amber-600 border-amber-200"
@@ -762,12 +957,10 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
                   {formData.content?.replace(/<[^>]+>/g, " ").split(/\s+/).filter(Boolean).length || 0} words
                 </span>
               </label>
-              <Textarea
+
+              <WordPressEditor
                 value={formData.content || ""}
-                onChange={(e) => update("content", e.target.value)}
-                placeholder="<h2>Introduction</h2><p>Your article content here...</p>"
-                rows={16}
-                className="font-mono text-xs resize-y"
+                onChange={(html) => update("content", html)}
               />
             </div>
           </CardContent>
@@ -800,7 +993,7 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
-              <BarChart2 className="w-4 h-4 text-emerald-600" /> Traditional SEO
+              <BarChart2 className="w-4 h-4 text-green-600" /> Search Engine Optimization (SEO)
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-5">
@@ -849,11 +1042,11 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
           </CardContent>
         </Card>
 
-        {/* Social / OG */}
+        {/* OpenGraph & Social */}
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
-              <Facebook className="w-4 h-4 text-blue-500" /> Social Sharing
+              <Globe className="w-4 h-4 text-indigo-600" /> Open Graph & Social Cards
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-5">
@@ -879,11 +1072,11 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
           </CardContent>
         </Card>
 
-        {/* AEO/Schema */}
+        {/* Schema & Structured Data */}
         <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
           <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-3">
             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
-              <Zap className="w-4 h-4 text-amber-500" /> AI / AEO Schema
+              <Zap className="w-4 h-4 text-amber-500" /> Structured Data & Schema Markup
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-5">
@@ -919,11 +1112,12 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
       </div>
 
       {/* ================================================================
-          RIGHT: SEO ANALYSIS PANEL
+          RIGHT: SIDEBAR SCORE PANELS
           ================================================================ */}
-      <div className="w-[360px] flex-shrink-0 border-l border-slate-200 dark:border-slate-700 pl-4 overflow-y-auto max-h-[calc(100vh-200px)]">
-        {/* Tab Navigation */}
-        <div className="grid grid-cols-4 gap-1 mb-4 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 sticky top-0 z-10">
+      <div className="w-80 flex-shrink-0 overflow-y-auto pl-4 border-l border-slate-100 dark:border-slate-800 space-y-4 max-h-[calc(100vh-200px)]">
+
+        {/* Tab Buttons */}
+        <div className="grid grid-cols-4 gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
           {TABS.map((tab) => (
             <button
               key={tab.key}
@@ -939,64 +1133,52 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
           ))}
         </div>
 
+        {/* Focus Keyword Input */}
+        <div>
+          <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 block">Focus Keyword</label>
+          <Input
+            placeholder="e.g. ssc cgl syllabus 2026"
+            value={focusKeyword}
+            onChange={(e) => setFocusKeyword(e.target.value)}
+            className="text-xs"
+          />
+        </div>
+
         {/* ---- TAB: SEO Score ---- */}
         {activeTab === "seo" && (
           <div className="space-y-4">
-            {/* Focus Keyword */}
-            <div>
-              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 block flex items-center gap-1.5">
-                <Search className="w-3.5 h-3.5 text-blue-500" /> Focus Keyword
-              </label>
-              <Input
-                value={focusKeyword}
-                onChange={(e) => setFocusKeyword(e.target.value)}
-                placeholder="e.g. ssc cgl exam guide"
-                className="text-sm"
-              />
-            </div>
+            <Card className="border-slate-200 dark:border-slate-800 shadow-sm text-center">
+              <CardContent className="pt-5">
+                <div className="flex justify-center mb-2">
+                  <ScoreRing score={seoScore} size={84} />
+                </div>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">SEO Health Score</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Real-time keyword & meta analysis</p>
+              </CardContent>
+            </Card>
 
-            {/* Score */}
-            <div className={`flex items-center gap-4 p-4 rounded-xl border ${scoreColor(seoScore)}`}>
-              <ScoreRing score={seoScore} size={70} />
-              <div>
-                <p className="font-bold text-base">{seoScore}/100</p>
-                <p className="text-xs opacity-70">SEO Score</p>
-                <p className="text-xs mt-1 font-medium">
-                  {seoScore >= 70 ? "🟢 Good" : seoScore >= 40 ? "🟡 Needs work" : "🔴 Poor"}
-                </p>
-              </div>
-            </div>
-
-            {/* Checklist */}
             <div className="space-y-1.5">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">SEO Checklist</p>
               {seoChecks.map((c, i) => <CheckRow key={i} item={c} />)}
             </div>
           </div>
         )}
 
-        {/* ---- TAB: AEO Score ---- */}
+        {/* ---- TAB: AI / AEO Score ---- */}
         {activeTab === "aeo" && (
           <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-1">
-              <Zap className="w-4 h-4 text-purple-600" />
-              <h4 className="text-sm font-bold text-slate-800 dark:text-white">AI Search Optimization</h4>
-            </div>
-            <p className="text-xs text-slate-500 -mt-2">How well AI engines (ChatGPT, Gemini, Perplexity) can cite your content.</p>
+            <Card className="border-slate-200 dark:border-slate-800 shadow-sm text-center">
+              <CardContent className="pt-5">
+                <div className="flex justify-center mb-2">
+                  <ScoreRing score={aeoScore} size={84} />
+                </div>
+                <p className="text-xs font-bold text-slate-800 dark:text-slate-200">AEO / AI Citation Score</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Optimized for ChatGPT, Perplexity & Gemini</p>
+              </CardContent>
+            </Card>
 
-            {/* Score */}
-            <div className={`flex items-center gap-4 p-4 rounded-xl border ${scoreColor(aeoScore)}`}>
-              <ScoreRing score={aeoScore} size={70} />
-              <div>
-                <p className="font-bold text-base">{aeoScore}/100</p>
-                <p className="text-xs opacity-70">AEO / GEO Score</p>
-                <p className="text-xs mt-1 font-medium">
-                  {aeoScore >= 70 ? "🟢 Citation Ready" : aeoScore >= 40 ? "🟡 Improving" : "🔴 Needs Work"}
-                </p>
-              </div>
-            </div>
-
-            {/* Checklist */}
             <div className="space-y-1.5">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">AEO & E-E-A-T Checklist</p>
               {aeoChecks.map((c, i) => <CheckRow key={i} item={c} />)}
             </div>
           </div>
@@ -1069,6 +1251,435 @@ export default function ManualBlogEntry({ editingPost, onSaved }: ManualBlogEntr
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Main Blog Management Dashboard Component (Exported Default)
+// ============================================================
+export default function ManualBlogEntry({ editingPost: initialEditingPost, onSaved }: { editingPost?: BlogPost | null; onSaved?: () => void }) {
+  const [viewMode, setViewMode] = useState<"list" | "editor">(initialEditingPost ? "editor" : "list");
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(initialEditingPost || null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all");
+  const [deletingPostId, setDeletingPostId] = useState<string | null>(null);
+
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const token = localStorage.getItem("admin_token") || "";
+
+  // Fetch all blog posts for table view
+  const { data, isLoading, refetch, isFetching } = useQuery<{ posts: BlogPost[]; total: number }>({
+    queryKey: ["/api/admin/blog", statusFilter, searchQuery],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (statusFilter !== "all") params.append("status", statusFilter);
+      if (searchQuery.trim()) params.append("search", searchQuery.trim());
+      params.append("limit", "100");
+
+      const response = await fetch(`/api/admin/blog?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch blog posts");
+      }
+      return response.json();
+    },
+    enabled: viewMode === "list",
+  });
+
+  // Toggle status mutation (Publish / Unpublish)
+  const toggleStatusMutation = useMutation({
+    mutationFn: async (post: BlogPost) => {
+      const newStatus = post.status === "published" ? "draft" : "published";
+      const response = await fetch(`/api/admin/blog/${post.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+      return response.json();
+    },
+    onSuccess: (updatedPost: BlogPost) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      toast({
+        title: `Status Updated`,
+        description: `"${updatedPost.title}" is now ${updatedPost.status.toUpperCase()}.`,
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
+  });
+
+  // Delete post mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/admin/blog/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete blog post");
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+      toast({ title: "🗑️ Deleted", description: "Blog post deleted successfully." });
+      setDeletingPostId(null);
+    },
+    onError: (err: Error) => {
+      toast({ title: "Delete Failed", description: err.message, variant: "destructive" });
+      setDeletingPostId(null);
+    }
+  });
+
+  const handleCreateNew = () => {
+    setEditingPost(null);
+    setViewMode("editor");
+  };
+
+  const handleEdit = (post: BlogPost) => {
+    setEditingPost(post);
+    setViewMode("editor");
+  };
+
+  const handleBackToList = () => {
+    setViewMode("list");
+    setEditingPost(null);
+    refetch();
+  };
+
+  const posts = data?.posts || [];
+  const totalPosts = data?.total || posts.length;
+  const publishedCount = posts.filter(p => p.status === "published").length;
+  const draftCount = posts.filter(p => p.status === "draft").length;
+  const totalViews = posts.reduce((sum, p) => sum + (p.viewCount || 0), 0);
+
+  if (viewMode === "editor") {
+    return (
+      <BlogEditorForm
+        editingPost={editingPost}
+        onBack={handleBackToList}
+        onSaved={() => {
+          queryClient.invalidateQueries({ queryKey: ["/api/admin/blog"] });
+          onSaved?.();
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Top Header & Actions Bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-blue-600" /> Blog Posts & Articles Management
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Create, edit, publish, delete, and monitor SEO scores of articles
+          </p>
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="text-xs gap-1.5"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isFetching ? "animate-spin text-blue-600" : ""}`} />
+            Refresh
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleCreateNew}
+            className="bg-blue-600 hover:bg-blue-700 text-xs gap-1.5 shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Create New Article
+          </Button>
+        </div>
+      </div>
+
+      {/* Summary KPI Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2.5 bg-blue-100 dark:bg-blue-950/50 rounded-xl text-blue-600 dark:text-blue-400">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Total Articles</p>
+              <p className="text-lg font-bold text-slate-900 dark:text-white">{totalPosts}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-green-50/50 to-white dark:from-slate-900 dark:to-slate-950">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2.5 bg-green-100 dark:bg-green-950/50 rounded-xl text-green-600 dark:text-green-400">
+              <Eye className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Published</p>
+              <p className="text-lg font-bold text-green-700 dark:text-green-400">{publishedCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-amber-50/50 to-white dark:from-slate-900 dark:to-slate-950">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2.5 bg-amber-100 dark:bg-amber-950/50 rounded-xl text-amber-600 dark:text-amber-400">
+              <EyeOff className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Drafts</p>
+              <p className="text-lg font-bold text-amber-700 dark:text-amber-400">{draftCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-br from-purple-50/50 to-white dark:from-slate-900 dark:to-slate-950">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2.5 bg-purple-100 dark:bg-purple-950/50 rounded-xl text-purple-600 dark:text-purple-400">
+              <BarChart2 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">Total Views</p>
+              <p className="text-lg font-bold text-purple-700 dark:text-purple-400">{totalViews.toLocaleString()}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filter and Search Controls */}
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <Input
+            placeholder="Search posts by title, excerpt, category..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 text-xs bg-white dark:bg-slate-950"
+          />
+        </div>
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+            <Filter className="w-3.5 h-3.5" /> Status:
+          </span>
+          <div className="flex bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg p-0.5">
+            {(["all", "published", "draft"] as const).map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors capitalize ${statusFilter === st
+                  ? "bg-blue-600 text-white shadow-xs"
+                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                  }`}
+              >
+                {st}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Posts Table */}
+      <Card className="border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <CardContent className="p-0">
+          {isLoading ? (
+            <div className="p-8 text-center space-y-3">
+              <Loader2 className="w-8 h-8 animate-spin mx-auto text-blue-600" />
+              <p className="text-xs text-slate-500">Loading blog posts...</p>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="p-12 text-center space-y-3">
+              <BookOpen className="w-12 h-12 text-slate-300 mx-auto" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No blog posts found</p>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {searchQuery || statusFilter !== "all"
+                  ? "Try clearing your search filters to view all posts."
+                  : "Get started by creating your first SEO & AI-optimized blog post."}
+              </p>
+              <Button size="sm" onClick={handleCreateNew} className="bg-blue-600 hover:bg-blue-700 text-xs gap-1.5 mt-2">
+                <Plus className="w-4 h-4" /> Create First Article
+              </Button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    <th className="py-3 px-4">Article</th>
+                    <th className="py-3 px-4">Category & Tags</th>
+                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3 px-4 text-center">Views</th>
+                    <th className="py-3 px-4 text-center">Updated</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+                  {posts.map((post) => {
+                    const tagsList = (post.tags as string[]) || [];
+                    const isDeleting = deletingPostId === post.id;
+                    const isToggling = toggleStatusMutation.isPending && toggleStatusMutation.variables?.id === post.id;
+
+                    return (
+                      <tr key={post.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition-colors">
+                        {/* Title & Thumbnail */}
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-3">
+                            {post.coverImage ? (
+                              <img
+                                src={post.coverImage}
+                                alt={post.title}
+                                className="w-12 h-12 rounded-lg object-cover border border-slate-200 dark:border-slate-800 flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center justify-center flex-shrink-0 text-blue-500 font-black text-sm">
+                                GJ
+                              </div>
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold text-slate-900 dark:text-slate-100 line-clamp-1 hover:text-blue-600 transition-colors">
+                                {post.title}
+                              </p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                                  <Link2 className="w-3 h-3 text-slate-300" /> /{post.slug}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Category & Tags */}
+                        <td className="py-3.5 px-4">
+                          <div className="space-y-1">
+                            <span className="inline-block px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md text-[10px] font-semibold">
+                              {post.category || "Uncategorized"}
+                            </span>
+                            {tagsList.length > 0 && (
+                              <div className="flex flex-wrap gap-1">
+                                {tagsList.slice(0, 2).map(t => (
+                                  <span key={t} className="text-[9px] bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded">
+                                    #{t}
+                                  </span>
+                                ))}
+                                {tagsList.length > 2 && (
+                                  <span className="text-[9px] text-slate-400">+{tagsList.length - 2}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+
+                        {/* Status & Toggle */}
+                        <td className="py-3.5 px-4 text-center">
+                          <button
+                            onClick={() => toggleStatusMutation.mutate(post)}
+                            disabled={isToggling}
+                            title={`Click to switch to ${post.status === "published" ? "Draft" : "Published"}`}
+                            className="inline-flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                          >
+                            {post.status === "published" ? (
+                              <Badge className="bg-green-100 dark:bg-green-950/60 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800 hover:bg-green-200 text-[10px] gap-1 px-2 py-0.5">
+                                {isToggling ? <Loader2 className="w-3 h-3 animate-spin" /> : <Eye className="w-3 h-3" />}
+                                Published
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 hover:bg-amber-200 text-[10px] gap-1 px-2 py-0.5">
+                                {isToggling ? <Loader2 className="w-3 h-3 animate-spin" /> : <EyeOff className="w-3 h-3" />}
+                                Draft
+                              </Badge>
+                            )}
+                          </button>
+                        </td>
+
+                        {/* Views */}
+                        <td className="py-3.5 px-4 text-center text-slate-600 dark:text-slate-400 font-medium">
+                          <span className="inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-[11px]">
+                            <BarChart2 className="w-3 h-3 text-slate-400" />
+                            {post.viewCount || 0}
+                          </span>
+                        </td>
+
+                        {/* Updated Date */}
+                        <td className="py-3.5 px-4 text-center text-[11px] text-slate-500 whitespace-nowrap">
+                          {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }) : "Not published"}
+                        </td>
+
+                        {/* Action Buttons */}
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {/* View Live Link */}
+                            <a
+                              href={`/blog/${post.slug}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-colors"
+                              title="View Live Article"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+
+                            {/* Edit Button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEdit(post)}
+                              className="h-8 px-2.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950/50 text-xs font-semibold gap-1"
+                              title="Edit Article"
+                            >
+                              <PenLine className="w-3.5 h-3.5" /> Edit
+                            </Button>
+
+                            {/* Delete Button */}
+                            {isDeleting ? (
+                              <div className="flex items-center gap-1 bg-red-50 dark:bg-red-950/50 p-1 rounded-lg">
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="h-6 px-2 text-[10px]"
+                                  onClick={() => deleteMutation.mutate(post.id)}
+                                  disabled={deleteMutation.isPending}
+                                >
+                                  {deleteMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : "Confirm"}
+                                </Button>
+                                <button
+                                  onClick={() => setDeletingPostId(null)}
+                                  className="text-slate-400 hover:text-slate-600 text-xs px-1"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setDeletingPostId(post.id)}
+                                className="h-8 px-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/50"
+                                title="Delete Article"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -329,21 +329,26 @@ export const blogPosts = pgTable("blog_posts", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({
+export const insertBlogPostSchema = createInsertSchema(blogPosts, {
+  publishedAt: z.coerce.date().optional().nullable(),
+  readingTime: z.coerce.number().optional(),
+  viewCount: z.coerce.number().optional(),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  viewCount: true,
 });
 
+
 export const searchBlogPostsSchema = z.object({
-  status: z.enum(["draft", "published"]).optional(),
+  status: z.enum(["draft", "published", "all"]).optional(),
   category: z.string().optional(),
   tag: z.string().optional(),
   search: z.string().optional(),
-  page: z.number().min(1).optional(),
-  limit: z.number().min(1).max(50).optional(),
+  page: z.coerce.number().min(1).optional(),
+  limit: z.coerce.number().min(1).max(100).optional(),
 });
+
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 export type BlogPost = typeof blogPosts.$inferSelect;
