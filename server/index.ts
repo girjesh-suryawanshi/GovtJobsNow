@@ -269,6 +269,8 @@ function serveStatic(app: express.Express) {
         // Webmaster verification (only if env vars are set)
         googleVerif ? `<meta name="google-site-verification" content="${googleVerif}" />` : "",
         bingVerif ? `<meta name="msvalidate.01" content="${bingVerif}" />` : "",
+        `<meta name="google-adsense-account" content="ca-pub-1815096689563523" />`,
+
         // Core meta
         `<meta name="description" content="${safeDesc}" />`,
         `<meta name="keywords" content="${safeKeywords}" />`,
