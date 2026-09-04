@@ -23,6 +23,9 @@ RUN npx vite build && \
       --define:process.env.NODE_ENV='"production"' \
       --define:import.meta.dirname='"/app/dist"'
 
+# Prune devDependencies to keep only production packages in node_modules
+RUN npm prune --production
+
 # ─── Production stage ────────────────────────────────────────────────────────
 FROM node:20-alpine AS production
 
@@ -35,18 +38,15 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 # Set working directory — owned by root initially
 WORKDIR /app
 
-# Give the nodejs user ownership of /app (ONLY this directory, not node_modules yet)
-# This is a single fast operation — no recursive traversal of node_modules.
+# Give the nodejs user ownership of /app
 RUN chown nodejs:nodejs /app
 
 # Switch to non-root user for all subsequent operations
 USER nodejs
 
-# Copy package files (nodejs user owns them)
+# Copy package files and pruned node_modules from builder stage (no 2nd npm ci!)
 COPY --chown=nodejs:nodejs package*.json ./
-
-# npm ci runs as nodejs and writes into /app which it now owns — no EACCES error
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
+COPY --chown=nodejs:nodejs --from=builder /app/node_modules ./node_modules
 
 # Copy built artifacts from builder stage
 COPY --chown=nodejs:nodejs --from=builder /app/dist ./dist
