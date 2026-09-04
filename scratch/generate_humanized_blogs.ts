@@ -2343,7 +2343,7 @@ for (const a of articles) {
     seoDescription: ${JSON.stringify(seoDesc)},
     seoKeywords: ${JSON.stringify(a.tags.join(", ") + ", govt jobs india 2026, sarkari naukri strategy")},
     schemaType: "HowTo",
-    faq: ${JSON.stringify(a.faqs)},
+    faq: ${JSON.stringify(a.faqs.map((f) => ({ question: f.q, answer: f.a })))},
     content: ${JSON.stringify(fullContent)}
   },
 `;

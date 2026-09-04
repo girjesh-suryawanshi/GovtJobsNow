@@ -91,7 +91,13 @@ export default function BlogDetail() {
   }
 
   const tags: string[] = (post.tags as string[]) || [];
-  const faqs = (post.faq as Array<{ question: string; answer: string }>) || [];
+  const rawFaqs = (post.faq as any[]) || [];
+  const faqs = rawFaqs
+    .map((f: any) => ({
+      question: f.question || f.q || f.title || "",
+      answer: f.answer || f.a || f.content || "",
+    }))
+    .filter((f) => f.question && f.answer);
   const pageUrl = `https://govtjobnow.com/blog/${post.slug}`;
   const publishedDate = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })
