@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install all dependencies (including devDependencies for building)
-RUN npm ci --include=dev
+RUN --mount=type=cache,target=/root/.npm npm ci --include=dev
 
 # Copy source code
 COPY . .
@@ -46,7 +46,7 @@ USER nodejs
 COPY --chown=nodejs:nodejs package*.json ./
 
 # npm ci runs as nodejs and writes into /app which it now owns — no EACCES error
-RUN npm ci --omit=dev --cache /tmp/empty-cache && rm -rf /tmp/empty-cache
+RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
 # Copy built artifacts from builder stage
 COPY --chown=nodejs:nodejs --from=builder /app/dist ./dist
