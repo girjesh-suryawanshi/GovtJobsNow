@@ -51,6 +51,7 @@ COPY --chown=nodejs:nodejs --from=builder /app/node_modules ./node_modules
 # Copy built artifacts and server files from builder stage
 COPY --chown=nodejs:nodejs --from=builder /app/dist ./dist
 COPY --chown=nodejs:nodejs --from=builder /app/drizzle.config.ts ./
+COPY --chown=nodejs:nodejs --from=builder /app/tsconfig.json ./
 COPY --chown=nodejs:nodejs --from=builder /app/shared ./shared
 COPY --chown=nodejs:nodejs --from=builder /app/server ./server
 
