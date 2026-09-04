@@ -13,7 +13,7 @@ interface HeaderProps {
 
 const NAV_LINKS = [
   { href: "/", label: "🏠 Home", active: true },
-  // { href: "/blog", label: "📚 Blog" },
+  { href: "/blog", label: "📚 Blog" },
   { href: "/jobs/ssc", label: "📋 SSC Jobs" },
   { href: "/jobs/railway", label: "🚆 Railway Jobs" },
   { href: "/editorial-policy", label: "🛡️ Editorial Policy" },

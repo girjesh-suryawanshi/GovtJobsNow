@@ -21,6 +21,7 @@ export default function RedirectNotice() {
         title="Leaving GovtJobNow — Official External Portal Redirect"
         description="Notice: You are navigating to an official government website or recruitment board notification."
         keywords="govtjobnow external redirect, official portal verification"
+        robots="noindex, follow"
         url="https://govtjobnow.com/redirect"
       />
       <Header />

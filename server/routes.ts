@@ -140,6 +140,14 @@ Disallow: /admin/`);
     }
   });
 
+  // Serve dynamic ads.txt for Google AdSense verification
+  app.get("/ads.txt", (_req, res) => {
+    const pubId = process.env.ADSENSE_PUB_ID || "pub-1815096689563523";
+    const formattedPubId = pubId.startsWith("pub-") ? pubId : `pub-${pubId}`;
+    res.setHeader("Content-Type", "text/plain");
+    res.send(`google.com, ${formattedPubId}, DIRECT, f08c47fec0942fa0\n`);
+  });
+
   // Serve dynamic sitemap.xml
   app.get("/sitemap.xml", async (req, res) => {
     try {
@@ -189,8 +197,8 @@ Disallow: /admin/`);
         const { blogStorage } = await import("./blog-storage");
         const blogEntries = await blogStorage.getAllPublishedForSitemap();
         for (const post of blogEntries) {
-          const lastMod = (post.updatedAt || post.publishedAt)
-            ? new Date((post.updatedAt || post.publishedAt)!).toISOString().split("T")[0]
+          const lastMod = (post.publishedAt || post.updatedAt)
+            ? new Date((post.publishedAt || post.updatedAt)!).toISOString().split("T")[0]
             : new Date().toISOString().split("T")[0];
           xml += `  <url>\n    <loc>${baseUrl}/blog/${post.slug}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.85</priority>\n  </url>\n`;
         }
@@ -1551,35 +1559,6 @@ Disallow: /admin/`);
       res.json({ message: "Job deleted successfully" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete job", error });
-    }
-  });
-
-  // XML Sitemap routes for SEO
-  app.get("/sitemap.xml", async (req, res) => {
-    try {
-      const baseUrl = "https://govtjobnow.com";
-      const currentDate = new Date().toISOString();
-
-      const sitemap = `<? xml version = "1.0" encoding = "UTF-8" ?>
-        <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" >
-          <sitemap>
-          <loc>${baseUrl} /sitemap-main.xml</loc >
-            <lastmod>${currentDate} </lastmod>
-              </sitemap>
-              < sitemap >
-              <loc>${baseUrl} /sitemap-jobs.xml</loc >
-                <lastmod>${currentDate} </lastmod>
-                  </sitemap>
-                  < sitemap >
-                  <loc>${baseUrl} /sitemap-categories.xml</loc >
-                    <lastmod>${currentDate} </lastmod>
-                      </sitemap>
-                      </sitemapindex>`;
-
-      res.set('Content-Type', 'application/xml');
-      res.send(sitemap);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to generate sitemap", error });
     }
   });
 

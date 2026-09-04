@@ -183,6 +183,12 @@ export default function Footer({ onFilterChange }: FooterProps) {
                   Latest Jobs
                 </a>
               </li>
+              <li>
+                <Link href="/blog" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                  Career Blog & Guides
+                </Link>
+              </li>
               {/* <li>
                 <a href="/exams" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>

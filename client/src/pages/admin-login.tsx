@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Shield, Lock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import SEOHead from "@/components/seo-head";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
@@ -48,6 +49,11 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <SEOHead
+        title="Admin Portal Login | GovtJobNow"
+        description="Admin portal login for GovtJobNow management."
+        robots="noindex, nofollow"
+      />
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
