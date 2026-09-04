@@ -52,6 +52,7 @@ COPY --chown=nodejs:nodejs --from=builder /app/node_modules ./node_modules
 COPY --chown=nodejs:nodejs --from=builder /app/dist ./dist
 COPY --chown=nodejs:nodejs --from=builder /app/drizzle.config.ts ./
 COPY --chown=nodejs:nodejs --from=builder /app/shared ./shared
+COPY --chown=nodejs:nodejs --from=builder /app/server/scripts ./server/scripts
 
 # Expose port
 EXPOSE 3000
