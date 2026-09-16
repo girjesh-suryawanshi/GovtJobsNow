@@ -289,10 +289,46 @@ export default function DynamicSeoLandingPage() {
                 ))}
               </div>
             ) : jobsData?.jobs.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-2xl border border-gray-100">
-                <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No active jobs found</h3>
-                <p className="text-gray-600">Please check back later or adjust your filters.</p>
+              <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm space-y-6">
+                <div className="flex items-center gap-3 border-b border-gray-100 pb-4">
+                  <Building2 className="h-8 w-8 text-blue-600" />
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">Upcoming {routeConfig.entityName} Recruitment {currentYear}</h3>
+                    <p className="text-sm text-gray-500">Official notification alerts and recruitment schedule update</p>
+                  </div>
+                </div>
+
+                <div className="prose max-w-none text-gray-700 leading-relaxed space-y-4">
+                  <p>
+                    Currently, official active online application forms for <strong>{routeConfig.entityName}</strong> are transitioning between exam cycles. Central and State recruitment boards periodically release official notifications based on department vacancy matrix updates.
+                  </p>
+
+                  <div className="bg-blue-50/60 p-5 rounded-xl border border-blue-100 grid md:grid-cols-3 gap-4 text-sm font-medium text-gray-800">
+                    <div>
+                      <span className="block text-xs uppercase tracking-wider text-blue-600 font-bold">Expected Cycle</span>
+                      <span>Next Quarter {currentYear}</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs uppercase tracking-wider text-blue-600 font-bold">Category</span>
+                      <span>{routeConfig.entityName} Opportunities</span>
+                    </div>
+                    <div>
+                      <span className="block text-xs uppercase tracking-wider text-blue-600 font-bold">Mode of Application</span>
+                      <span>Online via Official Portal</span>
+                    </div>
+                  </div>
+
+                  <h4 className="text-lg font-bold text-gray-900 pt-2">Key Highlights & Preparation Guide:</h4>
+                  <ul className="list-disc pl-5 space-y-2 text-gray-600">
+                    <li><strong>Educational Requirements:</strong> Ensure all relevant certificates, marksheets, and degree credentials are validated by recognized boards/universities prior to form submission.</li>
+                    <li><strong>Age Relaxations:</strong> Standard upper age limit relaxations apply for reserved categories (SC/ST: 5 years, OBC: 3 years, PwBD: 10 years) as per Government of India guidelines.</li>
+                    <li><strong>Selection Strategy:</strong> Candidates are strongly advised to begin Tier-1 / Computer Based Test (CBT) preparation early, focusing on General Awareness, Quantitative Aptitude, Reasoning, and English Comprehension.</li>
+                  </ul>
+                  
+                  <p className="text-sm text-gray-500 italic bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    📌 <strong>Note for Aspirants:</strong> Bookmark this dedicated {routeConfig.entityName} dashboard. Our automated tracking engine monitors official gazette releases and government employment newspapers 24/7 to update direct application links as soon as official PDFs are published.
+                  </p>
+                </div>
               </div>
             ) : (
               <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" : "space-y-4"}>

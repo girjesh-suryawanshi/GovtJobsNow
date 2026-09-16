@@ -130,7 +130,7 @@ function serveStatic(app: express.Express) {
       const googleVerif = process.env.GOOGLE_SITE_VERIFICATION || "";
       const bingVerif = process.env.BING_SITE_VERIFICATION || "";
 
-      // Handle Blog Post Pages
+      // Handle Dynamic Routes for Metadata and Pre-rendered HTML for Crawlers
       if (urlPath.startsWith("/blog/")) {
         const slug = urlPath.replace("/blog/", "").split("/")[0];
         const { blogStorage } = await import("./blog-storage");
@@ -149,7 +149,6 @@ function serveStatic(app: express.Express) {
           jsonLd = buildBlogJsonLd(post, pageUrl, baseUrl);
         }
       }
-      // Handle Job Detail Pages
       else if (urlPath.startsWith("/job/")) {
         const slug = urlPath.replace("/job/", "");
         const { storage } = await import("./storage");
@@ -184,7 +183,6 @@ function serveStatic(app: express.Express) {
           };
         }
       }
-      // Handle Exam Detail Pages
       else if (urlPath.startsWith("/exam/")) {
         const slug = urlPath.replace("/exam/", "");
         const { storage } = await import("./storage");
@@ -213,6 +211,47 @@ function serveStatic(app: express.Express) {
               },
             ],
           };
+        }
+      }
+      else if (urlPath === "/about-us") {
+        title = "About Us | GovtJobNow - Trusted Government Job Portal";
+        description = "Learn about GovtJobNow mission to provide 100% verified government job notifications, exam calendars, and career guidance for Indian aspirants.";
+      }
+      else if (urlPath === "/privacy-policy") {
+        title = "Privacy Policy | GovtJobNow";
+        description = "GovtJobNow privacy policy detailing data protection, cookie usage, user privacy rights, and analytics practices.";
+      }
+      else if (urlPath === "/terms-of-service") {
+        title = "Terms of Service | GovtJobNow";
+        description = "Terms of service and usage guidelines for accessing government job notifications and educational services on GovtJobNow.";
+      }
+      else if (urlPath === "/disclaimer") {
+        title = "Official Disclaimer | GovtJobNow";
+        description = "Official recruitment disclaimer confirming GovtJobNow is an independent informational portal and not affiliated with government agencies.";
+      }
+      else if (urlPath === "/contact") {
+        title = "Contact Us | GovtJobNow Editorial & Support";
+        description = "Get in touch with GovtJobNow editorial team for job verification inquiries, corrections, media requests, or user support.";
+      }
+      else if (urlPath === "/faq") {
+        title = "Frequently Asked Questions (FAQ) | GovtJobNow";
+        description = "Answers to common questions regarding government recruitment notifications, eligibility criteria, admit cards, and application tracking.";
+      }
+      else if (urlPath === "/blog") {
+        title = "Sarkari Job Preparation Blog & Career News | GovtJobNow";
+        description = "In-depth career guides, exam preparation strategies, syllabus analysis, and recruitment news for Indian government job aspirants.";
+      }
+      else if (urlPath === "/exams") {
+        title = "Government Exam Calendar & Schedule 2026 | GovtJobNow";
+        description = "Track key exam dates, application deadlines, admit card release schedules, and result dates for SSC, UPSC, Banking, and Railway exams.";
+      }
+      else {
+        // Dynamic SEO landing pages or general routes
+        const cleanSlug = urlPath.replace("/", "").replace(/-/g, " ");
+        if (cleanSlug) {
+          const capitalized = cleanSlug.replace(/\b\w/g, l => l.toUpperCase());
+          title = `${capitalized} 2026 - Notification, Syllabus & Apply Online | GovtJobNow`;
+          description = `Latest ${capitalized} notifications, eligibility criteria, age limit, salary details, and step-by-step application process for 2026.`;
         }
       }
 
@@ -298,8 +337,36 @@ function serveStatic(app: express.Express) {
         jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>` : "",
       ].filter(Boolean).join("\n    ");
 
-
       html = html.replace("</head>", `  ${injectionTags}\n  </head>`);
+
+      // Pre-render lightweight HTML fallback inside <div id="root"> for non-JS crawlers (Mediapartners-Google)
+      const initialContent = `
+        <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 1100px; margin: 0 auto; padding: 20px; color: #1e293b;">
+          <header style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px;">
+            <h1 style="color: #2563eb; font-size: 28px; margin: 0 0 8px 0;">${safeTitle}</h1>
+            <p style="color: #475569; font-size: 16px; margin: 0;">${safeDesc}</p>
+          </header>
+          <nav style="margin-bottom: 24px;">
+            <a href="/" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Home</a>
+            <a href="/blog" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Blog</a>
+            <a href="/exams" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Exam Calendar</a>
+            <a href="/jobs/ssc" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">SSC Jobs</a>
+            <a href="/jobs/railway" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Railway Jobs</a>
+            <a href="/about-us" style="color: #2563eb; text-decoration: none; font-weight: bold;">About Us</a>
+          </nav>
+          <main style="line-height: 1.7; font-size: 16px;">
+            <section style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
+              <h2 style="font-size: 20px; margin-top: 0; color: #0f172a;">Government Recruitment & Job Alerts Portal</h2>
+              <p>GovtJobNow is India's dedicated informational platform providing verified government job notifications, eligibility criteria, exam schedules, syllabus guidelines, and official application links across Central and State departments (SSC, Railway RRB, UPSC, Banking, Defence, and PSU sectors).</p>
+            </section>
+          </main>
+          <footer style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; color: #64748b; font-size: 14px;">
+            <p>© 2026 GovtJobNow. All rights reserved. | <a href="/privacy-policy" style="color: #2563eb;">Privacy Policy</a> | <a href="/terms-of-service" style="color: #2563eb;">Terms of Service</a> | <a href="/disclaimer" style="color: #2563eb;">Disclaimer</a> | <a href="/contact" style="color: #2563eb;">Contact Us</a></p>
+          </footer>
+        </div>
+      `;
+
+      html = html.replace('<div id="root"></div>', `<div id="root">${initialContent}</div>`);
 
       res.send(html);
     } catch (error) {
@@ -310,13 +377,8 @@ function serveStatic(app: express.Express) {
 
   app.use(express.static(distPath, { index: false }));
 
-  // Handle Dynamic Routes for Metadata
-  app.get(["/job/*", "/exam/*", "/blog/*", "/blog"], injectMetadata);
-
-  // Fallback for all other routes
-  app.use("*", (req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
-  });
+  // Handle Dynamic & Static Routes for Metadata + HTML injection
+  app.get("*", injectMetadata);
 }
 
 
