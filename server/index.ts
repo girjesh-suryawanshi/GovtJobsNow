@@ -168,7 +168,10 @@ function serveStatic(app: express.Express) {
                 description: job.description || description,
                 hiringOrganization: { "@type": "Organization", name: job.department },
                 jobLocation: { "@type": "Place", name: job.location },
-                validThrough: job.deadline,
+                // Only emit validThrough if deadline is in the future (avoids stale schema signal)
+                ...(job.deadline && new Date(job.deadline) > new Date()
+                  ? { validThrough: new Date(job.deadline).toISOString() }
+                  : {}),
                 url: pageUrl,
               },
               {
@@ -244,6 +247,12 @@ function serveStatic(app: express.Express) {
       else if (urlPath === "/exams") {
         title = "Government Exam Calendar & Schedule 2026 | GovtJobNow";
         description = "Track key exam dates, application deadlines, admit card release schedules, and result dates for SSC, UPSC, Banking, and Railway exams.";
+      }
+      else if (urlPath === "/redirect") {
+        // Standalone redirect notice page has no unique content value — noindex it
+        robots = "noindex, follow";
+        title = "Redirecting to Official Site | GovtJobNow";
+        description = "You are being redirected to an official government recruitment portal.";
       }
       else {
         // Dynamic SEO landing pages or general routes

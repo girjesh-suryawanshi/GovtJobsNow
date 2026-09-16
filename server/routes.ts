@@ -181,15 +181,22 @@ Disallow: /admin/`);
       seoSlugs.forEach(slug => {
         staticRoutes.push({ path: `/${slug}`, priority: "0.8", changefreq: "daily" });
       });
+      const todayIso = new Date().toISOString().split("T")[0];
       for (const route of staticRoutes) {
-        xml += `  <url>\n    <loc>${baseUrl}${route.path}</loc>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
+        xml += `  <url>\n    <loc>${baseUrl}${route.path}</loc>\n    <lastmod>${todayIso}</lastmod>\n    <changefreq>${route.changefreq}</changefreq>\n    <priority>${route.priority}</priority>\n  </url>\n`;
       }
 
       // Job routes (prefer slug, fallback to id)
       for (const job of allJobs) {
         const jobPath = job.slug ? `/job/${job.slug}` : `/job/${job.id}`;
-        const lastMod = job.createdAt ? new Date(job.createdAt).toISOString().split("T")[0] : new Date().toISOString().split("T")[0];
-        xml += `  <url>\n    <loc>${baseUrl}${jobPath}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+        // Use updatedAt if available (reflects latest data verification), otherwise createdAt
+        const lastMod = ((job as any).updatedAt || job.createdAt)
+          ? new Date((job as any).updatedAt || job.createdAt).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0];
+        // Use lower priority for expired jobs to signal lower freshness importance
+        const isExpired = job.deadline && new Date(job.deadline) < new Date();
+        const priority = isExpired ? "0.5" : "0.9";
+        xml += `  <url>\n    <loc>${baseUrl}${jobPath}</loc>\n    <lastmod>${lastMod}</lastmod>\n    <changefreq>${isExpired ? 'monthly' : 'weekly'}</changefreq>\n    <priority>${priority}</priority>\n  </url>\n`;
       }
 
       // Blog post routes

@@ -390,7 +390,11 @@ export default function JobDetail() {
               <span>Official Authority: <strong className="text-slate-900">{job.recruitingOrganization || job.department}</strong></span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-slate-400 font-medium">Verified Primary Document</span>
+              <div className="flex items-center gap-1 text-slate-500">
+                <Clock className="h-3.5 w-3.5" />
+                <span>Last verified: <strong className="text-slate-700">{new Date((job as any).updatedAt || job.createdAt || Date.now()).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} IST</strong></span>
+              </div>
+              <span className="text-slate-300">|</span>
               <a href={job.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold hover:underline flex items-center gap-1">
                 Official Notification <ExternalLink className="h-3 w-3" />
               </a>
@@ -638,7 +642,7 @@ export default function JobDetail() {
                 <section className="page-section p-8 space-y-6">
                   <h3 className="text-xl font-syne font-bold flex items-center gap-3" style={{ color: 'var(--gjn-blue)' }}>
                     <Sparkles className="h-6 w-6 text-[var(--gjn-amber)]" />
-                    AI-Powered Preparation Guide
+                    Preparation &amp; Study Resources Guide
                   </h3>
                   <div className="text-gray-700 leading-relaxed text-sm font-medium prose prose-blue max-w-none">
                     <ReactMarkdown components={customMarkdownComponents}>{job.prepGuide}</ReactMarkdown>
@@ -832,18 +836,29 @@ export default function JobDetail() {
                 <JobSidebar job={job} />
               </div>
 
+              {/* Report Error Link */}
+              <div className="text-center py-3">
+                <a
+                  href={`/contact?subject=${encodeURIComponent('Correction Request: ' + (job.title || ''))}`}
+                  className="text-sm text-gray-400 hover:text-blue-600 transition-colors underline underline-offset-2"
+                >
+                  🔍 Spotted an error in this notification? Report it here
+                </a>
+              </div>
+
               {/* FAQ Section (Rich Snippets) */}
               <JobFAQ job={job} />
 
-              {/* PHASE 13: E-E-A-T Optimized Author Section */}
+              {/* E-E-A-T Optimized Author Section */}
               <section className="page-section bg-gradient-to-br from-blue-50/50 to-white mt-8 border-t-4 border-t-blue-600">
                 <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+                  {/* Initials Avatar — no stock photo */}
                   <div className="relative shrink-0">
-                    <img 
-                      src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&h=150&fit=crop" 
-                      alt="Priya Sharma" 
-                      className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg object-cover"
-                    />
+                    <div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+                      <span className="text-white font-extrabold text-3xl md:text-4xl select-none">
+                        {((job as any).authorName || 'Priya Sharma').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0,2)}
+                      </span>
+                    </div>
                     <div className="absolute -bottom-2 -right-2 bg-green-500 text-white p-1.5 rounded-full border-2 border-white" title="Verified Editor">
                       <ShieldCheck className="h-4 w-4" />
                     </div>
@@ -853,10 +868,10 @@ export default function JobDetail() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
                       <div>
                         <h4 className="font-extrabold text-gray-900 text-xl md:text-2xl">
-                          {(job as any).authorName || "GovtJobsNow Editorial Team"}
+                          {(job as any).authorName || "Priya Sharma"}
                         </h4>
                         <p className="text-[var(--gjn-blue2)] font-bold text-sm tracking-wide uppercase mt-1">
-                          {(job as any).authorName ? "Verified Admin" : "Verified Official Publisher"}
+                          Government Recruitment Researcher · GovtJobNow
                         </p>
                       </div>
                       <Link href="/author/editorial-team">
@@ -864,19 +879,17 @@ export default function JobDetail() {
                           View Full Profile <ExternalLink className="h-4 w-4" />
                         </a>
                       </Link>
-
                     </div>
                     
                     <div className="flex items-center gap-3 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">
-                      <span className="flex items-center gap-1"><Briefcase className="h-4 w-4 text-gray-300" /> 8+ Years Exp</span>
+                      <span className="flex items-center gap-1"><Briefcase className="h-4 w-4 text-gray-300" /> Government Recruitment Researcher</span>
                       <span>•</span>
-                      <span className="flex items-center gap-1"><BookOpen className="h-4 w-4 text-gray-300" /> 450+ Articles</span>
+                      <span className="flex items-center gap-1"><BookOpen className="h-4 w-4 text-gray-300" /> GovtJobNow Editorial Team</span>
                     </div>
 
                     <p className="text-gray-600 text-[15px] leading-relaxed font-medium">
-                      {(job as any).authorName || "The GovtJobsNow Editorial Team"} specializes in breaking down complex government notifications into highly readable, actionable steps. All information is cross-verified with official gazettes.
+                      {(job as any).authorName || "Priya Sharma"} tracks and verifies official recruitment notifications from SSC, UPSC, RRB, State PSCs, and Banking sectors. All information is cross-referenced with official gazette notifications before publication on GovtJobNow.
                     </p>
-
                   </div>
                 </div>
               </section>
@@ -907,8 +920,16 @@ export default function JobDetail() {
             <Bookmark className={`h-6 w-6 ${isSaved ? "fill-[var(--gjn-amber)] text-[var(--gjn-amber)]" : "text-gray-500"}`} />
           </button>
           
-          <button className="flex-1 h-14 rounded-2xl bg-[var(--gjn-blue)] text-white font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20 active:scale-95 transition-transform" onClick={() => window.open(job?.sourceUrl || '#', '_blank')}>
-            <Send className="h-5 w-5" /> Apply Now
+          <button
+            className={`flex-1 h-14 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform ${
+              isExpired
+                ? 'bg-amber-600 shadow-amber-900/20 text-white'
+                : 'bg-[var(--gjn-blue)] shadow-blue-900/20 text-white'
+            }`}
+            onClick={() => window.open(job?.notificationFileUrl || job?.sourceUrl || '#', '_blank')}
+          >
+            <Send className="h-5 w-5" />
+            {isExpired ? 'View Notice' : 'Apply Now'}
           </button>
         </div>
       </div>

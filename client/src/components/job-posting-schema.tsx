@@ -67,10 +67,6 @@ export default function JobPostingSchema({ job }: JobPostingSchemaProps) {
         }
       } : undefined,
       "qualifications": job.qualification,
-      "experienceRequirements": {
-        "@type": "OccupationalExperienceRequirements",
-        "monthsOfExperience": job.experienceRequired?.toLowerCase().includes('fresh') ? 0 : 12
-      },
       "responsibilities": job.description || `Responsibilities include duties as ${job.title} in ${job.department}`,
       "skills": job.qualification,
       "educationRequirements": {
@@ -82,9 +78,8 @@ export default function JobPostingSchema({ job }: JobPostingSchemaProps) {
         "contactType": "HR",
         "url": job.applyLink || job.sourceUrl
       },
-      "url": `https://govtjobnow.com/job/${job.id}`,
+      "url": `https://govtjobnow.com/job/${job.slug || job.id}`,
       "salaryCurrency": "INR",
-      "jobBenefits": "Government job benefits, pension, medical allowance, job security",
       "industry": job.jobCategory || "Government",
       "occupationalCategory": "Government Service",
       "workHours": "Full-time government position"
