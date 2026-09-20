@@ -438,11 +438,11 @@ app.use((_req, res, next) => {
     'Content-Security-Policy',
     [
       "default-src 'self' https: data: blob:",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://adservice.google.com https://www.google.com https://www.gstatic.com",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://adservice.google.com https://www.google.com https://www.gstatic.com https://ep2.adtrafficquality.google",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "connect-src 'self' https:",
+      "connect-src 'self' https: https://ep2.adtrafficquality.google",
       "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
       // Allow Google AdSense preview tool (adsense.google.com) to iframe this site
       "frame-ancestors 'self' https://adsense.google.com https://www.google.com",
