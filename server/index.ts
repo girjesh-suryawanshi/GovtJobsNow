@@ -443,7 +443,7 @@ app.use((_req, res, next) => {
       "img-src 'self' data: https: blob:",
       "font-src 'self' data: https://fonts.gstatic.com",
       "connect-src 'self' https: https://ep2.adtrafficquality.google",
-      "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+      "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://ep2.adtrafficquality.google https://www.google.com",
       // Allow Google AdSense preview tool (adsense.google.com) to iframe this site
       "frame-ancestors 'self' https://adsense.google.com https://www.google.com",
     ].join('; ')
