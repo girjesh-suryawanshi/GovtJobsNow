@@ -169,7 +169,7 @@ export default function BlogDetail() {
       />
       <Header />
 
-      {/* Cover Image — LCP optimized */}
+      {/* Cover Image — LCP optimized with fallback */}
       {post.coverImage && (
         <div className="w-full aspect-[3/1] max-h-[480px] overflow-hidden bg-slate-200 dark:bg-slate-800">
           <img
@@ -178,9 +178,23 @@ export default function BlogDetail() {
             loading="eager"
             fetchPriority="high"
             className="w-full h-full object-cover"
+            onError={(e) => {
+              // Replace broken Unsplash/external images with a branded gradient placeholder
+              const target = e.currentTarget;
+              target.style.display = "none";
+              const parent = target.parentElement;
+              if (parent && !parent.querySelector(".img-fallback")) {
+                const fb = document.createElement("div");
+                fb.className = "img-fallback";
+                fb.style.cssText = "width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);color:#fff;";
+                fb.innerHTML = `<div style="font-size:36px;margin-bottom:8px;">📋</div><div style="font-size:14px;font-weight:600;opacity:0.85;">${post.coverImageAlt || post.title}</div>`;
+                parent.appendChild(fb);
+              }
+            }}
           />
         </div>
       )}
+
 
       <div className="max-w-7xl mx-auto px-4 py-10">
         {/* Breadcrumb */}

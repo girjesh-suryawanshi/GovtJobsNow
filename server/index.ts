@@ -349,35 +349,66 @@ function serveStatic(app: express.Express) {
 
       html = html.replace("</head>", `  ${injectionTags}\n  </head>`);
 
-      // Pre-render lightweight HTML fallback inside <div id="root"> for non-JS crawlers (Mediapartners-Google)
+      // ─── SSR Fallback Content ───────────────────────────────────────────────
+      // This branded skeleton is shown server-side for:
+      //   1. SEO crawlers (Googlebot, Mediapartners-Google, AdSense bot)
+      //   2. Users on very slow connections before React hydrates
+      // JavaScript users see it for <200ms then React replaces it instantly.
+      // The <style> tag hides it the moment JS executes, preventing any flash.
       const initialContent = `
-        <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 1100px; margin: 0 auto; padding: 20px; color: #1e293b;">
-          <header style="border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 24px;">
-            <h1 style="color: #2563eb; font-size: 28px; margin: 0 0 8px 0;">${safeTitle}</h1>
-            <p style="color: #475569; font-size: 16px; margin: 0;">${safeDesc}</p>
-          </header>
-          <nav style="margin-bottom: 24px;">
-            <a href="/" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Home</a>
-            <a href="/blog" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Blog</a>
-            <a href="/exams" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Exam Calendar</a>
-            <a href="/jobs/ssc" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">SSC Jobs</a>
-            <a href="/jobs/railway" style="color: #2563eb; text-decoration: none; font-weight: bold; margin-right: 16px;">Railway Jobs</a>
-            <a href="/about-us" style="color: #2563eb; text-decoration: none; font-weight: bold;">About Us</a>
-          </nav>
-          <main style="line-height: 1.7; font-size: 16px;">
-            <section style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 24px;">
-              <h2 style="font-size: 20px; margin-top: 0; color: #0f172a;">Government Recruitment & Job Alerts Portal</h2>
-              <p>GovtJobNow is India's dedicated informational platform providing verified government job notifications, eligibility criteria, exam schedules, syllabus guidelines, and official application links across Central and State departments (SSC, Railway RRB, UPSC, Banking, Defence, and PSU sectors).</p>
-            </section>
-          </main>
-          <footer style="margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 20px; color: #64748b; font-size: 14px;">
-            <p>© 2026 GovtJobNow. All rights reserved. | <a href="/privacy-policy" style="color: #2563eb;">Privacy Policy</a> | <a href="/terms-of-service" style="color: #2563eb;">Terms of Service</a> | <a href="/disclaimer" style="color: #2563eb;">Disclaimer</a> | <a href="/contact" style="color: #2563eb;">Contact Us</a></p>
-          </footer>
+        <style>
+          /* Hide SSR skeleton the instant JS runs — before React even mounts */
+          #gjn-ssr-shell { display: block; }
+        </style>
+        <script>document.getElementById('gjn-ssr-shell') && (document.getElementById('gjn-ssr-shell').style.display='none');</script>
+        <div id="gjn-ssr-shell" style="min-height:100vh;background:#f8fafc;font-family:system-ui,-apple-system,sans-serif;">
+          <!-- Branded Header Skeleton -->
+          <div style="background:#1e3a8a;padding:0 20px;height:60px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:32px;height:32px;background:#3b82f6;border-radius:6px;"></div>
+              <span style="color:#fff;font-weight:800;font-size:18px;letter-spacing:-0.5px;">GovtJobNow</span>
+            </div>
+            <nav style="display:flex;gap:20px;">
+              <a href="/" style="color:#93c5fd;text-decoration:none;font-size:13px;font-weight:600;">Home</a>
+              <a href="/blog" style="color:#93c5fd;text-decoration:none;font-size:13px;font-weight:600;">Blog</a>
+              <a href="/exams" style="color:#93c5fd;text-decoration:none;font-size:13px;font-weight:600;">Exams</a>
+              <a href="/jobs/ssc" style="color:#93c5fd;text-decoration:none;font-size:13px;font-weight:600;">SSC</a>
+              <a href="/jobs/railway" style="color:#93c5fd;text-decoration:none;font-size:13px;font-weight:600;">Railway</a>
+              <a href="/about-us" style="color:#93c5fd;text-decoration:none;font-size:13px;font-weight:600;">About</a>
+            </nav>
+          </div>
+          <!-- Page Content Skeleton -->
+          <div style="max-width:1280px;margin:20px auto;padding:0 16px;">
+            <div style="height:44px;background:#e2e8f0;border-radius:10px;margin-bottom:16px;max-width:600px;"></div>
+            <h1 style="font-size:22px;color:#1e3a8a;margin:0 0 8px;">${safeTitle}</h1>
+            <p style="font-size:14px;color:#475569;margin:0 0 20px;">${safeDesc}</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:20px;">
+              <div style="height:68px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;"></div>
+              <div style="height:68px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;"></div>
+              <div style="height:68px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;"></div>
+              <div style="height:68px;background:#fff;border-radius:8px;border:1px solid #e2e8f0;"></div>
+            </div>
+            <!-- SEO text for crawlers only (visually minimal) -->
+            <div style="font-size:13px;color:#64748b;line-height:1.6;">
+              <p>GovtJobNow is India&apos;s dedicated informational platform providing verified government job notifications, eligibility criteria, exam schedules, and official application links across SSC, Railway RRB, UPSC, Banking, Defence, and PSU sectors.</p>
+              <p>Browse: <a href="/jobs/ssc" style="color:#2563eb;">SSC Jobs</a> | <a href="/jobs/railway" style="color:#2563eb;">Railway Jobs</a> | <a href="/blog" style="color:#2563eb;">Exam Blog</a> | <a href="/exams" style="color:#2563eb;">Exam Calendar</a> | <a href="/category/banking" style="color:#2563eb;">Banking Jobs</a></p>
+            </div>
+          </div>
+          <!-- Footer -->
+          <div style="margin-top:40px;border-top:1px solid #e2e8f0;padding:16px 20px;background:#fff;font-size:12px;color:#64748b;display:flex;gap:16px;flex-wrap:wrap;">
+            <a href="/privacy-policy" style="color:#2563eb;text-decoration:none;">Privacy Policy</a>
+            <a href="/terms-of-service" style="color:#2563eb;text-decoration:none;">Terms of Service</a>
+            <a href="/disclaimer" style="color:#2563eb;text-decoration:none;">Disclaimer</a>
+            <a href="/contact" style="color:#2563eb;text-decoration:none;">Contact Us</a>
+            <a href="/about-us" style="color:#2563eb;text-decoration:none;">About Us</a>
+            <span>&copy; 2026 GovtJobNow</span>
+          </div>
         </div>
       `;
+      // ────────────────────────────────────────────────────────────────────────
 
-      // Replace the root div content — match with or without skeleton HTML inside
-      html = html.replace(/<div id="root">([\s\S]*?)<\/div>/, `<div id="root">${initialContent}</div>`);
+      // Inject SSR content — works whether root div is empty or has skeleton HTML
+      html = html.replace(/<div id="root">[\s\S]*?<\/div>(?=\s*<script)/, `<div id="root">${initialContent}</div>`);
 
       res.send(html);
     } catch (error) {
