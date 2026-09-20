@@ -12,7 +12,8 @@
     "seed:blogs": "tsx server/scripts/seed-adsense-blogs.ts",
     "seed:jobs": "tsx server/scripts/seed-rich-jobs.ts",
     "fix:author": "tsx server/scripts/fix-author-and-excerpts.ts",
-    "seed:batch2": "tsx server/scripts/seed-batch2-blogs.ts"
+    "seed:batch2": "tsx server/scripts/seed-batch2-blogs.ts",
+    "seed:batch3": "tsx server/scripts/seed-batch3-blogs.ts"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",

@@ -32,10 +32,29 @@
 
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Instant Loading Skeleton for First Paint -->
+    <div style="min-height: 100vh; background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif;">
+      <!-- Skeleton Header -->
+      <div style="background-color: #1e3a8a; height: 60px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 32px; height: 32px; background-color: #3b82f6; border-radius: 6px;"></div>
+          <div style="width: 140px; height: 20px; background-color: #3b82f6; border-radius: 4px; opacity: 0.7;"></div>
+        </div>
+      </div>
+      <!-- Skeleton Container -->
+      <div style="max-width: 1280px; margin: 20px auto; padding: 0 16px;">
+        <div style="height: 40px; background-color: #e2e8f0; border-radius: 8px; margin-bottom: 20px;"></div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 24px;">
+          <div style="height: 70px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;"></div>
+          <div style="height: 70px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;"></div>
+          <div style="height: 70px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;"></div>
+          <div style="height: 70px; background-color: #ffffff; border-radius: 8px; border: 1px solid #e2e8f0;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
-  <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
-  <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
 </body>
 
 </html>
