@@ -376,7 +376,8 @@ function serveStatic(app: express.Express) {
         </div>
       `;
 
-      html = html.replace('<div id="root"></div>', `<div id="root">${initialContent}</div>`);
+      // Replace the root div content — match with or without skeleton HTML inside
+      html = html.replace(/<div id="root">([\s\S]*?)<\/div>/, `<div id="root">${initialContent}</div>`);
 
       res.send(html);
     } catch (error) {
@@ -396,6 +397,29 @@ const app = express();
 
 // Trust proxy for proper client IP handling behind Nginx
 app.set('trust proxy', 1);
+
+// ── Google AdSense / Preview Compatibility Headers ──────────────────────────
+// Remove X-Frame-Options so Google AdSense can preview the site in an iframe.
+// Set CSP frame-ancestors to allow adsense.google.com preview tool.
+app.use((_req, res, next) => {
+  res.removeHeader('X-Frame-Options');
+  res.setHeader(
+    'Content-Security-Policy',
+    [
+      "default-src 'self' https: data: blob:",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://pagead2.googlesyndication.com https://partner.googleadservices.com https://tpc.googlesyndication.com https://www.googletagservices.com https://adservice.google.com https://www.google.com https://www.gstatic.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "img-src 'self' data: https: blob:",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "connect-src 'self' https:",
+      "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+      // Allow Google AdSense preview tool (adsense.google.com) to iframe this site
+      "frame-ancestors 'self' https://adsense.google.com https://www.google.com",
+    ].join('; ')
+  );
+  next();
+});
+// ─────────────────────────────────────────────────────────────────────────────
 
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: false }));
