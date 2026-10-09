@@ -189,31 +189,26 @@ export default function Footer({ onFilterChange }: FooterProps) {
                   Career Blog & Guides
                 </Link>
               </li>
-              {/* <li>
-                <a href="/exams" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
+              <li>
+                <Link href="/exams" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-400 rounded-full"></div>
-                  Exam Calender
-                </a>
-              </li> */}
-              {/* <li>
-                <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
+                  Exam Calendar
+                </Link>
+              </li>
+              <li>
+                <Link href="/jobs/ssc" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-orange-400 rounded-full"></div>
-                  Admit Cards
-                </a>
+                  SSC Jobs
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
-                  Syllabus & Pattern
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
+                <Link href="/jobs/railway" className="text-gray-400 hover:text-green-400 transition-colors duration-200 flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-pink-400 rounded-full"></div>
-                  Previous Papers
-                </a>
-              </li> */}
+                  Railway Jobs
+                </Link>
+              </li>
             </ul>
+
           </div>
 
           {/* Support */}
@@ -285,7 +280,7 @@ export default function Footer({ onFilterChange }: FooterProps) {
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-gray-400 text-sm text-center md:text-left">
-              &copy; 2025 GovtJobNow. All rights reserved. India's most trusted government job portal.
+              &copy; 2026 GovtJobNow. All rights reserved. India's most trusted government job portal.
             </p>
             <div className="flex items-center gap-6 text-sm text-gray-400">
               <span className="flex items-center gap-2 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">

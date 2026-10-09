@@ -2,10 +2,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { AlertTriangle, Info, ExternalLink, Shield, FileText, Users } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import SEOHead from "@/components/seo-head";
 
 export default function Disclaimer() {
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Disclaimer | GovtJobNow"
+        description="Read our disclaimer statement. GovtJobNow is an independent job portal and not affiliated with any government organization."
+        url="https://govtjobnow.com/disclaimer"
+      />
       <Header />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -14,7 +20,7 @@ export default function Disclaimer() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Important information about the use of GovtJobNow platform and limitations of our services.
           </p>
-          <p className="text-sm text-gray-500 mt-4">Last updated: January 2025</p>
+          <p className="text-sm text-gray-500 mt-4">Last updated: October 2026</p>
         </div>
 
         <div className="mb-8">

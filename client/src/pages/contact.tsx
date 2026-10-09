@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import SEOHead from "@/components/seo-head";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Contact() {
@@ -23,12 +24,14 @@ export default function Contact() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Build mailto link and open user's email client
+    const mailtoBody = `Name: ${formData.name}%0D%0AEmail: ${formData.email}%0D%0A%0D%0A${formData.message}`;
+    const mailtoLink = `mailto:support@govtjobnow.com?subject=${encodeURIComponent(formData.subject)}&body=${mailtoBody}`;
+    window.location.href = mailtoLink;
 
     toast({
-      title: "Message Sent!",
-      description: "Thank you for contacting us. We'll get back to you within 24 hours.",
+      title: "Opening your email client...",
+      description: "Your message is ready to send via your default email app.",
     });
 
     setFormData({ name: '', email: '', subject: '', message: '' });
@@ -37,6 +40,11 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Contact Us | GovtJobNow — Government Job Portal"
+        description="Get in touch with the GovtJobNow team for questions about government jobs, exam notifications, corrections, or general support. We respond within 24 hours."
+        url="https://govtjobnow.com/contact"
+      />
       <Header />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -64,35 +72,33 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Email Us</h3>
-                    <p className="text-gray-600">support@govtjobnow.com</p>
-                    {/* <p className="text-gray-600">info@govtjobnow.com</p> */}
+                    <a href="mailto:support@govtjobnow.com" className="text-blue-600 hover:underline">support@govtjobnow.com</a>
                   </div>
                 </div>
 
-                {/* <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
                   <div className="bg-green-100 p-3 rounded-lg">
                     <Phone className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Call Us</h3>
-                    <p className="text-gray-600">+91 8800-XXX-XXX (Helpline)</p>
-                    <p className="text-gray-600">+91 9876-XXX-XXX (Support)</p>
+                    <a href="tel:+918889977743" className="text-gray-600 hover:text-blue-600 transition-colors">+91 88899-77743</a>
                   </div>
-                </div> */}
+                </div>
 
-                {/* <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4">
                   <div className="bg-orange-100 p-3 rounded-lg">
                     <MapPin className="h-6 w-6 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Visit Us</h3>
+                    <h3 className="font-semibold text-gray-900">Our Office</h3>
                     <p className="text-gray-600">
-                      Plot No. 123, Sector 15<br />
-                      Gurgaon, Haryana - 122001<br />
+                      Polo Ground, Industrial Estate<br />
+                      Indore, Madhya Pradesh - 452006<br />
                       India
                     </p>
                   </div>
-                </div> */}
+                </div>
 
                 <div className="flex items-center gap-4">
                   <div className="bg-purple-100 p-3 rounded-lg">
@@ -100,8 +106,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-900">Business Hours</h3>
-                    <p className="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                    <p className="text-gray-600">Saturday: 10:00 AM - 4:00 PM</p>
+                    <p className="text-gray-600">Monday – Friday: 9:00 AM – 6:00 PM IST</p>
+                    <p className="text-gray-600">Saturday: 10:00 AM – 4:00 PM IST</p>
                     <p className="text-gray-600">Sunday: Closed</p>
                   </div>
                 </div>

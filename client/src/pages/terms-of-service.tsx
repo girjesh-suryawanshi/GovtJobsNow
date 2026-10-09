@@ -2,10 +2,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FileText, Users, Shield, AlertTriangle, Scale, Globe } from "lucide-react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import SEOHead from "@/components/seo-head";
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead
+        title="Terms of Service | GovtJobNow"
+        description="Read the terms and conditions for using GovtJobNow. Learn about your rights, responsibilities, and our platform guidelines."
+        url="https://govtjobnow.com/terms-of-service"
+      />
       <Header />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -14,7 +20,7 @@ export default function TermsOfService() {
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Please read these terms carefully before using GovtJobNow. By accessing our platform, you agree to be bound by these terms.
           </p>
-          <p className="text-sm text-gray-500 mt-4">Last updated: January 2025</p>
+          <p className="text-sm text-gray-500 mt-4">Last updated: October 2026</p>
         </div>
 
         <div className="space-y-8">
@@ -206,7 +212,7 @@ export default function TermsOfService() {
                 <h3 className="font-semibold text-gray-900 mb-2">Governing Law</h3>
                 <ul className="list-disc list-inside text-gray-700 space-y-1">
                   <li>These terms are governed by the laws of India</li>
-                  <li>Any disputes will be resolved in courts of Gurgaon, Haryana</li>
+                  <li>Any disputes will be resolved in courts of Indore, Madhya Pradesh</li>
                   <li>You agree to submit to the jurisdiction of these courts</li>
                   <li>If any provision is unenforceable, the remainder remains in effect</li>
                 </ul>
